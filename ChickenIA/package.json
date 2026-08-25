@@ -1,0 +1,9 @@
+{
+  "name": "chickenia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ChickenIA — supervisión operativa en tiempo real para Chicken Chicanito",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  }
+}

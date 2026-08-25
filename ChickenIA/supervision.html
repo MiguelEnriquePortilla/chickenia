@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ChickenIA — Supervisión</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header class="app-header">
+  <a href="/index.html" class="brand">ChickenIA</a>
+  <span class="page-title">Supervisión — checklist maestro en tiempo real</span>
+</header>
+
+<div class="controls-bar">
+  <label>Ubicación
+    <select id="location-select"></select>
+  </label>
+  <label>Fecha
+    <input type="date" id="date-input" />
+  </label>
+  <label>Supervisor
+    <input type="text" id="supervisor-input" placeholder="Tu nombre" />
+  </label>
+  <div class="overall-score-box">
+    <span class="overall-score-label">Cumplimiento del día</span>
+    <span id="overall-score" class="overall-score-value">—</span>
+  </div>
+</div>
+
+<div id="critical-pending" class="critical-banner" style="display:none;"></div>
+
+<main id="checklist" class="checklist">
+  <p class="loading">Selecciona una ubicación...</p>
+</main>
+
+<script src="/js/supervision.js"></script>
+</body>
+</html>

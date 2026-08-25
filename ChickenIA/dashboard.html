@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ChickenIA — Dashboard</title>
+<link rel="stylesheet" href="/css/style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<header class="app-header">
+  <a href="/index.html" class="brand">ChickenIA</a>
+  <span class="page-title">Dashboard — Miguel / Lilian</span>
+</header>
+
+<div class="controls-bar">
+  <label>Ubicación
+    <select id="location-select"></select>
+  </label>
+  <label>Fecha
+    <input type="date" id="date-input" />
+  </label>
+  <div class="overall-score-box">
+    <span class="overall-score-label">Cumplimiento del día</span>
+    <span id="overall-score" class="overall-score-value">—</span>
+  </div>
+</div>
+
+<div id="critical-pending" class="critical-banner" style="display:none;"></div>
+
+<main class="dashboard-grid">
+  <section class="card" id="areas-card">
+    <h2>Desempeño por área</h2>
+    <div id="areas"></div>
+  </section>
+
+  <section class="card" id="cross-check" style="display:none;"></section>
+
+  <section class="card">
+    <h2>Movimientos de inventario — hoy</h2>
+    <div id="movements"></div>
+  </section>
+</main>
+
+<script src="/js/dashboard.js"></script>
+</body>
+</html>
