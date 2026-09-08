@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hojas de Entrenamiento — ChickenIA</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red:#E30613; --navy:#17213E; --gold:#D9A441; --gray:#6b7280; --border:#d6d6d6;
+  }
+  * { box-sizing:border-box; }
+  body { font-family:'Poppins',sans-serif; margin:0; color:#1D1D1B; background:#e9e9e9; }
+
+  .toolbar { position:sticky; top:0; background:var(--navy); color:#fff; padding:14px 20px; display:flex; align-items:center; gap:16px; z-index:10; }
+  .toolbar button { background:var(--red); color:#fff; border:none; padding:10px 18px; border-radius:999px; font-weight:600; cursor:pointer; font-family:inherit; font-size:14px; }
+  .toolbar p { margin:0; font-size:13px; opacity:.85; }
+
+  .area-page { background:#fff; width:27.7cm; min-height:20.5cm; margin:18px auto; padding:1.1cm 1.3cm; box-shadow:0 2px 10px rgba(0,0,0,.18); }
+
+  .sheet-header { display:flex; align-items:center; gap:14px; border-bottom:3px solid var(--gold); padding-bottom:8px; margin-bottom:10px; }
+  .badge { width:44px; height:44px; border-radius:50%; border:2px solid var(--gold); overflow:hidden; flex-shrink:0; }
+  .badge img { width:100%; height:100%; object-fit:cover; display:block; }
+  .sheet-title { font-family:'Bebas Neue',sans-serif; font-size:26px; color:var(--navy); letter-spacing:.5px; line-height:1; }
+  .sheet-sub { font-size:11px; color:var(--gray); margin-top:2px; }
+
+  .meta-line { display:flex; gap:32px; font-size:12px; margin-bottom:10px; }
+  .meta-line span { border-bottom:1px solid #999; padding:2px 60px 2px 4px; white-space:nowrap; }
+
+  table { width:100%; border-collapse:collapse; font-size:9.3pt; table-layout:fixed; }
+  thead { display:table-header-group; }
+  tr { page-break-inside:avoid; }
+  th, td { border:1px solid var(--border); padding:3px 5px; vertical-align:middle; }
+  th { background:#f6f3ec; font-weight:600; font-size:8.8pt; color:var(--navy); text-align:center; }
+  th.act-th { text-align:left; }
+  col.crit-col { width:14px; }
+  col.day-col { width:32px; }
+  td.crit-cell { text-align:center; }
+  td.act-cell { text-align:left; }
+  .act-target { display:block; font-size:7.3pt; color:var(--gray); margin-top:1px; }
+  .crit-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--red); }
+  .blank-cell { height:20px; }
+  .legend { font-size:8.5pt; color:var(--gray); margin-top:6px; display:flex; align-items:center; gap:6px; }
+
+  @media print {
+    body { background:#fff; }
+    .toolbar { display:none; }
+    .area-page { box-shadow:none; margin:0; width:auto; min-height:auto; page-break-after:always; }
+    .area-page:last-child { page-break-after:auto; }
+    @page { size:letter landscape; margin:1cm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button onclick="window.print()">Imprimir / Guardar PDF</button>
+  <p>Una hoja por área, L a D. La orientación horizontal ya está configurada — solo da clic en Imprimir.</p>
+</div>
+
+<div id="sheets"></div>
+
+<script>
+const DAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+
+// Tupla: [nombre, criticidad, requiereCantidad, unidad, tipoIndicador, meta]
+// Mismos catálogos que api/lib/db.js (SEED_ACTIVITIES) — copiados tal cual, no reescritos.
+const AREAS = [
+  { name: 'Rastro', activities: [
+    ['Pollo rostizado preparado', 'critica', true, 'piezas', 'PRODUCCIÓN', '100–200 piezas'],
+    ['Pollo crujiente preparado', 'critica', true, 'piezas', 'PRODUCCIÓN', '45–90 piezas'],
+    ['Costilla preparada', 'media', true, 'porciones', 'PRODUCCIÓN', '4–10 porciones'],
+    ['Cebolla mediana en buen estado', 'baja', false, null, 'FRECUENCIA', 'revisión semanal'],
+    ['Papa Alfa colgada y porcionada (15 kg/arpilla)', 'media', true, 'porciones', 'INSUMO', '1–2 porciones'],
+    ['Papa cambray colgada', 'media', true, 'kg', 'INSUMO', '5–10 kg/arpilla'],
+    ['Brócoli fresco y refrigerado', 'media', false, null, 'CALIDAD', 'fresco, sin defectos'],
+    ['Perejil fresco', 'baja', false, null, 'CALIDAD', 'fresco, sin defectos'],
+    ['Jitomate porcionado en cámara de proteínas', 'media', false, null, 'PROCESO', 'bolsas de 1.3 kg'],
+    ['Jalapeño/serrano refrigerado y despalillado desde raíz', 'media', true, 'porciones', 'INSUMO', '1–2 porciones'],
+    ['Marinado de pollo crujiente producido', 'alta', true, 'litros', 'INSUMO', 'mínimo 20 L'],
+    ['Morrón fresco (preferencia color rojo)', 'baja', false, null, 'CALIDAD', 'color rojo, fresco'],
+    ['Nopal limpio, corte de 1 cm', 'baja', true, 'porciones', 'INSUMO', '0.5–1 porción'],
+    ['Harina para crujientes contabilizada', 'media', true, 'bultos', 'INSUMO', '8–30 bultos (20 kg c/u)'],
+    ['Arroz para bulto', 'media', true, 'bultos', 'INSUMO', '1–3 bultos/semana'],
+    ['Coles revisadas y contabilizadas', 'baja', false, null, 'INSUMO', 'por definir'],
+    ['Revisión de calidad/cantidad de vegetales con supervisión', 'media', false, null, 'FRECUENCIA', 'quincenal (compra)'],
+    ['Jabón en polvo', 'baja', true, 'bolsas', 'INSUMO', '3 bolsas de 1 kg/semana'],
+    ['Leche', 'baja', true, 'piezas', 'INSUMO', '20 piezas (tetrapack 1 L)/semana'],
+    ['Sal-pimienta (mezcla de la casa)', 'baja', false, null, 'INSUMO', '1 bote de 4 L/semana'],
+    ['Hierbas de olor', 'baja', true, 'docenas', 'INSUMO', '2 docenas/semana'],
+    ['Cloro Clarasol', 'media', true, 'garrafas', 'INSUMO', '2–9 garrafas'],
+    ['Sal fina', 'baja', true, 'bultos', 'INSUMO', '1–4 bultos (25 kg c/u)'],
+    ['Agua de garrafón', 'baja', true, 'piezas', 'INSUMO', 'máx 7 piezas (garrafón #1)'],
+    ['Piso limpio y seco', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Refrigeradores limpios y ordenados', 'media', false, null, 'FRECUENCIA', 'semanal'],
+    ['Tanques de almacenamiento revisados', 'baja', false, null, 'FRECUENCIA', '2x/semana'],
+    ['Mezcladora limpia, sin residuo de harina', 'media', false, null, 'FRECUENCIA', 'mensual (0 residuo)'],
+    ['Contenedores de harina limpios', 'baja', false, null, 'FRECUENCIA', 'mensual'],
+    ['Trapos y costales limpios y secos', 'baja', false, null, 'LIMPIEZA', '100%'],
+    ['Cubetas y cajas de proteína limpias y en su lugar', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Palas, peladores y cuchillos revisados', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Baño lavado', 'baja', false, null, 'FRECUENCIA', '2x/semana'],
+    ['Tinas para lavar pollo lavadas', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Bidones de agua revisados', 'baja', false, null, 'LIMPIEZA', '100% diario'],
+    ['Escobas, jaladores, recogedores y botes en existencia', 'baja', false, null, 'INSUMO', '100% diario'],
+    ['Equipo y camioneta revisados (aceite, gasolina, neumáticos)', 'alta', false, null, 'FRECUENCIA', 'semanal (lunes)'],
+    ['Paneles solares limpios', 'baja', false, null, 'FRECUENCIA', 'cada 15 días'],
+    ['Cámara de refrigeración y refris lavados a fondo', 'media', false, null, 'FRECUENCIA', 'semestral'],
+    ['Limpieza general de área', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Limpieza de camioneta', 'baja', false, null, 'LIMPIEZA', '100% diario'],
+    ['Costilla, pollo rostizado y crujiente verificados antes de salida', 'critica', false, null, 'EXCEPCIÓN', '0 faltantes'],
+    ['Vegetales verificados antes de salida', 'alta', false, null, 'EXCEPCIÓN', '0 faltantes'],
+    ['Áreas y utensilios ordenados antes de salida', 'media', false, null, 'PROCESO', '100%'],
+    ['Existencias completas para pase de salida (jabón, sal, arroz, leche, sal-pimienta, cloro, agua, bolsas)', 'critica', false, null, 'EXCEPCIÓN', '0 faltantes'],
+    ['Pase de salida generado y firmado', 'critica', false, null, 'EVIDENCIA', '100% diario'],
+    ['Actividades escritas en pizarrón al pase de salida', 'baja', false, null, 'EVIDENCIA', '100% diario'],
+    ['Registro de gastos de rastro', 'media', true, 'pesos', 'DINERO', '100% con evidencia'],
+    ['Compra de gasolina (foto de recibo)', 'media', true, 'pesos', 'DINERO', '100% con evidencia'],
+    ['Compra de hielo', 'baja', false, null, 'INSUMO', 'según necesidad diaria'],
+    ['Pollo con hielo suficiente', 'alta', false, null, 'INSUMO', '100% cubierto'],
+  ]},
+  { name: 'Cocina', activities: [
+    ['Registro de llegada', 'baja', false, null, null, null],
+    ['Contabilizar inventario de vegetales', 'alta', false, null, null, null],
+    ['Revisar sobrantes (no se vuelve a producir si sobra)', 'media', false, null, null, null],
+    ['Revisar calidad de guisados y preparaciones', 'alta', false, null, null, null],
+    ['Arroz blanco producido', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Arroz rojo producido', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Adobo tradicional hervido', 'alta', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Nopales cocidos', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Puré de papa preparado', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Papa cambray cocida', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Espagueti cocido', 'media', true, 'paquetes', 'PRODUCCIÓN', 'medio paquete'],
+    ['Ensalada de col con zanahoria preparada', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Crema para espagueti preparada', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Guisados de apertura listos', 'alta', false, null, 'PUNTUALIDAD', 'antes de 10:00 a.m.'],
+    ['Comida de empleados preparada', 'baja', false, null, null, null],
+    ['Codo (pasta) cocido', 'media', true, 'paquetes', 'PRODUCCIÓN', 'medio paquete'],
+    ['Papa gajo cocida', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Adobo tradicional molido', 'media', false, null, 'PRODUCCIÓN', 'según necesidad del día'],
+    ['Cebolla fileteada', 'media', true, 'kg', 'PRODUCCIÓN', '2 kg'],
+    ['Guajillo cocido para adobo tradicional', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Orden de producción generada con supervisión', 'alta', false, null, 'EVIDENCIA', '100% diario, validada con supervisión'],
+    ['Orden de compra generada', 'alta', false, null, 'EVIDENCIA', '100% diario'],
+    ['Hacer pedido de Peregrina', 'media', false, null, null, null],
+    ['Hoja de pedido para Rastro', 'alta', false, null, null, null],
+    ['Limpieza de mesa de trabajo, barras, caja y trapos', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Pase de salida generado', 'critica', false, null, 'PUNTUALIDAD', '5:00 p.m.'],
+    ['Producción ajustada a la orden del día', 'alta', false, null, 'EXCEPCIÓN', '0 desviaciones'],
+    ['Marinado de pollo rostizado producido', 'alta', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Adobo de tres chiles producido', 'media', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Salsa BBQ producida', 'media', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Salsa chipotle producida', 'media', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Adobo de salsa chipotle producido', 'media', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Costilla marinada y porcionada', 'media', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Ajo picado y preparado en aceite', 'media', true, 'kg', 'PRODUCCIÓN', '≈15 kg, según necesidad'],
+    ['Producir abastecimiento de barras', 'media', false, null, null, null],
+    ['Preparar verdura para el día siguiente', 'media', false, null, null, null],
+  ]},
+  { name: 'Rosticero', activities: [
+    ['Hora de llegada (tolerancia máx 10 min sobre hora de entrada)', 'media', false, null, 'PUNTUALIDAD', 'tolerancia máx 10 min'],
+    ['Pollo metido al horno', 'critica', true, 'piezas', 'PRODUCCIÓN', '20–30 piezas'],
+    ['Pollo embarillado', 'critica', true, 'piezas', 'PRODUCCIÓN', '20–30 piezas (ajustable en fechas especiales)'],
+    ['Revisar pollo anterior (primero en salir, FIFO)', 'media', false, null, 'PROCESO', '0 incidentes'],
+    ['Costilla, pollo anterior, adobos y papas cambray calentados/metidos al horno', 'media', false, null, 'PROCESO', '4/4'],
+    ['Limpieza de barras y áreas en general', 'media', false, null, 'LIMPIEZA', '100%'],
+    ['Productos acomodados en las áreas', 'media', false, null, 'PROCESO', '100%'],
+    ['Contabilizar pollo rostizado y anotar en corte del día', 'critica', true, 'piezas', null, null],
+    ['Guardar pollo en refrigeración sin excepción', 'alta', false, null, null, null],
+    ['Pollo listo para despachar', 'critica', true, 'piezas', 'INSUMO', '20–40 piezas'],
+    ['Arroz embolsado para despacho', 'media', true, 'kg', 'INSUMO', '2 kg embolsados'],
+    ['Salsa en contenedores para despacho', 'media', true, 'contenedores', 'INSUMO', '15 contenedores'],
+    ['Plásticos/empaques suficientes para despacho', 'baja', false, null, 'INSUMO', 'suficiente'],
+    ['Pollo crudo contabilizado para el resto del día', 'critica', true, 'piezas', 'INSUMO', 'mínimo 30 piezas'],
+    ['Mínimos de pollo y arroz sostenidos durante el día', 'alta', false, null, 'INSUMO', '100% del día'],
+    ['Áreas limpias y organizadas todo el día', 'media', false, null, 'LIMPIEZA', '100% todo el día'],
+    ['Contabilizar pollo rostizado crudo antes de salir (con firma)', 'critica', true, 'piezas', null, null],
+    ['Pase de salida generado con área ordenada y limpia', 'critica', false, null, 'EVIDENCIA', '100%'],
+  ]},
+  { name: 'Freidoras', activities: [
+    ['Registro de llegada', 'baja', false, null, null, null],
+    ['Freidoras operativas a tiempo (arranque antes de 7:30am)', 'alta', false, null, 'PUNTUALIDAD', '7:30 a.m.'],
+    ['Aceite del turno anterior filtrado antes de encender equipo', 'media', false, null, 'PROCESO', '100%'],
+    ['Equipo de arranque conectado (horno, refrigerador, freidora, gas general)', 'alta', false, null, 'PROCESO', '4/4'],
+    ['Ensalada campesina lista según orden de producción', 'media', true, 'porciones', 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Pollo crujiente listo según orden de producción', 'critica', true, 'piezas', 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Salsa verde lista (nueva o reutilizada según orden)', 'media', true, 'litros', 'PROCESO', '= orden de producción del día'],
+    ['Papas gajo listas según orden de producción', 'media', true, 'kg', 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Ensalada de codo lista según orden de producción', 'media', true, 'kg', 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Sin quiebre de stock (crujiente, campesina, papas gajo, salsa verde, codo)', 'critica', false, null, 'EXCEPCIÓN', '0 incidentes'],
+    ['Rendimiento de corte de zanahoria', 'baja', true, 'kg', 'INSUMO', '≈ 2.5 kg'],
+    ['Rendimiento de corte de brócoli', 'baja', true, 'kg', 'INSUMO', '≈ 5 kg'],
+    ['Brócoli desinfectado en agua durante producción', 'media', false, null, 'PROCESO', '100%'],
+    ['Brócoli escurrido y refrigerado al cierre', 'media', false, null, 'PROCESO', '100%'],
+    ['Stock de jalapeño en refrigeración', 'media', true, 'kg', 'INSUMO', 'bote de 2.9 kg disponible, no vacío'],
+    ['Control de apertura de latas de jalapeño (no abrir nueva sin vaciar la anterior)', 'alta', false, null, 'EXCEPCIÓN', '0 incidentes'],
+    ['Porción de jalapeño preparado disponible', 'baja', false, null, 'INSUMO', 'mínimo por definir'],
+    ['Porción de perejil limpio disponible', 'baja', false, null, 'INSUMO', 'mínimo por definir'],
+    ['Porción de morrón limpio disponible', 'baja', false, null, 'INSUMO', 'mínimo por definir'],
+    ['Contabilizar con barras', 'alta', false, null, null, null],
+    ['Abastecimiento de complementos (elote, jamón, crema)', 'media', false, null, null, null],
+    ['Conteo de pollo cuadra contra producción/venta (control de merma)', 'critica', true, 'piezas', 'CALIDAD', 'variación = 0'],
+    ['Conteo de sobrante por vegetal (brócoli, morrón, jalapeño, zanahoria, papa gajo)', 'media', false, null, 'INSUMO', '100% registrado'],
+    ['Mesa de trabajo limpia', 'baja', false, null, 'LIMPIEZA', '100%'],
+    ['Freidora lavada (cuando aplica)', 'media', false, null, 'LIMPIEZA', 'según necesidad del día'],
+    ['Cierre del turno registrado en la orden de producción (para el día siguiente)', 'alta', false, null, 'EVIDENCIA', '100%'],
+  ]},
+  { name: 'Caja', activities: [
+    ['Llegada a tiempo con uniforme completo', 'media', false, null, 'PUNTUALIDAD', 'tolerancia máx 5 min'],
+    ['Cambio completo (billetes, monedas, caja chica, denominaciones)', 'critica', true, 'pesos', 'INSUMO', '$3,000 billetes + $3,000 monedas, caja chica completa'],
+    ['Rollos de impresora suficientes', 'media', false, null, 'INSUMO', 'suficientes'],
+    ['Limpieza de caja, barra caliente, lonas, acrílico y bote de basura', 'media', false, null, 'LIMPIEZA', '100%'],
+    ['Teléfono cargado y teléfono fijo limpio', 'baja', false, null, 'PROCESO', '2/2'],
+    ['Producto suficiente para venta en caja (arroz y complementos)', 'media', false, null, 'INSUMO', 'suficiente'],
+    ['Barra caliente con calidad Chicanito (hidratada y abastecida)', 'alta', false, null, 'CALIDAD', 'hidratada y abastecida'],
+    ['Organizar área de trabajo', 'baja', false, null, null, null],
+    ['Mantener publicidad/promociones visibles', 'baja', false, null, null, null],
+    ['Ofrecer promociones (grupos de WhatsApp)', 'media', false, null, null, null],
+    ['Productos ofrecidos activamente durante el día', 'media', false, null, 'FRECUENCIA', 'constante durante el día'],
+    ['Atención al cliente amable y constante', 'media', false, null, 'CALIDAD', 'trato amable constante'],
+    ['Ventiladores anti-moscas funcionando (mínimo 2 por barra, pilas cargadas a diario)', 'critica', true, 'piezas', 'PROCESO', 'mínimo 2/barra, pilas cargadas a diario'],
+    ['Hoja final de cierre enviada (con cobros de tarjeta)', 'critica', false, null, 'EVIDENCIA', '100%'],
+    ['Ayudar a cerrar el establecimiento', 'media', false, null, null, null],
+  ]},
+  { name: 'Ventas / Barras', blankRows: 18 },
+  { name: 'Lavado de Trastes', blankRows: 12 },
+  { name: 'Supervisión (tienda)', blankRows: 22 },
+  { name: 'Moto — Recepción', blankRows: 14 },
+  { name: 'Moto — Cierre', blankRows: 14 },
+];
+
+function renderArea(area) {
+  const dayHeaders = DAYS.map(d => `<th class="day-col">${d}</th>`).join('');
+
+  let rows;
+  if (area.activities) {
+    rows = area.activities.map(([name, crit, reqQty, unit, , target]) => {
+      const dot = crit === 'critica' ? '<span class="crit-dot" title="Actividad crítica"></span>' : '';
+      const sub = reqQty ? `<span class="act-target">${target ? 'Meta: ' + target : (unit || '')}</span>` : '';
+      const dayCells = DAYS.map(() => '<td class="day-col blank-cell"></td>').join('');
+      return `<tr><td class="crit-cell">${dot}</td><td class="act-cell"><span class="act-name">${name}</span>${sub}</td>${dayCells}</tr>`;
+    }).join('');
+  } else {
+    const dayCells = DAYS.map(() => '<td class="day-col blank-cell"></td>').join('');
+    rows = Array.from({ length: area.blankRows })
+      .map(() => `<tr><td class="crit-cell"></td><td class="act-cell blank-cell"></td>${dayCells}</tr>`)
+      .join('');
+  }
+
+  return `
+  <section class="area-page">
+    <div class="sheet-header">
+      <div class="badge"><img src="https://www.chicanito.app/assets/brand/logo-badge.jpg" alt="Chicanito" /></div>
+      <div>
+        <div class="sheet-title">${area.name}</div>
+        <div class="sheet-sub">Hoja de entrenamiento — verificación semanal (L a D)</div>
+      </div>
+    </div>
+    <div class="meta-line">
+      <span>Semana del:</span>
+      <span>Supervisor:</span>
+    </div>
+    <table>
+      <colgroup>
+        <col class="crit-col" />
+        <col />
+        ${DAYS.map(() => '<col class="day-col" />').join('')}
+      </colgroup>
+      <thead>
+        <tr>
+          <th></th>
+          <th class="act-th">Actividad</th>
+          ${dayHeaders}
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="legend"><span class="crit-dot"></span> actividad crítica</div>
+  </section>`;
+}
+
+document.getElementById('sheets').innerHTML = AREAS.map(renderArea).join('');
+</script>
+</body>
+</html>
