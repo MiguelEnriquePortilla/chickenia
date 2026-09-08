@@ -3,18 +3,30 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ChickenIA — Chicken Chicanito</title>
+<title>CHICKEN·IA — Chicken Chicanito</title>
+<script>try{if(localStorage.getItem('chickenia_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#17213E" />
+<link rel="icon" href="/icons/icon-32.png" />
+<link rel="apple-touch-icon" href="/icons/icon-180.jpg" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="ChickenIA" />
 <link rel="stylesheet" href="/css/style.css" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="landing">
-  <h1>ChickenIA</h1>
+  <div class="mascot-badge">
+    <img src="https://www.chicanito.app/assets/brand/logo-badge.jpg" alt="Chicanito" />
+  </div>
+  <h1 class="wordmark wordmark-lg"><span class="w-chicken">CHICKEN</span><span class="w-dot">·</span><span class="w-ia">IA</span></h1>
+  <div class="gold-divider"></div>
   <p class="subtitle">Supervisión operativa en tiempo real — Chicken Chicanito</p>
   <div class="landing-links">
     <a class="btn btn-primary" href="/supervision.html">Supervisión (Nancy)</a>
     <a class="btn btn-secondary" href="/dashboard.html">Dashboard (Miguel / Lilian)</a>
   </div>
 </div>
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
 </body>
 </html>

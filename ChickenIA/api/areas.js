@@ -12,7 +12,8 @@ module.exports = async (req, res) => {
       ORDER BY order_index
     `;
     const activities = await sql`
-      SELECT a.id, a.area_id, a.name, a.criticality, a.weight, a.requires_quantity, a.unit, a.order_index
+      SELECT a.id, a.area_id, a.name, a.criticality, a.weight, a.requires_quantity, a.unit,
+        a.indicator_type, a.target, a.order_index
       FROM activities a
       JOIN areas ar ON ar.id = a.area_id
       WHERE ar.location_type = ${locationType} AND a.active = true

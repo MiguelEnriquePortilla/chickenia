@@ -3,38 +3,70 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ChickenIA — Supervisión</title>
+<title>CHICKEN·IA — Supervisión</title>
+<script>try{if(localStorage.getItem('chickenia_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#17213E" />
+<link rel="icon" href="/icons/icon-32.png" />
+<link rel="apple-touch-icon" href="/icons/icon-180.jpg" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="ChickenIA" />
 <link rel="stylesheet" href="/css/style.css" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <header class="app-header">
-  <a href="/index.html" class="brand">ChickenIA</a>
+  <div class="mascot-badge mascot-badge--small">
+    <img src="https://www.chicanito.app/assets/brand/logo-badge.jpg" alt="Chicanito" />
+  </div>
+  <a href="/index.html" class="brand wordmark on-dark"><span class="w-chicken">CHICKEN</span><span class="w-dot">·</span><span class="w-ia">IA</span></a>
   <span class="page-title">Supervisión — checklist maestro en tiempo real</span>
+  <div class="corner-menu">
+    <button id="corner-menu-btn" class="corner-menu-btn" aria-label="Más opciones" aria-expanded="false">⋮</button>
+    <div id="corner-menu-panel" class="corner-menu-panel" inert>
+      <button id="menu-expand-all" type="button">Expandir todas las áreas</button>
+      <button id="menu-collapse-all" type="button">Colapsar todas las áreas</button>
+      <hr />
+      <button id="menu-dark-toggle" type="button">🌙 Modo oscuro</button>
+    </div>
+  </div>
 </header>
 
 <div class="controls-bar">
-  <label>Ubicación
-    <select id="location-select"></select>
-  </label>
   <label>Fecha
     <input type="date" id="date-input" />
   </label>
   <label>Supervisor
     <input type="text" id="supervisor-input" placeholder="Tu nombre" />
   </label>
+  <div id="critical-pending" class="crit-chip" style="display:none;"></div>
   <div class="overall-score-box">
     <span class="overall-score-label">Cumplimiento del día</span>
     <span id="overall-score" class="overall-score-value">—</span>
   </div>
 </div>
 
-<div id="critical-pending" class="critical-banner" style="display:none;"></div>
+<div id="area-status-bar" class="area-status-bar" style="display:none;"></div>
+
+<div class="attendance-wrap">
+  <section class="area-block" id="attendance-card">
+    <button type="button" id="attendance-toggle" class="accordion-header" aria-expanded="true">
+      <span class="acc-title"><span class="acc-chevron">▸</span><span class="acc-name">Asistencia</span></span>
+      <span class="acc-meta" id="attendance-meta"></span>
+    </button>
+    <div class="accordion-body" id="attendance-body">
+      <div class="collapsible-inner">
+        <div id="attendance-list"><p class="loading">Cargando...</p></div>
+      </div>
+    </div>
+  </section>
+</div>
 
 <main id="checklist" class="checklist">
   <p class="loading">Selecciona una ubicación...</p>
 </main>
 
 <script src="/js/supervision.js"></script>
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
 </body>
 </html>

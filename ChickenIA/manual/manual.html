@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>CHICKEN·IA — Manual de uso (Borrador)</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E30613;
+    --navy: #17213E;
+    --cream: #FFF7EC;
+    --white: #FFFFFF;
+    --gray: #6b7280;
+    --gold: #D9A441;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--navy);
+    font-family: 'Poppins', sans-serif;
+    font-size: 11.6px;
+    line-height: 1.42;
+  }
+  .page {
+    width: 100%;
+    padding: 20px 42px 14px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 3px solid var(--gold);
+    padding-bottom: 10px;
+    margin-bottom: 4px;
+  }
+  .mascot-badge {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 2.5px solid var(--gold);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .mascot-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .wordmark { font-family: 'Bebas Neue', sans-serif; font-size: 29px; letter-spacing: 0.5px; line-height: 1; }
+  .wordmark .w-chicken { color: var(--navy); }
+  .wordmark .w-dot { color: var(--gold); padding: 0 2px; }
+  .wordmark .w-ia { color: var(--red); }
+  .header-sub { font-size: 11.8px; color: var(--gray); margin-top: 2px; }
+
+  .draft-ribbon {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--navy);
+    color: var(--white);
+    border-radius: 8px;
+    padding: 8px 16px;
+    margin: 10px 0 12px;
+  }
+  .draft-ribbon .tag {
+    font-family: 'Bebas Neue', sans-serif;
+    background: var(--red);
+    color: var(--white);
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+  .draft-ribbon p { margin: 0; font-size: 11.8px; }
+
+  h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15.5px;
+    letter-spacing: 0.3px;
+    color: var(--navy);
+    margin: 11px 0 4px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #e6dcc8;
+  }
+  h2 .num { color: var(--gold); margin-right: 6px; }
+  p { margin: 4px 0; }
+  .card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 5px 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  ul { margin: 5px 0; padding-left: 18px; }
+  li { margin: 2px 0; }
+  strong { color: var(--navy); }
+
+  .crit-row { display: flex; gap: 8px; margin: 6px 0; flex-wrap: wrap; }
+  .crit-chip {
+    flex: 1;
+    min-width: 105px;
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--white);
+    font-size: 10.5px;
+  }
+  .crit-chip b { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 0.3px; }
+  .crit-baja { background: #9aa3b0; }
+  .crit-media { background: #3f6fa8; }
+  .crit-alta { background: var(--gold); color: var(--navy); }
+  .crit-alta b { color: var(--navy); }
+  .crit-critica { background: var(--red); }
+
+  .two-col { display: flex; gap: 14px; }
+  .two-col .card { flex: 1; margin: 5px 0; }
+  .access-title { font-family: 'Bebas Neue', sans-serif; font-size: 12.5px; margin-bottom: 2px; }
+  .access-open { color: #1f9d55; }
+  .access-locked { color: var(--red); }
+
+  .metric-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .metric-grid .card { flex: 1; min-width: 150px; margin: 5px 0; }
+  .metric-grid .card b { font-family: 'Bebas Neue', sans-serif; font-size: 12px; display: block; margin-bottom: 2px; }
+
+  .ia-box {
+    background: var(--navy);
+    color: var(--white);
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin: 6px 0;
+  }
+  .ia-box h2 { color: var(--white); border-bottom-color: rgba(255,255,255,0.25); margin-top: 0; }
+  .ia-box .num { color: var(--gold); }
+  .ia-box p { font-size: 11.8px; }
+
+  .footer-note {
+    margin-top: 10px;
+    border-top: 1px solid #e6dcc8;
+    padding-top: 8px;
+    text-align: center;
+  }
+  .footer-note p { font-size: 12px; color: var(--navy); }
+  .footer-note .small { font-size: 10px; color: var(--gray); margin-top: 4px; }
+
+  /* Anexo — actividades por área */
+  .appendix-intro {
+    page-break-before: always;
+    padding-top: 18px;
+  }
+  .appendix-wordmark { font-size: 20px; margin-bottom: 8px; }
+  .appendix-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--navy);
+    margin: 0 0 6px;
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 6px;
+  }
+  .appendix-intro p { font-size: 11.8px; max-width: 640px; }
+
+  .group-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--white);
+    background: var(--navy);
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    margin: 16px 0 4px;
+  }
+  .group-label-break { page-break-before: always; margin-top: 0; }
+
+  .area-section { page-break-inside: avoid; margin-bottom: 12px; }
+  .area-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    background: var(--white);
+    border-left: 4px solid var(--gold);
+    padding: 5px 10px;
+    margin-top: 8px;
+  }
+  .area-name { font-family: 'Bebas Neue', sans-serif; font-size: 14.5px; color: var(--navy); letter-spacing: 0.3px; }
+  .area-count { font-size: 10.5px; color: var(--gray); }
+
+  table.act-table { width: 100%; border-collapse: collapse; margin-top: 2px; }
+  table.act-table thead { display: table-header-group; }
+  table.act-table th {
+    text-align: left;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--gray);
+    background: #f1ece0;
+    padding: 4px 8px;
+    border-bottom: 1px solid #ddd0b0;
+  }
+  table.act-table td {
+    font-size: 10.6px;
+    padding: 4px 8px;
+    border-bottom: 1px solid #ece5d5;
+    vertical-align: top;
+  }
+  table.act-table tr:nth-child(even) td { background: #fffdf8; }
+  .c-num { width: 22px; color: var(--gray); }
+  .c-act { width: auto; }
+  .c-crit { width: 62px; }
+  .c-qty { width: 60px; color: var(--gray); }
+  .c-notes { width: 140px; border-left: 1px dashed #ddd0b0; }
+
+  .chip {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1.5px 7px;
+    border-radius: 8px;
+    color: var(--white);
+  }
+  .chip.crit-baja { background: #9aa3b0; }
+  .chip.crit-media { background: #3f6fa8; }
+  .chip.crit-alta { background: var(--gold); color: var(--navy); }
+  .chip.crit-critica { background: var(--red); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="mascot-badge"><img src="https://www.chicanito.app/assets/brand/logo-badge.jpg" alt="Chicanito" /></div>
+    <div>
+      <div class="wordmark"><span class="w-chicken">CHICKEN</span><span class="w-dot">·</span><span class="w-ia">IA</span></div>
+      <div class="header-sub">Manual de uso — cómo está armado el sistema</div>
+    </div>
+  </div>
+
+  <div class="draft-ribbon">
+    <span class="tag">BORRADOR</span>
+    <p>Esto es una v1, no está grabado en piedra. Si algo no cuadra con cómo se trabaja de verdad en piso — sobra, falta, o el peso no hace sentido — dínoslo. Con tu retro lo vamos afinando.</p>
+  </div>
+
+  <p>CHICKEN·IA es la checklist digital del día a día por área — la que reemplaza (o acompaña) las hojas de papel. Cada quien va marcando lo que hace, y el sistema solito te dice qué tan bien va el día. Aquí va el resumen de cómo está armado por dentro.</p>
+
+  <h2><span class="num">1.</span>Cómo está organizado</h2>
+  <p>Todo se acomoda así: <strong>ubicación → área → actividades.</strong></p>
+  <div class="card">
+    <p><strong>Ubicaciones:</strong> Jojutla (tienda) y Chicanito Móvil 1, 2 y 3 — los móviles 2 y 3 aparecen tachados en el sistema porque todavía no arrancan, solo el 1 está por lanzar.</p>
+    <p><strong>Áreas:</strong> en tienda son 8 — Rastro, Cocina, Rosticero, Freidoras, Caja, Ventas/Barras, Trastes y Supervisión. En cada móvil son 2 — Recepción (arranque del día) y Cierre (regreso).</p>
+    <p><strong>Actividades:</strong> cada área trae su propia lista, sacada tal cual de las listas reales que ya se usaban en papel — cosas como "pollo con hielo suficiente" en Rastro o "cambio suficiente" en Caja. No inventamos nada desde cero, partimos de lo que ya existía.</p>
+  </div>
+
+  <h2><span class="num">2.</span>La criticidad — no todo pesa igual</h2>
+  <p>Cada actividad trae un nivel. Entre más alto, más le pesa al cumplimiento del día si se queda pendiente:</p>
+  <div class="crit-row">
+    <div class="crit-chip crit-baja"><b>Baja</b>peso 1</div>
+    <div class="crit-chip crit-media"><b>Media</b>peso 3</div>
+    <div class="crit-chip crit-alta"><b>Alta</b>peso 6</div>
+    <div class="crit-chip crit-critica"><b>Crítica</b>peso 10</div>
+  </div>
+  <p>Las críticas son las que de verdad duelen si se caen — contar el pollo, el cambio de caja, cerrar el corte del día. Esas son las que salen marcadas en rojo arriba si quedan pendientes, para que no se pierdan entre lo demás.</p>
+
+  <h2><span class="num">3.</span>Los accesos</h2>
+  <div class="two-col">
+    <div class="card">
+      <div class="access-title access-open">Supervisión (Nancy)</div>
+      <p>Abierta, sin contraseña. Es la que se usa todo el día en piso — no tiene caso ponerle candado a algo que no es secreto.</p>
+    </div>
+    <div class="card">
+      <div class="access-title access-locked">Dashboard (Miguel / Lilian)</div>
+      <p>Con contraseña. Es la vista de números consolidados de todas las ubicaciones, por eso sí lleva candado.</p>
+    </div>
+  </div>
+
+  <h2><span class="num">4.</span>Las métricas — qué te dice el sistema</h2>
+  <div class="metric-grid">
+    <div class="card"><b>% de cumplimiento</b>General del día y por área — pesado por criticidad, no nada más "cajitas marcadas."</div>
+    <div class="card"><b>Pendientes críticos</b>Lista aparte, bien visible arriba, de lo urgente que sigue sin marcarse.</div>
+    <div class="card"><b>Verificación cruzada</b>Solo en móviles: lo que salió en la mañana vs. lo que sobró en la noche, para que cuadre solo.</div>
+    <div class="card"><b>Movimientos de inventario</b>Registro del día — qué entró, qué salió, quién lo registró.</div>
+  </div>
+
+  <div class="ia-box">
+    <h2><span class="num">5.</span>¿Y la "IA" de CHICKEN·IA?</h2>
+    <p>Para que quede claro y no se preste a confusión: hoy la "IA" no es un robot que piensa ni un chat que contesta. Es el sistema de ponderación por criticidad que arma el % automáticamente, para que nadie tenga que sacar cuentas a mano — es "inteligente" en el sentido de que prioriza solo lo que importa. Con estos datos guardándose día a día, más adelante sí se puede meter análisis más fino — patrones, alertas, predicciones. Pero eso es el siguiente paso, no lo que ya está corriendo hoy.</p>
+  </div>
+
+  <div class="footer-note">
+    <p>De nuevo: esto es v1. Actividad que falte, que sobre, o peso que no haga sentido — dilo y lo ajustamos.</p>
+    <p class="small">CHICKEN·IA — Borrador de manual de uso · chickenia-three.vercel.app</p>
+  </div>
+
+<div class="appendix-intro">
+    <div class="wordmark appendix-wordmark"><span class="w-chicken">CHICKEN</span><span class="w-dot">·</span><span class="w-ia">IA</span></div>
+    <h2 class="appendix-title">Anexo — actividades completas por área</h2>
+    <p>Aquí va el detalle completo, área por área, tal como está cargado hoy en el sistema. Usa la columna de <strong>Notas / ajustes</strong> para escribir directo en la hoja: actividad que sobra, que falta, texto que hay que corregir, o criticidad que no te cuadra. Con eso ajustamos la siguiente versión.</p>
+  </div>
+  <div class="group-label">TIENDA — JOJUTLA</div>
+  <div class="area-section">
+    <div class="area-head">
+      <span class="area-name">Rastro</span>
+      <span class="area-count">20 actividades</span>
+    </div>
+    <table class="act-table">
+      <thead>
+        <tr><th class="c-num">#</th><th class="c-act">Actividad</th><th class="c-crit">Criticidad</th><th class="c-qty">Cantidad</th><th class="c-notes">Notas / ajustes</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="c-num">1</td>
+        <td class="c-act">Pollo con hielo suficiente</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">2</td>
+        <td class="c-act">Compra de hielo</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">3</td>
+        <td class="c-act">Refrigerado de legumbres organizado y limpio</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">4</td>
+        <td class="c-act">Porciones de nopales</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">porciones</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">5</td>
+        <td class="c-act">Compra de agua de garrafón</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">6</td>
+        <td class="c-act">Harina para crujientes</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">kg</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">7</td>
+        <td class="c-act">Papas cambray (cantidad disponible)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">kg</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">8</td>
+        <td class="c-act">Papa alfa sin procesar (cantidad)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">kg</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">9</td>
+        <td class="c-act">Papa alfa procesada (cantidad)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">kg</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">10</td>
+        <td class="c-act">Marinado para pollo rostizado (solicitar 3-4 días antes)</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">11</td>
+        <td class="c-act">Conservar vegetales organizados por fecha de compra</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">12</td>
+        <td class="c-act">Arroz para bulto (kg disponibles)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">kg</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">13</td>
+        <td class="c-act">Pollo rostizado preparado (cantidad lista)</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">piezas</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">14</td>
+        <td class="c-act">Paneles solares encendidos y limpios (cada 15 días)</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">15</td>
+        <td class="c-act">Pollo crujiente preparado (cantidad lista)</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">piezas</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">16</td>
+        <td class="c-act">Limpieza general (refris, pisos, cajas, trapos, mesas, baño)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">17</td>
+        <td class="c-act">Limpieza de camioneta</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">18</td>
+        <td class="c-act">Registro de gastos de rastro</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">pesos</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">19</td>
+        <td class="c-act">Compra de gasolina (foto de recibo)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">pesos</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">20</td>
+        <td class="c-act">Chile jalapeño (cantidad disponible)</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">kg</td>
+        <td class="c-notes"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="area-section">
+    <div class="area-head">
+      <span class="area-name">Cocina</span>
+      <span class="area-count">17 actividades</span>
+    </div>
+    <table class="act-table">
+      <thead>
+        <tr><th class="c-num">#</th><th class="c-act">Actividad</th><th class="c-crit">Criticidad</th><th class="c-qty">Cantidad</th><th class="c-notes">Notas / ajustes</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="c-num">1</td>
+        <td class="c-act">Registro de llegada</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">2</td>
+        <td class="c-act">Contabilizar inventario de vegetales</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">3</td>
+        <td class="c-act">Revisar sobrantes (no se vuelve a producir si sobra)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">4</td>
+        <td class="c-act">Revisar calidad de guisados y preparaciones</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">5</td>
+        <td class="c-act">Cocer papa para campesina</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">6</td>
+        <td class="c-act">Producir adobos (tradicional, BBQ, 3 chiles)</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">7</td>
+        <td class="c-act">Preparar crema, pastas y costilla</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">8</td>
+        <td class="c-act">Producir abastecimiento de barras</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">9</td>
+        <td class="c-act">Limpieza de área/estufa/mesa de trabajo/pisos/paredes</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">10</td>
+        <td class="c-act">Preparar comida para empleados</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">11</td>
+        <td class="c-act">Moler adobo cuando sea necesario</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">12</td>
+        <td class="c-act">Preparar verdura para el día siguiente</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">13</td>
+        <td class="c-act">Hacer pedido de Peregrina</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">14</td>
+        <td class="c-act">Hoja de pedido para Rastro</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">15</td>
+        <td class="c-act">Poner a cocer guajillo</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">16</td>
+        <td class="c-act">Revisar y comprar insumos faltantes</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">17</td>
+        <td class="c-act">Hoja de producción para el día siguiente</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="area-section">
+    <div class="area-head">
+      <span class="area-name">Rosticero</span>
+      <span class="area-count">12 actividades</span>
+    </div>
+    <table class="act-table">
+      <thead>
+        <tr><th class="c-num">#</th><th class="c-act">Actividad</th><th class="c-crit">Criticidad</th><th class="c-qty">Cantidad</th><th class="c-notes">Notas / ajustes</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="c-num">1</td>
+        <td class="c-act">Registro de llegada</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">2</td>
+        <td class="c-act">Contabilizar pollo rostizado y anotar en corte del día</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">piezas</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">3</td>
+        <td class="c-act">Revisar pollo anterior (primero en embarillarse)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">4</td>
+        <td class="c-act">Guardar pollo en refrigeración sin excepción</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">5</td>
+        <td class="c-act">Meter pollo al horno (20-30, según día)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">6</td>
+        <td class="c-act">Embarillar 30-45 pollos (verificar con supervisor)</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">piezas</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">7</td>
+        <td class="c-act">Limpieza total de pisos y barras</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">8</td>
+        <td class="c-act">Organizar áreas de trabajo (máx 30 porciones)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">9</td>
+        <td class="c-act">Suficiente pollo y arroz hasta hora de salida</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">10</td>
+        <td class="c-act">Contabilizar pollo rostizado crudo antes de salir (con firma)</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">piezas</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">11</td>
+        <td class="c-act">Mantener área limpia y organizada todo el día</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">12</td>
+        <td class="c-act">Pedir pase de salida (nunca irse sin autorización)</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="area-section">
+    <div class="area-head">
+      <span class="area-name">Freidoras</span>
+      <span class="area-count">11 actividades</span>
+    </div>
+    <table class="act-table">
+      <thead>
+        <tr><th class="c-num">#</th><th class="c-act">Actividad</th><th class="c-crit">Criticidad</th><th class="c-qty">Cantidad</th><th class="c-notes">Notas / ajustes</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="c-num">1</td>
+        <td class="c-act">Registro de llegada</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">2</td>
+        <td class="c-act">Contabilizar pollo crujiente</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">piezas</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">3</td>
+        <td class="c-act">Revisar sobrantes (crujiente, salsa verde, campesina, papas, codo)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">4</td>
+        <td class="c-act">Preparación del crujiente (charolas, salsas, según orden)</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">5</td>
+        <td class="c-act">Limpieza de freidora</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">6</td>
+        <td class="c-act">Contabilizar con barras</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">7</td>
+        <td class="c-act">Revisar insumos (papa alfa, harina, brócoli, zanahoria, chile)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">8</td>
+        <td class="c-act">Producción para barras durante el día</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">9</td>
+        <td class="c-act">Abastecimiento de crujiente todo el día</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">10</td>
+        <td class="c-act">Abastecimiento de complementos (codo, elote, jamón, crema)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">11</td>
+        <td class="c-act">Limpieza de área (freidoras, mesa, refri, piso)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="area-section">
+    <div class="area-head">
+      <span class="area-name">Caja</span>
+      <span class="area-count">10 actividades</span>
+    </div>
+    <table class="act-table">
+      <thead>
+        <tr><th class="c-num">#</th><th class="c-act">Actividad</th><th class="c-crit">Criticidad</th><th class="c-qty">Cantidad</th><th class="c-notes">Notas / ajustes</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="c-num">1</td>
+        <td class="c-act">Registrar entrada (con evidencia)</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">2</td>
+        <td class="c-act">Organizar área de trabajo</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">3</td>
+        <td class="c-act">Mantener publicidad/promociones visibles</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">4</td>
+        <td class="c-act">Ofrecer promociones (grupos de WhatsApp)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">5</td>
+        <td class="c-act">Atención a cliente (Puntos Chicanitos)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">6</td>
+        <td class="c-act">Tener cambio suficiente ($3,000 billetes + $3,000 monedas)</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">pesos</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">7</td>
+        <td class="c-act">Limpieza de caja, barra caliente y fría</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">8</td>
+        <td class="c-act">Cierre de turno (evidencias por WhatsApp)</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">9</td>
+        <td class="c-act">Limpieza general (acrílicos, publicidad, mesas, sillas)</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">10</td>
+        <td class="c-act">Ayudar a cerrar el establecimiento</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="area-section">
+    <div class="area-head">
+      <span class="area-name">Ventas / Barras</span>
+      <span class="area-count">13 actividades</span>
+    </div>
+    <table class="act-table">
+      <thead>
+        <tr><th class="c-num">#</th><th class="c-act">Actividad</th><th class="c-crit">Criticidad</th><th class="c-qty">Cantidad</th><th class="c-notes">Notas / ajustes</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="c-num">1</td>
+        <td class="c-act">Registro de llegada</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">2</td>
+        <td class="c-act">Organizar barras para arranque</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">3</td>
+        <td class="c-act">Envasar arroz, salsa BBQ y verde</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">4</td>
+        <td class="c-act">Pedir productos cuando se requiera</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">5</td>
+        <td class="c-act">Mantener productos hidratados todo el día</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">6</td>
+        <td class="c-act">Atención al cliente según estándares Chicanito</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">7</td>
+        <td class="c-act">Ofrecer promociones y ensaladas</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">8</td>
+        <td class="c-act">Limpieza de vidrios (todo el día)</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">9</td>
+        <td class="c-act">Bajar productos a partir de las 5pm</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">10</td>
+        <td class="c-act">Apagar barra caliente y fría</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">11</td>
+        <td class="c-act">Inventario de productos (ensaladas y proteína, desde 6:30pm)</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">12</td>
+        <td class="c-act">Limpieza de barra principal</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">13</td>
+        <td class="c-act">Organizar barras con insertos</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="area-section">
+    <div class="area-head">
+      <span class="area-name">Lavado de Trastes</span>
+      <span class="area-count">7 actividades</span>
+    </div>
+    <table class="act-table">
+      <thead>
+        <tr><th class="c-num">#</th><th class="c-act">Actividad</th><th class="c-crit">Criticidad</th><th class="c-qty">Cantidad</th><th class="c-notes">Notas / ajustes</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="c-num">1</td>
+        <td class="c-act">Registro de llegada</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">2</td>
+        <td class="c-act">Lavado de trastes</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">3</td>
+        <td class="c-act">Mantener área de tarja limpia</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">4</td>
+        <td class="c-act">Jabón y cloro suficiente</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">5</td>
+        <td class="c-act">Limpieza de refrigeradores</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">6</td>
+        <td class="c-act">Mantener pisos limpios</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">7</td>
+        <td class="c-act">Acomodar todos los trastes</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="area-section">
+    <div class="area-head">
+      <span class="area-name">Supervisión (tienda)</span>
+      <span class="area-count">19 actividades</span>
+    </div>
+    <table class="act-table">
+      <thead>
+        <tr><th class="c-num">#</th><th class="c-act">Actividad</th><th class="c-crit">Criticidad</th><th class="c-qty">Cantidad</th><th class="c-notes">Notas / ajustes</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="c-num">1</td>
+        <td class="c-act">9:00am — Llegada del supervisor, revisar pendientes del día anterior</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">2</td>
+        <td class="c-act">9:15am — Supervisión de llegada del personal (asistencia, uniformes)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">3</td>
+        <td class="c-act">9:30am — Envío de reporte de apertura al grupo</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">4</td>
+        <td class="c-act">10:00am — Revisión de inventario inicial</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">5</td>
+        <td class="c-act">10:30am — Inspección de áreas de trabajo</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">6</td>
+        <td class="c-act">11:00am — Evaluación de calidad de guisados/preparaciones</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">7</td>
+        <td class="c-act">11:30am — Revisión de producción (crujiente, adobos, guarniciones)</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">8</td>
+        <td class="c-act">12:00pm — Supervisión de barras (hidratación, cantidad suficiente)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">9</td>
+        <td class="c-act">1:00pm — Monitoreo de flujo de clientes</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">10</td>
+        <td class="c-act">2:00pm — Preparación para hora pico</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">11</td>
+        <td class="c-act">3:00pm — Control de caja (ventas, promociones, lealtad)</td>
+        <td class="c-crit"><span class="chip crit-alta">Alta</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">12</td>
+        <td class="c-act">4:00pm — Gestión de inventario intermedio</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">13</td>
+        <td class="c-act">5:00pm — Supervisión de bajada de productos</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">14</td>
+        <td class="c-act">6:00pm — Revisión de limpieza profunda</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">15</td>
+        <td class="c-act">6:30pm — Control de inventario final (conteo de proteínas)</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">16</td>
+        <td class="c-act">7:00pm — Cierre del local (caja, cuadres, cambio, evidencias)</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">17</td>
+        <td class="c-act">7:15pm — Inspección final del local</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">18</td>
+        <td class="c-act">7:30pm — Envío de reporte de cierre (ventas, incidencias, inventario)</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">19</td>
+        <td class="c-act">Arqueo diario ágil (recepción, almacén, venta)</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="group-label group-label-break">CHICANITO MÓVIL</div>
+  <div class="area-section">
+    <div class="area-head">
+      <span class="area-name">Moto — Recepción (8:30am)</span>
+      <span class="area-count">10 actividades</span>
+    </div>
+    <table class="act-table">
+      <thead>
+        <tr><th class="c-num">#</th><th class="c-act">Actividad</th><th class="c-crit">Criticidad</th><th class="c-qty">Cantidad</th><th class="c-notes">Notas / ajustes</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="c-num">1</td>
+        <td class="c-act">Hora real de llegada del socio operativo</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">2</td>
+        <td class="c-act">Pollo Chicanito entregado</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">piezas</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">3</td>
+        <td class="c-act">Salsas entregadas (verde/BBQ/mango habanero)</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">porciones</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">4</td>
+        <td class="c-act">Adobo entregado</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">porciones</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">5</td>
+        <td class="c-act">Arroz entregado</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">kg</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">6</td>
+        <td class="c-act">Empaque/desechables entregados (bolsas, charolas, servilletas)</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">unidades</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">7</td>
+        <td class="c-act">Gasolina suficiente para el día</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">8</td>
+        <td class="c-act">Sin pendiente de mantenimiento antes de salir</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">9</td>
+        <td class="c-act">Punto de venta asignado del día confirmado</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">10</td>
+        <td class="c-act">Hora de salida</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="area-section">
+    <div class="area-head">
+      <span class="area-name">Moto — Cierre (6:00pm)</span>
+      <span class="area-count">11 actividades</span>
+    </div>
+    <table class="act-table">
+      <thead>
+        <tr><th class="c-num">#</th><th class="c-act">Actividad</th><th class="c-crit">Criticidad</th><th class="c-qty">Cantidad</th><th class="c-notes">Notas / ajustes</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td class="c-num">1</td>
+        <td class="c-act">Hora real de regreso</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">2</td>
+        <td class="c-act">Venta del día (efectivo/reportado)</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">pesos</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">3</td>
+        <td class="c-act">Pollo Chicanito sobrante</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">piezas</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">4</td>
+        <td class="c-act">Salsas sobrantes</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">porciones</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">5</td>
+        <td class="c-act">Adobo sobrante</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">porciones</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">6</td>
+        <td class="c-act">Arroz sobrante</td>
+        <td class="c-crit"><span class="chip crit-baja">Baja</span></td>
+        <td class="c-qty">kg</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">7</td>
+        <td class="c-act">VERIFICACIÓN CRUZADA: sobrante + vendido = recibido en la mañana</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">8</td>
+        <td class="c-act">Limpieza del carrito/moto</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">9</td>
+        <td class="c-act">Gasolina lista para el día siguiente</td>
+        <td class="c-crit"><span class="chip crit-media">Media</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">10</td>
+        <td class="c-act">Sin nuevo tema de mantenimiento (o reportado)</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      <tr>
+        <td class="c-num">11</td>
+        <td class="c-act">Entrega de efectivo / corte completo</td>
+        <td class="c-crit"><span class="chip crit-critica">Crítica</span></td>
+        <td class="c-qty">—</td>
+        <td class="c-notes"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

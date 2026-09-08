@@ -3,45 +3,89 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ChickenIA — Dashboard</title>
+<title>CHICKEN·IA — Dashboard</title>
+<script>try{if(localStorage.getItem('chickenia_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#17213E" />
+<link rel="icon" href="/icons/icon-32.png" />
+<link rel="apple-touch-icon" href="/icons/icon-180.jpg" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="ChickenIA" />
 <link rel="stylesheet" href="/css/style.css" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+<div id="password-gate" class="password-gate">
+  <div class="mascot-badge">
+    <img src="https://www.chicanito.app/assets/brand/logo-badge.jpg" alt="Chicanito" />
+  </div>
+  <h1 class="wordmark wordmark-lg on-dark gate-title"><span class="w-chicken">CHICKEN</span><span class="w-dot">·</span><span class="w-ia">IA</span></h1>
+  <p class="gate-subtitle">Dashboard — acceso Miguel / Lilian</p>
+  <form id="gate-form">
+    <div>
+      <input type="password" id="gate-password" placeholder="Contraseña" autocomplete="off" />
+    </div>
+    <button type="submit" class="btn btn-primary">Entrar</button>
+  </form>
+  <p id="gate-error" class="gate-error"></p>
+</div>
+
+<div id="app-content" hidden>
 <header class="app-header">
-  <a href="/index.html" class="brand">ChickenIA</a>
+  <div class="mascot-badge mascot-badge--small">
+    <img src="https://www.chicanito.app/assets/brand/logo-badge.jpg" alt="Chicanito" />
+  </div>
+  <a href="/index.html" class="brand wordmark on-dark"><span class="w-chicken">CHICKEN</span><span class="w-dot">·</span><span class="w-ia">IA</span></a>
   <span class="page-title">Dashboard — Miguel / Lilian</span>
+  <div class="corner-menu">
+    <button id="corner-menu-btn" class="corner-menu-btn" aria-label="Más opciones" aria-expanded="false">⋮</button>
+    <div id="corner-menu-panel" class="corner-menu-panel" inert>
+      <button id="menu-expand-all" type="button">Expandir todo</button>
+      <button id="menu-collapse-all" type="button">Colapsar todo</button>
+      <hr />
+      <button id="menu-dark-toggle" type="button">🌙 Modo oscuro</button>
+      <hr />
+      <button id="menu-logout" type="button">Cerrar sesión</button>
+    </div>
+  </div>
 </header>
 
 <div class="controls-bar">
-  <label>Ubicación
-    <select id="location-select"></select>
-  </label>
   <label>Fecha
     <input type="date" id="date-input" />
   </label>
+  <div id="critical-pending" class="crit-chip" style="display:none;"></div>
   <div class="overall-score-box">
     <span class="overall-score-label">Cumplimiento del día</span>
     <span id="overall-score" class="overall-score-value">—</span>
   </div>
 </div>
 
-<div id="critical-pending" class="critical-banner" style="display:none;"></div>
+<div id="area-status-bar" class="area-status-bar" style="display:none;"></div>
 
 <main class="dashboard-grid">
   <section class="card" id="areas-card">
-    <h2>Desempeño por área</h2>
-    <div id="areas"></div>
+    <button type="button" id="areas-toggle" class="movements-toggle" aria-expanded="false">
+      <h2>Desempeño por área — detalle</h2>
+      <span class="acc-chevron">▸</span>
+    </button>
+    <div id="areas" inert></div>
   </section>
 
   <section class="card" id="cross-check" style="display:none;"></section>
 
   <section class="card">
-    <h2>Movimientos de inventario — hoy</h2>
-    <div id="movements"></div>
+    <button type="button" id="movements-toggle" class="movements-toggle" aria-expanded="false">
+      <h2 id="movements-title">Movimientos de inventario — hoy</h2>
+      <span class="acc-chevron">▸</span>
+    </button>
+    <div id="movements" inert></div>
   </section>
 </main>
+</div>
 
 <script src="/js/dashboard.js"></script>
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
 </body>
 </html>

@@ -16,10 +16,10 @@ const CRITICALITY_WEIGHT = { baja: 1, media: 3, alta: 6, critica: 10 };
 
 // Catálogo semilla — ubicaciones
 const SEED_LOCATIONS = [
-  { code: 'jojutla', name: 'Sucursal Jojutla', type: 'tienda' },
-  { code: 'moto-1', name: 'Moto Chicanito 1', type: 'moto' },
-  { code: 'moto-2', name: 'Moto Chicanito 2', type: 'moto' },
-  { code: 'moto-3', name: 'Moto Chicanito 3', type: 'moto' },
+  { code: 'jojutla', name: 'Jojutla Mercado', type: 'tienda' },
+  { code: 'moto-1', name: 'Chicanito Móvil 1', type: 'moto' },
+  { code: 'moto-2', name: 'Chicanito Móvil 2', type: 'moto' },
+  { code: 'moto-3', name: 'Chicanito Móvil 3', type: 'moto' },
 ];
 
 // Catálogo semilla — áreas por tipo de ubicación
@@ -41,86 +41,203 @@ const SEED_AREAS = [
 // tienda, y del borrador v1 de supervisión de Moto Chicanito para las áreas de moto.
 // criticality: baja | media | alta | critica — Miguel/Nancy deben ajustar estos pesos,
 // son un primer criterio razonable, no una verdad definitiva.
+//
+// Tupla: [name, criticality, requiresQuantity, unit, indicatorType, target]
+// indicatorType / target son el marco de 11 tipos acordado el 1 de septiembre
+// (INSUMO, PRODUCCIÓN, EXCEPCIÓN, LIMPIEZA, FRECUENCIA, ANTICIPACIÓN, PUNTUALIDAD,
+// DINERO, CALIDAD, PROCESO, EVIDENCIA). Se están cargando primero para Freidoras
+// (piloto, 2 sep 2026, a partir de la transcripción de audio de Nancy/equipo) — el
+// resto de áreas todavía no los trae, por eso sus tuplas se quedan en 4 elementos
+// (indicatorType/target quedan NULL, sin romper nada).
 const SEED_ACTIVITIES = {
+  // --- Rastro: marco de 11 tipos (7 sep 2026) ---
+  // Reescrito a partir de la transcripción de audio de Nancy/equipo del mismo día,
+  // organizada en el mismo orden del audio (producción de proteínas / vegetales e
+  // insumos frescos / abasto semanal de domingo / limpieza y equipo / cierre y pase
+  // de salida). Ambigüedades del audio (marinado de pollo crujiente, leche, sal-
+  // pimienta) confirmadas directamente con Miguel antes de cargarse aquí.
   rastro: [
-    ['Pollo con hielo suficiente', 'alta', false, null],
-    ['Compra de hielo', 'media', false, null],
-    ['Refrigerado de legumbres organizado y limpio', 'media', false, null],
-    ['Porciones de nopales', 'baja', true, 'porciones'],
-    ['Compra de agua de garrafón', 'baja', false, null],
-    ['Harina para crujientes', 'media', true, 'kg'],
-    ['Papas cambray (cantidad disponible)', 'media', true, 'kg'],
-    ['Papa alfa sin procesar (cantidad)', 'media', true, 'kg'],
-    ['Papa alfa procesada (cantidad)', 'media', true, 'kg'],
-    ['Marinado para pollo rostizado (solicitar 3-4 días antes)', 'alta', false, null],
-    ['Conservar vegetales organizados por fecha de compra', 'media', false, null],
-    ['Arroz para bulto (kg disponibles)', 'media', true, 'kg'],
-    ['Pollo rostizado preparado (cantidad lista)', 'critica', true, 'piezas'],
-    ['Paneles solares encendidos y limpios (cada 15 días)', 'baja', false, null],
-    ['Pollo crujiente preparado (cantidad lista)', 'critica', true, 'piezas'],
-    ['Limpieza general (refris, pisos, cajas, trapos, mesas, baño)', 'media', false, null],
-    ['Limpieza de camioneta', 'baja', false, null],
-    ['Registro de gastos de rastro', 'media', true, 'pesos'],
-    ['Compra de gasolina (foto de recibo)', 'media', true, 'pesos'],
-    ['Chile jalapeño (cantidad disponible)', 'baja', true, 'kg'],
+    ['Pollo rostizado preparado', 'critica', true, 'piezas', 'PRODUCCIÓN', '100–200 piezas'],
+    ['Pollo crujiente preparado', 'critica', true, 'piezas', 'PRODUCCIÓN', '45–90 piezas'],
+    ['Costilla preparada', 'media', true, 'porciones', 'PRODUCCIÓN', '4–10 porciones'],
+    ['Cebolla mediana en buen estado', 'baja', false, null, 'FRECUENCIA', 'revisión semanal'],
+    ['Papa Alfa colgada y porcionada (15 kg/arpilla)', 'media', true, 'porciones', 'INSUMO', '1–2 porciones'],
+    ['Papa cambray colgada', 'media', true, 'kg', 'INSUMO', '5–10 kg/arpilla'],
+    ['Brócoli fresco y refrigerado', 'media', false, null, 'CALIDAD', 'fresco, sin defectos'],
+    ['Perejil fresco', 'baja', false, null, 'CALIDAD', 'fresco, sin defectos'],
+    ['Jitomate porcionado en cámara de proteínas', 'media', false, null, 'PROCESO', 'bolsas de 1.3 kg'],
+    ['Jalapeño/serrano refrigerado y despalillado desde raíz', 'media', true, 'porciones', 'INSUMO', '1–2 porciones'],
+    ['Marinado de pollo crujiente producido', 'alta', true, 'litros', 'INSUMO', 'mínimo 20 L'],
+    ['Morrón fresco (preferencia color rojo)', 'baja', false, null, 'CALIDAD', 'color rojo, fresco'],
+    ['Nopal limpio, corte de 1 cm', 'baja', true, 'porciones', 'INSUMO', '0.5–1 porción'],
+    ['Harina para crujientes contabilizada', 'media', true, 'bultos', 'INSUMO', '8–30 bultos (20 kg c/u)'],
+    ['Arroz para bulto', 'media', true, 'bultos', 'INSUMO', '1–3 bultos/semana'],
+    ['Coles revisadas y contabilizadas', 'baja', false, null, 'INSUMO', 'por definir'],
+    ['Revisión de calidad/cantidad de vegetales con supervisión', 'media', false, null, 'FRECUENCIA', 'quincenal (compra)'],
+    ['Jabón en polvo', 'baja', true, 'bolsas', 'INSUMO', '3 bolsas de 1 kg/semana'],
+    ['Leche', 'baja', true, 'piezas', 'INSUMO', '20 piezas (tetrapack 1 L)/semana'],
+    ['Sal-pimienta (mezcla de la casa)', 'baja', false, null, 'INSUMO', '1 bote de 4 L/semana'],
+    ['Hierbas de olor', 'baja', true, 'docenas', 'INSUMO', '2 docenas/semana'],
+    ['Cloro Clarasol', 'media', true, 'garrafas', 'INSUMO', '2–9 garrafas'],
+    ['Sal fina', 'baja', true, 'bultos', 'INSUMO', '1–4 bultos (25 kg c/u)'],
+    ['Agua de garrafón', 'baja', true, 'piezas', 'INSUMO', 'máx 7 piezas (garrafón #1)'],
+    ['Piso limpio y seco', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Refrigeradores limpios y ordenados', 'media', false, null, 'FRECUENCIA', 'semanal'],
+    ['Tanques de almacenamiento revisados', 'baja', false, null, 'FRECUENCIA', '2x/semana'],
+    ['Mezcladora limpia, sin residuo de harina', 'media', false, null, 'FRECUENCIA', 'mensual (0 residuo)'],
+    ['Contenedores de harina limpios', 'baja', false, null, 'FRECUENCIA', 'mensual'],
+    ['Trapos y costales limpios y secos', 'baja', false, null, 'LIMPIEZA', '100%'],
+    ['Cubetas y cajas de proteína limpias y en su lugar', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Palas, peladores y cuchillos revisados', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Baño lavado', 'baja', false, null, 'FRECUENCIA', '2x/semana'],
+    ['Tinas para lavar pollo lavadas', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Bidones de agua revisados', 'baja', false, null, 'LIMPIEZA', '100% diario'],
+    ['Escobas, jaladores, recogedores y botes en existencia', 'baja', false, null, 'INSUMO', '100% diario'],
+    ['Equipo y camioneta revisados (aceite, gasolina, neumáticos)', 'alta', false, null, 'FRECUENCIA', 'semanal (lunes)'],
+    ['Paneles solares limpios', 'baja', false, null, 'FRECUENCIA', 'cada 15 días'],
+    ['Cámara de refrigeración y refris lavados a fondo', 'media', false, null, 'FRECUENCIA', 'semestral'],
+    ['Limpieza general de área', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Limpieza de camioneta', 'baja', false, null, 'LIMPIEZA', '100% diario'],
+    ['Costilla, pollo rostizado y crujiente verificados antes de salida', 'critica', false, null, 'EXCEPCIÓN', '0 faltantes'],
+    ['Vegetales verificados antes de salida', 'alta', false, null, 'EXCEPCIÓN', '0 faltantes'],
+    ['Áreas y utensilios ordenados antes de salida', 'media', false, null, 'PROCESO', '100%'],
+    ['Existencias completas para pase de salida (jabón, sal, arroz, leche, sal-pimienta, cloro, agua, bolsas)', 'critica', false, null, 'EXCEPCIÓN', '0 faltantes'],
+    ['Pase de salida generado y firmado', 'critica', false, null, 'EVIDENCIA', '100% diario'],
+    ['Actividades escritas en pizarrón al pase de salida', 'baja', false, null, 'EVIDENCIA', '100% diario'],
+    ['Registro de gastos de rastro', 'media', true, 'pesos', 'DINERO', '100% con evidencia'],
+    ['Compra de gasolina (foto de recibo)', 'media', true, 'pesos', 'DINERO', '100% con evidencia'],
+    ['Compra de hielo', 'baja', false, null, 'INSUMO', 'según necesidad diaria'],
+    ['Pollo con hielo suficiente', 'alta', false, null, 'INSUMO', '100% cubierto'],
   ],
+  // --- Cocina: marco de 11 tipos (7 sep 2026) ---
+  // Reescrito a partir de la transcripción de audio de Nancy/equipo del mismo día,
+  // en el orden del audio (apertura 8:00-10:00am: guisados / bloque 10:00-10:15am:
+  // pastas, papa gajo, adobo, cebolla, guajillo / documentación y limpieza / pase de
+  // salida 5:00pm / actividades no diarias, según necesidad). Interpretación propia
+  // sin confirmar con Miguel: "coser pastas... el codo, espagueti, se cuecen medio
+  // paquete" se leyó como medio paquete para cada una (codo y espagueti por separado).
   cocina: [
-    ['Registro de llegada', 'baja', false, null],
-    ['Contabilizar inventario de vegetales', 'alta', false, null],
-    ['Revisar sobrantes (no se vuelve a producir si sobra)', 'media', false, null],
-    ['Revisar calidad de guisados y preparaciones', 'alta', false, null],
-    ['Cocer papa para campesina', 'media', false, null],
-    ['Producir adobos (tradicional, BBQ, 3 chiles)', 'alta', false, null],
-    ['Preparar crema, pastas y costilla', 'media', false, null],
-    ['Producir abastecimiento de barras', 'media', false, null],
-    ['Limpieza de área/estufa/mesa de trabajo/pisos/paredes', 'media', false, null],
-    ['Preparar comida para empleados', 'baja', false, null],
-    ['Moler adobo cuando sea necesario', 'media', false, null],
-    ['Preparar verdura para el día siguiente', 'media', false, null],
-    ['Hacer pedido de Peregrina', 'media', false, null],
-    ['Hoja de pedido para Rastro', 'alta', false, null],
-    ['Poner a cocer guajillo', 'baja', false, null],
-    ['Revisar y comprar insumos faltantes', 'alta', false, null],
-    ['Hoja de producción para el día siguiente', 'alta', false, null],
+    ['Registro de llegada', 'baja', false, null, null, null],
+    ['Contabilizar inventario de vegetales', 'alta', false, null, null, null],
+    ['Revisar sobrantes (no se vuelve a producir si sobra)', 'media', false, null, null, null],
+    ['Revisar calidad de guisados y preparaciones', 'alta', false, null, null, null],
+    ['Arroz blanco producido', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Arroz rojo producido', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Adobo tradicional hervido', 'alta', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Nopales cocidos', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Puré de papa preparado', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Papa cambray cocida', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Espagueti cocido', 'media', true, 'paquetes', 'PRODUCCIÓN', 'medio paquete'],
+    ['Ensalada de col con zanahoria preparada', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Crema para espagueti preparada', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Guisados de apertura listos', 'alta', false, null, 'PUNTUALIDAD', 'antes de 10:00 a.m.'],
+    ['Comida de empleados preparada', 'baja', false, null, null, null],
+    ['Codo (pasta) cocido', 'media', true, 'paquetes', 'PRODUCCIÓN', 'medio paquete'],
+    ['Papa gajo cocida', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Adobo tradicional molido', 'media', false, null, 'PRODUCCIÓN', 'según necesidad del día'],
+    ['Cebolla fileteada', 'media', true, 'kg', 'PRODUCCIÓN', '2 kg'],
+    ['Guajillo cocido para adobo tradicional', 'media', false, null, 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Orden de producción generada con supervisión', 'alta', false, null, 'EVIDENCIA', '100% diario, validada con supervisión'],
+    ['Orden de compra generada', 'alta', false, null, 'EVIDENCIA', '100% diario'],
+    ['Hacer pedido de Peregrina', 'media', false, null, null, null],
+    ['Hoja de pedido para Rastro', 'alta', false, null, null, null],
+    ['Limpieza de mesa de trabajo, barras, caja y trapos', 'media', false, null, 'LIMPIEZA', '100% diario'],
+    ['Pase de salida generado', 'critica', false, null, 'PUNTUALIDAD', '5:00 p.m.'],
+    ['Producción ajustada a la orden del día', 'alta', false, null, 'EXCEPCIÓN', '0 desviaciones'],
+    ['Marinado de pollo rostizado producido', 'alta', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Adobo de tres chiles producido', 'media', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Salsa BBQ producida', 'media', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Salsa chipotle producida', 'media', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Adobo de salsa chipotle producido', 'media', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Costilla marinada y porcionada', 'media', false, null, 'FRECUENCIA', 'según necesidad (no diario)'],
+    ['Ajo picado y preparado en aceite', 'media', true, 'kg', 'PRODUCCIÓN', '≈15 kg, según necesidad'],
+    ['Producir abastecimiento de barras', 'media', false, null, null, null],
+    ['Preparar verdura para el día siguiente', 'media', false, null, null, null],
   ],
+  // --- Rosticero: marco de 11 tipos (7 sep 2026) ---
+  // Reescrito a partir de la transcripción de audio de Nancy/equipo del mismo día,
+  // en el orden del audio (llegada / horno y embarillado / calentar costilla-adobos-
+  // papas / limpieza y acomodo / despacho e insumos / conteo de crudo / durante el
+  // día / cierre). Interpretación propia sin confirmar con Miguel: "máximo 30 minutos
+  // de 20" en el embarillado se leyó como el mismo patrón mín/máx de piezas que el
+  // horno (20-30 piezas), no como una duración — "minutos" probablemente es error de
+  // transcripción de audio por "mínimo".
   rosticero: [
-    ['Registro de llegada', 'baja', false, null],
-    ['Contabilizar pollo rostizado y anotar en corte del día', 'critica', true, 'piezas'],
-    ['Revisar pollo anterior (primero en embarillarse)', 'media', false, null],
-    ['Guardar pollo en refrigeración sin excepción', 'alta', false, null],
-    ['Meter pollo al horno (20-30, según día)', 'media', false, null],
-    ['Embarillar 30-45 pollos (verificar con supervisor)', 'alta', true, 'piezas'],
-    ['Limpieza total de pisos y barras', 'media', false, null],
-    ['Organizar áreas de trabajo (máx 30 porciones)', 'media', false, null],
-    ['Suficiente pollo y arroz hasta hora de salida', 'alta', false, null],
-    ['Contabilizar pollo rostizado crudo antes de salir (con firma)', 'critica', true, 'piezas'],
-    ['Mantener área limpia y organizada todo el día', 'baja', false, null],
-    ['Pedir pase de salida (nunca irse sin autorización)', 'alta', false, null],
+    ['Hora de llegada (tolerancia máx 10 min sobre hora de entrada)', 'media', false, null, 'PUNTUALIDAD', 'tolerancia máx 10 min'],
+    ['Pollo metido al horno', 'critica', true, 'piezas', 'PRODUCCIÓN', '20–30 piezas'],
+    ['Pollo embarillado', 'critica', true, 'piezas', 'PRODUCCIÓN', '20–30 piezas (ajustable en fechas especiales: Navidad, Día de las Madres)'],
+    ['Revisar pollo anterior (primero en salir, FIFO)', 'media', false, null, 'PROCESO', '0 incidentes'],
+    ['Costilla, pollo anterior, adobos y papas cambray calentados/metidos al horno', 'media', false, null, 'PROCESO', '4/4'],
+    ['Limpieza de barras y áreas en general', 'media', false, null, 'LIMPIEZA', '100%'],
+    ['Productos acomodados en las áreas', 'media', false, null, 'PROCESO', '100%'],
+    ['Contabilizar pollo rostizado y anotar en corte del día', 'critica', true, 'piezas', null, null],
+    ['Guardar pollo en refrigeración sin excepción', 'alta', false, null, null, null],
+    ['Pollo listo para despachar', 'critica', true, 'piezas', 'INSUMO', '20–40 piezas'],
+    ['Arroz embolsado para despacho', 'media', true, 'kg', 'INSUMO', '2 kg embolsados'],
+    ['Salsa en contenedores para despacho', 'media', true, 'contenedores', 'INSUMO', '15 contenedores'],
+    ['Plásticos/empaques suficientes para despacho', 'baja', false, null, 'INSUMO', 'suficiente'],
+    ['Pollo crudo contabilizado para el resto del día', 'critica', true, 'piezas', 'INSUMO', 'mínimo 30 piezas'],
+    ['Mínimos de pollo y arroz sostenidos durante el día', 'alta', false, null, 'INSUMO', '100% del día'],
+    ['Áreas limpias y organizadas todo el día', 'media', false, null, 'LIMPIEZA', '100% todo el día'],
+    ['Contabilizar pollo rostizado crudo antes de salir (con firma)', 'critica', true, 'piezas', null, null],
+    ['Pase de salida generado con área ordenada y limpia', 'critica', false, null, 'EVIDENCIA', '100%'],
   ],
+  // --- Freidoras: piloto del marco de 11 tipos (2 sep 2026) ---
+  // Reescrito a partir de la transcripción de audio de Nancy/equipo del mismo día,
+  // organizado en 3 bloques (Apertura / Durante el día / Cierre) que colapsan a una
+  // sola lista ordenada aquí porque la app no tiene sub-secciones dentro de un área.
+  // Se conservan sin reclasificar (indicatorType/target = null) los 3 renglones que
+  // ese audio no cubrió: Registro de llegada, Contabilizar con barras, y el resto de
+  // complementos (elote/jamón/crema — "codo" ya salió de ahí porque sí vino en el audio).
   freidoras: [
-    ['Registro de llegada', 'baja', false, null],
-    ['Contabilizar pollo crujiente', 'critica', true, 'piezas'],
-    ['Revisar sobrantes (crujiente, salsa verde, campesina, papas, codo)', 'media', false, null],
-    ['Preparación del crujiente (charolas, salsas, según orden)', 'alta', false, null],
-    ['Limpieza de freidora', 'media', false, null],
-    ['Contabilizar con barras', 'alta', false, null],
-    ['Revisar insumos (papa alfa, harina, brócoli, zanahoria, chile)', 'media', false, null],
-    ['Producción para barras durante el día', 'media', false, null],
-    ['Abastecimiento de crujiente todo el día', 'alta', false, null],
-    ['Abastecimiento de complementos (codo, elote, jamón, crema)', 'media', false, null],
-    ['Limpieza de área (freidoras, mesa, refri, piso)', 'media', false, null],
+    ['Registro de llegada', 'baja', false, null, null, null],
+    ['Freidoras operativas a tiempo (arranque antes de 7:30am)', 'alta', false, null, 'PUNTUALIDAD', '7:30 a.m.'],
+    ['Aceite del turno anterior filtrado antes de encender equipo', 'media', false, null, 'PROCESO', '100%'],
+    ['Equipo de arranque conectado (horno, refrigerador, freidora, gas general)', 'alta', false, null, 'PROCESO', '4/4'],
+    ['Ensalada campesina lista según orden de producción', 'media', true, 'porciones', 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Pollo crujiente listo según orden de producción', 'critica', true, 'piezas', 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Salsa verde lista (nueva o reutilizada según orden)', 'media', true, 'litros', 'PROCESO', '= orden de producción del día'],
+    ['Papas gajo listas según orden de producción', 'media', true, 'kg', 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Ensalada de codo lista según orden de producción', 'media', true, 'kg', 'PRODUCCIÓN', '= orden de producción del día'],
+    ['Sin quiebre de stock (crujiente, campesina, papas gajo, salsa verde, codo)', 'critica', false, null, 'EXCEPCIÓN', '0 incidentes'],
+    ['Rendimiento de corte de zanahoria', 'baja', true, 'kg', 'INSUMO', '≈ 2.5 kg'],
+    ['Rendimiento de corte de brócoli', 'baja', true, 'kg', 'INSUMO', '≈ 5 kg'],
+    ['Brócoli desinfectado en agua durante producción', 'media', false, null, 'PROCESO', '100%'],
+    ['Brócoli escurrido y refrigerado al cierre', 'media', false, null, 'PROCESO', '100%'],
+    ['Stock de jalapeño en refrigeración', 'media', true, 'kg', 'INSUMO', 'bote de 2.9 kg disponible, no vacío'],
+    ['Control de apertura de latas de jalapeño (no abrir nueva sin vaciar la anterior)', 'alta', false, null, 'EXCEPCIÓN', '0 incidentes'],
+    ['Porción de jalapeño preparado disponible', 'baja', false, null, 'INSUMO', 'mínimo por definir'],
+    ['Porción de perejil limpio disponible', 'baja', false, null, 'INSUMO', 'mínimo por definir'],
+    ['Porción de morrón limpio disponible', 'baja', false, null, 'INSUMO', 'mínimo por definir'],
+    ['Contabilizar con barras', 'alta', false, null, null, null],
+    ['Abastecimiento de complementos (elote, jamón, crema)', 'media', false, null, null, null],
+    ['Conteo de pollo cuadra contra producción/venta (control de merma)', 'critica', true, 'piezas', 'CALIDAD', 'variación = 0'],
+    ['Conteo de sobrante por vegetal (brócoli, morrón, jalapeño, zanahoria, papa gajo)', 'media', false, null, 'INSUMO', '100% registrado'],
+    ['Mesa de trabajo limpia', 'baja', false, null, 'LIMPIEZA', '100%'],
+    ['Freidora lavada (cuando aplica)', 'media', false, null, 'LIMPIEZA', 'según necesidad del día'],
+    ['Cierre del turno registrado en la orden de producción (para el día siguiente)', 'alta', false, null, 'EVIDENCIA', '100%'],
   ],
+  // --- Caja: marco de 11 tipos (7 sep 2026) ---
+  // Reescrito a partir de la transcripción de audio de Nancy/equipo del mismo día.
+  // "Ofrecer promociones (grupos de WhatsApp)" se dejó separada de "Productos
+  // ofrecidos activamente durante el día" (venta en piso) por ser dos canales
+  // distintos — confirmar con Miguel si en realidad son la misma actividad.
   caja: [
-    ['Registrar entrada (con evidencia)', 'baja', false, null],
-    ['Organizar área de trabajo', 'baja', false, null],
-    ['Mantener publicidad/promociones visibles', 'baja', false, null],
-    ['Ofrecer promociones (grupos de WhatsApp)', 'media', false, null],
-    ['Atención a cliente (Puntos Chicanitos)', 'media', false, null],
-    ['Tener cambio suficiente ($3,000 billetes + $3,000 monedas)', 'critica', true, 'pesos'],
-    ['Limpieza de caja, barra caliente y fría', 'media', false, null],
-    ['Cierre de turno (evidencias por WhatsApp)', 'critica', false, null],
-    ['Limpieza general (acrílicos, publicidad, mesas, sillas)', 'baja', false, null],
-    ['Ayudar a cerrar el establecimiento', 'media', false, null],
+    ['Llegada a tiempo con uniforme completo', 'media', false, null, 'PUNTUALIDAD', 'tolerancia máx 5 min'],
+    ['Cambio completo (billetes, monedas, caja chica, denominaciones)', 'critica', true, 'pesos', 'INSUMO', '$3,000 billetes + $3,000 monedas, caja chica completa'],
+    ['Rollos de impresora suficientes', 'media', false, null, 'INSUMO', 'suficientes'],
+    ['Limpieza de caja, barra caliente, lonas, acrílico y bote de basura', 'media', false, null, 'LIMPIEZA', '100%'],
+    ['Teléfono cargado y teléfono fijo limpio', 'baja', false, null, 'PROCESO', '2/2'],
+    ['Producto suficiente para venta en caja (arroz y complementos)', 'media', false, null, 'INSUMO', 'suficiente'],
+    ['Barra caliente con calidad Chicanito (hidratada y abastecida)', 'alta', false, null, 'CALIDAD', 'hidratada y abastecida'],
+    ['Organizar área de trabajo', 'baja', false, null, null, null],
+    ['Mantener publicidad/promociones visibles', 'baja', false, null, null, null],
+    ['Ofrecer promociones (grupos de WhatsApp)', 'media', false, null, null, null],
+    ['Productos ofrecidos activamente durante el día', 'media', false, null, 'FRECUENCIA', 'constante durante el día'],
+    ['Atención al cliente amable y constante', 'media', false, null, 'CALIDAD', 'trato amable constante'],
+    ['Ventiladores anti-moscas funcionando (mínimo 2 por barra, pilas cargadas a diario)', 'critica', true, 'piezas', 'PROCESO', 'mínimo 2/barra, pilas cargadas a diario'],
+    ['Hoja final de cierre enviada (con cobros de tarjeta)', 'critica', false, null, 'EVIDENCIA', '100%'],
+    ['Ayudar a cerrar el establecimiento', 'media', false, null, null, null],
   ],
   ventas_barras: [
     ['Registro de llegada', 'baja', false, null],
@@ -194,6 +311,27 @@ const SEED_ACTIVITIES = {
   ],
 };
 
+// Catálogo semilla — empleados para Asistencia (área nueva, 7 sep 2026). Tomado de la
+// nómina semanal en papel de Chicanito. Asistencia vive en tablas separadas
+// (employees / attendance_checks) en vez de SEED_ACTIVITIES / activities porque cada
+// persona necesita 4 marcas de hora por día (entrada, comida-salida, comida-regreso,
+// salida), no un solo check ✓/✗ como el resto de las áreas.
+const SEED_EMPLOYEES = [
+  'Ana Lira',
+  'Perla Estrada',
+  'Maricruz Jiménez',
+  'Gina Flores',
+  'Keylar Flores',
+  'Nohemí Barrera',
+  'Julissa Mendoza',
+  'Mauricio Salgado',
+  'Herman Melo',
+  'Rocío Mata',
+  'Eliseo Barreto',
+  'Nancy Rentería',
+  'Yerely Leyva Díaz',
+];
+
 // Catálogo semilla — inventario (~30 SKUs, categorías reales mencionadas por Miguel).
 // Punto de partida razonable — Nancy/Miguel deben afinar cantidades objetivo y unidades exactas.
 const SEED_INVENTORY_ITEMS = [
@@ -263,10 +401,19 @@ async function ensureTables() {
       weight INT NOT NULL DEFAULT 3,
       requires_quantity BOOLEAN NOT NULL DEFAULT false,
       unit TEXT,
+      indicator_type TEXT,
+      target TEXT,
       order_index INT NOT NULL DEFAULT 0,
       active BOOLEAN NOT NULL DEFAULT true
     )
   `;
+
+  // Migración idempotente para bases ya creadas antes del 2 sep 2026 (piloto de
+  // Freidoras): activities ya existía sin indicator_type/target. ADD COLUMN IF NOT
+  // EXISTS no rompe nada si ya corrieron — y en una base nueva el CREATE TABLE de
+  // arriba ya las trae, así que esto es un no-op.
+  await sql`ALTER TABLE activities ADD COLUMN IF NOT EXISTS indicator_type TEXT`;
+  await sql`ALTER TABLE activities ADD COLUMN IF NOT EXISTS target TEXT`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS activity_checks (
@@ -322,6 +469,31 @@ async function ensureTables() {
     )
   `;
 
+  // --- Asistencia (7 sep 2026): tablas propias, separadas de activities/activity_checks ---
+  await sql`
+    CREATE TABLE IF NOT EXISTS employees (
+      id SERIAL PRIMARY KEY,
+      name TEXT UNIQUE NOT NULL,
+      active BOOLEAN NOT NULL DEFAULT true,
+      order_index INT NOT NULL DEFAULT 0
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS attendance_checks (
+      id SERIAL PRIMARY KEY,
+      employee_id INT NOT NULL REFERENCES employees(id),
+      location_id INT NOT NULL REFERENCES locations(id),
+      check_date DATE NOT NULL,
+      entrada TIMESTAMPTZ,
+      comida_salida TIMESTAMPTZ,
+      comida_regreso TIMESTAMPTZ,
+      salida TIMESTAMPTZ,
+      recorded_by TEXT,
+      UNIQUE(employee_id, location_id, check_date)
+    )
+  `;
+
   // --- Seed: solo inserta si la tabla de locations está vacía (primera vez) ---
   const existing = await sql`SELECT COUNT(*)::int AS n FROM locations`;
   if (existing[0].n === 0) {
@@ -341,11 +513,11 @@ async function ensureTables() {
       const areaId = areaIdByCode[areaCode];
       if (!areaId) continue;
       let orderIndex = 0;
-      for (const [name, criticality, requiresQuantity, unit] of acts) {
+      for (const [name, criticality, requiresQuantity, unit, indicatorType, target] of acts) {
         orderIndex += 1;
         const weight = CRITICALITY_WEIGHT[criticality] || 3;
-        await sql`INSERT INTO activities (area_id, name, criticality, weight, requires_quantity, unit, order_index)
-          VALUES (${areaId}, ${name}, ${criticality}, ${weight}, ${requiresQuantity}, ${unit}, ${orderIndex})`;
+        await sql`INSERT INTO activities (area_id, name, criticality, weight, requires_quantity, unit, indicator_type, target, order_index)
+          VALUES (${areaId}, ${name}, ${criticality}, ${weight}, ${requiresQuantity}, ${unit}, ${indicatorType ?? null}, ${target ?? null}, ${orderIndex})`;
       }
     }
 
@@ -355,7 +527,18 @@ async function ensureTables() {
     }
   }
 
+  // --- Seed de empleados: gate propio, independiente del de locations arriba ---
+  const existingEmployees = await sql`SELECT COUNT(*)::int AS n FROM employees`;
+  if (existingEmployees[0].n === 0) {
+    let orderIndex = 0;
+    for (const name of SEED_EMPLOYEES) {
+      orderIndex += 1;
+      await sql`INSERT INTO employees (name, order_index) VALUES (${name}, ${orderIndex})
+        ON CONFLICT (name) DO NOTHING`;
+    }
+  }
+
   return sql;
 }
 
-module.exports = { getSql, ensureTables, CRITICALITY_WEIGHT };
+module.exports = { getSql, ensureTables, CRITICALITY_WEIGHT, SEED_ACTIVITIES };
