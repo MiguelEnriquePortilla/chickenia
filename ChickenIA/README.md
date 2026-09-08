@@ -29,42 +29,30 @@ o después del primer deploy; solo se siembran una vez (si ya hay datos, no se v
 a insertar), así que un cambio después del primer deploy se hace directo en la base
 de datos o borrando la tabla `activities` para que se vuelva a sembrar.
 
-## Deploy — pasos exactos
+## Deploy — por GitHub (no manual)
 
-1. Abre una terminal en esta carpeta (`ChickenIA`).
-2. Instala dependencias:
-   ```
-   npm install
-   ```
-3. Si no tienes Vercel CLI:
-   ```
-   npm install -g vercel
-   ```
-4. Inicia sesión si hace falta:
-   ```
-   vercel login
-   ```
-5. Crea una base de datos en [neon.tech](https://neon.tech) (o usa una que ya tengas)
-   y copia el **connection string** (empieza con `postgres://...`).
-6. Enlaza el proyecto (te va a preguntar nombre — puedes usar `chickenia`):
-   ```
-   vercel link
-   ```
-7. Agrega la variable de entorno con el connection string de Neon:
-   ```
-   vercel env add DATABASE_URL
-   ```
-   Pégalo cuando lo pida, y selecciona Production y Preview.
-8. Despliega a producción:
-   ```
-   vercel --prod
-   ```
-9. Abre la URL que te da Vercel. Entra a `/supervision.html` para que Nancy empiece a
-   verificar, y a `/dashboard.html` para revisar tú y Lilian.
+Este proyecto ya está conectado: repo [MiguelEnriquePortilla/chickenia](https://github.com/MiguelEnriquePortilla/chickenia)
+enlazado al proyecto `chickenia` en Vercel. Cada push a `main` dispara build y deploy
+automático a `chickenia.chicanito.app` — no hace falta `vercel --prod` ni ninguna CLI.
 
-Opcional (recomendado para que quede igual que tus otros proyectos): sube esta carpeta
-a un repo de GitHub y conecta ese repo en Vercel para que cada cambio se despliegue
-solo.
+El repo git vive un nivel arriba de esta carpeta (`02-OPERACION/`, con `ChickenIA/` como
+subcarpeta). Para desplegar un cambio:
+
+```bash
+cd ..                                # a 02-OPERACION, donde vive .git
+git add ChickenIA
+git commit -m "mensaje del cambio"
+git push origin main
+```
+
+En unos ~10 segundos el cambio queda live. La variable `DATABASE_URL` (Neon Postgres) ya
+está configurada en Vercel.
+
+**Por qué así y no con deploys manuales de archivos:** se probó subir cambios directo a
+Vercel sin pasar por git (una tool que sube el árbol de archivos completo en cada llamada)
+y, al no incluir *todos* los archivos en una sola llamada, cada intento borraba partes de
+la app ya en producción — pasó cinco veces seguidas en una sola sesión. Con GitHub, el
+repo completo siempre va junto; no hay forma de mandar "la mitad" de un push.
 
 ## Pendiente para siguientes iteraciones
 

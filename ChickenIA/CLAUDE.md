@@ -88,24 +88,44 @@ Playwright (`pip install playwright && playwright install chromium`, o usa el Ch
 del sistema si ya está). Córrelo antes de cada deploy — ya atrapó un bug real de
 contraste en modo oscuro antes de que llegara a producción.
 
-## Cómo desplegar desde aquí
+## Cómo desplegar desde aquí — SIEMPRE por GitHub, nunca por snapshot directo a Vercel
 
-Esta carpeta se llama `ChickenIA` a propósito — el proyecto en Vercel tiene un Root
-Directory fijo con ese nombre exacto, así que despliega desde el directorio **padre** de
-esta carpeta, o usa la CLI de Vercel enlazando el proyecto existente:
+**Regla dura (8 sep 2026): NUNCA uses la tool `deploy_to_vercel` (deploy de archivos
+directo/MCP) para esta app.** Esa tool sube un snapshot completo del árbol de archivos en
+cada llamada — si te falta un solo archivo en la llamada, ese archivo desaparece de
+producción. Eso pasó de verdad: intentando agregar solo los iconos del PWA, se rompió la
+app en producción **cinco veces seguidas** (perdía CSS, o JS, o toda la API) porque cada
+intento de "solo agregar lo nuevo" borraba lo demás. Cambiar a GitHub resolvió todo en un
+solo push.
+
+El repo ya existe y el proyecto de Vercel ya está enlazado a él — cada push a `main` hace
+build y deploy automático (usa Root Directory `ChickenIA` dentro del repo, así que el repo
+en sí vive un nivel arriba, en `02-OPERACION/`, con `ChickenIA/` como subcarpeta):
+
+- Repo: https://github.com/MiguelEnriquePortilla/chickenia
+- El working tree de git es `02-OPERACION/` (el padre de esta carpeta), NO esta carpeta.
+  `.git/` vive ahí. `git status`/`git add`/`git commit`/`git push` deben correr desde ahí
+  (o con `cd` explícito), apuntando a rutas `ChickenIA/...`.
+
+Flujo normal para desplegar un cambio:
 
 ```bash
-npm install -g vercel        # si no la tienes
-cd ChickenIA
-vercel link                  # selecciona el proyecto "chickenia" ya existente
-vercel --prod                # despliega a producción
+cd "02-OPERACION"                    # el padre de ChickenIA, donde vive .git
+git add ChickenIA
+git commit -m "mensaje del cambio"
+git push origin main
 ```
 
-Si `vercel link` no encuentra el proyecto automáticamente, en el dashboard de Vercel
-busca el proyecto `chickenia` (team con id `team_1P2MDjO0f72YHux4j2yu7JJx`) y enlázalo
-manualmente. La variable de entorno `DATABASE_URL` (Neon Postgres) ya está configurada en
-el proyecto en Vercel — no hace falta volver a agregarla a menos que la base de datos
-cambie.
+Eso dispara el build en Vercel solo. Confirma con `get_deployment` (o revisando
+`chickenia.chicanito.app` directo) que llegó a `READY` — normalmente toma ~10 segundos.
+
+La variable de entorno `DATABASE_URL` (Neon Postgres) ya está configurada en el proyecto
+en Vercel — no hace falta volver a agregarla a menos que la base de datos cambie.
+
+Si algún día hace falta un deploy manual de verdad (sin git, caso raro) — por ejemplo para
+probar algo en preview sin ensuciar el historial — usa `deploy_to_vercel` con
+`target: "preview"` y **absolutamente todos** los archivos del árbol en una sola llamada,
+nunca `target: "production"` para pruebas.
 
 ## Nota chiquita pendiente (no urgente)
 
