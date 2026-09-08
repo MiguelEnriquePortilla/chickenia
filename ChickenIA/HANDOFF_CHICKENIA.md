@@ -56,16 +56,11 @@ y deploy automático:
   en vivo), iconos en `icons/` (JPEG comprimido, no PNG — el arte con degradado comprimía
   mucho mejor así). Confirmado: manifest carga, iconos regresan 200, instalable.
 
-## Pendiente — lo único que falta es a ojo de Miguel/Nancy, no de código
+## `entrenamiento.html` — cerrado, sin pendientes
 
-`entrenamiento.html` (commit `51fc630`) quedó **confirmado en producción** al reanudar la
-sesión: `get_deployment` → `READY`, y `https://chickenia-three.vercel.app/entrenamiento.html`
-responde 200 con el HTML completo (10 hojas). No hace falta re-verificar el deploy.
-
-Lo único que sigue abierto es que Miguel/Nancy revisen cómo se ve **impreso o en PDF real**
-(el diseño solo se probó en pantalla vía el Browser pane) — abrir la URL, dar clic en
-"Imprimir / Guardar PDF", y confirmar que los saltos de página entre áreas se vean bien
-antes de imprimir en volumen. Si hace falta ajustar algo (tamaño de letra, alto de fila,
+Confirmado en producción y **confirmado impreso** (Miguel revisó el resultado en papel el
+8 sep: "se ve bien"). `get_deployment` → `READY`, página responde 200 con las 10 hojas.
+Nada abierto aquí. Si en el futuro hace falta ajustar algo (tamaño de letra, alto de fila,
 dónde cae un salto de página), es edición directa en `entrenamiento.html` + el flujo de
 deploy normal (`git add / commit / push`), no algo que requiera tocar la app en sí.
 
