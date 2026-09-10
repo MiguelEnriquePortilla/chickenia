@@ -28,12 +28,14 @@ thread.start()
 
 from playwright.sync_api import sync_playwright
 
-OUT = os.path.join(os.path.dirname(__file__), "shots")
+OUT = os.path.join(os.path.dirname(__file__), "results", "legacy")
 os.makedirs(OUT, exist_ok=True)
 
 
 def mock_api(route):
     url = route.request.url
+    if "/api/employees" in url or "/api/attendance" in url:
+        return route.fulfill(status=200, content_type="application/json", body="[]")
     if "/api/locations" in url:
         return route.fulfill(status=200, content_type="application/json", body=json.dumps(LOCATIONS))
     if "/api/areas" in url:
@@ -48,7 +50,7 @@ def mock_api(route):
 
 
 with sync_playwright() as p:
-    browser = p.chromium.launch()
+    browser = p.chromium.launch(channel=os.environ.get("PLAYWRIGHT_CHANNEL", "msedge" if os.name == "nt" else None))
     page = browser.new_page(viewport={"width": 1000, "height": 1400})
     page.route("**/api/**", mock_api)
 

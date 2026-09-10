@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inventario — ChickenIA</title>
+<meta name="theme-color" content="#17213e">
+<link rel="icon" href="/icons/icon-32.png"><link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/inventory.css">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem('chickenia_theme')==='dark')document.documentElement.dataset.theme='dark';}catch(e){}</script>
+<script src="/js/inventory.js" defer></script>
+</head>
+<body class="inv-body">
+<header class="inv-header"><a href="/" class="inv-brand">CHICKEN<span>·</span>IA</a><span>Control de inventario</span><div class="inv-header-actions"><button id="theme" type="button">Claro / oscuro</button><a href="/supervision.html">Supervisión</a><button id="logout" type="button" hidden>Cerrar sesión</button></div></header>
+<main class="inv-main">
+<div id="message" role="status" aria-live="polite"></div>
+<section id="login-panel" class="inv-panel inv-login" hidden><h1>Acceso a inventario</h1><form id="login-form"><label>Usuario<input name="username" autocomplete="username" required maxlength="40"></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" required maxlength="128"></label><button class="inv-primary" type="submit">Entrar</button></form></section>
+<section id="workspace" hidden>
+<div class="inv-heading"><div><h1 id="page-title">Control del día</h1><span id="identity"></span></div><div class="inv-tools"><label>Ubicación<select id="location"><option value="sucursal">Sucursal</option><option value="cedis">CEDIS</option></select></label><button id="refresh" type="button">Actualizar datos</button></div></div>
+<nav id="nav" aria-label="Módulos de inventario"></nav>
+<div id="view"></div>
+</section>
+<noscript>Activa JavaScript para registrar inventario.</noscript>
+</main>
+</body></html>

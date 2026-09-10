@@ -3,3 +3,9 @@ node_modules
 .env
 .env.local
 __pycache__/
+.tools/
+.local/
+public/
+test/results/
+.env.*
+!.env.example

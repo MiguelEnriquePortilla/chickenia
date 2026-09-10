@@ -1,5 +1,19 @@
 # ChickenIA
 
+## Control de inventario — nueva versión
+
+Acceso en `/inventario.html`: inventario CEDIS/Sucursal, solicitud y recepción,
+preparación/cocción, ventas directas, conteos, proveedores, insumos y apertura por área.
+No se conecta a Poster. Conserva sin modificar las tablas del checklist y asistencia.
+
+**Activación:** leer [RELEASE_INVENTARIO.md](RELEASE_INVENTARIO.md). Requiere dos variables
+de cuentas en Vercel además de `DATABASE_URL`. Sin configurarlas, inventario queda cerrado.
+`npm test` verifica lógica/API/PostgreSQL; `python test/inventory_browser.py` recorre la UI.
+`npm run build` prepara archivos públicos sin credenciales, pruebas ni fuentes de servidor.
+
+Las secciones siguientes describen la versión original de supervisión; sus referencias a
+una futura integración de ventas quedan reemplazadas por captura directa en ChickenIA.
+
 Supervisión operativa en tiempo real para Chicken Chicanito: checklist maestro por área
 (sucursal Jojutla + unidades Moto Chicanito), inventario y verificación cruzada de pollo
 recibido vs. sobrante. Mismo stack que chicanito-app y Chicanito Capital: HTML/CSS/JS

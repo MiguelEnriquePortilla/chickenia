@@ -1,0 +1,9 @@
+{
+  "buildCommand": "node scripts/build-static.js",
+  "outputDirectory": "public",
+  "installCommand": "npm ci --omit=dev",
+  "headers": [
+    {"source": "/inventario.html", "headers": [{"key": "Cache-Control", "value": "no-cache"}, {"key": "X-Content-Type-Options", "value": "nosniff"}]},
+    {"source": "/js/inventory.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}]}
+  ]
+}

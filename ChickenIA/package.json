@@ -5,5 +5,17 @@
   "description": "ChickenIA — supervisión operativa en tiempo real para Chicken Chicanito",
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8"
+  },
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "scripts": {
+    "test": "node --test test/inventory.test.js",
+    "build": "node scripts/build-static.js",
+    "dev:inventory": "node scripts/dev-inventory.js",
+    "setup:inventory": "node scripts/create-inventory-users.js"
   }
 }

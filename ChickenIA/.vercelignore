@@ -1,0 +1,6 @@
+.tools
+.local
+test
+*.md
+.env*
+node_modules
