@@ -1,5 +1,5 @@
 (() => {
-  const $=id=>document.getElementById(id), areas={general:'Todas las áreas',rastro:'Rastro',almacen:'Almacén',cocina:'Cocina',rosticero:'Rosticero',freidoras:'Freidoras',caja:'Caja',ventas_barras:'Ventas / Barras',trastes:'Lavado de trastes',supervision:'Supervisión'};
+  const $=id=>document.getElementById(id), areas={general:'Todas las áreas',rastro:'Rastro',sucursal_apertura:'Apertura de Sucursal',almacen:'Almacén',cocina:'Cocina',rosticero:'Rosticero',freidoras:'Freidoras',caja:'Caja',ventas_barras:'Ventas / Barras',trastes:'Lavado de trastes',supervision:'Supervisión'};
   const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
   let previous='',busy=false;
   function element(tag,text,cls){const e=document.createElement(tag);if(text!=null)e.textContent=text;if(cls)e.className=cls;return e;}

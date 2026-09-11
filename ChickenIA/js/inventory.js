@@ -28,7 +28,7 @@
     if(['rastro','almacen'].includes(code))location='cedis';
     else if(code!=='general'&&code!=='supervision')location='sucursal';
     $('#location').value=location;
-    if(code!=='general')tab=code==='cocina'?'kitchenProduction':basicPanel?'proteins':'stock';render();
+    if(code!=='general')tab=code==='sucursal_apertura'?'opening':code==='cocina'?'kitchenProduction':basicPanel?'proteins':'stock';render();
   }
   const item = id => snapshot.data.items.find(i=>i.id===id);
   const bal = (loc,id) => snapshot.data.balances[`${loc}:${id}`] || 0;
@@ -223,6 +223,11 @@
     wireForm('consume-form',(v,f)=>commit('consume',{location,lines:linesFrom(f),note:v.note}));
   }
   function opening(){
+    if(location==='sucursal'){
+      const entry=snapshot.data.openings[`${snapshot.today}:sucursal`];
+      $('#view').innerHTML=panel('Apertura de Sucursal',`<p>La rutina se registra en su propia área para tener una sola lista de cumplimiento.</p><a id="sucursal-opening-link" href="/supervision.html?area=sucursal_apertura&date=${snapshot.today}">Abrir rutina de Apertura de Sucursal →</a>${entry?`<p>Registro anterior de inventarios conservado: ${esc(entry.actor)} · ${esc(nowDate(entry.at))}.</p>`:''}`);
+      return;
+    }
     const tasks=snapshot.openingTasks[location],entry=snapshot.data.openings[`${snapshot.today}:${location}`];
     $('#view').innerHTML=panel(`Apertura de ${location==='cedis'?'Rastro · CEDIS':'Sucursal'}`,`<form id="opening-form">${tasks.map((t,i)=>`<label class="inv-check"><input name="task" type="checkbox" value="${i}" ${entry?.done.includes(i)?'checked':''} ${can('opening')?'':'disabled'}>${esc(t)}</label>`).join('')}${entry?`<p>Última revisión: ${esc(entry.actor)} · ${esc(nowDate(entry.at))}</p>`:''}${can('opening')?submit('Guardar revisión de apertura'):''}</form><p><a href="/supervision.html">Ver checklist operativo y asistencia</a></p>`);
     wireForm('opening-form',(v,f)=>commit('opening',{location,done:new FormData(f).getAll('task').map(Number)}));

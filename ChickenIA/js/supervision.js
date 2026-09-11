@@ -1,6 +1,7 @@
 // js/supervision.js — Pantalla maestra de supervisión en tiempo real (Nancy).
 // El supervisor NUNCA se autocalifica: aquí Nancy verifica lo que hizo cada área,
 // no lo que reportan los empleados. Cada check queda con hora de servidor (checked_at).
+const OPEN_AREAS_KEY = 'chickenia_open_areas';
 const state = {
   locations: [],
   location: null,
@@ -17,7 +18,6 @@ const state = {
 const $ = (sel) => document.querySelector(sel);
 
 // --- Acordeón por área: qué áreas quedan abiertas, persistido por dispositivo ---
-const OPEN_AREAS_KEY = 'chickenia_open_areas';
 function loadOpenAreas() {
   try {
     const raw = localStorage.getItem(OPEN_AREAS_KEY);
@@ -42,6 +42,7 @@ function toggleArea(code, forceOpen) {
   const isOpen = forceOpen != null ? forceOpen : header.getAttribute('aria-expanded') !== 'true';
   header.setAttribute('aria-expanded', String(isOpen));
   body.inert = !isOpen;
+  if(state.openAreas===null)state.openAreas=new Set();
   if (isOpen) state.openAreas.add(code);
   else state.openAreas.delete(code);
   saveOpenAreas();

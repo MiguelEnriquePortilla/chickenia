@@ -1,6 +1,6 @@
 'use strict';
 const { today, InventoryError } = require('./inventory-domain');
-const AREAS = { general:'Todas las áreas', rastro:'Rastro', almacen:'Almacén', cocina:'Cocina', rosticero:'Rosticero', freidoras:'Freidoras', caja:'Caja', ventas_barras:'Ventas / Barras', trastes:'Lavado de trastes', supervision:'Supervisión' };
+const AREAS = { general:'Todas las áreas', rastro:'Rastro', sucursal_apertura:'Apertura de Sucursal', almacen:'Almacén', cocina:'Cocina', rosticero:'Rosticero', freidoras:'Freidoras', caja:'Caja', ventas_barras:'Ventas / Barras', trastes:'Lavado de trastes', supervision:'Supervisión' };
 const normalize = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 function parse(input, now = new Date()) {
   let { question='', date=today(now), area='general', previous='' } = input;

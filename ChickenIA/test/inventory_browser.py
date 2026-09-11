@@ -95,9 +95,8 @@ try:
         expect(page.locator('summary').filter(has_text='Diferencias pendientes')).to_be_attached()
         assert snap()['data']['balances']['sucursal:rosti-cocinado']==8500
         page.locator('[data-tab=opening]').click()
-        page.locator('[name=task]').first.check()
-        page.locator('#opening-form button').click()
-        expect(page.locator('[name=task]').first).to_be_checked()
+        expect(page.locator('#sucursal-opening-link')).to_have_attribute('href',f'/supervision.html?area=sucursal_apertura&date={snap()["today"]}')
+        expect(page.locator('#opening-form')).to_have_count(0)
         # Every screen at phone and desktop widths; test theme contrast visually afterwards.
         for theme in ['light','dark']:
             page.evaluate('(theme)=>document.documentElement.dataset.theme=theme',theme)

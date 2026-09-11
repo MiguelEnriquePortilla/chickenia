@@ -23,7 +23,8 @@ Configurar `CHICKENIA_PILOT_ACCESS=0` en el servidor y desplegar con esa variabl
 - 20 pruebas Node aprobadas, incluyendo PostgreSQL local: clave incorrecta, nombre libre, identidad firmada, acceso completo, preservación de Nancy, cookies alteradas y restauración de cuentas individuales.
 - `test/pilot_browser.py` comprobó login real con API y base local, redirección del Dashboard, acceso a Chicken-IA sin otro login, módulos de inventario para persona nueva y Nancy, y cierre de sesión compartido. Solo los reportes del Dashboard se sustituyeron por fixtures.
 - `scripts/dev-inventory.js` conserva cuentas individuales por defecto para los tests antiguos; para probar el piloto localmente, usar `CHICKENIA_PILOT_ACCESS=1`. Se agregó la ruta local de Chicken-IA.
-- Publicación por el flujo existente commit/push → Vercel. El resultado de producción se reporta en la conversación tras verificarlo.
+- Publicación confirmada: commit `41563c3` enviado a main. Dashboard publicado con sesión compartida; login real, sesiones de Inventario/Chicken-IA y consulta de inventario devolvieron HTTP 200. Se comprobaron 20 operaciones habilitadas. Logout devolvió HTTP 200 y la siguiente consulta de sesión HTTP 401. No se registraron movimientos operativos en esta verificación.
+- Detalle y enlaces en [reporte de cierre de acceso unificado](REPORTE_SESION_2026-09-11_ACCESO_UNIFICADO.md). Los servidores locales de prueba se detuvieron.
 
 ## Continuidad
 

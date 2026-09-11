@@ -67,58 +67,585 @@ const DAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 // Mismos catálogos que api/lib/db.js (SEED_ACTIVITIES) — copiados tal cual, no reescritos.
 const AREAS = [
   { name: 'Rastro', activities: [
-    ['Pollo rostizado preparado', 'critica', true, 'piezas', 'PRODUCCIÓN', '100–200 piezas'],
-    ['Pollo crujiente preparado', 'critica', true, 'piezas', 'PRODUCCIÓN', '45–90 piezas'],
-    ['Costilla preparada', 'media', true, 'porciones', 'PRODUCCIÓN', '4–10 porciones'],
-    ['Cebolla mediana en buen estado', 'baja', false, null, 'FRECUENCIA', 'revisión semanal'],
-    ['Papa Alfa colgada y porcionada (15 kg/arpilla)', 'media', true, 'porciones', 'INSUMO', '1–2 porciones'],
-    ['Papa cambray colgada', 'media', true, 'kg', 'INSUMO', '5–10 kg/arpilla'],
-    ['Brócoli fresco y refrigerado', 'media', false, null, 'CALIDAD', 'fresco, sin defectos'],
-    ['Perejil fresco', 'baja', false, null, 'CALIDAD', 'fresco, sin defectos'],
-    ['Jitomate porcionado en cámara de proteínas', 'media', false, null, 'PROCESO', 'bolsas de 1.3 kg'],
-    ['Jalapeño/serrano refrigerado y despalillado desde raíz', 'media', true, 'porciones', 'INSUMO', '1–2 porciones'],
-    ['Marinado de pollo crujiente producido', 'alta', true, 'litros', 'INSUMO', 'mínimo 20 L'],
-    ['Morrón fresco (preferencia color rojo)', 'baja', false, null, 'CALIDAD', 'color rojo, fresco'],
-    ['Nopal limpio, corte de 1 cm', 'baja', true, 'porciones', 'INSUMO', '0.5–1 porción'],
-    ['Harina para crujientes contabilizada', 'media', true, 'bultos', 'INSUMO', '8–30 bultos (20 kg c/u)'],
-    ['Arroz para bulto', 'media', true, 'bultos', 'INSUMO', '1–3 bultos/semana'],
-    ['Coles revisadas y contabilizadas', 'baja', false, null, 'INSUMO', 'por definir'],
-    ['Revisión de calidad/cantidad de vegetales con supervisión', 'media', false, null, 'FRECUENCIA', 'quincenal (compra)'],
-    ['Jabón en polvo', 'baja', true, 'bolsas', 'INSUMO', '3 bolsas de 1 kg/semana'],
-    ['Leche', 'baja', true, 'piezas', 'INSUMO', '20 piezas (tetrapack 1 L)/semana'],
-    ['Sal-pimienta (mezcla de la casa)', 'baja', false, null, 'INSUMO', '1 bote de 4 L/semana'],
-    ['Hierbas de olor', 'baja', true, 'docenas', 'INSUMO', '2 docenas/semana'],
-    ['Cloro Clarasol', 'media', true, 'garrafas', 'INSUMO', '2–9 garrafas'],
-    ['Sal fina', 'baja', true, 'bultos', 'INSUMO', '1–4 bultos (25 kg c/u)'],
-    ['Agua de garrafón', 'baja', true, 'piezas', 'INSUMO', 'máx 7 piezas (garrafón #1)'],
-    ['Piso limpio y seco', 'media', false, null, 'LIMPIEZA', '100% diario'],
-    ['Refrigeradores limpios y ordenados', 'media', false, null, 'FRECUENCIA', 'semanal'],
-    ['Tanques de almacenamiento revisados', 'baja', false, null, 'FRECUENCIA', '2x/semana'],
-    ['Mezcladora limpia, sin residuo de harina', 'media', false, null, 'FRECUENCIA', 'mensual (0 residuo)'],
-    ['Contenedores de harina limpios', 'baja', false, null, 'FRECUENCIA', 'mensual'],
-    ['Trapos y costales limpios y secos', 'baja', false, null, 'LIMPIEZA', '100%'],
-    ['Cubetas y cajas de proteína limpias y en su lugar', 'media', false, null, 'LIMPIEZA', '100% diario'],
-    ['Palas, peladores y cuchillos revisados', 'media', false, null, 'LIMPIEZA', '100% diario'],
-    ['Baño lavado', 'baja', false, null, 'FRECUENCIA', '2x/semana'],
-    ['Tinas para lavar pollo lavadas', 'media', false, null, 'LIMPIEZA', '100% diario'],
-    ['Bidones de agua revisados', 'baja', false, null, 'LIMPIEZA', '100% diario'],
-    ['Escobas, jaladores, recogedores y botes en existencia', 'baja', false, null, 'INSUMO', '100% diario'],
-    ['Equipo y camioneta revisados (aceite, gasolina, neumáticos)', 'alta', false, null, 'FRECUENCIA', 'semanal (lunes)'],
-    ['Paneles solares limpios', 'baja', false, null, 'FRECUENCIA', 'cada 15 días'],
-    ['Cámara de refrigeración y refris lavados a fondo', 'media', false, null, 'FRECUENCIA', 'semestral'],
-    ['Limpieza general de área', 'media', false, null, 'LIMPIEZA', '100% diario'],
-    ['Limpieza de camioneta', 'baja', false, null, 'LIMPIEZA', '100% diario'],
-    ['Costilla, pollo rostizado y crujiente verificados antes de salida', 'critica', false, null, 'EXCEPCIÓN', '0 faltantes'],
-    ['Vegetales verificados antes de salida', 'alta', false, null, 'EXCEPCIÓN', '0 faltantes'],
-    ['Áreas y utensilios ordenados antes de salida', 'media', false, null, 'PROCESO', '100%'],
-    ['Existencias completas para pase de salida (jabón, sal, arroz, leche, sal-pimienta, cloro, agua, bolsas)', 'critica', false, null, 'EXCEPCIÓN', '0 faltantes'],
-    ['Pase de salida generado y firmado', 'critica', false, null, 'EVIDENCIA', '100% diario'],
-    ['Actividades escritas en pizarrón al pase de salida', 'baja', false, null, 'EVIDENCIA', '100% diario'],
-    ['Registro de gastos de rastro', 'media', true, 'pesos', 'DINERO', '100% con evidencia'],
-    ['Compra de gasolina (foto de recibo)', 'media', true, 'pesos', 'DINERO', '100% con evidencia'],
-    ['Compra de hielo', 'baja', false, null, 'INSUMO', 'según necesidad diaria'],
-    ['Pollo con hielo suficiente', 'alta', false, null, 'INSUMO', '100% cubierto'],
-  ]},
+  [
+    "Confirmar llegada a Rastro a las 6:00 a. m.",
+    "alta",
+    false,
+    null,
+    "PUNTUALIDAD",
+    "Registrar hora real de llegada en observaciones",
+    "apertura"
+  ],
+  [
+    "Revisar solicitud de inventario para Sucursal",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Identificar productos y cantidades solicitadas de Rastro y Almacén",
+    "apertura"
+  ],
+  [
+    "Preparar y cargar el inventario solicitado",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Cargar lo solicitado; documentar faltantes y salida en Inventario, sin crear otro movimiento desde esta lista",
+    "apertura"
+  ],
+  [
+    "Trasladar el inventario de Rastro y Almacén a Sucursal",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "La descarga y apertura del local se revisan en Apertura de Sucursal",
+    "apertura"
+  ],
+  [
+    "Revisar las actividades de producción solicitadas el día anterior",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Preparaciones y cantidades según la orden del día; no producir una cantidad fija por defecto",
+    "operacion"
+  ],
+  [
+    "Pollo para ROSTI preparado según orden del día",
+    "critica",
+    true,
+    "piezas",
+    "PRODUCCIÓN",
+    "Cantidad solicitada en la orden; indicar en observaciones cuando no se solicitó",
+    "operacion"
+  ],
+  [
+    "Pollo para CRUJI preparado según orden del día",
+    "critica",
+    true,
+    "piezas",
+    "PRODUCCIÓN",
+    "Cantidad solicitada en la orden; indicar en observaciones cuando no se solicitó",
+    "operacion"
+  ],
+  [
+    "Costilla preparada",
+    "media",
+    true,
+    "porciones",
+    "PRODUCCIÓN",
+    "4–10 porciones",
+    "operacion"
+  ],
+  [
+    "Cebolla mediana en buen estado",
+    "baja",
+    false,
+    null,
+    "FRECUENCIA",
+    "revisión semanal",
+    "operacion"
+  ],
+  [
+    "Papa Alfa colgada y porcionada (15 kg/arpilla)",
+    "media",
+    true,
+    "porciones",
+    "INSUMO",
+    "1–2 porciones",
+    "operacion"
+  ],
+  [
+    "Papa cambray colgada",
+    "media",
+    true,
+    "kg",
+    "INSUMO",
+    "5–10 kg/arpilla",
+    "operacion"
+  ],
+  [
+    "Brócoli fresco y refrigerado",
+    "media",
+    false,
+    null,
+    "CALIDAD",
+    "fresco, sin defectos",
+    "operacion"
+  ],
+  [
+    "Perejil fresco",
+    "baja",
+    false,
+    null,
+    "CALIDAD",
+    "fresco, sin defectos",
+    "operacion"
+  ],
+  [
+    "Jitomate porcionado en cámara de proteínas",
+    "media",
+    false,
+    null,
+    "PROCESO",
+    "bolsas de 1.3 kg",
+    "operacion"
+  ],
+  [
+    "Jalapeño/serrano refrigerado y despalillado desde raíz",
+    "media",
+    true,
+    "porciones",
+    "INSUMO",
+    "1–2 porciones",
+    "operacion"
+  ],
+  [
+    "Marinado de pollo crujiente producido",
+    "alta",
+    true,
+    "litros",
+    "INSUMO",
+    "mínimo 20 L",
+    "operacion"
+  ],
+  [
+    "Morrón fresco (preferencia color rojo)",
+    "baja",
+    false,
+    null,
+    "CALIDAD",
+    "color rojo, fresco",
+    "operacion"
+  ],
+  [
+    "Nopal limpio, corte de 1 cm",
+    "baja",
+    true,
+    "porciones",
+    "INSUMO",
+    "0.5–1 porción",
+    "operacion"
+  ],
+  [
+    "Harina para crujientes contabilizada",
+    "media",
+    true,
+    "bultos",
+    "INSUMO",
+    "8–30 bultos (20 kg c/u)",
+    "operacion"
+  ],
+  [
+    "Arroz para bulto",
+    "media",
+    true,
+    "bultos",
+    "INSUMO",
+    "1–3 bultos/semana",
+    "operacion"
+  ],
+  [
+    "Coles revisadas y contabilizadas",
+    "baja",
+    false,
+    null,
+    "INSUMO",
+    "por definir",
+    "operacion"
+  ],
+  [
+    "Revisión de calidad/cantidad de vegetales con supervisión",
+    "media",
+    false,
+    null,
+    "FRECUENCIA",
+    "quincenal (compra)",
+    "operacion"
+  ],
+  [
+    "Jabón en polvo",
+    "baja",
+    true,
+    "bolsas",
+    "INSUMO",
+    "3 bolsas de 1 kg/semana",
+    "operacion"
+  ],
+  [
+    "Leche",
+    "baja",
+    true,
+    "piezas",
+    "INSUMO",
+    "20 piezas (tetrapack 1 L)/semana",
+    "operacion"
+  ],
+  [
+    "Sal-pimienta (mezcla de la casa)",
+    "baja",
+    false,
+    null,
+    "INSUMO",
+    "1 bote de 4 L/semana",
+    "operacion"
+  ],
+  [
+    "Hierbas de olor",
+    "baja",
+    true,
+    "docenas",
+    "INSUMO",
+    "2 docenas/semana",
+    "operacion"
+  ],
+  [
+    "Cloro Clarasol",
+    "media",
+    true,
+    "garrafas",
+    "INSUMO",
+    "2–9 garrafas",
+    "operacion"
+  ],
+  [
+    "Sal fina",
+    "baja",
+    true,
+    "bultos",
+    "INSUMO",
+    "1–4 bultos (25 kg c/u)",
+    "operacion"
+  ],
+  [
+    "Agua de garrafón",
+    "baja",
+    true,
+    "piezas",
+    "INSUMO",
+    "máx 7 piezas (garrafón #1)",
+    "operacion"
+  ],
+  [
+    "Piso limpio y seco",
+    "media",
+    false,
+    null,
+    "LIMPIEZA",
+    "100% diario",
+    "operacion"
+  ],
+  [
+    "Refrigeradores limpios y ordenados",
+    "media",
+    false,
+    null,
+    "FRECUENCIA",
+    "semanal",
+    "operacion"
+  ],
+  [
+    "Tanques de almacenamiento revisados",
+    "baja",
+    false,
+    null,
+    "FRECUENCIA",
+    "2x/semana",
+    "operacion"
+  ],
+  [
+    "Mezcladora limpia, sin residuo de harina",
+    "media",
+    false,
+    null,
+    "FRECUENCIA",
+    "mensual (0 residuo)",
+    "operacion"
+  ],
+  [
+    "Contenedores de harina limpios",
+    "baja",
+    false,
+    null,
+    "FRECUENCIA",
+    "mensual",
+    "operacion"
+  ],
+  [
+    "Trapos y costales limpios y secos",
+    "baja",
+    false,
+    null,
+    "LIMPIEZA",
+    "100%",
+    "operacion"
+  ],
+  [
+    "Cubetas y cajas de proteína limpias y en su lugar",
+    "media",
+    false,
+    null,
+    "LIMPIEZA",
+    "100% diario",
+    "operacion"
+  ],
+  [
+    "Palas, peladores y cuchillos revisados",
+    "media",
+    false,
+    null,
+    "LIMPIEZA",
+    "100% diario",
+    "operacion"
+  ],
+  [
+    "Baño lavado",
+    "baja",
+    false,
+    null,
+    "FRECUENCIA",
+    "2x/semana",
+    "operacion"
+  ],
+  [
+    "Tinas para lavar pollo lavadas",
+    "media",
+    false,
+    null,
+    "LIMPIEZA",
+    "100% diario",
+    "operacion"
+  ],
+  [
+    "Bidones de agua revisados",
+    "baja",
+    false,
+    null,
+    "LIMPIEZA",
+    "100% diario",
+    "operacion"
+  ],
+  [
+    "Escobas, jaladores, recogedores y botes en existencia",
+    "baja",
+    false,
+    null,
+    "INSUMO",
+    "100% diario",
+    "operacion"
+  ],
+  [
+    "Equipo y camioneta revisados (aceite, gasolina, neumáticos)",
+    "alta",
+    false,
+    null,
+    "FRECUENCIA",
+    "semanal (lunes)",
+    "operacion"
+  ],
+  [
+    "Paneles solares limpios",
+    "baja",
+    false,
+    null,
+    "FRECUENCIA",
+    "cada 15 días",
+    "operacion"
+  ],
+  [
+    "Cámara de refrigeración y refris lavados a fondo",
+    "media",
+    false,
+    null,
+    "FRECUENCIA",
+    "semestral",
+    "operacion"
+  ],
+  [
+    "Limpieza general de área",
+    "media",
+    false,
+    null,
+    "LIMPIEZA",
+    "100% diario",
+    "operacion"
+  ],
+  [
+    "Limpieza de camioneta",
+    "baja",
+    false,
+    null,
+    "LIMPIEZA",
+    "100% diario",
+    "operacion"
+  ],
+  [
+    "Registro de gastos de rastro",
+    "media",
+    true,
+    "pesos",
+    "DINERO",
+    "100% con evidencia",
+    "operacion"
+  ],
+  [
+    "Compra de gasolina (foto de recibo)",
+    "media",
+    true,
+    "pesos",
+    "DINERO",
+    "100% con evidencia",
+    "operacion"
+  ],
+  [
+    "Compra de hielo",
+    "baja",
+    false,
+    null,
+    "INSUMO",
+    "según necesidad diaria",
+    "operacion"
+  ],
+  [
+    "Pollo con hielo suficiente",
+    "alta",
+    false,
+    null,
+    "INSUMO",
+    "100% cubierto",
+    "operacion"
+  ],
+  [
+    "Preparar papa gajo y resguardarla en refrigeración cuando se solicite",
+    "media",
+    false,
+    null,
+    "PROCESO",
+    "Según orden; registrar cantidad y presentación utilizada. No convertir arpillas a kg sin equivalencia validada",
+    "operacion"
+  ],
+  [
+    "Atender apoyos extraordinarios de Sucursal antes de salir",
+    "baja",
+    false,
+    null,
+    "PROCESO",
+    "Recoger costilla, trastes u otros materiales solo cuando se solicite; indicar si no hubo solicitud",
+    "operacion"
+  ],
+  [
+    "Dejar disponibles las existencias de marinado para ROSTI",
+    "alta",
+    false,
+    null,
+    "INSUMO",
+    "El término crema de Rastro corresponde a este marinado; verificar disponibilidad según la siguiente orden, sin inventar receta ni mínimos",
+    "cierre"
+  ],
+  [
+    "Registrar entradas, salidas y demás movimientos de pollo del día",
+    "critica",
+    false,
+    null,
+    "EVIDENCIA",
+    "Usar Inventario; no volver a sumar el saldo residual. La revisión de registros no equivale a conteo físico",
+    "cierre"
+  ],
+  [
+    "Avisar a Supervisión que Rastro está listo para revisión",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Al terminar la orden, dejar área y registros disponibles; esperar la verificación y autorización de Supervisión antes de salir",
+    "cierre"
+  ],
+  [
+    "Dejar anotadas las actividades solicitadas para el siguiente día",
+    "media",
+    false,
+    null,
+    "EVIDENCIA",
+    "Orden disponible para la siguiente jornada",
+    "cierre"
+  ]
+] },
+  { name: 'Apertura de Sucursal', activities: [
+  [
+    "Levantar la cortina de Sucursal",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Responsable de apertura, aunque sea la misma persona que realiza Rastro",
+    "apertura"
+  ],
+  [
+    "Descargar e ingresar los productos trasladados",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Dejar la entrega disponible para la recepción verificada; no duplicar la salida de Rastro",
+    "apertura"
+  ],
+  [
+    "Retirar y llevar la basura al punto de disposición",
+    "media",
+    false,
+    null,
+    "LIMPIEZA",
+    "Completar el retiro y regresar a Sucursal",
+    "apertura"
+  ],
+  [
+    "Bajar las lonas y colocar las mesas",
+    "media",
+    false,
+    null,
+    "PROCESO",
+    "Mobiliario dispuesto para la apertura",
+    "apertura"
+  ],
+  [
+    "Colocar el pelotero de monedas",
+    "baja",
+    false,
+    null,
+    "PROCESO",
+    "Máquina que entrega pelotas; colocarla en su lugar de operación",
+    "apertura"
+  ],
+  [
+    "Subir y acomodar los trastes disponibles",
+    "media",
+    false,
+    null,
+    "PROCESO",
+    "Trastes colocados en sus lugares para la operación",
+    "apertura"
+  ],
+  [
+    "Limpiar y ordenar el espacio de apertura de Sucursal",
+    "media",
+    false,
+    null,
+    "LIMPIEZA",
+    "Espacio de recepción y apertura limpio y organizado",
+    "apertura"
+  ],
+  [
+    "Resguardar los productos después de la recepción verificada",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Esperar la verificación con Supervisión; guardar cada producto en su ubicación o refrigerador correspondiente",
+    "apertura"
+  ]
+] },
   { name: 'Cocina', activities: [
   [
     "Revisar orden de producción y saldo anterior disponible",
@@ -757,7 +1284,251 @@ const AREAS = [
   ]},
   { name: 'Ventas / Barras', blankRows: 18 },
   { name: 'Lavado de Trastes', blankRows: 12 },
-  { name: 'Supervisión (tienda)', blankRows: 22 },
+  { name: 'Supervisión (tienda)', activities: [
+  [
+    "7:00 a. m. — Llegada de Supervisión y revisión de pendientes",
+    "alta",
+    false,
+    null,
+    "PUNTUALIDAD",
+    "Registrar hora real; este horario sustituye la llegada anterior de las 9:00 a. m.",
+    "apertura"
+  ],
+  [
+    "7:00 a. m. — Verificar recepción contra solicitud de inventario",
+    "critica",
+    false,
+    null,
+    "EVIDENCIA",
+    "Contar con quien entrega, cotejar solicitud y recepción, registrar diferencias y confirmar la recepción una sola vez en Inventario",
+    "apertura"
+  ],
+  [
+    "Verificar la rutina de Apertura de Sucursal",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Revisar las actividades en su apartado; este control no vuelve a contabilizar cortina, mobiliario, trastes o descarga",
+    "apertura"
+  ],
+  [
+    "Revisar llegada del personal, asistencia y uniformes",
+    "media",
+    false,
+    null,
+    "PROCESO",
+    "Como parte de la apertura supervisada; registrar asistencia en su apartado",
+    "apertura"
+  ],
+  [
+    "Preparar el reporte de apertura",
+    "media",
+    false,
+    null,
+    "EVIDENCIA",
+    "Conservar el reporte de apertura; este checklist no envía mensajes automáticamente",
+    "apertura"
+  ],
+  [
+    "10:00 a. m. — Retomar el control de Supervisión",
+    "alta",
+    false,
+    null,
+    "PUNTUALIDAD",
+    "Revisar seguimiento de operación y pendientes al regresar",
+    "operacion"
+  ],
+  [
+    "10:30am — Inspección de áreas de trabajo",
+    "alta",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "11:00am — Evaluación de calidad de guisados/preparaciones",
+    "media",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "11:30am — Revisión de producción (crujiente, adobos, guarniciones)",
+    "alta",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "12:00pm — Supervisión de barras (hidratación, cantidad suficiente)",
+    "media",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "1:00pm — Monitoreo de flujo de clientes",
+    "baja",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "2:00pm — Preparación para hora pico",
+    "media",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "3:00pm — Control de caja (ventas, promociones, lealtad)",
+    "alta",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "4:00pm — Gestión de inventario intermedio",
+    "critica",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "5:00pm — Supervisión de bajada de productos",
+    "media",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "6:00pm — Revisión de limpieza profunda",
+    "media",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "6:30 p. m. — Revisión de registros de inventario final",
+    "critica",
+    false,
+    null,
+    "EVIDENCIA",
+    "Revisar entradas, salidas y saldos registrados. No exige conteo físico diario; si se realiza uno, registrarlo por separado",
+    "operacion"
+  ],
+  [
+    "7:00pm — Cierre del local (caja, cuadres, cambio, evidencias)",
+    "critica",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "7:15pm — Inspección final del local",
+    "media",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "7:30pm — Envío de reporte de cierre (ventas, incidencias, inventario)",
+    "critica",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "Arqueo diario ágil (recepción, almacén, venta)",
+    "critica",
+    false,
+    null,
+    null,
+    null,
+    "operacion"
+  ],
+  [
+    "Revisar vegetales y almacenamiento de Rastro antes de su salida",
+    "alta",
+    false,
+    null,
+    "CALIDAD",
+    "Revisar papa Alfa y cambray colgadas, jalapeño y demás vegetales; reportar producto deteriorado y verificar orden del refrigerador",
+    "cierre"
+  ],
+  [
+    "Verificar hielo del pollo y cámara encendida en Rastro",
+    "alta",
+    false,
+    null,
+    "CALIDAD",
+    "Revisar condiciones de resguardo y productos en sus lugares; no equivale a contar las existencias",
+    "cierre"
+  ],
+  [
+    "Verificar limpieza, orden y utensilios de Rastro",
+    "media",
+    false,
+    null,
+    "LIMPIEZA",
+    "Escobas limpias, cuchillos acomodados y materiales en su área",
+    "cierre"
+  ],
+  [
+    "Verificar insumos para la siguiente jornada de Rastro",
+    "alta",
+    false,
+    null,
+    "INSUMO",
+    "Marinado para ROSTI, leche, sal-pimienta, harina para CRUJI y vegetales según la siguiente orden; documentar faltantes",
+    "cierre"
+  ],
+  [
+    "Verificar los movimientos registrados de pollo antes del pase de salida",
+    "critica",
+    false,
+    null,
+    "EVIDENCIA",
+    "Cerciorarse de que las entradas y salidas estén registradas y revisar el saldo resultante. Conteo físico únicamente cuando se realice, como verificación distinta",
+    "cierre"
+  ],
+  [
+    "Autorizar y documentar el pase de salida de Rastro",
+    "critica",
+    false,
+    null,
+    "EVIDENCIA",
+    "Solo después de revisar condiciones del área, insumos y registros de movimientos. Anotar responsable y hora; no requiere conteo físico diario",
+    "cierre"
+  ]
+] },
   { name: 'Moto — Recepción', blankRows: 14 },
   { name: 'Moto — Cierre', blankRows: 14 },
 ];

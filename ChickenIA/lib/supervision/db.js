@@ -543,6 +543,7 @@ async function ensureTables() {
   await sql`UPDATE employees SET name = 'Petra Estrada' WHERE name = 'Perla Estrada' AND NOT EXISTS (SELECT 1 FROM employees WHERE name = 'Petra Estrada')`;
 
   await require('./routine-migration')(sql, CRITICALITY_WEIGHT);
+  await require('./rastro-sucursal-migration')(sql, CRITICALITY_WEIGHT, SEED_ACTIVITIES);
   return sql;
 }
 

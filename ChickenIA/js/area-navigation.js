@@ -3,6 +3,7 @@
   const definitions = [
     ['general','Vista general','M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z'],
     ['rastro','Rastro','M4 5h16v15H4z M8 2v6 M16 2v6 M4 11h16'],
+    ['sucursal_apertura','Apertura de Sucursal','M3 10l9-7 9 7 M5 9v12h14V9 M9 21v-8h6v8'],
     ['almacen','Almacén','M3 8l9-5 9 5v12H3z M8 20v-8h8v8'],
     ['cocina','Cocina','M4 10h16v9H4z M7 6V3 M12 6V3 M17 6V3 M2 10h20'],
     ['rosticero','Rosticero','M3 7h18v13H3z M7 12h10 M8 3v2 M16 3v2 M7 16h10'],
