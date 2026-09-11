@@ -4,8 +4,8 @@
   const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt = n => (n/1000).toLocaleString('es-MX',{maximumFractionDigits:3});
   let snapshot, tab='home', location='sucursal', events=[], selectedRequest=null, busy=false, pending=null;
-  const labels={proteins:'Existencias de pollo',requestForm:'Solicitud de inventario',incoming:'Recepción de inventario',home:'Control del día',stock:'Inventario',supply:'Abastecimiento',production:'Producción',sales:'Ventas del día',counts:'Conteos',receipts:'Entradas e insumos',opening:'Apertura',history:'Historial',catalog:'Catálogo'};
-  const opNames={initial:'Saldo inicial',supplier:'Recepción externa',purchase:'Pedido autorizado a proveedor',transform:'Preparación de insumos',request:'Solicitud',send:'Envío',receive:'Recepción Sucursal',transitReturn:'Devolución a CEDIS',prepare:'Preparación',cook:'Cocción',sale:'Venta / cortesía',count:'Conteo',reconcile:'Conciliación',catalog:'Artículo nuevo',consume:'Consumo de insumos',reverse:'Corrección',closeRequest:'Cierre de solicitud',opening:'Apertura'};
+  const labels={kitchenPlanning:'Orden de producción',kitchenProduction:'Preparaciones en kg',weeklyPurchases:'Compras semanales',proteins:'Existencias de pollo',requestForm:'Solicitud de inventario',incoming:'Recepción de inventario',home:'Control del día',stock:'Inventario',supply:'Abastecimiento',production:'Producción',sales:'Ventas del día',counts:'Conteos',receipts:'Entradas e insumos',opening:'Apertura',history:'Historial',catalog:'Catálogo'};
+  const opNames={purchaseRequest:'Solicitud de compra semanal',approvePurchase:'Autorización de compra',initial:'Saldo inicial',supplier:'Recepción externa',purchase:'Pedido autorizado a proveedor',transform:'Preparación de insumos',request:'Solicitud',send:'Envío',receive:'Recepción Sucursal',transitReturn:'Devolución a CEDIS',prepare:'Preparación',cook:'Cocción',sale:'Venta / cortesía',count:'Conteo',reconcile:'Conciliación',catalog:'Artículo nuevo',consume:'Consumo de insumos',reverse:'Corrección',closeRequest:'Cierre de solicitud',opening:'Apertura'};
   let basicPanel = new URLSearchParams(window.location.search).get('panel') === 'nancy';
   let proteinData, lastLoadedAt;
   let operationalArea = AreaNavigation.selected;
@@ -16,7 +16,7 @@
     if(operationalArea==='rastro')return i.area.startsWith('Rastro');
     if(operationalArea==='almacen')return i.area.startsWith('Almacén');
     if(operationalArea==='trastes')return i.area==='Almacén · Limpieza';
-    if(operationalArea==='cocina')return i.kind==='supply'&&i.area!=='Almacén · Limpieza';
+    if(operationalArea==='cocina')return i.area.startsWith('Cocina')||i.kind==='supply'&&i.area!=='Almacén · Limpieza';
     if(operationalArea==='ventas_barras')return i.kind==='finished';
     return false;
   }
@@ -28,7 +28,7 @@
     if(['rastro','almacen'].includes(code))location='cedis';
     else if(code!=='general'&&code!=='supervision')location='sucursal';
     $('#location').value=location;
-    if(code!=='general')tab=basicPanel?'proteins':'stock';render();
+    if(code!=='general')tab=code==='cocina'?'kitchenProduction':basicPanel?'proteins':'stock';render();
   }
   const item = id => snapshot.data.items.find(i=>i.id===id);
   const bal = (loc,id) => snapshot.data.balances[`${loc}:${id}`] || 0;
@@ -45,7 +45,7 @@
   async function load(){
     const result=await api();snapshot=result;
     basicPanel=new URLSearchParams(window.location.search).get('panel')==='nancy'||result.user.id==='nancy';
-    if(basicPanel&&!['home','requestForm','incoming','proteins'].includes(tab))tab='home';
+    if(basicPanel&&!['home','requestForm','incoming','proteins','kitchenPlanning','kitchenProduction','weeklyPurchases'].includes(tab))tab='home';
     proteinData=await api('proteins');lastLoadedAt=new Date();
     ChickenFeedback.progress('nancy-verificaciones:'+proteinData.day,Math.round(proteinData.nancy.verified/proteinData.nancy.total*100),'Nancy: verificaciones completas ⭐');
     $('#workspace').hidden=false;$('#login-panel').hidden=true;$('#logout').hidden=false;
@@ -85,10 +85,10 @@
     $('#inventory-scope-note')?.remove();
     if(!['general','supervision'].includes(operationalArea))$('#view').insertAdjacentHTML('beforebegin',`<p id="inventory-scope-note" class="inv-note">${['home','stock','counts'].includes(tab)?'Existencias y conteos filtrados por área. Los saldos pertenecen a la ubicación seleccionada.':'Operación compartida de la ubicación seleccionada.'} <a href="#" id="all-inventory">Ver todas las áreas</a></p>`);
     $('#all-inventory')?.addEventListener('click',e=>{e.preventDefault();AreaNavigation.select('general');});
-    $('#nav').innerHTML=Object.entries(labels).filter(([k])=>basicPanel?['home','requestForm','incoming','proteins'].includes(k):(k!=='catalog'||can('catalog'))).map(([k,n])=>`<button type="button" data-tab="${k}" ${tab===k?'aria-current="page"':''}>${n}</button>`).join('');
-    ({home,stock,supply,production,sales,counts,receipts,opening,history,catalog,proteins,requestForm,incoming})[tab]();
+    $('#nav').innerHTML=Object.entries(labels).filter(([k])=>basicPanel?['home','requestForm','incoming','proteins','kitchenPlanning','kitchenProduction','weeklyPurchases'].includes(k):(k!=='catalog'||can('catalog'))).map(([k,n])=>`<button type="button" data-tab="${k}" ${tab===k?'aria-current="page"':''}>${n}</button>`).join('');
+    ({home,stock,supply,production,sales,counts,receipts,opening,history,catalog,proteins,requestForm,incoming,kitchenPlanning,kitchenProduction,weeklyPurchases})[tab]();
   }
-  function navigate(next){if(busy)return;if(basicPanel&&!['home','requestForm','incoming','proteins'].includes(next))return;tab=next;render();}
+  function navigate(next){if(busy)return;if(basicPanel&&!['home','requestForm','incoming','proteins','kitchenPlanning','kitchenProduction','weeklyPurchases'].includes(next))return;tab=next;render();}
   function stockRows(){return areaItems().map(i=>`<div class="inv-row"><div>${esc(i.name)}<small>${esc(i.area)}</small></div><strong>${initialized(location,i.id)?`${fmt(bal(location,i.id))} ${esc(i.unit)}`:'Sin saldo inicial'}</strong></div>`).join('');}
   function home(){
     if(basicPanel){
@@ -101,6 +101,42 @@
     const open=snapshot.data.requests.filter(r=>r.status==='open');
     const noInitial=areaItems().filter(i=>!initialized(location,i.id)).length;
     $('#view').innerHTML=`<div class="inv-grid">${panel('Requiere atención',`<div class="inv-stack">${noInitial?`<button data-go="stock">${noInitial} artículos sin saldo inicial</button>`:''}<button data-go="supply">${open.length} solicitudes abiertas</button><button data-go="counts">${pendingCounts.length} conteos por conciliar</button><button data-go="sales">Registrar ventas del día</button><button data-go="opening">Apertura de ${location==='cedis'?'Rastro':'Sucursal'}</button></div>`)}${panel('Existencias',stockRows())}</div>`;
+  }
+  async function kitchenPlanning(){
+    $('#view').innerHTML=panel('Orden de producción de cocina',`<label>Fecha de producción<input type="date" id="kitchen-plan-date" min="${snapshot.today}" value="${snapshot.today}"></label><p>Programa los kg requeridos. Las preparaciones semanales solo cuentan como pendientes en la fecha programada. Desayuno: registrar salida y regreso en Asistencia.</p><div id="kitchen-plan-list">Cargando…</div>`);
+    const dateInput=$('#kitchen-plan-date');
+    async function show(){
+      const date=dateInput.value;
+      try{const response=await fetch('/api/kitchen-plan?date='+encodeURIComponent(date));const data=await response.json();if(!response.ok)throw new Error(data.error);
+        if(!$('#kitchen-plan-list')||dateInput.value!==date)return;
+        $('#kitchen-plan-list').innerHTML=data.activities.map(a=>`<form class="inv-row" data-plan-id="${a.id}"><label>${esc(a.name)}<small>${a.frequency==='weekly'?'Semanal · solo fecha programada':'Diaria'}${a.scheduled_by?' · '+esc(a.scheduled_by):''}</small><input name="kg" type="number" step="0.001" min="0" value="${a.kg??''}" placeholder="kg requeridos" required></label><button type="submit">Guardar kg</button></form>`).join('')||'<p>No hay preparaciones disponibles para esta fecha.</p>';
+        document.querySelectorAll('[data-plan-id]').forEach(f=>f.addEventListener('submit',async e=>{e.preventDefault();const b=f.querySelector('button');b.disabled=true;try{const res=await fetch('/api/kitchen-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:dateInput.value,activity_id:Number(f.dataset.planId),kg:Number(new FormData(f).get('kg'))})});const result=await res.json();if(!res.ok)throw new Error(result.error);ChickenFeedback.saved('Producción programada ✓');await show();}catch(err){msg(err.message,true);}finally{b.disabled=false;}}));
+      }catch(e){msg(e.message,true);}
+    }
+    dateInput.addEventListener('change',show);await show();
+  }
+  function kitchenProduction(){
+    const products=snapshot.data.items.filter(i=>i.id.startsWith('cocina-'));
+    $('#view').innerHTML=panel('Existencias de preparaciones · kg',products.map(i=>`<div class="inv-row"><span>${esc(i.name)}</span><strong>${initialized('sucursal',i.id)?fmt(bal('sucursal',i.id))+' kg':'Sin saldo inicial'}</strong></div>`).join(''));
+    const missing=products.filter(i=>!initialized('sucursal',i.id));
+    if(can('initial')&&missing.length){$('#view').insertAdjacentHTML('beforeend',panel('Conteo inicial de preparaciones',`<form id="kitchen-initial"><p>Pesa las existencias, incluido el residual. Captura cero si no hay producto. No conviertas automáticamente las unidades de artículos anteriores.</p>${quantityList(missing,null)}${noteField()}${submit('Guardar existencia inicial')}</form>`));wireForm('kitchen-initial',(v,f)=>commit('initial',{location:'sucursal',lines:linesFrom(f),note:v.note}));}
+    if(can('transform')){$('#view').insertAdjacentHTML('beforeend',panel('Registrar preparación pesada',`<form id="kitchen-transform"><p>Captura insumos realmente utilizados y kg obtenidos. Si utilizas una preparación en otra, registra también ese consumo.</p><details><summary>Insumos utilizados · unidad original</summary><div id="kitchen-inputs">${quantityList(snapshot.data.items.filter(i=>i.kind!=='equipment'&&initialized('sucursal',i.id)),'sucursal')}</div></details><details open><summary>Preparaciones obtenidas · kg</summary><div id="kitchen-outputs">${quantityList(products.filter(i=>initialized('sucursal',i.id)),null)}</div></details>${noteField(true,'Tanda / referencia de producción')}${submit('Registrar producción')}</form>`));wireForm('kitchen-transform',(v,f)=>commit('transform',{location:'sucursal',inputs:linesFrom(f.querySelector('#kitchen-inputs')),outputs:linesFrom(f.querySelector('#kitchen-outputs')),note:v.note}));}
+    if(can('count')){$('#view').insertAdjacentHTML('beforeend',panel('Conteo de cierre · preparaciones',`<form id="kitchen-count">${quantityList(products.filter(i=>initialized('sucursal',i.id)),null)}${noteField(true,'Referencia de cierre / diferencias')}${submit('Guardar conteo')}</form>`));wireForm('kitchen-count',(v,f)=>commit('count',{location:'sucursal',moment:'cierre',lines:linesFrom(f),note:v.note}));}
+  }
+  function weeklyPurchases(){
+    const requests=snapshot.data.purchaseRequests||[], purchases=snapshot.data.purchases||[];
+    const pending=purchases.filter(p=>p.request&&p.lines.some(l=>l.qty>(p.received.find(x=>x.item===l.item)?.qty||0)));
+    const supplies=snapshot.data.items.filter(i=>i.kind==='supply'||i.kind==='raw');
+    $('#view').innerHTML=panel('Abastecimiento semanal · proveedores locales y foráneos',`<p>Revisa existencias diariamente y consolida la compra semanal. Necesidad hasta la próxima compra + reserva acordada − existencia − pedidos pendientes. Leche, aceite, jabón y cloro se compran en 3B cuando corresponda; sin mínimos inventados.</p>${can('purchaseRequest')?`<form id="weekly-request"><div class="inv-form-grid"><label>Fecha requerida<input name="due" type="date" min="${snapshot.today}" value="${snapshot.today}" required></label><label>Proveedor<input name="supplier" value="3B" maxlength="100" required></label>${selectField('supplierType','Proveedor',[['local','Local'],['foraneo','Foráneo']])}${selectField('location','Recibir en',[['sucursal','Sucursal'],['cedis','CEDIS']])}${selectField('urgency','Programación',[['weekly','Compra semanal'],['urgent','Excepción urgente']])}</div><details><summary>Existencias y cantidades a solicitar</summary>${quantityList(supplies,location)}</details>${noteField(false,'Motivo de urgencia / referencia de la semana')}${submit('Solicitar compra')}</form>`:''}`);
+    const weeklyForm=$('#weekly-request');
+    if(weeklyForm){const dest=weeklyForm.elements.location;dest.value=location;const updateBalances=()=>weeklyForm.querySelectorAll('.qty-item').forEach(label=>{const i=item(label.querySelector('input').name.slice(2));const outstanding=purchases.filter(p=>(p.location||'cedis')===dest.value).reduce((n,p)=>n+p.lines.filter(l=>l.item===i.id).reduce((v,l)=>v+l.qty-(p.received.find(x=>x.item===i.id)?.qty||0),0),0);label.querySelector('small').textContent=i.unit+' · '+dest.value+': '+(initialized(dest.value,i.id)?fmt(bal(dest.value,i.id)):'Sin inicializar')+' · Pedido pendiente: '+fmt(outstanding);});dest.addEventListener('change',updateBalances);updateBalances();}
+    wireForm('weekly-request',(v,f)=>commit('purchaseRequest',{supplier:v.supplier,supplierType:v.supplierType,due:v.due,location:v.location,urgent:v.urgency==='urgent',lines:linesFrom(f),note:v.note}));
+    $('#view').insertAdjacentHTML('beforeend',panel('Solicitudes por proveedor',requests.length?requests.slice().sort((a,b)=>a.due.localeCompare(b.due)||a.supplier.localeCompare(b.supplier)).map(r=>`<section class="inv-panel"><h3>${esc(r.due)} · ${esc(r.supplier)}</h3><p>${r.urgent?'Urgente':'Semanal'} · ${esc(r.location)} · ${esc(r.actor)} · ${r.status==='approved'?'Autorizada por '+esc(r.approvedBy):'Pendiente de autorización'}</p><p>${r.lines.map(l=>esc(item(l.item).name)+': '+fmt(l.qty)+' '+esc(item(l.item).unit)).join(' · ')}</p><p>${esc(r.note)}</p>${r.status==='requested'&&can('approvePurchase')&&['lilian','miguel'].includes(snapshot.user.id)?`<button type="button" data-approve-purchase="${r.id}">Autorizar compra</button>`:''}</section>`).join(''):'Sin solicitudes semanales.'));
+    document.querySelectorAll('[data-approve-purchase]').forEach(b=>b.addEventListener('click',()=>commit('approvePurchase',{request:b.dataset.approvePurchase})));
+    $('#view').insertAdjacentHTML('beforeend',panel('Recibir compras autorizadas',pending.length?pending.map(p=>`<section class="inv-panel"><h3>${esc(p.supplier)} · ${esc(p.location)}</h3><p>${p.lines.map(l=>esc(item(l.item).name)+': pendiente '+fmt(l.qty-(p.received.find(x=>x.item===l.item)?.qty||0))+' '+esc(item(l.item).unit)).join(' · ')}</p>${can('supplier')?`<form data-weekly-receipt="${p.id}" data-location="${p.location}">${quantityList(p.lines.filter(l=>l.qty>(p.received.find(x=>x.item===l.item)?.qty||0)).map(l=>item(l.item)),null)}<label>Comprobante / referencia<input name="receipt" required maxlength="150"></label><label>Importe pagado en esta recepción · MXN<input name="amount" type="number" min="0" step="0.01" required></label>${selectField('paymentSource','Origen del pago',[['banco','Banco'],['caja','Caja'],['otro','Otro']])}${noteField(true,'Recepción / motivo de salida de caja')}${submit('Confirmar compra recibida')}</form>`:''}</section>`).join(''):'No hay compras autorizadas pendientes.'));
+    document.querySelectorAll('[data-weekly-receipt]').forEach(f=>f.addEventListener('submit',e=>{e.preventDefault();if(f.reportValidity()){const v=Object.fromEntries(new FormData(f));commit('supplier',{location:f.dataset.location,purchase:f.dataset.weeklyReceipt,lines:linesFrom(f),receipt:v.receipt,amount:v.amount,paymentSource:v.paymentSource,note:v.note});}}));
+    const receipts=purchases.flatMap(p=>(p.receipts||[]).map(r=>({...r,supplier:p.supplier})));
+    $('#view').insertAdjacentHTML('beforeend',panel('Compras recibidas y comprobantes',receipts.map(r=>`<p>${esc(r.supplier)} · ${esc(nowDate(r.at))} · $${Number(r.amount).toFixed(2)} MXN · ${esc(r.paymentSource)}${r.reversedAt?' · REVERSADA':''} · Comprobante: ${esc(r.receipt)}</p>`).join('')||'Sin comprobantes registrados.'));
   }
   function requestForm(){
     const tomorrow=new Date(`${snapshot.today}T12:00:00Z`);tomorrow.setUTCDate(tomorrow.getUTCDate()+1);
@@ -177,7 +213,7 @@
     document.querySelectorAll('[data-count]').forEach(f=>f.addEventListener('submit',e=>{e.preventDefault();if(f.reportValidity())commit('reconcile',{count:f.dataset.count,note:new FormData(f).get('note')});}));
   }
   function receipts(){
-    const purchases=(snapshot.data.purchases||[]).filter(p=>p.lines.some(l=>l.qty>(p.received.find(r=>r.item===l.item)?.qty||0)));
+    const purchases=(snapshot.data.purchases||[]).filter(p=>!p.request&&p.lines.some(l=>l.qty>(p.received.find(r=>r.item===l.item)?.qty||0)));
     $('#view').innerHTML=`<div class="inv-stack">${can('purchase')?panel('Pedido a proveedor · Validación de Lilian',`<form id="purchase-form"><label>Proveedor<input name="supplier" required maxlength="100"></label>${quantityList(snapshot.data.items,'cedis')}${noteField()}${submit('Autorizar pedido a proveedor')}</form>`):''}<div class="inv-grid">${can('supplier')?panel('Recepción de proveedor · CEDIS',purchases.length?`<form id="supplier-form">${selectField('purchase','Pedido autorizado',purchases.map(p=>[p.id,`${p.supplier} · ${nowDate(p.at)} · ${p.actor}`]))}<div id="purchase-lines"></div>${noteField(true,'Recepción contada por Eliseo y validada por Nancy')}${submit('Registrar recepción externa')}</form>`:'Primero Lilian debe autorizar un pedido a proveedor.') :''}${can('consume')?panel('Consumo de insumos',`<form id="consume-form"><div class="inv-note">Relaciona los insumos utilizados con la preparación o actividad correspondiente.</div>${quantityList(snapshot.data.items.filter(i=>i.kind==='supply'),location)}${noteField(true,'Preparación o actividad que utilizó los insumos')}${submit('Registrar consumo')}</form>`):''}</div></div>`;
     wireForm('purchase-form',(v,f)=>commit('purchase',{supplier:v.supplier,lines:linesFrom(f),note:v.note}));
     const picker=$('[name=purchase]');if(picker){const show=()=>{const p=purchases.find(p=>p.id===picker.value);$('#purchase-lines').innerHTML=quantityList(p.lines.map(l=>item(l.item)),'cedis',Object.fromEntries(p.lines.map(l=>[l.item,(l.qty-(p.received.find(r=>r.item===l.item)?.qty||0))/1000])));};picker.addEventListener('change',show);show();}

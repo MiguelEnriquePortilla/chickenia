@@ -7,6 +7,7 @@ class InventoryError extends Error {
 }
 const fail = (message, status) => { throw new InventoryError(message, status); };
 const roles = {
+  purchaseRequest: ['kitchen','manager'], approvePurchase: ['dispatch','manager'],
   initial: ['manager'], supplier: ['manager'], request: ['kitchen', 'manager'],
   send: ['dispatch', 'manager'], receive: ['manager'], transitReturn: ['manager'],
   prepare: ['processor', 'manager'], cook: ['manager'], sale: ['manager'],
@@ -44,7 +45,7 @@ const initialItems = [
 ];
 function freshState() {
   return {
-    schema: 1, items: initialItems.map(([id, name, unit, area, step, kind]) => ({ id, name, unit, area, step, kind })),
+    schema: 1, items: initialItems.map(([id, name, unit, area, step, kind]) => ({ id, name, unit, area, step, kind })).concat(require('./kitchen-items')),
     balances: {}, initialized: {}, lastMoved: {}, requests: [], purchases: [], counts: [], openings: {},
   };
 }
@@ -105,7 +106,23 @@ function applyOperation(original, command, actor, now = new Date().toISOString()
       event.deltas.push({ location, item, qty: delta });
     }
   }
-  if (type === 'purchase') {
+  if (type === 'purchaseRequest') {
+    const supplier=text(command.supplier,'Proveedor',100), due=date(command.due), location=getLocation(command.location);
+    if(due<event.date)fail('La compra debe programarse para hoy o una fecha futura.');
+    if(!['local','foraneo'].includes(command.supplierType))fail('Tipo de proveedor inválido.');
+    if(typeof command.urgent!=='boolean')fail('Indica si la compra es urgente.');
+    if(command.urgent&&!note)fail('Explica por qué no puede esperar a la compra semanal.');
+    const lines=checkedLines(state,command.lines).filter(l=>l.qty>0);
+    if(!lines.length)fail('Indica al menos un artículo para comprar.');
+    const request={id:command.id,supplier,due,location,supplierType:command.supplierType,urgent:command.urgent,lines,note,status:'requested',actor:actor.name,at:now};
+    state.purchaseRequests ||= [];state.purchaseRequests.push(request);event.detail=request;
+  } else if(type==='approvePurchase') {
+    if(!['lilian','miguel'].includes(actor.id))fail('La compra requiere autorización de Lilian o Miguel.',403);
+    const request=state.purchaseRequests?.find(r=>r.id===command.request);
+    if(!request||request.status!=='requested')fail('Solicitud inexistente o ya autorizada.',409);
+    const purchase={id:command.id,supplier:request.supplier,lines:request.lines,received:[],at:now,actor:actor.name,location:request.location,due:request.due,request:request.id,urgent:request.urgent};
+    state.purchases ||= [];state.purchases.push(purchase);request.status='approved';request.purchase=purchase.id;request.approvedAt=now;request.approvedBy=actor.name;event.detail=purchase;
+  } else if (type === 'purchase') {
     const supplier = text(command.supplier,'Proveedor',100);
     const lines = checkedLines(state,command.lines).filter(l=>l.qty>0);
     if (!lines.length) fail('Indica cantidades del pedido.');
@@ -113,10 +130,16 @@ function applyOperation(original, command, actor, now = new Date().toISOString()
     state.purchases ||= []; state.purchases.push(purchase); event.detail = purchase;
   } else if (['initial', 'supplier', 'consume'].includes(type)) {
     const location = getLocation(command.location), lines = checkedLines(state, command.lines);
-    if (type === 'supplier' && location !== 'cedis') fail('La recepción externa corresponde a CEDIS.');
     if(type==='supplier'){
       const purchase=state.purchases?.find(p=>p.id===command.purchase);
       if(!purchase)fail('Selecciona el pedido validado por Lilian.');
+      if(location!==(purchase.location||'cedis'))fail('Recibe en la ubicación autorizada en la orden.');
+      if(purchase.request){
+        const receipt=text(command.receipt,'Comprobante',150);
+        const amount=Number(command.amount);if(command.amount==null||command.amount===''||!Number.isFinite(amount)||amount<0||amount>10000000||Math.abs(amount*100-Math.round(amount*100))>1e-6)fail('Importe de compra inválido.');
+        if(!['caja','banco','otro'].includes(command.paymentSource))fail('Indica el origen del pago.');
+        purchase.receipts ||= [];purchase.receipts.push({id:command.id,at:now,actor:actor.name,receipt,amount,paymentSource:command.paymentSource,note});
+      }
       for(const line of lines){
         const requested=purchase.lines.find(l=>l.item===line.item)?.qty;
         const previous=purchase.received.find(l=>l.item===line.item);
@@ -134,7 +157,7 @@ function applyOperation(original, command, actor, now = new Date().toISOString()
       if (type === 'consume' && item.kind !== 'supply') fail('El consumo corresponde a insumos; usa producción o ventas para pollo.');
       move(location, line.item, type === 'consume' ? -line.qty : line.qty, type === 'initial');
     }
-    event.detail = { location, lines, ...(type==='supplier'?{purchase:command.purchase}:{}) };
+    event.detail = { location, lines, ...(type==='supplier'?{purchase:command.purchase}:{}), ...(type==='supplier'&&state.purchases.find(p=>p.id===command.purchase)?.request?{receipt:command.receipt,amount:Number(command.amount),paymentSource:command.paymentSource}:{}) };
   } else if (type === 'request') {
     const due = date(command.due);
     if (due < event.date) fail('La solicitud debe ser para hoy o una fecha futura.');
@@ -246,6 +269,7 @@ function applyOperation(original, command, actor, now = new Date().toISOString()
     if(target.type==='supplier'){
       const purchase=state.purchases?.find(p=>p.id===target.detail.purchase);
       if(!purchase)fail('Pedido de origen no disponible.');
+      for(const receipt of purchase.receipts||[])if(receipt.id===target.id){receipt.reversedAt=now;receipt.reversedBy=actor.name;}
       for(const line of target.detail.lines){const received=purchase.received.find(l=>l.item===line.item);if(!received||received.qty<line.qty)fail('Recepción ya corregida.');received.qty-=line.qty;}
     }
     event.detail = { reverses: target.id };

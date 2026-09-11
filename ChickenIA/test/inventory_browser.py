@@ -127,7 +127,7 @@ try:
         page.locator('[name=password]').fill(credentials['password'])
         page.locator('#login-form button').click()
         expect(page.locator('#page-title')).to_have_text('Panel de Nancy')
-        assert page.locator('#nav [data-tab]').count()==4
+        assert page.locator('#nav [data-tab]').count()==7
         page.locator('[data-tab=incoming]').click()
         form=page.locator('[data-basic-shipment]').last
         form.locator('[name="q:rosti-marinado"]').fill('1')
@@ -161,6 +161,49 @@ try:
             page.wait_for_timeout(300)
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
             page.screenshot(path=str(OUT/f'nancy-proteinas-{width}.png'),full_page=True)
+        page.locator('[data-tab=kitchenPlanning]').click()
+        plan_response=page.request.get(BASE+'/api/kitchen-plan')
+        assert plan_response.status==200, plan_response.text()
+        expect(page.locator('[data-plan-id]')).to_have_count(24)
+        planned=page.locator('[data-plan-id]').filter(has_text='Adobo de tres chiles')
+        planned.locator('input').fill('3.25')
+        planned.locator('button').click()
+        expect(page.locator('#save-feedback')).to_contain_text('Producción programada')
+        assert any(float(a.get('kg') or 0)==3.25 for a in page.request.get(BASE+'/api/kitchen-plan').json()['activities'])
+        page.locator('[data-tab=kitchenProduction]').click()
+        expect(page.locator('#view')).to_contain_text('Arroz blanco')
+        page.locator('#kitchen-transform [name=note]').fill('Pesaje de prueba')
+        page.locator('#kitchen-inputs').locator('xpath=..').locator('summary').click()
+        page.locator('#kitchen-inputs [name="q:cebolla"]').fill('0')
+        # Procurement request is not an approval; manager authorizes separately.
+        page.locator('[data-tab=weeklyPurchases]').click()
+        page.locator('#weekly-request details summary').click()
+        page.locator('#weekly-request [name="q:leche-litros"]').fill('2')
+        page.locator('#weekly-request button').click()
+        expect(page.locator('#view')).to_contain_text('Pendiente de autorización')
+        assert page.locator('[data-approve-purchase]').count()==0
+        page.locator('#logout').click()
+        page.locator('[name=username]').fill('miguel')
+        page.locator('[name=password]').fill(credentials['password'])
+        page.locator('#login-form button').click()
+        expect(page.locator('#workspace')).to_be_visible()
+        page.locator('[data-tab=weeklyPurchases]').click()
+        page.locator('[data-approve-purchase]').last.click()
+        expect(page.locator('[data-weekly-receipt]')).to_be_visible()
+        receipt=page.locator('[data-weekly-receipt]').last
+        receipt.locator('[name="q:leche-litros"]').fill('2')
+        receipt.locator('[name=receipt]').fill('3B-ticket-test')
+        receipt.locator('[name=amount]').fill('50')
+        receipt.locator('[name=paymentSource]').select_option('caja')
+        receipt.locator('[name=note]').fill('Compra semanal')
+        receipt.locator('button').click()
+        expect(page.locator('#view')).to_contain_text('3B-ticket-test')
+        assert snap()['data']['balances']['sucursal:leche-litros']==2000
+        for width in [390,1100]:
+            page.set_viewport_size({'width':width,'height':900})
+            page.wait_for_timeout(300)
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+            page.screenshot(path=str(OUT/f'compras-semanales-{width}.png'),full_page=True)
         # Initial 100% never celebrates; only a confirmed transition does.
         page.evaluate("ChickenFeedback.summary({location:{id:'test'},date:'test1',overall_score:100,areas:[]})")
         assert page.locator('.celebration-layer').count()==0

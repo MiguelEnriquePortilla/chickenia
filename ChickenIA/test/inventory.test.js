@@ -134,12 +134,13 @@ test('API: autenticación, CSRF, cookie, permisos y límite de intentos',async()
     assert.equal((await call('GET','snapshot')).status,401);
     assert.equal((await call('POST','login',{username:'nancy',password},{origin:'https://attacker.test'})).status,403);
     const logged=await call('POST','login',{username:'nancy',password});assert.equal(logged.status,200);
-    assert.match(logged.headers['Set-Cookie'],/HttpOnly; SameSite=Strict/);
-    const cookie=logged.headers['Set-Cookie'].split(';')[0];
+    assert.match(logged.headers['Set-Cookie'][0],/Path=\/api\/inventory; Max-Age=0/);
+    assert.match(logged.headers['Set-Cookie'][1],/HttpOnly; SameSite=Strict; Path=\/api; /);
+    const cookie=logged.headers['Set-Cookie'][1].split(';')[0];
     assert.equal((await call('GET','snapshot',{}, {cookie})).status,200);
     assert.equal((await call('GET','snapshot',{}, {cookie:cookie+'x'})).status,401);
     const kitchen=await call('POST','login',{username:'cocina',password});
-    const forbidden=await call('POST','operation',{id:randomUUID(),version:0,type:'initial',location:'sucursal',lines:[{item:'rosti-cocinado',qty:1}]},{cookie:kitchen.headers['Set-Cookie'].split(';')[0]});
+    const forbidden=await call('POST','operation',{id:randomUUID(),version:0,type:'initial',location:'sucursal',lines:[{item:'rosti-cocinado',qty:1}]},{cookie:kitchen.headers['Set-Cookie'][1].split(';')[0]});
     assert.equal(forbidden.status,403);
     for(let i=0;i<10;i++)assert.equal((await call('POST','login',{username:'missing',password})).status,401);
     assert.equal((await call('POST','login',{username:'missing',password})).status,429);

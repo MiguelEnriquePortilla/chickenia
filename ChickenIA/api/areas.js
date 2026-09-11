@@ -14,10 +14,11 @@ module.exports = async (req, res) => {
     `;
     const activities = await sql`
       SELECT a.id, a.area_id, a.name, a.criticality, a.weight, a.requires_quantity, a.unit,
-        a.indicator_type, a.target, a.routine_block, a.order_index
+        a.indicator_type, COALESCE((SELECT 'Meta programada: ' || kp.kg || ' kg' FROM kitchen_plans kp WHERE kp.activity_id=a.id AND kp.plan_date=${date}::date),a.target) AS target, a.frequency, a.routine_block, a.order_index
       FROM activities a
       JOIN areas ar ON ar.id = a.area_id
       WHERE ar.location_type = ${locationType} AND a.active = true
+        AND (a.frequency <> 'weekly' OR EXISTS (SELECT 1 FROM kitchen_plans kp WHERE kp.activity_id=a.id AND kp.plan_date=${date}::date))
         AND (a.valid_from IS NULL OR a.valid_from <= ${date}::date)
         AND (a.valid_until IS NULL OR a.valid_until > ${date}::date)
       ORDER BY a.area_id, a.order_index

@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const { PGlite } = require('@electric-sql/pglite');
 const migrate = require('../api/lib/routine-migration');
 const routines = require('../api/lib/rosticero-routines');
+const kitchen = require('../api/lib/cocina-routines');
 
 test('routine migration is repeatable and preserves historical catalogue and checks', async () => {
   const db = new PGlite();
@@ -20,9 +21,9 @@ test('routine migration is repeatable and preserves historical catalogue and che
     await sql`INSERT INTO activity_checks(activity_id, location_id, check_date, done) VALUES (1,1,(now() AT TIME ZONE 'America/Mexico_City')::date,true)`;
     await migrate(sql,{baja:1,media:3,alta:6,critica:10});
     await migrate(sql,{baja:1,media:3,alta:6,critica:10});
-    assert.equal((await sql`SELECT count(*)::int AS n FROM activities`)[0].n,routines.length+2);
+    assert.equal((await sql`SELECT count(*)::int AS n FROM activities`)[0].n,routines.length+kitchen.length+2);
     assert.equal((await sql`SELECT count(*)::int AS n FROM activity_checks WHERE activity_id=1`)[0].n,2);
-    assert.equal((await sql`SELECT valid_until FROM activities WHERE id=2`)[0].valid_until,null);
+    assert.equal((await sql`SELECT name FROM activities WHERE id=2`)[0].name,'Cocina original');
     const dbModule = require('../api/lib/db');
     dbModule.ensureTables=async()=>sql;
     const areas=require('../api/areas');
@@ -38,6 +39,12 @@ test('routine migration is repeatable and preserves historical catalogue and che
     const oldSummary=await call(summary,{location_id:1,date:'2026-01-01'});
     assert.equal(oldSummary.areas[0].score,100);
     assert.equal(oldSummary.areas[0].total_items,1);
+    assert.equal(current[1].activities.length,kitchen.filter(r=>r[7]==='daily').length);
+    const weekly=(await sql`SELECT id FROM activities WHERE area_id=2 AND frequency='weekly' ORDER BY id LIMIT 1`)[0];
+    await sql`INSERT INTO kitchen_plans(activity_id,plan_date,kg,scheduled_by) VALUES(${weekly.id},'2099-01-01',5,'Nancy')`;
+    const planned=await call(areas,{location_type:'tienda',date:'2099-01-01'});
+    assert.equal(planned[1].activities.length,current[1].activities.length+1);
+    assert.match(planned[1].activities.find(a=>a.id===weekly.id).target,/5 kg/);
     const currentSummary=await call(summary,{location_id:1,date:'2099-01-01'});
     assert.equal(currentSummary.areas[0].total_items,routines.length);
   } finally {await db.close();}

@@ -29,6 +29,13 @@ function repository(query) {
   async function migrate() {
     for (const sql of migrations) await query(sql, []);
     await query('INSERT INTO inv_state(id,data) VALUES(1,$1::jsonb) ON CONFLICT(id) DO NOTHING', [JSON.stringify(freshState())]);
+    // Add only absent catalogue IDs. Never reinterpret existing units or balances.
+    await query(`UPDATE inv_state SET data=jsonb_set(data,'{items}',(data->'items') || (
+      SELECT jsonb_agg(item) FROM jsonb_array_elements($1::jsonb) AS item
+      WHERE NOT EXISTS (SELECT 1 FROM jsonb_array_elements(data->'items') old WHERE old->>'id'=item->>'id')
+    )),version=version+1,updated_at=now() WHERE id=1 AND EXISTS (
+      SELECT 1 FROM jsonb_array_elements($1::jsonb) item WHERE NOT EXISTS (SELECT 1 FROM jsonb_array_elements(data->'items') old WHERE old->>'id'=item->>'id')
+    )`,[JSON.stringify(require('./kitchen-items'))]);
   }
   async function snapshot() {
     const rows = await query('SELECT version,data FROM inv_state WHERE id=1', []);

@@ -334,7 +334,7 @@ function renderActivity(act) {
   // 11 tipos, piloto en Freidoras) y si no, cae a la unidad — "Etapa 1": se captura el
   // valor, no se valida ni se colorea todavía contra la meta (eso es Etapa 2, aparte).
   const qtyField = act.requires_quantity
-    ? `<input type="number" step="0.01" inputmode="decimal" class="qty"
+    ? `<input type="number" step="${act.unit === 'kg' ? '0.001' : '0.01'}" inputmode="decimal" class="qty"
          placeholder="${act.target ? 'meta: ' + escapeAttr(act.target) : (act.unit || 'cantidad')}"
          value="${c.quantity ?? ''}" />
        ${act.unit ? `<span class="qty-unit">${act.unit}</span>` : ''}`

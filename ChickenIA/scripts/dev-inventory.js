@@ -26,14 +26,15 @@ const db=new PGlite(path.join(dataDir,'inventory-pg'));
 const query=async(s,p)=>(await db.query(s,p)).rows;
 const repo=repository(query);
 const handler=require('../api/inventory').createHandler(()=>repo,query);
+const kitchenHandler=require('../api/kitchen-plan').createHandler(require('./local-kitchen')(db));
 const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.json':'application/json'};
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
   res.status=code=>{res.statusCode=code;return res;};res.json=data=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(data));};
-  if(url.pathname==='/api/inventory'){
+  if(['/api/inventory','/api/kitchen-plan'].includes(url.pathname)){
     let raw='';for await(const chunk of req){raw+=chunk;if(raw.length>100000){res.status(413).json({error:'Demasiados datos'});return;}}
     try{req.body=raw?JSON.parse(raw):{};}catch{res.status(400).json({error:'JSON inválido'});return;}
-    req.query=Object.fromEntries(url.searchParams);return handler(req,res);
+    req.query=Object.fromEntries(url.searchParams);return (url.pathname==='/api/kitchen-plan'?kitchenHandler:handler)(req,res);
   }
   // Only public assets, never scripts, env, databases, test files or server code.
   const relative=decodeURIComponent(url.pathname).replace(/^\//,'')||'index.html';

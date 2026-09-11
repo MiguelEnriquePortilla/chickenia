@@ -25,7 +25,10 @@ function session(user, secret) {
 }
 function cookie(value, req, clear = false) {
   const secure = process.env.VERCEL || process.env.NODE_ENV === 'production' || req.headers['x-forwarded-proto'] === 'https';
-  return `${COOKIE}=${value}; HttpOnly; SameSite=Strict; Path=/api/inventory; Max-Age=${clear ? 0 : 36000}${secure ? '; Secure' : ''}`;
+  return [
+    `${COOKIE}=; HttpOnly; SameSite=Strict; Path=/api/inventory; Max-Age=0${secure ? '; Secure' : ''}`,
+    `${COOKIE}=${value}; HttpOnly; SameSite=Strict; Path=/api; Max-Age=${clear ? 0 : 36000}${secure ? '; Secure' : ''}`
+  ];
 }
 function authenticate(req) {
   const { users, secret } = settings();
