@@ -3,12 +3,14 @@
   const $ = s => document.querySelector(s);
   const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt = n => (n/1000).toLocaleString('es-MX',{maximumFractionDigits:3});
-  let snapshot, tab='home', location='sucursal', events=[], selectedRequest=null, busy=false, pending=null;
+  let snapshot, tab=new URLSearchParams(window.location.search).get('tab')||'home', location='sucursal', events=[], selectedRequest=null, busy=false, pending=null;
   const labels={kitchenPlanning:'Orden de producción',kitchenProduction:'Preparaciones en kg',weeklyPurchases:'Compras semanales',proteins:'Existencias de pollo',requestForm:'Solicitud de inventario',incoming:'Recepción de inventario',home:'Control del día',stock:'Inventario',supply:'Abastecimiento',production:'Producción',sales:'Ventas del día',counts:'Conteos',receipts:'Entradas e insumos',opening:'Apertura',history:'Historial',catalog:'Catálogo'};
+  if(!Object.hasOwn(labels,tab))tab='home';
   const opNames={purchaseRequest:'Solicitud de compra semanal',approvePurchase:'Autorización de compra',initial:'Saldo inicial',supplier:'Recepción externa',purchase:'Pedido autorizado a proveedor',transform:'Preparación de insumos',request:'Solicitud',send:'Envío',receive:'Recepción Sucursal',transitReturn:'Devolución a CEDIS',prepare:'Preparación',cook:'Cocción',sale:'Venta / cortesía',count:'Conteo',reconcile:'Conciliación',catalog:'Artículo nuevo',consume:'Consumo de insumos',reverse:'Corrección',closeRequest:'Cierre de solicitud',opening:'Apertura'};
   let basicPanel = new URLSearchParams(window.location.search).get('panel') === 'nancy';
   let proteinData, lastLoadedAt;
   let operationalArea = AreaNavigation.selected;
+  let initialAreaSelection = true;
   function inArea(i) {
     if(['general','supervision'].includes(operationalArea))return true;
     if(operationalArea==='rosticero')return i.id.startsWith('rosti-');
@@ -28,7 +30,9 @@
     if(['rastro','almacen'].includes(code))location='cedis';
     else if(code!=='general'&&code!=='supervision')location='sucursal';
     $('#location').value=location;
-    if(code!=='general')tab=code==='sucursal_apertura'?'opening':code==='cocina'?'kitchenProduction':basicPanel?'proteins':'stock';render();
+    const preserveTab=initialAreaSelection&&new URLSearchParams(window.location.search).has('tab');
+    initialAreaSelection=false;
+    if(code!=='general'&&!preserveTab)tab=code==='sucursal_apertura'?'opening':code==='cocina'?'kitchenProduction':basicPanel?'proteins':'stock';render();
   }
   const item = id => snapshot.data.items.find(i=>i.id===id);
   const bal = (loc,id) => snapshot.data.balances[`${loc}:${id}`] || 0;
@@ -48,6 +52,7 @@
     if(next){const destination=new URL(next,window.location.origin);if(destination.origin===window.location.origin&&['/dashboard.html','/preguntale.html','/supervision.html'].includes(destination.pathname)){window.location.replace(destination.href);return;}}
     basicPanel=new URLSearchParams(window.location.search).get('panel')==='nancy'||result.user.id==='nancy';
     if(basicPanel&&!result.user.pilot&&!['home','requestForm','incoming','proteins','kitchenPlanning','kitchenProduction','weeklyPurchases'].includes(tab))tab='home';
+    if(tab==='catalog'&&!can('catalog'))tab='home';
     proteinData=await api('proteins');lastLoadedAt=new Date();
     ChickenFeedback.progress('nancy-verificaciones:'+proteinData.day,Math.round(proteinData.nancy.verified/proteinData.nancy.total*100),'Nancy: verificaciones completas ⭐');
     $('#workspace').hidden=false;$('#login-panel').hidden=true;$('#logout').hidden=false;
@@ -87,10 +92,10 @@
     $('#inventory-scope-note')?.remove();
     if(!['general','supervision'].includes(operationalArea))$('#view').insertAdjacentHTML('beforebegin',`<p id="inventory-scope-note" class="inv-note">${['home','stock','counts'].includes(tab)?'Existencias y conteos filtrados por área. Los saldos pertenecen a la ubicación seleccionada.':'Operación compartida de la ubicación seleccionada.'} <a href="#" id="all-inventory">Ver todas las áreas</a></p>`);
     $('#all-inventory')?.addEventListener('click',e=>{e.preventDefault();AreaNavigation.select('general');});
-    $('#nav').innerHTML=Object.entries(labels).filter(([k])=>basicPanel&&!snapshot.user.pilot?['home','requestForm','incoming','proteins','kitchenPlanning','kitchenProduction','weeklyPurchases'].includes(k):(k!=='catalog'||can('catalog'))).map(([k,n])=>`<button type="button" data-tab="${k}" ${tab===k?'aria-current="page"':''}>${n}</button>`).join('');
+    $('#nav').innerHTML=AreaNavigation.inventoryMenu(Object.entries(labels).filter(([k])=>basicPanel&&!snapshot.user.pilot?['home','requestForm','incoming','proteins','kitchenPlanning','kitchenProduction','weeklyPurchases'].includes(k):(k!=='catalog'||can('catalog'))),tab);
     ({home,stock,supply,production,sales,counts,receipts,opening,history,catalog,proteins,requestForm,incoming,kitchenPlanning,kitchenProduction,weeklyPurchases})[tab]();
   }
-  function navigate(next){if(busy)return;if(basicPanel&&!snapshot.user.pilot&&!['home','requestForm','incoming','proteins','kitchenPlanning','kitchenProduction','weeklyPurchases'].includes(next))return;tab=next;render();}
+  function navigate(next){if(busy)return;if(basicPanel&&!snapshot.user.pilot&&!['home','requestForm','incoming','proteins','kitchenPlanning','kitchenProduction','weeklyPurchases'].includes(next))return;tab=next;const url=new URL(window.location.href);url.searchParams.set('tab',tab);window.history.replaceState(null,'',url);render();}
   function stockRows(){return areaItems().map(i=>`<div class="inv-row"><div>${esc(i.name)}<small>${esc(i.area)}</small></div><strong>${initialized(location,i.id)?`${fmt(bal(location,i.id))} ${esc(i.unit)}`:'Sin saldo inicial'}</strong></div>`).join('');}
   function home(){
     if(basicPanel){
@@ -102,7 +107,7 @@
     const pendingCounts=snapshot.data.counts.filter(c=>c.location===location&&c.status==='pending');
     const open=snapshot.data.requests.filter(r=>r.status==='open');
     const noInitial=areaItems().filter(i=>!initialized(location,i.id)).length;
-    $('#view').innerHTML=`<div class="inv-grid">${panel('Requiere atención',`<div class="inv-stack">${noInitial?`<button data-go="stock">${noInitial} artículos sin saldo inicial</button>`:''}<button data-go="supply">${open.length} solicitudes abiertas</button><button data-go="counts">${pendingCounts.length} conteos por conciliar</button><button data-go="sales">Registrar ventas del día</button><button data-go="opening">Apertura de ${location==='cedis'?'Rastro':'Sucursal'}</button></div>`)}${panel('Existencias',stockRows())}</div>`;
+    $('#view').innerHTML=`<div class="inv-grid">${panel('Requiere atención',`<div class="inv-stack">${noInitial?`<button data-go="stock">${noInitial} artículos sin saldo inicial</button>`:''}<button data-go="supply">${open.length} solicitudes abiertas</button><button data-go="counts">${pendingCounts.length} conteos por conciliar</button><button data-go="sales">Registrar ventas del día</button><button data-go="opening">Apertura de ${location==='cedis'?'Rastro':'Sucursal'}</button></div>`)}${panel('Existencias',`<div class="stock-preview"><strong>${areaItems().length}</strong><p>Artículos en esta área · ${noInitial} sin saldo inicial</p><button data-go="stock">Consultar existencias</button></div>`)}</div>`;
   }
   async function kitchenPlanning(){
     $('#view').innerHTML=panel('Orden de producción de cocina',`<label>Fecha de producción<input type="date" id="kitchen-plan-date" min="${snapshot.today}" value="${snapshot.today}"></label><p>Programa los kg requeridos. Las preparaciones semanales solo cuentan como pendientes en la fecha programada. Desayuno: registrar salida y regreso en Asistencia.</p><div id="kitchen-plan-list">Cargando…</div>`);

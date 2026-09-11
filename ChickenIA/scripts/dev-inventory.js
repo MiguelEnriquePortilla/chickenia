@@ -29,7 +29,7 @@ const repo=repository(query);
 const handler=require('../api/inventory').createHandler(()=>repo,query);
 const chickenHandler=require('../api/chicken-ia').createHandler(query);
 const kitchenHandler=require('../api/kitchen-plan').createHandler(require('./local-kitchen')(db));
-const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.json':'application/json'};
+const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.json':'application/json'};
 const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');
   res.status=code=>{res.statusCode=code;return res;};res.json=data=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(data));};
