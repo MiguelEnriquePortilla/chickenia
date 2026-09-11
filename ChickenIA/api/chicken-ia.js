@@ -8,7 +8,7 @@ function createHandler(query=(sql,params)=>require('@neondatabase/serverless').n
     try{
       if(req.method!=='GET'){res.setHeader('Allow','GET');throw new InventoryError('Solo consultas.',405);}
       const user=authenticate(req);
-      if(!['miguel','lilian'].includes(user.id))throw new InventoryError('Este piloto está disponible para Miguel y Lilian.',403);
+      if(!user.pilot&&!['miguel','lilian'].includes(user.id))throw new InventoryError('Este apartado requiere acceso autorizado.',403);
       if(req.query.action==='session')return res.status(200).json({user});
       return res.status(200).json(await answer(parse(req.query),query));
     }catch(e){return res.status(e.status||500).json({error:e.status?e.message:'No se pudo consultar la fuente. Reintenta en un momento.'});}

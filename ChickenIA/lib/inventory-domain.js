@@ -117,7 +117,7 @@ function applyOperation(original, command, actor, now = new Date().toISOString()
     const request={id:command.id,supplier,due,location,supplierType:command.supplierType,urgent:command.urgent,lines,note,status:'requested',actor:actor.name,at:now};
     state.purchaseRequests ||= [];state.purchaseRequests.push(request);event.detail=request;
   } else if(type==='approvePurchase') {
-    if(!['lilian','miguel'].includes(actor.id))fail('La compra requiere autorización de Lilian o Miguel.',403);
+    if(!actor.pilot&&!['lilian','miguel'].includes(actor.id))fail('La compra requiere autorización de Lilian o Miguel.',403);
     const request=state.purchaseRequests?.find(r=>r.id===command.request);
     if(!request||request.status!=='requested')fail('Solicitud inexistente o ya autorizada.',409);
     const purchase={id:command.id,supplier:request.supplier,lines:request.lines,received:[],at:now,actor:actor.name,location:request.location,due:request.due,request:request.id,urgent:request.urgent};

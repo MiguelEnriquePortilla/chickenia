@@ -1,4 +1,4 @@
-// js/dashboard.js — Dashboard de supervisión para Miguel y Lilian (única vista con acceso).
+// Dashboard uses the same authenticated session as the operational modules.
 const $ = (sel) => document.querySelector(sel);
 const state = {
   locations: [],
@@ -6,37 +6,17 @@ const state = {
   date: new Date().toISOString().slice(0, 10),
 };
 
-// Password gate — solo esta vista (Nancy no entra aquí, sigue usando supervision.html sin restricción).
-const GATE_PASSWORD = 'chickenia2026';
-const GATE_STORAGE_KEY = 'chickenia_dash_ok';
-
-function initGate() {
-  const gate = document.getElementById('password-gate');
-  const content = document.getElementById('app-content');
-  const unlock = () => {
-    gate.style.display = 'none';
-    content.hidden = false;
+// One signed session shared with inventory and Chicken-IA.
+async function initGate() {
+  try {
+    const response = await fetch('/api/inventory?action=session', {cache:'no-store'});
+    if(response.status===401){location.replace('/inventario.html?next='+encodeURIComponent(location.pathname+location.search));return;}
+    if(!response.ok)throw new Error('No se pudo comprobar el acceso. Recarga para reintentar.');
+    await response.json();
+    document.getElementById('password-gate').style.display='none';
+    document.getElementById('app-content').hidden=false;
     init();
-  };
-  if (localStorage.getItem(GATE_STORAGE_KEY) === '1') {
-    unlock();
-    return;
-  }
-  const form = document.getElementById('gate-form');
-  const input = document.getElementById('gate-password');
-  const errorEl = document.getElementById('gate-error');
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (input.value === GATE_PASSWORD) {
-      localStorage.setItem(GATE_STORAGE_KEY, '1');
-      unlock();
-    } else {
-      errorEl.textContent = 'Contraseña incorrecta.';
-      input.value = '';
-      input.focus();
-    }
-  });
-  input.focus();
+  }catch(e){document.getElementById('gate-error').textContent=e.message;}
 }
 
 // --- Secciones colapsables (detalle de áreas / movimientos) ---
@@ -96,9 +76,12 @@ function initCornerMenu() {
     closeCornerMenu();
   });
   $('#menu-dark-toggle')?.addEventListener('click', toggleTheme);
-  $('#menu-logout')?.addEventListener('click', () => {
-    localStorage.removeItem(GATE_STORAGE_KEY);
-    location.reload();
+  $('#menu-logout')?.addEventListener('click', async () => {
+    try {
+      const response=await fetch('/api/inventory?action=logout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+      if(!response.ok)throw new Error('No se pudo cerrar sesión. Reintenta.');
+      location.reload();
+    }catch(e){alert(e.message);}
   });
 }
 function closeCornerMenu() {

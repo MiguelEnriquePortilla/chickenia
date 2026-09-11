@@ -24,6 +24,7 @@ function createHandler(getRepository = production, queryOverride) {
       // Missing credentials fails closed; anonymous requests cannot create tables or read stock.
       auth.settings();
       const user = action === 'login' && req.method === 'POST' ? null : auth.authenticate(req);
+      if(req.method==='GET'&&action==='session')return res.status(200).json({user});
       const repo = getRepository();
       if (!migrated) migrated = repo.migrate().catch(e => { migrated = null; throw e; });
       await migrated;

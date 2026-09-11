@@ -1,5 +1,7 @@
 # Pregúntale a Chicken-IA — primera implementación local
 
+> Actualización de cierre: esta implementación ya fue enviada a main en `7ea0e3e`; el cambio de nombre a Control Operativo e iconos, en `23c45fb`. Despliegue aún no verificado. Las referencias de abajo a “sin commit/push” describen el momento inicial. Continuar desde [00_INICIAR_AQUI.md](00_INICIAR_AQUI.md).
+
 ## Implementado
 
 - `preguntale.html`: apartado independiente enlazado desde inicio y navegación común. Cinco consultas rápidas, periodo/fecha y área, conversación, nueva consulta, móvil, tema oscuro y sesión de inventarios.

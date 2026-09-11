@@ -2,10 +2,15 @@
 const { createHmac, timingSafeEqual, scryptSync, createHash, randomBytes } = require('node:crypto');
 const { InventoryError } = require('./inventory-domain');
 const COOKIE = 'chickenia_inventory';
+const pilot = require('./pilot-access');
 function settings() {
   let users;
   try { users = JSON.parse(process.env.INVENTORY_USERS_JSON || 'null'); } catch { /* handled below */ }
   const secret = process.env.INVENTORY_SESSION_SECRET;
+  if(pilot.enabled()){
+    if(!secret||secret.length<32)throw new InventoryError('El administrador debe configurar la sesión de ChickenIA.',503);
+    return {users:Array.isArray(users)?users:[],secret};
+  }
   if (!secret || secret.length < 32 || !Array.isArray(users) || !users.length) throw new InventoryError('El administrador debe configurar las cuentas de inventario.', 503);
   if (users.some(u => !/^[a-z0-9-]{2,40}$/.test(u.id) || !['manager','kitchen','dispatch','processor'].includes(u.role) || typeof u.name !== 'string' || !/^scrypt\$[a-f0-9]{32}\$[a-f0-9]{128}$/.test(u.hash))) throw new InventoryError('Configuración de cuentas inválida.', 503);
   if (new Set(users.map(u => u.id)).size !== users.length) throw new InventoryError('Cuentas duplicadas.', 503);
@@ -20,7 +25,7 @@ function passwordHash(password) {
 const userVersion = user => createHash('sha256').update(user.hash + user.role).digest('hex');
 function sign(value, secret) { return createHmac('sha256', secret).update(value).digest('base64url'); }
 function session(user, secret) {
-  const payload = Buffer.from(JSON.stringify({ sub: user.id, exp: Math.floor(Date.now()/1000)+3600*10, v: userVersion(user) })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ sub: user.id, exp: Math.floor(Date.now()/1000)+3600*10, v: userVersion(user), ...(user.pilot?{pilot:true,name:user.name}:{}) })).toString('base64url');
   return `${payload}.${sign(payload, secret)}`;
 }
 function cookie(value, req, clear = false) {
@@ -37,9 +42,9 @@ function authenticate(req) {
   const [payload, signature, extra] = raw.split('.');
   if (extra || !signature || !safeEqual(sign(payload, secret), signature)) throw new InventoryError('Sesión inválida.', 401);
   let data; try { data = JSON.parse(Buffer.from(payload,'base64url').toString()); } catch { throw new InventoryError('Sesión inválida.',401); }
-  const user = users.find(u => u.id === data.sub);
-  if (!user || data.v !== userVersion(user) || !Number.isFinite(data.exp) || data.exp < Date.now()/1000) throw new InventoryError('La sesión venció.',401);
-  return { id: user.id, name: user.name, role: user.role };
+  const user = data.pilot&&pilot.enabled()?pilot.user(data.name,users):!pilot.enabled()&&!data.pilot?users.find(u => u.id === data.sub):null;
+  if (!user || user.id!==data.sub || data.v !== userVersion(user) || !Number.isFinite(data.exp) || data.exp < Date.now()/1000) throw new InventoryError('La sesión venció. Vuelve a entrar con la clave compartida del piloto.',401);
+  return { id: user.id, name: user.name, role: user.role, ...(user.pilot?{pilot:true}:{}) };
 }
 async function login(req, query) {
   const { users, secret } = settings();
@@ -50,12 +55,12 @@ async function login(req, query) {
     ON CONFLICT(key) DO UPDATE SET attempts=CASE WHEN inv_login_attempts.window_start < now()-interval '15 minutes' THEN 1 ELSE inv_login_attempts.attempts+1 END,
     window_start=CASE WHEN inv_login_attempts.window_start < now()-interval '15 minutes' THEN now() ELSE inv_login_attempts.window_start END RETURNING attempts`, [key]);
   if (attempts[0].attempts > 10) throw new InventoryError('Demasiados intentos. Espera 15 minutos.',429);
-  const user = users.find(u => u.id === username.toLowerCase());
+  const user = pilot.enabled()?pilot.user(username,users):users.find(u => u.id === username.toLowerCase());
   const hash = user?.hash || `scrypt$${'0'.repeat(32)}$${'0'.repeat(128)}`;
   const [,salt,expected] = hash.split('$');
   const computed = scryptSync(password,salt,64).toString('hex');
   if (!user || !safeEqual(expected,computed)) throw new InventoryError('Usuario o contraseña incorrectos.',401);
   await query('DELETE FROM inv_login_attempts WHERE key=$1',[key]);
-  return { user: { id:user.id,name:user.name,role:user.role }, token:session(user,secret) };
+  return { user: { id:user.id,name:user.name,role:user.role,...(user.pilot?{pilot:true}:{}) }, token:session(user,secret) };
 }
 module.exports = { authenticate, login, cookie, passwordHash, settings };

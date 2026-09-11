@@ -13,7 +13,7 @@
     "node": ">=22 <25"
   },
   "scripts": {
-    "test": "node --test test/inventory.test.js test/routines.test.js test/proteins.test.js test/kitchen.test.js test/chicken-query.test.js",
+    "test": "node --test test/inventory.test.js test/routines.test.js test/proteins.test.js test/kitchen.test.js test/chicken-query.test.js test/pilot-access.test.js",
     "build": "node scripts/build-static.js",
     "dev:inventory": "node scripts/dev-inventory.js",
     "setup:inventory": "node scripts/create-inventory-users.js"

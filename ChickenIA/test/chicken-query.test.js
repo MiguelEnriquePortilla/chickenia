@@ -1,3 +1,4 @@
+process.env.CHICKENIA_PILOT_ACCESS='0'; // Regression coverage for individual-account mode.
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {PGlite}=require('@electric-sql/pglite');

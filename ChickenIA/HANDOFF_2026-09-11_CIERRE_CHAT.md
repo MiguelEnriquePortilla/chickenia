@@ -1,5 +1,7 @@
 # Handoff de cierre — 11 septiembre 2026
 
+> Cierre posterior disponible: [00_INICIAR_AQUI.md](00_INICIAR_AQUI.md). El piloto de consultas ya fue implementado y enviado a main. La siguiente sesión se dedica a las áreas restantes y el recetario; conservar este documento como antecedente.
+
 Este documento es el punto de entrada vigente. Los handoffs anteriores conservan valor histórico; este acuerdo reemplaza propuestas contradictorias sobre la ubicación del chat.
 
 Leer [reporte de sesión](REPORTE_SESION_2026-09-11.md) y [detalle de cocina/compras](HANDOFF_2026-09-11_COCINA_COMPRAS.md).

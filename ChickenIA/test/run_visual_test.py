@@ -40,6 +40,8 @@ os.makedirs(OUT, exist_ok=True)
 
 def mock_api(route):
     url = route.request.url
+    if "/api/inventory?action=session" in url:
+        return route.fulfill(json={"user":{"id":"prueba","name":"Prueba","pilot":True}})
     if "/api/employees" in url or "/api/attendance" in url:
         return route.fulfill(status=200, content_type="application/json", body="[]")
     if "/api/locations" in url:
@@ -129,8 +131,7 @@ with sync_playwright() as p:
     page2.wait_for_timeout(300)
     page2.screenshot(path=f"{OUT}/dash_01_gate.png", full_page=True)
 
-    page2.fill("#gate-password", "chickenia2026")
-    page2.click('#gate-form button[type="submit"]')
+    assert page2.locator('#app-content').is_visible()
     page2.wait_for_timeout(500)
     page2.screenshot(path=f"{OUT}/dash_02_unlocked.png", full_page=True)
 
@@ -152,11 +153,7 @@ with sync_playwright() as p:
     assert page2.locator('.area-bar-row:visible').count()==1
     assert page2.locator('.area-bar-row:visible').get_attribute('data-area-code')=='caja'
     page2.click('[data-nav-area="general"]')
-    # cerrar sesión -> debe volver a mostrar el gate
-    page2.click("#corner-menu-btn")
-    page2.click("#menu-logout")
-    page2.wait_for_timeout(400)
-    page2.screenshot(path=f"{OUT}/dash_06_after_logout.png", full_page=True)
+    # Real global logout and redirect are covered by pilot_browser.py.
 
     browser.close()
 
