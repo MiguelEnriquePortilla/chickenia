@@ -1,7 +1,7 @@
 // api/attendance.js — asistencia diaria por empleado: entrada, comida-salida,
 // comida-regreso, salida. Cada evento se marca en el momento (hora del servidor,
 // nunca escrita a mano) — decisión de Miguel, misma filosofía que activity_checks.
-const { ensureTables } = require('./lib/db');
+const { ensureTables } = require('../lib/supervision/db');
 
 const EVENT_COLUMNS = ['entrada', 'comida_salida', 'comida_regreso', 'salida'];
 

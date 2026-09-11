@@ -1,5 +1,5 @@
 // api/locations.js — lista de ubicaciones activas (sucursal + unidades móviles)
-const { ensureTables } = require('./lib/db');
+const { ensureTables } = require('../lib/supervision/db');
 
 module.exports = async (req, res) => {
   try {

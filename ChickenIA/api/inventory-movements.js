@@ -1,5 +1,5 @@
 // api/inventory-movements.js — movimientos de inventario (recepción, venta, merma, conteo)
-const { ensureTables } = require('./lib/db');
+const { ensureTables } = require('../lib/supervision/db');
 
 module.exports = async (req, res) => {
   try {

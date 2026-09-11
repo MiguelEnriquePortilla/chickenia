@@ -1,5 +1,5 @@
 // api/inventory-items.js — catálogo de inventario (~30 SKUs)
-const { ensureTables } = require('./lib/db');
+const { ensureTables } = require('../lib/supervision/db');
 
 module.exports = async (req, res) => {
   try {

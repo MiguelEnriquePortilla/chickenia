@@ -1,7 +1,7 @@
 'use strict';
 const auth = require('../lib/inventory-auth');
 const { today, InventoryError } = require('../lib/inventory-domain');
-function createHandler(getSql = require('./lib/db').ensureTables) {
+function createHandler(getSql = require('../lib/supervision/db').ensureTables) {
   return async (req,res) => {
     res.setHeader('Cache-Control','no-store');
     try {

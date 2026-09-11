@@ -1,9 +1,9 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { PGlite } = require('@electric-sql/pglite');
-const migrate = require('../api/lib/routine-migration');
-const routines = require('../api/lib/rosticero-routines');
-const kitchen = require('../api/lib/cocina-routines');
+const migrate = require('../lib/supervision/routine-migration');
+const routines = require('../lib/supervision/rosticero-routines');
+const kitchen = require('../lib/supervision/cocina-routines');
 
 test('routine migration is repeatable and preserves historical catalogue and checks', async () => {
   const db = new PGlite();
@@ -24,7 +24,7 @@ test('routine migration is repeatable and preserves historical catalogue and che
     assert.equal((await sql`SELECT count(*)::int AS n FROM activities`)[0].n,routines.length+kitchen.length+2);
     assert.equal((await sql`SELECT count(*)::int AS n FROM activity_checks WHERE activity_id=1`)[0].n,2);
     assert.equal((await sql`SELECT name FROM activities WHERE id=2`)[0].name,'Cocina original');
-    const dbModule = require('../api/lib/db');
+    const dbModule = require('../lib/supervision/db');
     dbModule.ensureTables=async()=>sql;
     const areas=require('../api/areas');
     const summary=require('../api/summary');

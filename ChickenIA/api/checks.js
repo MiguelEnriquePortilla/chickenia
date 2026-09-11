@@ -1,5 +1,5 @@
 // api/checks.js — lectura/escritura de checks de actividad (verificados por el supervisor)
-const { ensureTables } = require('./lib/db');
+const { ensureTables } = require('../lib/supervision/db');
 
 module.exports = async (req, res) => {
   try {

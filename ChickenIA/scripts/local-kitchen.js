@@ -11,7 +11,7 @@ module.exports = function localKitchen(db) {
         CREATE TABLE IF NOT EXISTS activity_checks(activity_id int,check_date date);`);
       if(!(await sql`SELECT count(*)::int n FROM activities`)[0].n){
         let index=0;
-        for(const [name,,requires_quantity,unit,,,,frequency] of require('../api/lib/cocina-routines')){
+        for(const [name,,requires_quantity,unit,,,,frequency] of require('../lib/supervision/cocina-routines')){
           await sql`INSERT INTO activities(area_id,name,frequency,unit,active,requires_quantity,order_index) VALUES(1,${name},${frequency},${unit},true,${requires_quantity},${++index})`;
         }
       }

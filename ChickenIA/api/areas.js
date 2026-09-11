@@ -1,5 +1,5 @@
 // api/areas.js — áreas + actividades para un tipo de ubicación (tienda | moto)
-const { ensureTables } = require('./lib/db');
+const { ensureTables } = require('../lib/supervision/db');
 
 module.exports = async (req, res) => {
   try {

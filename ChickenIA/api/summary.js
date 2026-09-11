@@ -1,6 +1,6 @@
 // api/summary.js — resumen ponderado del día por ubicación: score por área,
 // pendientes críticos, y verificación cruzada de pollo para unidades móviles.
-const { ensureTables } = require('./lib/db');
+const { ensureTables } = require('../lib/supervision/db');
 
 module.exports = async (req, res) => {
   try {

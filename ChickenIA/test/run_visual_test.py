@@ -12,7 +12,7 @@ from fixtures import LOCATIONS, AREAS, CHECKS, MOVEMENTS, build_summary
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PORT = 8934
 from pathlib import Path
-routine_text = (Path(ROOT)/'api/lib/rosticero-routines.js').read_text(encoding='utf-8')
+routine_text = (Path(ROOT)/'lib/supervision/rosticero-routines.js').read_text(encoding='utf-8')
 routine_rows = json.loads(routine_text.split('module.exports = ',1)[1].rstrip(';\n'))
 AREAS.append({'id':13,'code':'rosticero','name':'Rosticero','order_index':4,'activities':[
     dict(id=200+i,area_id=13,name=row[0],criticality=row[1],weight={'baja':1,'media':3,'alta':6,'critica':10}[row[1]],requires_quantity=row[2],unit=row[3],indicator_type=row[4],target=row[5],routine_block=row[6],order_index=i)
