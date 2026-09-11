@@ -126,7 +126,7 @@ try:
         page.locator('[name=username]').fill('nancy')
         page.locator('[name=password]').fill(credentials['password'])
         page.locator('#login-form button').click()
-        expect(page.locator('#page-title')).to_have_text('Panel de Nancy')
+        expect(page.locator('#page-title')).to_have_text('Control Operativo')
         assert page.locator('#nav [data-tab]').count()==7
         page.locator('[data-tab=incoming]').click()
         form=page.locator('[data-basic-shipment]').last

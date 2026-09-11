@@ -93,7 +93,7 @@
   function home(){
     if(basicPanel){
       const n=proteinData.nancy;
-      $('#page-title').textContent='Panel de Nancy';
+      $('#page-title').textContent='Control Operativo';
       $('#view').innerHTML=`<div class="inv-grid">${panel('Mis controles',`<div class="inv-stack"><button data-go="requestForm">Solicitud de inventario</button><button data-go="incoming">Recepción de inventario</button><button data-go="proteins">Existencias de pollo · verificar</button><a href="/supervision.html">Actividades y asistencia</a></div>`)}${panel('Seguimiento de mi supervisión',`<p><strong>${Math.round(n.verified/n.total*100)} % · ${n.verified} de ${n.total}</strong> existencias por ubicación verificadas hoy por Nancy.</p><p><strong>${n.receiptsToday}</strong> entregas confirmadas hoy por Nancy.</p><p><strong>${n.differencesResolvedToday}</strong> diferencias atendidas hoy por el equipo.</p><p>Momentos registrados: ${esc(n.moments.join(', ')||'Ninguno todavía')}.</p><p><strong>${proteinData.unresolved.length}</strong> conteos de proteína con diferencias pendientes.</p><p class="inv-note">Detectar una diferencia también cuenta como verificación. Las verificaciones de otras personas conservan su propio responsable.</p>`)}</div>`;
       return;
     }

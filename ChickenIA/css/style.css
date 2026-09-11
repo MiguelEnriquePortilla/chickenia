@@ -71,6 +71,10 @@ h1, h2, h3 {
 .landing h1.wordmark-lg { font-size: 64px; margin: 0 0 4px; letter-spacing: 1px; }
 .subtitle { color: var(--text); margin-bottom: 8px; opacity: 0.85; }
 .landing-links { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 24px; }
+.landing-links .btn { display: inline-flex; align-items: center; gap: 12px; padding: 12px 24px 12px 14px; text-align: left; max-width: 100%; }
+.menu-icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 42px; width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,.16); font-size: 25px; line-height: 1; }
+.landing-links .btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 5px; }
+@media (max-width: 480px) { .landing-links { width: 100%; } .landing-links .btn { width: 100%; font-size: 14px; } }
 
 /* Marca — "CHICKEN·IA" */
 .wordmark { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.5px; white-space: nowrap; }
