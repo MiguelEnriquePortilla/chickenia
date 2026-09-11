@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pregúntale a Chicken-IA</title><link rel="icon" href="/icons/icon-32.png">
+<script>try{if(localStorage.getItem('chickenia_theme')==='dark')document.documentElement.dataset.theme='dark';}catch(e){}</script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/area-navigation.css"><link rel="stylesheet" href="/css/chicken-chat.css">
+</head>
+<body>
+<div id="chat-shell">
+  <header class="app-header"><a href="/" class="chat-brand">CHICKEN<span>·</span>IA</a><span>JOJUTLA · CONSULTAS</span><button id="theme" type="button">Cambiar tema</button></header>
+  <main class="chat-main">
+    <section id="login-panel" class="chat-login" hidden>
+      <span class="chat-kicker">ACCESO AL PILOTO</span><h1>Pregúntale a Chicken-IA</h1><p>Ingresa con tu cuenta de Miguel o Lilian.</p>
+      <form id="login-form"><label>Usuario<input name="username" autocomplete="username" required></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label><button class="chat-primary">Entrar</button></form>
+      <p id="login-error" role="alert"></p>
+    </section>
+    <section id="workspace" hidden>
+      <div class="chat-heading"><div><span class="chat-kicker">TU OPERACIÓN, A UN TOQUE</span><h1>Pregúntale a Chicken-IA</h1><p>Actividades, inventarios y compras con evidencia.</p></div><button id="new-chat" type="button">Nueva consulta</button></div>
+      <div class="chat-filters"><label>Periodo<select id="period"><option value="today">Hoy</option><option value="yesterday">Ayer</option><option value="custom">Elegir fecha</option></select></label><label id="date-label" hidden>Fecha<input id="date" type="date"></label><label>Área<select id="area"></select></label><span class="chat-readonly">Solo lectura</span><button id="logout" type="button">Salir</button></div>
+      <section id="welcome"><h2>¿Qué necesitas saber?</h2><div class="chat-shortcuts">
+        <button data-question="Resumen del día"><span class="shortcut-number">01</span><strong>Resumen del día</strong><span>Cómo va la operación</span></button>
+        <button data-question="Pendientes críticos"><span class="shortcut-number">02</span><strong>Pendientes críticos</strong><span>Qué necesita revisión</span></button>
+        <button data-question="Comparar áreas"><span class="shortcut-number">03</span><strong>Comparar áreas</strong><span>Avance registrado por equipo</span></button>
+        <button data-question="Verificaciones de Nancy"><span class="shortcut-number">04</span><strong>Verificaciones de Nancy</strong><span>Conteos y recepciones de hoy</span></button>
+        <button data-question="Inventarios y compras"><span class="shortcut-number">05</span><strong>Inventarios y compras</strong><span>Existencias y pedidos actuales</span></button>
+      </div><p class="chat-note">Elige una consulta o escribe una pregunta sobre estos temas.</p></section>
+      <div id="conversation" role="log" aria-label="Conversación" aria-live="polite"></div>
+      <p id="request-status" role="status"></p>
+      <form id="composer" class="chat-composer"><label class="sr-only" for="question">Tu pregunta</label><textarea id="question" rows="1" maxlength="500" placeholder="Por ejemplo: ¿qué pendientes tiene Cocina?" required></textarea><button class="chat-primary" type="submit">Enviar <span aria-hidden="true">↑</span></button><small>Consultas guiadas · Cada respuesta muestra su fecha y fuente.</small></form>
+    </section>
+    <p id="startup" role="status">Comprobando acceso…</p>
+  </main>
+</div>
+<script src="/js/area-navigation.js"></script><script src="/js/chicken-chat.js"></script>
+</body></html>

@@ -16,7 +16,7 @@
   let selected = params.get('area') || 'general';
   if (!definitions.some(a=>a[0]===selected)) selected='general';
   let callback, mounted=false;
-  const modules=[['supervision','Actividades','/supervision.html'],['dashboard','Dashboard','/dashboard.html'],['inventario','Inventario','/inventario.html']];
+  const modules=[['supervision','Actividades','/supervision.html'],['dashboard','Dashboard','/dashboard.html'],['inventario','Inventario','/inventario.html'],['preguntale','Pregúntale a Chicken-IA','/preguntale.html']];
   const module=modules.find(m=>location.pathname.includes(m[0]))?.[0]||'supervision';
   function select(code,notify=true) {
     selected=code;
