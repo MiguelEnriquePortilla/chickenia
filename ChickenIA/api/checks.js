@@ -23,6 +23,10 @@ module.exports = async (req, res) => {
       if (!activity_id || !location_id || !check_date || !checked_by) {
         return res.status(400).json({ error: 'activity_id, location_id, check_date y checked_by son requeridos' });
       }
+      const valid = await sql`SELECT id FROM activities WHERE id = ${activity_id} AND active = true
+        AND (valid_from IS NULL OR valid_from <= ${check_date}::date)
+        AND (valid_until IS NULL OR valid_until > ${check_date}::date)`;
+      if (!valid.length) return res.status(409).json({ error: 'El catálogo cambió para esta fecha. Recarga las actividades antes de capturar.' });
       const rows = await sql`
         INSERT INTO activity_checks (activity_id, location_id, check_date, done, quantity, quality_score, notes, checked_by, checked_at)
         VALUES (${activity_id}, ${location_id}, ${check_date}, ${!!done}, ${quantity ?? null}, ${quality_score ?? null}, ${notes ?? null}, ${checked_by}, now())

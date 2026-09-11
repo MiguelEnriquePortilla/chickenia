@@ -16,6 +16,8 @@ module.exports = async (req, res) => {
       SELECT a.id, a.area_id, ar.code AS area_code, ar.name AS area_name, a.name, a.criticality, a.weight, a.requires_quantity, a.unit
       FROM activities a JOIN areas ar ON ar.id = a.area_id
       WHERE ar.location_type = ${locationType} AND a.active = true
+        AND (a.valid_from IS NULL OR a.valid_from <= ${date}::date)
+        AND (a.valid_until IS NULL OR a.valid_until > ${date}::date)
       ORDER BY ar.order_index, a.order_index
     `;
     const checks = await sql`

@@ -235,12 +235,29 @@ function initCriticalChip() {
   });
 }
 
+let latestAreaSummary;
+function selectDashboardArea(code) {
+  if(!latestAreaSummary)return;
+  document.querySelectorAll('.area-bar-row').forEach(row=>row.hidden=code!=='general'&&row.dataset.areaCode!==code);
+  const current=latestAreaSummary.areas.find(a=>a.area_code===code);
+  document.querySelector('.overall-score-label').textContent=code==='general'?'Cumplimiento del día':'Cumplimiento del área';
+  document.getElementById('overall-score').textContent=code==='general'?latestAreaSummary.overall_score+'%':current?current.score+'%':'\u2014';
+  renderCriticalPending($('#critical-pending'),code==='general'?latestAreaSummary.critical_pending:latestAreaSummary.critical_pending.filter(p=>p.area_name===current?.area_name));
+  document.getElementById('dashboard-area-empty')?.remove();
+  if(code!=='general') {
+    setCollapsible('areas-toggle','areas',true);
+    if(!current)document.getElementById('areas-card').insertAdjacentHTML('beforeend','<p id="dashboard-area-empty">Esta área todavía no tiene indicadores de supervisión cargados.</p>');
+  }
+  // Legacy movements have no operational-area association; keep them in overview.
+  document.getElementById('movements-toggle').closest('.card').hidden=code!=='general';
+}
 function renderSummary(summary) {
+  latestAreaSummary=summary;
   $('#overall-score').textContent = summary.overall_score + '%';
   $('#areas').innerHTML = `<div class="collapsible-inner">${summary.areas
     .map(
       (a) => `
-    <div class="area-bar-row">
+    <div class="area-bar-row" data-area-code="${a.area_code}">
       <span class="area-bar-label">${a.area_name}</span>
       <div class="area-bar-track"><div class="area-bar-fill" data-target="${a.score}" style="width:0%"></div></div>
       <span class="area-bar-value">${a.score}% (${a.done_items}/${a.total_items})</span>
@@ -273,6 +290,7 @@ function renderSummary(summary) {
   } else {
     crossEl.style.display = 'none';
   }
+  AreaNavigation.mount(document.getElementById('app-content'),selectDashboardArea);
 }
 
 function renderMovements(movements) {

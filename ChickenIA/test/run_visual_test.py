@@ -11,6 +11,12 @@ from fixtures import LOCATIONS, AREAS, CHECKS, MOVEMENTS, build_summary
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PORT = 8934
+from pathlib import Path
+routine_text = (Path(ROOT)/'api/lib/rosticero-routines.js').read_text(encoding='utf-8')
+routine_rows = json.loads(routine_text.split('module.exports = ',1)[1].rstrip(';\n'))
+AREAS.append({'id':13,'code':'rosticero','name':'Rosticero','order_index':4,'activities':[
+    dict(id=200+i,area_id=13,name=row[0],criticality=row[1],weight={'baja':1,'media':3,'alta':6,'critica':10}[row[1]],requires_quantity=row[2],unit=row[3],indicator_type=row[4],target=row[5],routine_block=row[6],order_index=i)
+    for i,row in enumerate(routine_rows)]})
 
 # --- Servidor HTTP simple que sirve los archivos estáticos reales del repo ---
 Handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=ROOT)
@@ -75,7 +81,10 @@ with sync_playwright() as p:
 
     # click en un chip (debe abrir esa área y scrollear)
     page.click('#corner-menu-btn')  # cerrar menu primero
-    page.click('.area-badge[data-jump="caja"]')
+    page.click('[data-nav-area="caja"]')
+    assert page.locator('.area-block[data-area-code="caja"]').is_visible()
+    assert not page.locator('.area-block[data-area-code="cocina"]').is_visible()
+    page.click('[data-nav-area="general"]')
     page.wait_for_timeout(300)
     page.screenshot(path=f"{OUT}/sup_04_chip_jump.png", full_page=True)
 
@@ -95,6 +104,19 @@ with sync_playwright() as p:
     page.reload(wait_until="load")
     page.wait_for_timeout(400)
     page.screenshot(path=f"{OUT}/sup_07_reload_persisted.png", full_page=True)
+
+    page.click('[data-nav-area="rosticero"]')
+    assert page.locator('.routine-heading').count() == 3
+    assert page.locator('.activity-row:visible').count() == len(routine_rows)
+    page.locator('.sidebar-toggle').click()
+    assert page.locator('.sidebar-toggle').get_attribute('aria-expanded') == 'false'
+    for width in [390,1100]:
+        page.set_viewport_size({'width':width,'height':900})
+        page.wait_for_timeout(300)
+        page.screenshot(path=f"{OUT}/rosticero-{width}.png", full_page=True)
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), page.evaluate("[...document.querySelectorAll('body *')].filter(e=>e.getBoundingClientRect().right>innerWidth).map(e=>[e.className,e.getBoundingClientRect().right]).slice(0,12)")
+        page.screenshot(path=f"{OUT}/rosticero-{width}.png", full_page=True)
+    assert 'area=rosticero' in page.locator('[data-module-path="/dashboard.html"]').get_attribute('href')
 
     # ---------- DASHBOARD ----------
     page2 = browser.new_page(viewport={"width": 1000, "height": 1400})
@@ -126,6 +148,10 @@ with sync_playwright() as p:
     page2.wait_for_timeout(200)
     page2.screenshot(path=f"{OUT}/dash_05_dark.png", full_page=True)
 
+    page2.click('[data-nav-area="caja"]')
+    assert page2.locator('.area-bar-row:visible').count()==1
+    assert page2.locator('.area-bar-row:visible').get_attribute('data-area-code')=='caja'
+    page2.click('[data-nav-area="general"]')
     # cerrar sesión -> debe volver a mostrar el gate
     page2.click("#corner-menu-btn")
     page2.click("#menu-logout")

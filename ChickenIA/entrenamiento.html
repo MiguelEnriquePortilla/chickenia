@@ -158,25 +158,214 @@ const AREAS = [
     ['Preparar verdura para el día siguiente', 'media', false, null, null, null],
   ]},
   { name: 'Rosticero', activities: [
-    ['Hora de llegada (tolerancia máx 10 min sobre hora de entrada)', 'media', false, null, 'PUNTUALIDAD', 'tolerancia máx 10 min'],
-    ['Pollo metido al horno', 'critica', true, 'piezas', 'PRODUCCIÓN', '20–30 piezas'],
-    ['Pollo embarillado', 'critica', true, 'piezas', 'PRODUCCIÓN', '20–30 piezas (ajustable en fechas especiales)'],
-    ['Revisar pollo anterior (primero en salir, FIFO)', 'media', false, null, 'PROCESO', '0 incidentes'],
-    ['Costilla, pollo anterior, adobos y papas cambray calentados/metidos al horno', 'media', false, null, 'PROCESO', '4/4'],
-    ['Limpieza de barras y áreas en general', 'media', false, null, 'LIMPIEZA', '100%'],
-    ['Productos acomodados en las áreas', 'media', false, null, 'PROCESO', '100%'],
-    ['Contabilizar pollo rostizado y anotar en corte del día', 'critica', true, 'piezas', null, null],
-    ['Guardar pollo en refrigeración sin excepción', 'alta', false, null, null, null],
-    ['Pollo listo para despachar', 'critica', true, 'piezas', 'INSUMO', '20–40 piezas'],
-    ['Arroz embolsado para despacho', 'media', true, 'kg', 'INSUMO', '2 kg embolsados'],
-    ['Salsa en contenedores para despacho', 'media', true, 'contenedores', 'INSUMO', '15 contenedores'],
-    ['Plásticos/empaques suficientes para despacho', 'baja', false, null, 'INSUMO', 'suficiente'],
-    ['Pollo crudo contabilizado para el resto del día', 'critica', true, 'piezas', 'INSUMO', 'mínimo 30 piezas'],
-    ['Mínimos de pollo y arroz sostenidos durante el día', 'alta', false, null, 'INSUMO', '100% del día'],
-    ['Áreas limpias y organizadas todo el día', 'media', false, null, 'LIMPIEZA', '100% todo el día'],
-    ['Contabilizar pollo rostizado crudo antes de salir (con firma)', 'critica', true, 'piezas', null, null],
-    ['Pase de salida generado con área ordenada y limpia', 'critica', false, null, 'EVIDENCIA', '100%'],
-  ]},
+  [
+    "Revisar orden de producción e inventario del cierre anterior",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Orden disponible y sobrantes cotejados",
+    "apertura"
+  ],
+  [
+    "Iniciar primera carga de pollos según orden de producción",
+    "critica",
+    true,
+    "pollos",
+    "PRODUCCIÓN",
+    "Cantidad según orden; anotar hora de inicio en observaciones",
+    "apertura"
+  ],
+  [
+    "Preparar papa cambray, cebolla y jalapeños de la primera tanda",
+    "media",
+    false,
+    null,
+    "PROCESO",
+    "Según receta; proporciones pendientes de confirmar",
+    "apertura"
+  ],
+  [
+    "Revisar y preparar el pollo sobrante para recalentamiento",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Conforme al procedimiento de conservación y recalentamiento; indicar si no hay sobrantes",
+    "apertura"
+  ],
+  [
+    "Limpiar y organizar barras, mesas y estación de adobos",
+    "media",
+    false,
+    null,
+    "LIMPIEZA",
+    "Superficies limpias, despejadas y utensilios acomodados",
+    "apertura"
+  ],
+  [
+    "Preparar barras caliente y fría para recibir producto",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Listas antes del montaje, conforme al procedimiento de operación",
+    "apertura"
+  ],
+  [
+    "Calentar y colocar los adobos en recipientes de servicio",
+    "media",
+    false,
+    null,
+    "PROCESO",
+    "Adobos requeridos disponibles",
+    "apertura"
+  ],
+  [
+    "Recibir y montar producción inicial de cocina y freidoras",
+    "alta",
+    false,
+    null,
+    "INSUMO",
+    "Productos y cantidades conforme a las órdenes de producción",
+    "apertura"
+  ],
+  [
+    "Verificar desechables, consumibles y adobo envasado para apertura",
+    "media",
+    false,
+    null,
+    "INSUMO",
+    "Faltantes reportados a ventas/barras; cantidades de envasado pendientes de confirmar",
+    "apertura"
+  ],
+  [
+    "Validar área lista para vender a las 9:30 a. m.",
+    "critica",
+    false,
+    null,
+    "PUNTUALIDAD",
+    "9:30 a. m.; registrar hora real y faltantes en observaciones",
+    "apertura"
+  ],
+  [
+    "Realizar siguientes cargas de rostizado según orden de producción",
+    "alta",
+    true,
+    "pollos",
+    "PRODUCCIÓN",
+    "Total de pollos de las cargas posteriores; no incluir primera carga",
+    "operacion"
+  ],
+  [
+    "Resguardar pollos terminados en insertos dentro del Cambro",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "6 pollos por inserto; conforme al procedimiento de conservación",
+    "operacion"
+  ],
+  [
+    "Separar el jugo del rostizado para los adobos",
+    "media",
+    false,
+    null,
+    "PROCESO",
+    "Reservar por separado; no verter en el inserto de pollos del Cambro",
+    "operacion"
+  ],
+  [
+    "Revisar y reponer productos de barra y adobos",
+    "alta",
+    false,
+    null,
+    "INSUMO",
+    "Disponibilidad durante el servicio; reportar faltantes a cocina o freidoras",
+    "operacion"
+  ],
+  [
+    "Mantener salsa de adobo envasada disponible para venta",
+    "media",
+    false,
+    null,
+    "INSUMO",
+    "Mínimos y máximos pendientes de confirmar",
+    "operacion"
+  ],
+  [
+    "Mantener barras y estaciones limpias y organizadas",
+    "media",
+    false,
+    null,
+    "LIMPIEZA",
+    "Superficies utilizables y trastes sucios retirados",
+    "operacion"
+  ],
+  [
+    "Revisar consumibles y solicitar reposición a ventas/barras",
+    "baja",
+    false,
+    null,
+    "INSUMO",
+    "Insumos disponibles para continuar el servicio",
+    "operacion"
+  ],
+  [
+    "Contabilizar y registrar los pollos sobrantes",
+    "critica",
+    false,
+    null,
+    "EVIDENCIA",
+    "Registro coincide con existencia física; detallar enteros y piezas en observaciones",
+    "cierre"
+  ],
+  [
+    "Guardar sobrantes identificados en la cámara de refrigeración",
+    "alta",
+    false,
+    null,
+    "PROCESO",
+    "Producto identificado con fecha y cantidad, conforme al procedimiento de conservación",
+    "cierre"
+  ],
+  [
+    "Entregar trastes sucios al área de lavado",
+    "media",
+    false,
+    null,
+    "PROCESO",
+    "Sin trastes sucios pendientes de entregar",
+    "cierre"
+  ],
+  [
+    "Limpiar mesas, barras y superficies utilizadas",
+    "media",
+    false,
+    null,
+    "LIMPIEZA",
+    "área sin residuos",
+    "cierre"
+  ],
+  [
+    "Organizar utensilios y materiales para el siguiente turno",
+    "media",
+    false,
+    null,
+    "PROCESO",
+    "Materiales en su lugar y estaciones despejadas",
+    "cierre"
+  ],
+  [
+    "Dejar disponible el registro de sobrantes para la apertura siguiente",
+    "alta",
+    false,
+    null,
+    "EVIDENCIA",
+    "Registro disponible; el sobrante no se captura como una entrada nueva de inventario",
+    "cierre"
+  ]
+]},
   { name: 'Freidoras', activities: [
     ['Registro de llegada', 'baja', false, null, null, null],
     ['Freidoras operativas a tiempo (arranque antes de 7:30am)', 'alta', false, null, 'PUNTUALIDAD', '7:30 a.m.'],
@@ -234,11 +423,15 @@ function renderArea(area) {
 
   let rows;
   if (area.activities) {
-    rows = area.activities.map(([name, crit, reqQty, unit, , target]) => {
+    let previousBlock;
+    const blocks = { apertura: 'Rutina de apertura', operacion: 'Operación durante el día', cierre: 'Rutina de cierre' };
+    rows = area.activities.map(([name, crit, reqQty, unit, , target, block]) => {
+      const heading = block && block !== previousBlock ? `<tr><th colspan="9" style="text-align:left">${blocks[block]}</th></tr>` : '';
+      previousBlock = block;
       const dot = crit === 'critica' ? '<span class="crit-dot" title="Actividad crítica"></span>' : '';
-      const sub = reqQty ? `<span class="act-target">${target ? 'Meta: ' + target : (unit || '')}</span>` : '';
+      const sub = (reqQty || block) ? `<span class="act-target">${target ? 'Meta: ' + target : (unit || '')}</span>` : '';
       const dayCells = DAYS.map(() => '<td class="day-col blank-cell"></td>').join('');
-      return `<tr><td class="crit-cell">${dot}</td><td class="act-cell"><span class="act-name">${name}</span>${sub}</td>${dayCells}</tr>`;
+      return `${heading}<tr><td class="crit-cell">${dot}</td><td class="act-cell"><span class="act-name">${name}</span>${sub}</td>${dayCells}</tr>`;
     }).join('');
   } else {
     const dayCells = DAYS.map(() => '<td class="day-col blank-cell"></td>').join('');

@@ -668,3 +668,7 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border-s
 :root[data-theme="dark"] .att-btn.done { background: rgba(31, 157, 85, 0.2); }
 .att-btn .att-time { font-size: 13px; text-transform: none; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.5px; color: var(--text); }
 .att-lunch-mins { font-size: 11px; color: var(--gray); white-space: nowrap; }
+
+/* Rutinas operativas: mismos tokens en claro y oscuro. */
+.routine-heading { margin: 0; padding: 16px 14px 8px; color: var(--text); border-bottom: 2px solid var(--gold); font-size: 1rem; }
+.activity-criterion { display: block; margin-top: 4px; font-size: .75rem; font-weight: 400; line-height: 1.5; color: var(--text); opacity: .8; }

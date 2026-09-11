@@ -108,6 +108,16 @@ try:
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), (tab,width)
                 page.locator('[data-tab=sales]').click()
                 page.screenshot(path=str(OUT/f'inventory-{theme}-{width}.png'),full_page=True)
+        page.locator('[data-nav-area=rosticero]').click()
+        expect(page.locator('#selected-area-title')).to_have_text('Rosticero')
+        assert 'CRUJI cocinado' not in page.locator('#view').inner_text()
+        assert 'ROSTI cocinado' in page.locator('#view').inner_text()
+        page.locator('[data-tab=counts]').click()
+        assert page.locator('#count-form [name^="q:"]').count()==2
+        page.locator('[data-nav-area=almacen]').click()
+        assert 'Br\u00f3coli' in page.locator('#view').inner_text()
+        expect(page.locator('#location')).to_have_value('cedis')
+        page.locator('[data-nav-area=general]').click()
         page.locator('#logout').click()
         expect(page.locator('#login-panel')).to_be_visible()
         assert page.request.get(BASE+'/api/inventory').status==401

@@ -538,6 +538,7 @@ async function ensureTables() {
     }
   }
 
+  await require('./routine-migration')(sql, CRITICALITY_WEIGHT);
   return sql;
 }
 

@@ -253,12 +253,13 @@ async function loadChecklist() {
   if (!state.location) return;
   $('#checklist').innerHTML = renderSkeleton();
   const [areas, checks] = await Promise.all([
-    api(`areas?location_type=${state.location.type}`),
+    api(`areas?location_type=${state.location.type}&date=${state.date}`),
     api(`checks?location_id=${state.location.id}&date=${state.date}`),
   ]);
   state.areas = areas;
   state.checksByActivity = Object.fromEntries(checks.map((c) => [c.activity_id, c]));
   render();
+  AreaNavigation.mount(document.body, selectOperationalArea);
   refreshSummary();
 }
 
@@ -274,7 +275,7 @@ function render() {
       </button>
       <div class="accordion-body" ${isOpen ? '' : 'inert'}>
         <div class="collapsible-inner">
-          ${area.activities.map((act) => renderActivity(act)).join('')}
+          ${renderRoutineActivities(area.activities)}
         </div>
       </div>
     </section>
@@ -293,6 +294,32 @@ function render() {
   state.areas.forEach((area) => {
     area.activities.forEach((act) => attachHandlers(act));
   });
+}
+
+function selectOperationalArea(code) {
+  document.querySelector('.attendance-wrap').hidden = !['general','supervision'].includes(code);
+  document.querySelectorAll('#checklist .area-block').forEach(section => {
+    section.hidden = code !== 'general' && section.dataset.areaCode !== code;
+    if (code !== 'general' && section.dataset.areaCode === code) {
+      const header=section.querySelector('.accordion-header');
+      if(header.getAttribute('aria-expanded')!=='true') header.click();
+    }
+  });
+  document.getElementById('area-empty')?.remove();
+  if(code !== 'general' && !state.areas.some(a=>a.code===code)) {
+    document.getElementById('checklist').insertAdjacentHTML('beforeend','<p class="area-empty" id="area-empty">Esta área todavía no tiene actividades cargadas. Su inventario está disponible en la vista Inventario.</p>');
+  }
+}
+
+function renderRoutineActivities(activities) {
+  const labels = { apertura: 'Rutina de apertura', operacion: 'Operación durante el día', cierre: 'Rutina de cierre' };
+  let previous;
+  return activities.map(act => {
+    const heading = act.routine_block && act.routine_block !== previous
+      ? `<h3 class="routine-heading">${labels[act.routine_block] || 'Actividades'}</h3>` : '';
+    previous = act.routine_block;
+    return heading + renderActivity(act);
+  }).join('');
 }
 
 function renderActivity(act) {
@@ -316,7 +343,7 @@ function renderActivity(act) {
     <div class="activity-row ${doneClass}" data-activity-id="${act.id}">
       <label class="check-label">
         <input type="checkbox" class="chk" ${c.done ? 'checked' : ''} />
-        <span>${act.name}</span>
+        <span>${act.name}${act.routine_block && act.target ? `<small class="activity-criterion">${act.target}</small>` : ''}</span>
       </label>
       <div class="activity-extra">
         ${qtyField}

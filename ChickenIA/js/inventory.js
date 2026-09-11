@@ -6,6 +6,28 @@
   let snapshot, tab='home', location='sucursal', events=[], selectedRequest=null, busy=false, pending=null;
   const labels={home:'Control del día',stock:'Inventario',supply:'Abastecimiento',production:'Producción',sales:'Ventas del día',counts:'Conteos',receipts:'Entradas e insumos',opening:'Apertura',history:'Historial',catalog:'Catálogo'};
   const opNames={initial:'Saldo inicial',supplier:'Recepción externa',purchase:'Pedido autorizado a proveedor',transform:'Preparación de insumos',request:'Solicitud',send:'Envío',receive:'Recepción Sucursal',transitReturn:'Devolución a CEDIS',prepare:'Preparación',cook:'Cocción',sale:'Venta / cortesía',count:'Conteo',reconcile:'Conciliación',catalog:'Artículo nuevo',consume:'Consumo de insumos',reverse:'Corrección',closeRequest:'Cierre de solicitud',opening:'Apertura'};
+  let operationalArea = AreaNavigation.selected;
+  function inArea(i) {
+    if(['general','supervision'].includes(operationalArea))return true;
+    if(operationalArea==='rosticero')return i.id.startsWith('rosti-');
+    if(operationalArea==='freidoras')return i.id.startsWith('cruji-')||['harina','papa-gajos'].includes(i.id);
+    if(operationalArea==='rastro')return i.area.startsWith('Rastro');
+    if(operationalArea==='almacen')return i.area.startsWith('Almacén');
+    if(operationalArea==='trastes')return i.area==='Almacén · Limpieza';
+    if(operationalArea==='cocina')return i.kind==='supply'&&i.area!=='Almacén · Limpieza';
+    if(operationalArea==='ventas_barras')return i.kind==='finished';
+    return false;
+  }
+  const areaItems=()=>snapshot.data.items.filter(inArea);
+  function selectInventoryArea(code) {
+    if(busy)return;
+    operationalArea=code;
+    if(!snapshot)return;
+    if(['rastro','almacen'].includes(code))location='cedis';
+    else if(code!=='general'&&code!=='supervision')location='sucursal';
+    $('#location').value=location;
+    if(code!=='general')tab='stock';render();
+  }
   const item = id => snapshot.data.items.find(i=>i.id===id);
   const bal = (loc,id) => snapshot.data.balances[`${loc}:${id}`] || 0;
   const initialized = (loc,id) => !!snapshot.data.initialized[`${loc}:${id}`];
@@ -23,6 +45,7 @@
     $('#workspace').hidden=false;$('#login-panel').hidden=true;$('#logout').hidden=false;
     $('#identity').textContent=`${result.user.name} · ${result.today}`;
     events=await api('history');render();
+    if(!document.querySelector('.area-sidebar'))AreaNavigation.mount(document.body,selectInventoryArea);
   }
   function requestCommand(type,values){return {id:crypto.randomUUID(),version:snapshot.version,type,...values};}
   async function commit(type,values){
@@ -48,20 +71,23 @@
   function linesFrom(form){return [...form.querySelectorAll('[name^="q:"]')].filter(el=>el.value!=='').map(el=>({item:el.name.slice(2),qty:el.value}));}
   function render(){
     $('#page-title').textContent=labels[tab];
+    $('#inventory-scope-note')?.remove();
+    if(!['general','supervision'].includes(operationalArea))$('#view').insertAdjacentHTML('beforebegin',`<p id="inventory-scope-note" class="inv-note">${['home','stock','counts'].includes(tab)?'Existencias y conteos filtrados por área. Los saldos pertenecen a la ubicación seleccionada.':'Operación compartida de la ubicación seleccionada.'} <a href="#" id="all-inventory">Ver todas las áreas</a></p>`);
+    $('#all-inventory')?.addEventListener('click',e=>{e.preventDefault();AreaNavigation.select('general');});
     $('#nav').innerHTML=Object.entries(labels).filter(([k])=>k!=='catalog'||can('catalog')).map(([k,n])=>`<button type="button" data-tab="${k}" ${tab===k?'aria-current="page"':''}>${n}</button>`).join('');
     ({home,stock,supply,production,sales,counts,receipts,opening,history,catalog})[tab]();
   }
   function navigate(next){if(busy)return;tab=next;render();}
-  function stockRows(){return snapshot.data.items.map(i=>`<div class="inv-row"><div>${esc(i.name)}<small>${esc(i.area)}</small></div><strong>${initialized(location,i.id)?`${fmt(bal(location,i.id))} ${esc(i.unit)}`:'Sin saldo inicial'}</strong></div>`).join('');}
+  function stockRows(){return areaItems().map(i=>`<div class="inv-row"><div>${esc(i.name)}<small>${esc(i.area)}</small></div><strong>${initialized(location,i.id)?`${fmt(bal(location,i.id))} ${esc(i.unit)}`:'Sin saldo inicial'}</strong></div>`).join('');}
   function home(){
     const pendingCounts=snapshot.data.counts.filter(c=>c.location===location&&c.status==='pending');
     const open=snapshot.data.requests.filter(r=>r.status==='open');
-    const noInitial=snapshot.data.items.filter(i=>!initialized(location,i.id)).length;
+    const noInitial=areaItems().filter(i=>!initialized(location,i.id)).length;
     $('#view').innerHTML=`<div class="inv-grid">${panel('Requiere atención',`<div class="inv-stack">${noInitial?`<button data-go="stock">${noInitial} artículos sin saldo inicial</button>`:''}<button data-go="supply">${open.length} solicitudes abiertas</button><button data-go="counts">${pendingCounts.length} conteos por conciliar</button><button data-go="sales">Registrar ventas del día</button><button data-go="opening">Apertura de ${location==='cedis'?'Rastro':'Sucursal'}</button></div>`)}${panel('Existencias',stockRows())}</div>`;
   }
   function stock(){
-    const available=snapshot.data.items.filter(i=>!initialized(location,i.id));
-    $('#view').innerHTML=`<div class="inv-grid">${panel(`Inventario · ${location==='cedis'?'CEDIS':'Sucursal'}`,stockRows())}${can('initial')?panel('Saldo inicial',available.length?`<form id="initial-form"><p>Cuenta las existencias antes de comenzar. Captura cero si no hay producto. Cada artículo se inicializa una sola vez.</p>${quantityList(available,location)}${noteField(false,'Referencia del conteo inicial')}${submit('Guardar saldos iniciales')}</form>`:'Todos los artículos tienen saldo inicial. Usa Conteos para verificar diferencias.') : ''}</div>`;
+    const available=areaItems().filter(i=>!initialized(location,i.id));
+    $('#view').innerHTML=`<div class="inv-grid">${panel(`Inventario · ${location==='cedis'?'CEDIS':'Sucursal'}`,stockRows() || '<p>No hay artículos asociados a esta área en el catálogo actual.</p>')}${can('initial')?panel('Saldo inicial',available.length?`<form id="initial-form"><p>Cuenta las existencias antes de comenzar. Captura cero si no hay producto. Cada artículo se inicializa una sola vez.</p>${quantityList(available,location)}${noteField(false,'Referencia del conteo inicial')}${submit('Guardar saldos iniciales')}</form>`:'Todos los artículos tienen saldo inicial. Usa Conteos para verificar diferencias.') : ''}</div>`;
     wireForm('initial-form',(v,f)=>commit('initial',{location,lines:linesFrom(f),note:v.note}));
   }
   function supply(){
@@ -105,7 +131,7 @@
   }
   function counts(){
     const list=snapshot.data.counts.filter(c=>c.location===location).slice().reverse();
-    $('#view').innerHTML=`<div class="inv-stack">${can('count')?panel(location==='cedis'?'Conteo semanal de CEDIS':'Conteo de cierre de Sucursal',`<form id="count-form"><div class="inv-note">Captura cada artículo que verificaste. Los campos vacíos quedan fuera del alcance de este conteo; para un cierre completo cuenta todos los artículos activos.</div>${quantityList(snapshot.data.items.filter(i=>initialized(location,i.id)),location)}${noteField()}${submit('Guardar conteo físico')}</form>`):''}${panel('Conteos registrados',list.length?list.map(c=>`<details><summary>${esc(nowDate(c.at))} · ${esc(c.actor)} · ${c.status==='pending'?'Diferencias pendientes':c.status==='matched'?'Coincide':'Conciliado'}</summary>${c.lines.map(l=>`<div class="inv-row"><span>${esc(item(l.item).name)}</span><span>Registro ${fmt(l.expected)} · Físico ${fmt(l.qty)} · Diferencia ${fmt(l.qty-l.expected)} ${esc(item(l.item).unit)}</span></div>`).join('')}<p>${esc(c.note)}</p>${c.status==='pending'&&can('reconcile')?`<form data-count="${c.id}">${noteField(true,'Motivo de la diferencia investigada')}${submit('Conciliar saldo con este conteo')}</form>`:''}</details>`).join(''):'Sin conteos registrados.')}</div>`;
+    $('#view').innerHTML=`<div class="inv-stack">${can('count')?panel(location==='cedis'?'Conteo semanal de CEDIS':'Conteo de cierre de Sucursal',`<form id="count-form"><div class="inv-note">Captura cada artículo que verificaste. Los campos vacíos quedan fuera del alcance de este conteo; para un cierre completo cuenta todos los artículos activos.</div>${quantityList(areaItems().filter(i=>initialized(location,i.id)),location)}${noteField()}${submit('Guardar conteo físico')}</form>`):''}${panel('Conteos registrados',list.length?list.map(c=>`<details><summary>${esc(nowDate(c.at))} · ${esc(c.actor)} · ${c.status==='pending'?'Diferencias pendientes':c.status==='matched'?'Coincide':'Conciliado'}</summary>${c.lines.map(l=>`<div class="inv-row"><span>${esc(item(l.item).name)}</span><span>Registro ${fmt(l.expected)} · Físico ${fmt(l.qty)} · Diferencia ${fmt(l.qty-l.expected)} ${esc(item(l.item).unit)}</span></div>`).join('')}<p>${esc(c.note)}</p>${c.status==='pending'&&can('reconcile')?`<form data-count="${c.id}">${noteField(true,'Motivo de la diferencia investigada')}${submit('Conciliar saldo con este conteo')}</form>`:''}</details>`).join(''):'Sin conteos registrados.')}</div>`;
     wireForm('count-form',(v,f)=>commit('count',{location,lines:linesFrom(f),note:v.note}));
     document.querySelectorAll('[data-count]').forEach(f=>f.addEventListener('submit',e=>{e.preventDefault();if(f.reportValidity())commit('reconcile',{count:f.dataset.count,note:new FormData(f).get('note')});}));
   }
