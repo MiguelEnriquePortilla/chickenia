@@ -1,5 +1,12 @@
 # ChickenIA
 
+## Estado al cierre del 11 de septiembre de 2026
+
+Implementación publicada: `c105098`. Ver [reporte de sesión](REPORTE_SESION_2026-09-11.md) y [handoff vigente](HANDOFF_2026-09-11_CIERRE_CHAT.md).
+
+**Próximo piloto, todavía no implementado:** apartado independiente “Pregúntale a Chicken-IA”, al nivel de Dashboard, Inventarios y Supervisión, para Miguel y Lilian. Consultas con datos reales, solo lectura, fuentes y fecha de actualización. WhatsApp y comercialización quedan para etapas posteriores.
+
+
 ## Control de inventario — nueva versión
 
 Acceso en `/inventario.html`: inventario CEDIS/Sucursal, solicitud y recepción,
@@ -29,7 +36,7 @@ vanilla + funciones serverless de Vercel + Postgres (Neon). Sin frameworks, sin 
   pendientes críticos resaltados, verificación cruzada de pollo (moto) y movimientos
   de inventario del día. Se refresca solo cada 60 segundos.
 - `api/` — endpoints serverless (`locations`, `areas`, `checks`, `inventory-items`,
-  `inventory-movements`, `summary`, `employees`, `attendance`) y `api/lib/db.js` con el
+  `inventory-movements`, `summary`, `employees`, `attendance`) y `lib/supervision/db.js` con el
   esquema y el catálogo semilla (áreas, actividades por área tomadas de los checklists
   reales de Chicanito, ~30 artículos de inventario, 13 empleados).
 - **Asistencia** — dentro de `/supervision.html`, arriba del checklist. No es un check
@@ -48,10 +55,10 @@ existen y siembra el catálogo inicial — no hay que correr una migración a ma
 CALIDAD, PROCESO, EVIDENCIA) — ya migradas: Freidoras, Rastro, Cocina, Rosticero, Caja.
 Pendientes de que Miguel mande la transcripción de cada una: Ventas/Barras, Lavado de
 Trastes, Supervisión (tienda), Moto Recepción, Moto Cierre — esas siguen con el catálogo
-simple original. Todo vive en `api/lib/db.js` (`SEED_ACTIVITIES`); solo se siembra una vez
+simple original. Todo vive en `lib/supervision/db.js` (`SEED_ACTIVITIES`); solo se siembra una vez
 (si ya hay datos, no se vuelve a insertar), así que un cambio después del primer deploy se
-hace directo en la base de datos o borrando la tabla `activities` para que se vuelva a
-sembrar.
+hace mediante migraciones versionadas que preservan actividades y capturas históricas;
+no se debe borrar la tabla `activities` para actualizar el catálogo.
 
 ## Hojas de entrenamiento (`/entrenamiento.html`)
 
@@ -63,7 +70,7 @@ punto rojo para las críticas); las 5 áreas sin migrar imprimen una plantilla e
 llenarse a mano. Se abre directo con el botón "Imprimir / Guardar PDF" de la propia página.
 
 **Ojo:** el array de actividades ahí adentro es una copia de `SEED_ACTIVITIES` en
-`api/lib/db.js`, no se lee de la misma fuente — si el catálogo cambia en la base de datos,
+`lib/supervision/db.js`, no se lee de la misma fuente — si el catálogo cambia en la base de datos,
 hay que actualizar `entrenamiento.html` a mano también.
 
 ## Deploy — por GitHub (no manual)

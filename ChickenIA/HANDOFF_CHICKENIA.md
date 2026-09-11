@@ -1,3 +1,5 @@
+> Actualización 11 sep 2026: leer primero [handoff de cierre vigente](HANDOFF_2026-09-11_CIERRE_CHAT.md). Este documento conserva el historial del 8 de septiembre.
+
 # HANDOFF — ChickenIA (8 sep 2026)
 
 Lee esto antes de tocar nada en este proyecto. Resume el estado real al cierre de esta
