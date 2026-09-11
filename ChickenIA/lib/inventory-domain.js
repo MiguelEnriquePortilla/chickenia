@@ -225,7 +225,8 @@ function applyOperation(original, command, actor, now = new Date().toISOString()
     const counted = lines.map(l => ({ ...l, expected: balance(state, location, l.item), stamp: state.lastMoved?.[key(location,l.item)] || null }));
     const different = counted.some(l => l.qty !== l.expected);
     if (different && !note) fail('Describe la diferencia de conteo.');
-    const count = { id: command.id, location, at: now, actor: actor.name, lines: counted, status: different ? 'pending' : 'matched', note };
+    if (command.moment && !['apertura', 'durante', 'cierre'].includes(command.moment)) fail('Momento de verificación inválido.');
+    const count = { id: command.id, location, at: now, actor: actor.name, actorId: actor.id, moment: command.moment || null, lines: counted, status: different ? 'pending' : 'matched', note };
     state.counts.push(count); event.detail = count;
   } else if (type === 'reconcile') {
     const count = state.counts.find(c => c.id === command.count);

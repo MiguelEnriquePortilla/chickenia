@@ -317,8 +317,8 @@ const SEED_ACTIVITIES = {
 // persona necesita 4 marcas de hora por día (entrada, comida-salida, comida-regreso,
 // salida), no un solo check ✓/✗ como el resto de las áreas.
 const SEED_EMPLOYEES = [
-  'Ana Lira',
-  'Perla Estrada',
+  'Ana Lima',
+  'Petra Estrada',
   'Maricruz Jiménez',
   'Gina Flores',
   'Keylar Flores',
@@ -537,6 +537,10 @@ async function ensureTables() {
         ON CONFLICT (name) DO NOTHING`;
     }
   }
+
+  // Correct spelling in place to preserve employee IDs and attendance history.
+  await sql`UPDATE employees SET name = 'Ana Lima' WHERE name = 'Ana Lira' AND NOT EXISTS (SELECT 1 FROM employees WHERE name = 'Ana Lima')`;
+  await sql`UPDATE employees SET name = 'Petra Estrada' WHERE name = 'Perla Estrada' AND NOT EXISTS (SELECT 1 FROM employees WHERE name = 'Petra Estrada')`;
 
   await require('./routine-migration')(sql, CRITICALITY_WEIGHT);
   return sql;

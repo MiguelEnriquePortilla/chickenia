@@ -252,6 +252,7 @@ function selectDashboardArea(code) {
   document.getElementById('movements-toggle').closest('.card').hidden=code!=='general';
 }
 function renderSummary(summary) {
+  ChickenFeedback.summary(summary);
   latestAreaSummary=summary;
   $('#overall-score').textContent = summary.overall_score + '%';
   $('#areas').innerHTML = `<div class="collapsible-inner">${summary.areas

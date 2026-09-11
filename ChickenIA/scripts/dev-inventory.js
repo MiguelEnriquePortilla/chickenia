@@ -15,11 +15,13 @@ const credentialsPath=path.join(dataDir,'dev-credentials.json');
 let credentials;
 if(fs.existsSync(credentialsPath))credentials=JSON.parse(fs.readFileSync(credentialsPath));
 else {
-  credentials={username:'nancy',password:randomBytes(18).toString('base64url')};
+  credentials={username:process.env.DEV_USER||'nancy',password:randomBytes(18).toString('base64url')};
   fs.writeFileSync(credentialsPath,JSON.stringify(credentials));
 }
 process.env.INVENTORY_SESSION_SECRET=randomBytes(48).toString('base64url');
-process.env.INVENTORY_USERS_JSON=JSON.stringify([{id:'nancy',name:'Nancy',role:'manager',hash:passwordHash(credentials.password)}]);
+const devAccounts=[{id:credentials.username,name:credentials.username==='nancy'?'Nancy':'Miguel',role:'manager',hash:passwordHash(credentials.password)}];
+if(credentials.username!=='nancy')devAccounts.push({id:'nancy',name:'Nancy',role:'manager',hash:passwordHash(credentials.password)});
+process.env.INVENTORY_USERS_JSON=JSON.stringify(devAccounts);
 const db=new PGlite(path.join(dataDir,'inventory-pg'));
 const query=async(s,p)=>(await db.query(s,p)).rows;
 const repo=repository(query);

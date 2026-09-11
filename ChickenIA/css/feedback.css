@@ -1,0 +1,8 @@
+.feedback-toast { position:fixed; right:20px; bottom:24px; max-width:calc(100vw - 110px); z-index:100; background:var(--surface); color:var(--text); border:1px solid var(--border-soft); border-left:4px solid var(--green); border-radius:10px; box-shadow:0 6px 24px #0002; padding:14px 18px; font:500 13px Poppins,sans-serif; pointer-events:none; animation:feedback-in .2s ease-out; }
+.feedback-toast.warning { border-left-color:var(--gold); }
+.feedback-toast[hidden] { display:none; }
+.celebration-layer { position:fixed; inset:0; z-index:99; overflow:hidden; pointer-events:none; }
+.celebration-layer span { position:absolute; bottom:10%; font-size:28px; opacity:0; animation:float-reaction 1.8s ease-out forwards; }
+@keyframes float-reaction { 0% { opacity:0; transform:translate(0,0) scale(.6); } 15% { opacity:1; } 100% { opacity:0; transform:translate(var(--drift),-65vh) scale(1.2); } }
+@keyframes feedback-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+@media(prefers-reduced-motion:reduce) { .feedback-toast { animation:none; } .celebration-layer { display:none; } }

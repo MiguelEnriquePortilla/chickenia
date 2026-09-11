@@ -34,6 +34,10 @@ function createHandler(getRepository = production, queryOverride) {
         return res.status(200).json({user:result.user});
       }
       if (req.method === 'GET') {
+        if (action === 'proteins') {
+          const current = await repo.snapshot(), day = today(new Date());
+          return res.status(200).json(require('../lib/protein-report').proteinReport(current, await repo.dailyEvents(day, current.version), day));
+        }
         if (action === 'history') {
           const before = req.query.before == null ? 2147483647 : Number(req.query.before);
           if (!Number.isInteger(before) || before < 1) throw new InventoryError('Página inválida.');

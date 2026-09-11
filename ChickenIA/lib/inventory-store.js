@@ -38,6 +38,9 @@ function repository(query) {
   async function history(before = 2147483647) {
     return query('SELECT version,data FROM inv_events WHERE version<$1 ORDER BY version DESC LIMIT 50', [before]);
   }
+  async function dailyEvents(day, version) {
+    return query('SELECT version,data FROM inv_events WHERE business_date=$1::date AND version<=$2 ORDER BY version', [day, version]);
+  }
   async function execute(command, actor) {
     if (!command || typeof command.id !== 'string' || !/^[a-f\d]{8}-(?:[a-f\d]{4}-){3}[a-f\d]{12}$/i.test(command.id)) throw new InventoryError('Identificador de operación inválido.');
     if (!Number.isInteger(command.version) || command.version < 0) throw new InventoryError('Versión inválida.');
@@ -76,7 +79,7 @@ function repository(query) {
       throw error;
     }
   }
-  return { migrate, snapshot, history, execute };
+  return { migrate, snapshot, history, dailyEvents, execute };
 }
 let productionRepository;
 function production() {

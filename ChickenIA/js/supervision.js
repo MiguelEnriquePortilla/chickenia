@@ -396,6 +396,7 @@ async function saveCheck(act, row) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+    ChickenFeedback.saved('Actividad guardada ✓');
     state.checksByActivity[act.id] = saved;
     row.classList.toggle('done', saved.done);
     row.classList.remove('just-saved');
@@ -497,6 +498,7 @@ async function refreshSummary() {
   if (!state.location) return;
   try {
     const summary = await api(`summary?location_id=${state.location.id}&date=${state.date}`);
+    ChickenFeedback.summary(summary);
     $('#overall-score').textContent = summary.overall_score + '%';
     summary.areas.forEach((a) => {
       const el = document.getElementById(`area-score-${a.area_code}`);

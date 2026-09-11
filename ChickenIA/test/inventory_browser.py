@@ -10,7 +10,7 @@ from playwright.sync_api import sync_playwright, expect
 ROOT = Path(__file__).resolve().parents[1]
 NODE = os.environ.get('NODE_BINARY', str(Path.home() / 'AppData/Local/Programs/Python312/Lib/site-packages/playwright/driver/node.exe'))
 instance = 'browser-test-' + uuid.uuid4().hex
-env = dict(os.environ, PORT='8941', DEV_INSTANCE=instance)
+env = dict(os.environ, PORT='8941', DEV_INSTANCE=instance, DEV_USER='miguel')
 process = subprocess.Popen([NODE, str(ROOT/'scripts/dev-inventory.js')], cwd=ROOT, env=env,
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
@@ -118,6 +118,59 @@ try:
         assert 'Br\u00f3coli' in page.locator('#view').inner_text()
         expect(page.locator('#location')).to_have_value('cedis')
         page.locator('[data-nav-area=general]').click()
+        # Prepare a real delivery before entering Nancy's basic panel.
+        req=command('request',due=snap()['today'],lines=[{'item':'rosti-marinado','qty':1}])
+        command('send',request=req['event']['id'],lines=[{'item':'rosti-marinado','qty':1}])
+        page.locator('#logout').click()
+        expect(page.locator('#login-panel')).to_be_visible()
+        page.locator('[name=username]').fill('nancy')
+        page.locator('[name=password]').fill(credentials['password'])
+        page.locator('#login-form button').click()
+        expect(page.locator('#page-title')).to_have_text('Panel de Nancy')
+        assert page.locator('#nav [data-tab]').count()==4
+        page.locator('[data-tab=incoming]').click()
+        form=page.locator('[data-basic-shipment]').last
+        form.locator('[name="q:rosti-marinado"]').fill('1')
+        form.locator('button').click()
+        expect(page.locator('#save-feedback')).to_contain_text('Recepción guardada')
+        page.locator('[data-tab=requestForm]').click()
+        page.locator('#protein-request [name="q:rosti-marinado"]').fill('2')
+        page.locator('#protein-request button').click()
+        expect(page.locator('#save-feedback')).to_contain_text('Solicitud guardada')
+        page.locator('[data-tab=proteins]').click()
+        page.locator('#location').select_option('sucursal')
+        balance=snap()['data']['balances']['sucursal:rosti-marinado']/1000
+        page.locator('#start-protein-count').click()
+        assert not page.get_by_text('Existencias · Sucursal',exact=True).is_visible()
+        page.locator('#protein-count [name="q:rosti-marinado"]').fill(str(balance))
+        page.locator('#protein-count [name=note]').fill('Conteo físico de apertura')
+        page.locator('#protein-count button').click()
+        expect(page.locator('#save-feedback')).to_contain_text('Existencia verificada')
+        report=page.request.get(BASE+'/api/inventory?action=proteins').json()
+        assert report['nancy']['verified']==1
+        assert report['nancy']['receiptsToday']==1
+        assert snap()['data']['balances']['sucursal:rosti-marinado']==balance*1000
+        page.locator('#start-protein-count').click()
+        page.locator('#protein-count [name="q:rosti-marinado"]').fill(str(balance-1))
+        page.locator('#protein-count [name=note]').fill('Diferencia real detectada')
+        page.locator('#protein-count button').click()
+        expect(page.locator('#save-feedback')).to_contain_text('Diferencia registrada')
+        assert snap()['data']['balances']['sucursal:rosti-marinado']==balance*1000
+        for width in [390,1100]:
+            page.set_viewport_size({'width':width,'height':900})
+            page.wait_for_timeout(300)
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+            page.screenshot(path=str(OUT/f'nancy-proteinas-{width}.png'),full_page=True)
+        # Initial 100% never celebrates; only a confirmed transition does.
+        page.evaluate("ChickenFeedback.summary({location:{id:'test'},date:'test1',overall_score:100,areas:[]})")
+        assert page.locator('.celebration-layer').count()==0
+        page.evaluate("ChickenFeedback.summary({location:{id:'test'},date:'test2',overall_score:50,areas:[]});ChickenFeedback.summary({location:{id:'test'},date:'test2',overall_score:100,areas:[]})")
+        assert page.locator('.celebration-layer span').count()==24
+        page.evaluate("document.querySelector('.celebration-layer').remove();ChickenFeedback.summary({location:{id:'test'},date:'test2',overall_score:50,areas:[]});ChickenFeedback.summary({location:{id:'test'},date:'test2',overall_score:100,areas:[]})")
+        assert page.locator('.celebration-layer').count()==0
+        page.emulate_media(reduced_motion='reduce')
+        page.evaluate("ChickenFeedback.celebrate('reduced-test','Completado',true)")
+        assert page.locator('.celebration-layer').count()==0
         page.locator('#logout').click()
         expect(page.locator('#login-panel')).to_be_visible()
         assert page.request.get(BASE+'/api/inventory').status==401

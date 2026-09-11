@@ -4,8 +4,10 @@
   const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt = n => (n/1000).toLocaleString('es-MX',{maximumFractionDigits:3});
   let snapshot, tab='home', location='sucursal', events=[], selectedRequest=null, busy=false, pending=null;
-  const labels={home:'Control del día',stock:'Inventario',supply:'Abastecimiento',production:'Producción',sales:'Ventas del día',counts:'Conteos',receipts:'Entradas e insumos',opening:'Apertura',history:'Historial',catalog:'Catálogo'};
+  const labels={proteins:'Existencias de pollo',requestForm:'Solicitud de inventario',incoming:'Recepción de inventario',home:'Control del día',stock:'Inventario',supply:'Abastecimiento',production:'Producción',sales:'Ventas del día',counts:'Conteos',receipts:'Entradas e insumos',opening:'Apertura',history:'Historial',catalog:'Catálogo'};
   const opNames={initial:'Saldo inicial',supplier:'Recepción externa',purchase:'Pedido autorizado a proveedor',transform:'Preparación de insumos',request:'Solicitud',send:'Envío',receive:'Recepción Sucursal',transitReturn:'Devolución a CEDIS',prepare:'Preparación',cook:'Cocción',sale:'Venta / cortesía',count:'Conteo',reconcile:'Conciliación',catalog:'Artículo nuevo',consume:'Consumo de insumos',reverse:'Corrección',closeRequest:'Cierre de solicitud',opening:'Apertura'};
+  let basicPanel = new URLSearchParams(window.location.search).get('panel') === 'nancy';
+  let proteinData, lastLoadedAt;
   let operationalArea = AreaNavigation.selected;
   function inArea(i) {
     if(['general','supervision'].includes(operationalArea))return true;
@@ -26,7 +28,7 @@
     if(['rastro','almacen'].includes(code))location='cedis';
     else if(code!=='general'&&code!=='supervision')location='sucursal';
     $('#location').value=location;
-    if(code!=='general')tab='stock';render();
+    if(code!=='general')tab=basicPanel?'proteins':'stock';render();
   }
   const item = id => snapshot.data.items.find(i=>i.id===id);
   const bal = (loc,id) => snapshot.data.balances[`${loc}:${id}`] || 0;
@@ -42,6 +44,10 @@
   }
   async function load(){
     const result=await api();snapshot=result;
+    basicPanel=new URLSearchParams(window.location.search).get('panel')==='nancy'||result.user.id==='nancy';
+    if(basicPanel&&!['home','requestForm','incoming','proteins'].includes(tab))tab='home';
+    proteinData=await api('proteins');lastLoadedAt=new Date();
+    ChickenFeedback.progress('nancy-verificaciones:'+proteinData.day,Math.round(proteinData.nancy.verified/proteinData.nancy.total*100),'Nancy: verificaciones completas ⭐');
     $('#workspace').hidden=false;$('#login-panel').hidden=true;$('#logout').hidden=false;
     $('#identity').textContent=`${result.user.name} · ${result.today}`;
     events=await api('history');render();
@@ -53,7 +59,12 @@
     const content=JSON.stringify({type,...values});
     if(!pending||pending.content!==content)pending={content,command:requestCommand(type,values)};
     $('#view').querySelectorAll('button').forEach(b=>b.disabled=true);
-    try{await api('operation',pending.command);pending=null;msg('Registro guardado.');await load();}
+    try{
+      const result=await api('operation',pending.command);pending=null;msg('Registro guardado.');
+      const difference=type==='count'&&result.event?.detail.status==='pending';
+      ChickenFeedback.saved(difference?'Diferencia registrada · pendiente de revisar':type==='receive'?'Recepción guardada ✓':type==='request'?'Solicitud guardada ✓':type==='count'?'Existencia verificada ✓':'Registro guardado ✓',difference);
+      await load();
+    }
     catch(e){
       if(e.status===409){pending=null;msg(e.message+' No se guardó una nueva operación. Actualiza los datos para revisar.',true);}
       else{msg(e.message,true);}
@@ -74,16 +85,46 @@
     $('#inventory-scope-note')?.remove();
     if(!['general','supervision'].includes(operationalArea))$('#view').insertAdjacentHTML('beforebegin',`<p id="inventory-scope-note" class="inv-note">${['home','stock','counts'].includes(tab)?'Existencias y conteos filtrados por área. Los saldos pertenecen a la ubicación seleccionada.':'Operación compartida de la ubicación seleccionada.'} <a href="#" id="all-inventory">Ver todas las áreas</a></p>`);
     $('#all-inventory')?.addEventListener('click',e=>{e.preventDefault();AreaNavigation.select('general');});
-    $('#nav').innerHTML=Object.entries(labels).filter(([k])=>k!=='catalog'||can('catalog')).map(([k,n])=>`<button type="button" data-tab="${k}" ${tab===k?'aria-current="page"':''}>${n}</button>`).join('');
-    ({home,stock,supply,production,sales,counts,receipts,opening,history,catalog})[tab]();
+    $('#nav').innerHTML=Object.entries(labels).filter(([k])=>basicPanel?['home','requestForm','incoming','proteins'].includes(k):(k!=='catalog'||can('catalog'))).map(([k,n])=>`<button type="button" data-tab="${k}" ${tab===k?'aria-current="page"':''}>${n}</button>`).join('');
+    ({home,stock,supply,production,sales,counts,receipts,opening,history,catalog,proteins,requestForm,incoming})[tab]();
   }
-  function navigate(next){if(busy)return;tab=next;render();}
+  function navigate(next){if(busy)return;if(basicPanel&&!['home','requestForm','incoming','proteins'].includes(next))return;tab=next;render();}
   function stockRows(){return areaItems().map(i=>`<div class="inv-row"><div>${esc(i.name)}<small>${esc(i.area)}</small></div><strong>${initialized(location,i.id)?`${fmt(bal(location,i.id))} ${esc(i.unit)}`:'Sin saldo inicial'}</strong></div>`).join('');}
   function home(){
+    if(basicPanel){
+      const n=proteinData.nancy;
+      $('#page-title').textContent='Panel de Nancy';
+      $('#view').innerHTML=`<div class="inv-grid">${panel('Mis controles',`<div class="inv-stack"><button data-go="requestForm">Solicitud de inventario</button><button data-go="incoming">Recepción de inventario</button><button data-go="proteins">Existencias de pollo · verificar</button><a href="/supervision.html">Actividades y asistencia</a></div>`)}${panel('Seguimiento de mi supervisión',`<p><strong>${Math.round(n.verified/n.total*100)} % · ${n.verified} de ${n.total}</strong> existencias por ubicación verificadas hoy por Nancy.</p><p><strong>${n.receiptsToday}</strong> entregas confirmadas hoy por Nancy.</p><p><strong>${n.differencesResolvedToday}</strong> diferencias atendidas hoy por el equipo.</p><p>Momentos registrados: ${esc(n.moments.join(', ')||'Ninguno todavía')}.</p><p><strong>${proteinData.unresolved.length}</strong> conteos de proteína con diferencias pendientes.</p><p class="inv-note">Detectar una diferencia también cuenta como verificación. Las verificaciones de otras personas conservan su propio responsable.</p>`)}</div>`;
+      return;
+    }
     const pendingCounts=snapshot.data.counts.filter(c=>c.location===location&&c.status==='pending');
     const open=snapshot.data.requests.filter(r=>r.status==='open');
     const noInitial=areaItems().filter(i=>!initialized(location,i.id)).length;
     $('#view').innerHTML=`<div class="inv-grid">${panel('Requiere atención',`<div class="inv-stack">${noInitial?`<button data-go="stock">${noInitial} artículos sin saldo inicial</button>`:''}<button data-go="supply">${open.length} solicitudes abiertas</button><button data-go="counts">${pendingCounts.length} conteos por conciliar</button><button data-go="sales">Registrar ventas del día</button><button data-go="opening">Apertura de ${location==='cedis'?'Rastro':'Sucursal'}</button></div>`)}${panel('Existencias',stockRows())}</div>`;
+  }
+  function requestForm(){
+    const tomorrow=new Date(`${snapshot.today}T12:00:00Z`);tomorrow.setUTCDate(tomorrow.getUTCDate()+1);
+    const products=snapshot.data.items.filter(i=>['pollo-enhielado','rosti-marinado','cruji-marinado'].includes(i.id));
+    $('#view').innerHTML=panel('Solicitud de pollo',can('request')?`<form id="protein-request"><label>Fecha de entrega<input type="date" name="due" min="${snapshot.today}" value="${tomorrow.toISOString().slice(0,10)}" required></label><p>Considera las existencias disponibles y solicita solamente lo necesario. El saldo anterior / residual ya está incluido.</p>${quantityList(products,'sucursal')}${noteField()}${submit('Guardar solicitud')}</form>`:'Tu cuenta no puede registrar solicitudes.');
+    $('#view').insertAdjacentHTML('beforeend',panel('Solicitudes registradas',snapshot.data.requests.length?snapshot.data.requests.slice().reverse().map(r=>`<p>Entrega ${esc(r.due)} · ${esc(r.actor)} · ${r.status==='open'?'Abierta':'Cerrada'}<br>${r.lines.map(l=>esc(item(l.item).name)+': '+fmt(l.qty)+' '+esc(item(l.item).unit)).join(' · ')}</p>`).join(''):'Sin solicitudes.'));
+    wireForm('protein-request',(v,f)=>commit('request',{due:v.due,lines:linesFrom(f),note:v.note}));
+  }
+  function incoming(){
+    const shipments=snapshot.data.requests.flatMap(r=>r.shipments.map(s=>({r,s,remaining:s.lines.map(l=>({...l,qty:l.qty-(s.received.find(x=>x.item===l.item)?.qty||0)-(s.returned.find(x=>x.item===l.item)?.qty||0)})).filter(l=>l.qty>0)}))).filter(x=>x.remaining.length);
+    $('#view').innerHTML=panel('Recepción en Sucursal',shipments.length?shipments.map(({r,s,remaining})=>`<section class="inv-panel"><h3>Entrega para ${esc(r.due)}</h3><p>Enviado ${esc(nowDate(s.at))} · ${esc(s.actor)}</p><div>${remaining.map(l=>`<p>${esc(item(l.item).name)} · Solicitado: ${fmt(r.lines.find(x=>x.item===l.item)?.qty||0)} · Pendiente de recibir: ${fmt(l.qty)} ${esc(item(l.item).unit)}</p>`).join('')}</div>${can('receive')?`<form data-basic-shipment="${s.id}" data-request="${r.id}"><p>Cuenta físicamente y captura lo que recibes ahora. Los campos vacíos quedan pendientes.</p>${quantityList(remaining.map(l=>item(l.item)),null)}${noteField(false,'Diferencia o comentario de recepción')}${submit('Confirmar recepción')}</form>`:''}</section>`).join(''):'No hay entregas pendientes de recepción.');
+    $('#view').insertAdjacentHTML('beforeend',panel('Últimas recepciones registradas',events.filter(x=>x.data.type==='receive').map(({data:e})=>`<p>${esc(nowDate(e.at))} · ${esc(e.actor.name)}<br>${e.detail.lines.map(l=>esc(item(l.item).name)+': '+fmt(l.qty)+' '+esc(item(l.item).unit)).join(' · ')}</p>`).join('')||'Sin recepciones en el historial consultado.'));
+    document.querySelectorAll('[data-basic-shipment]').forEach(f=>f.addEventListener('submit',e=>{e.preventDefault();if(f.reportValidity())commit('receive',{request:f.dataset.request,shipment:f.dataset.basicShipment,lines:linesFrom(f),note:new FormData(f).get('note')});}));
+  }
+  function proteins(){
+    const rows=proteinData.rows.filter(r=>r.location===location);
+    const n=proteinData.nancy;
+    const equivalent=rows.every(r=>r.initialized)?fmt(rows.reduce((sum,r)=>sum+r.current/(r.item==='cruji-cocinado'?8:1),0)):null;
+    const momentLabels={apertura:'Apertura',durante:'Durante la operación',cierre:'Cierre'};
+    $('#view').innerHTML=`<p class="inv-note">Saldo anterior / residual ya incluido. Actualizado: ${esc(nowDate(lastLoadedAt))}. Los saldos cambian con los movimientos registrados; la verificación física conserva su fecha y responsable.</p><div class="inv-stack">${panel('Existencias · '+(location==='cedis'?'CEDIS / Rastro':'Sucursal'),(equivalent?`<p><strong>${equivalent} pollos equivalentes</strong> en esta ubicación. CRUJI cocinado: 8 piezas equivalen a un pollo.</p>`:'<p>Total pendiente: hay saldos sin inicializar.</p>')+rows.map(r=>`<div class="inv-row"><div><strong>${esc(r.name)}</strong><small>Saldo anterior / residual: ${r.initialized?fmt(r.previous):'Sin inicializar'} · Entradas: ${fmt(r.entries)} · Salidas: ${fmt(r.exits)} ${esc(r.unit)}</small><small>${r.verification?`Último conteo: ${fmt(r.verification.quantity)} ${esc(r.unit)} · ${esc(r.verification.actor)} · ${esc(nowDate(r.verification.at))}${r.verification.movedSince?' · Hubo movimientos posteriores':''}`:'Sin verificación física registrada'}</small>${r.verification?.difference?`<small>Diferencia del último conteo: ${fmt(r.verification.difference)} ${esc(r.unit)} · ${r.verification.status==='pending'?'Pendiente':'Atendida'}</small>`:''}</div><strong>${r.initialized?fmt(r.current)+' '+esc(r.unit):'Sin saldo inicial'}</strong></div>`).join(''))}${panel('En traslado · CEDIS → Sucursal',proteinData.transit.length?proteinData.transit.map(t=>`<p>${esc(item(t.item).name)}: <strong>${fmt(t.quantity)} ${esc(item(t.item).unit)}</strong> · Enviado ${esc(nowDate(t.at))}</p>`).join(''):'Sin pollo pendiente de recibir.')}${can('count')?panel('Verificar existencia física',`<p>Cuenta primero; captura únicamente lo que verificaste. Cero es un conteo válido. Los saldos sin inicializar deben ser cargados por gerencia antes de verificarlos.</p><button type="button" id="start-protein-count">Iniciar conteo físico</button><form id="protein-count" hidden>${selectField('moment','Momento de verificación',Object.entries(momentLabels))}${rows.filter(r=>r.initialized).map(r=>`<label>${esc(r.name)} · ${esc(r.unit)}<input type="number" name="q:${r.item}" min="0" step="${r.step/1000}" placeholder="Cantidad contada" autocomplete="off"></label>`).join('')}${noteField(true,'Observación de la verificación / explicación si hay diferencia')}${submit('Guardar verificación')}</form>`):''}${panel('Seguimiento de supervisión',`<p>Nancy verificó hoy ${n.verified} de ${n.total} existencias por ubicación.</p><p>${proteinData.unresolved.length} conteos con diferencias pendientes de atención.</p>${proteinData.unresolved.map(c=>`<p>${esc(c.location==='cedis'?'CEDIS':'Sucursal')} · ${esc(c.actor)} · ${esc(nowDate(c.at))} · ${esc(c.note)}</p>`).join('')}`)}</div>`;
+    if(can('initial')&&rows.some(r=>!r.initialized))$('#view').insertAdjacentHTML('beforeend',panel('Registrar existencias iniciales',`<p>Solo para comenzar el control de los saldos pendientes. Cuenta el pollo que ya está aquí, incluido el residual. No lo registres otra vez como recepción.</p><form id="protein-initial">${rows.filter(r=>!r.initialized).map(r=>`<label>${esc(r.name)} · ${esc(r.unit)}<input type="number" name="q:${r.item}" min="0" step="${r.step/1000}" placeholder="Cantidad contada"></label>`).join('')}${noteField(true,'Referencia del conteo inicial')}${submit('Registrar saldo inicial')}</form>`));
+    wireForm('protein-initial',(v,f)=>commit('initial',{location,lines:linesFrom(f),note:v.note}));
+    $('#start-protein-count')?.addEventListener('click',()=>{document.querySelectorAll('#view .inv-panel').forEach(p=>{if(!p.contains($('#protein-count')))p.hidden=true;});$('#protein-count').hidden=false;$('#start-protein-count').hidden=true;});
+    wireForm('protein-count',(v,f)=>commit('count',{location,moment:v.moment,lines:linesFrom(f),note:v.note}));
   }
   function stock(){
     const available=areaItems().filter(i=>!initialized(location,i.id));
@@ -165,5 +206,6 @@
   $('#theme').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';try{localStorage.setItem('chickenia_theme',dark?'dark':'light');}catch{}});
   $('#logout').addEventListener('click',async()=>{if(busy)return;try{await api('logout',{});snapshot=null;events=[];pending=null;$('#workspace').hidden=true;$('#login-panel').hidden=false;$('#logout').hidden=true;$('#view').replaceChildren();msg('Sesión cerrada.');}catch(e){msg(e.message,true);}});
   $('#login-form').addEventListener('submit',async e=>{e.preventDefault();const form=e.target;const button=form.querySelector('button');button.disabled=true;try{await api('login',Object.fromEntries(new FormData(form)));form.reset();await load();msg('');}catch(err){msg(err.message,true);}finally{button.disabled=false;}});
+  setInterval(async()=>{if(!snapshot||busy||document.hidden||!['home','proteins','incoming'].includes(tab)||document.querySelector('#protein-count:not([hidden])')||document.querySelector('#view input:focus,#view textarea:focus,#view select:focus')||[...document.querySelectorAll('#view input,#view textarea')].some(el=>el.value!==''))return;try{await load();}catch(e){msg('No se pudieron actualizar los datos. Última consulta: '+(lastLoadedAt?nowDate(lastLoadedAt):'sin conexión'),true);}},30000);
   load().catch(e=>{msg(e.message,e.status!==401);$('#login-panel').hidden=false;});
 })();
