@@ -17,7 +17,7 @@ Estado al 14 de septiembre de 2026: implementación local probada; plugin local 
 
 Se puede escribir o dictar: “En la base de pruebas, registra una compra ficticia de Sam’s…” o “Probemos una lista de Central”. Este mismo agente puede ejecutar la consola local; no necesita publicar ni conectar el ChatGPT de Lilian. El dictado llega como texto; no se ha validado conversación de voz con el plugin en Android.
 
-La base persistente está en `.local/foodia-pilot/postgres`. Arranca vacía de movimientos y conserva el catálogo existente. No se cargaron compras ni existencias reales de las fotos. No se lee `.env`, no se carga Neon y no se utiliza `DATABASE_URL` en el ejecutor local. Otro proceso no puede abrir simultáneamente esa base: cerrar el MCP antes de usar la consola.
+La base persistente está en `.local/foodia-pilot/postgres`. Arranca vacía de movimientos y conserva el catálogo existente. No se cargaron compras ni existencias reales de las fotos. No se lee `.env`, no se carga Neon y no se utiliza `DATABASE_URL` en el ejecutor local. Cada llamada abre y cierra PGlite bajo un bloqueo exclusivo. Varias tareas y la consola esperan su turno (hasta 15 segundos) sin mantener la base abierta durante toda la conversacion. Si un proceso termina abruptamente, conserva owner.lock para diagnosticarlo; no se borra automaticamente ni se fuerza la apertura.
 
 Desde la carpeta ChickenIA, con Node disponible:
 
@@ -39,7 +39,7 @@ Paquete: `plugins/foodia-local`. Incluye el skill `fudia-pruebas` y un servidor 
 
 Después de registrar e instalar el paquete en el catálogo personal, abrir una nueva tarea y seleccionar **fudIA local - pruebas**. Se puede invocar el skill con `$fudia-pruebas` y pedir una prueba. La instalación no inyecta herramientas retroactivamente en una tarea ya abierta. En esta tarea podemos seguir con la consola local sin instalar nada.
 
-Instalación local confirmada: `foodia-local@personal`, versión `0.1.0`, en el catálogo personal de Miguel. La fuente instalada vive en `C:/Users/hp/plugins/foodia-local`; el paquete de desarrollo sigue en `plugins/foodia-local`. Para probar el plugin en otra tarea seleccionar **fudIA local - pruebas** e invocar `$fudia-pruebas`. No mantener abierta esa conexión mientras se use la consola sobre la misma base.
+Instalación local confirmada: `foodia-local@personal`, versión `0.1.0`, en el catálogo personal de Miguel. La fuente instalada vive en `C:/Users/hp/plugins/foodia-local`; el paquete de desarrollo sigue en `plugins/foodia-local`. Para probar el plugin en otra tarea seleccionar **fudIA local - pruebas** e invocar `$fudia-pruebas`. La consola y las tareas comparten la base por turnos.
 
 ## Pruebas reproducibles
 

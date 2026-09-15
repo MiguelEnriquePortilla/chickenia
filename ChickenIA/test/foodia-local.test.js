@@ -15,7 +15,20 @@ test('MCP local persistente: lista flexible, producto nuevo, compra, costo y rec
   const call=async(name,args={})=>{const out=await client.callTool({name,arguments:args});assert.equal(out.isError,undefined,JSON.stringify(out));assert.equal(out.structuredContent.environment,'local-test');return out.structuredContent;};
   const save=async(operation)=>{const draft=await call('foodia_prepare',{operation});return call('foodia_commit',{draftId:draft.draftId});};
   try{
-    const conflict=spawnSync(process.execPath,[script],{input:JSON.stringify({action:'inventory'}),encoding:'utf8',env:{...process.env,FOODIA_TEST_INSTANCE:instance}});assert.notEqual(conflict.status,0);assert.match(conflict.stderr,/ya está abierta/);
+    const conflict=spawnSync(process.execPath,[script],{input:JSON.stringify({action:'inventory'}),encoding:'utf8',env:{...process.env,FOODIA_TEST_INSTANCE:instance}});assert.equal(conflict.status,0,conflict.stderr);
+    const other=await start();
+    try{
+      assert.equal((await other.listTools()).tools.length,7);
+      const both=await Promise.all([client.callTool({name:'foodia_inventory',arguments:{search:'morron'}}),other.callTool({name:'foodia_inventory',arguments:{search:'morron'}})]);
+      for(const out of both)assert.ok(!out.isError,JSON.stringify(out));
+      const draft=await client.callTool({name:'foodia_prepare',arguments:{operation:{type:'initial',location:'cedis',lines:[{item:'morron',qty:0}],note:'Concurrent local test'}}});
+      assert.ok(!draft.isError,JSON.stringify(draft));
+      const commits=await Promise.all([client,other].map(c=>c.callTool({name:'foodia_commit',arguments:{draftId:draft.structuredContent.draftId}})));
+      for(const out of commits)assert.ok(!out.isError,JSON.stringify(out));
+      assert.equal(commits.filter(out=>out.structuredContent.repeated).length,1);
+      const bad=await other.callTool({name:'foodia_prepare',arguments:{operation:{type:'send',request:randomUUID(),lines:[{item:'morron',qty:1}]}}});assert.ok(bad.isError);
+      assert.ok(!(await client.callTool({name:'foodia_inventory',arguments:{search:'morron'}})).isError);
+    }finally{await other.close();}
     const product=(await save({type:'catalog',name:'Papa piloto por kilogramo',unit:'kg',area:'Almacén · Vegetales',kind:'supply',step:1})).event.detail;
     await save({type:'initial',location:'cedis',lines:[{item:product.id,qty:5}],note:'Cinco kg ficticios antes de comprar'});
     const list=(await save({type:'foodList',date:day,market:'Central de Abastos',lines:[{item:product.id,qty:20,observedQty:5,min:10,max:20}],note:'Guía ficticia, no candados'})).event.detail.list;

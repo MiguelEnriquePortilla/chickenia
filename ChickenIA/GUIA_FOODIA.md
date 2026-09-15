@@ -12,11 +12,11 @@ Ejemplo de movimientos: «Solicita para mañana quince kilos de papa». Después
 
 Pide «Muéstrame la semana por producto y solicitudes de lunes a domingo» para un resumen similar a la hoja. Entradas recibidas, solicitudes y envíos son conceptos separados. No se deducen saldos anteriores ni se convierten bultos a kg sin equivalencia. La consulta actual conserva solicitudes abiertas y las últimas 50 cerradas; no constituye un histórico completo. El registro de solicitudes solo admite hoy o fechas futuras.
 
-La versión actual añade `foodia_movements`. Si una tarea conserva únicamente las seis herramientas anteriores, necesita recargar el plugin. El piloto permite un solo proceso sobre la base local: no abras simultáneamente la consola y el MCP; si queda una conexión anterior, cierra completamente Codex y vuelve a abrirlo antes de comprobar `foodia_session` y las siete herramientas.
+El MCP admite varias tareas y la consola sobre la misma base: cada operacion espera su turno y libera la base al terminar. La sesion y el descubrimiento no quedan bloqueados por conversaciones inactivas. Tras actualizar desde la version anterior, cierra Codex completamente una vez para liberar el proceso antiguo y cargar las siete herramientas.
 
 1. Abre una nueva tarea en Codex y selecciona **fudIA local - pruebas** en los plugins.
 2. Escribe `$fudia-pruebas` y tu solicitud. Por ejemplo: **“Probemos una compra ficticia de Sam’s destinada a CEDIS.”**
-3. Si la tarea actual aún no muestra el plugin, podemos hacer la misma prueba aquí mediante la consola local. No mantengas simultáneamente el plugin y la consola abiertos sobre la misma base.
+3. Si la tarea actual aún no muestra el plugin, podemos hacer la misma prueba aquí mediante la consola local. Ambos pueden usar la base por turnos.
 
 Los registros de prueba se conservan entre sesiones. Los ejemplos de validación automática viven en otras bases y no se mezclan con tu piloto. El catálogo inicial existe, pero sus saldos son desconocidos hasta que indiquemos un conteo de prueba.
 

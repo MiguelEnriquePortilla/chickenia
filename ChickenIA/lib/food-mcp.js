@@ -20,10 +20,10 @@ const operation=z.discriminatedUnion('type',[
   z.object({type:z.literal('catalog'),name:str,unit:z.string().min(1).max(40),area:str,kind:z.enum(['supply','equipment','finished']),step:z.union([z.literal(1),z.literal(250),z.literal(500),z.literal(1000)]),note}).strict(),
   z.object({type:z.literal('initial'),location:z.enum(['cedis','sucursal']),lines:z.array(z.object({item:str,qty:z.number().min(0).max(1000000)}).strict()).min(1).max(100),note:z.string().min(1).max(1000)}).strict(),
 ]);
-function createServer(repo,query,actor){
+function createServer(repo,query,actor,runHandler=handler=>handler()){
   const api=service(repo,query,actor),server=new McpServer({name:'foodia',version:'0.1.0'});
   const register=(name,description,inputSchema,write,handler,destructive=false)=>server.registerTool(name,{description,inputSchema,annotations:{readOnlyHint:!write,destructiveHint:destructive,idempotentHint:name==='foodia_commit'||!write,openWorldHint:false},_meta:{securitySchemes:[{type:'oauth2',scopes:write?['foodia:read','foodia:write']:['foodia:read']}]}},async args=>{
-    try{const result={environment:actor.environment||'server',...await handler(args)};return {content:[{type:'text',text:JSON.stringify(result)}],structuredContent:result};}
+    try{const result={environment:actor.environment||'server',...await runHandler(()=>handler(args),name)};return {content:[{type:'text',text:JSON.stringify(result)}],structuredContent:result};}
     catch(e){return {isError:true,content:[{type:'text',text:e.status?e.message:'No se pudo completar la operación. Reintenta con el mismo borrador; no dupliques la captura.'}]};}
   });
   register('foodia_session','Identidad autenticada, negocio y permisos. No solicita contraseñas.',z.object({}).strict(),false,async()=>({user:actor.name,business:actor.business,canWrite:actor.canWrite}));
