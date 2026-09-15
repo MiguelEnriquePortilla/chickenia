@@ -1,8 +1,8 @@
 # FoodIA — propuesta de arquitectura y piloto
 
-Fecha: 14 de septiembre de 2026. Estado: diseño propuesto; conexión no implementada ni publicada.
+Fecha: 14 de septiembre de 2026. Estado: piloto local implementado e instalado; código remoto publicado, pendiente de configurar OAuth.
 
-Actualización de implementación: MCP HTTP y servicios de listas/compras/recepción/costos/anulación implementados y probados localmente. Sin publicación ni conexión a cuentas reales. Miguel confirmó que no hace falta habilitar a Lilian todavía: primero probar funcionalidades y flujo en un entorno local aislado. No bloquear estas pruebas por proveedor OAuth, plan de ChatGPT ni compatibilidad Android. El piloto local usa PGlite persistente dentro de `.local/foodia-pilot`; no conecta a Neon. Ver `FOODIA_PILOTO.md` para alcance e invocación.
+Actualización de implementación: MCP HTTP y servicios de listas/compras/recepción/costos/anulación implementados y probados localmente. Código publicado en ChickenIA; conexión remota a cuentas reales pendiente de OAuth. Miguel confirmó que no hace falta habilitar a Lilian todavía: primero probar funcionalidades y flujo en un entorno local aislado. No bloquear estas pruebas por proveedor OAuth, plan de ChatGPT ni compatibilidad Android. El piloto local usa PGlite persistente dentro de `.local/foodia-pilot`; no conecta a Neon. Ver `FOODIA_PILOTO.md` para alcance e invocación.
 
 ## Objetivo acordado
 

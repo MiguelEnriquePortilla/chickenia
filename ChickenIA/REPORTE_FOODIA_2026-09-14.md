@@ -6,7 +6,9 @@
 
 Implementado un piloto funcional para listas de abastecimiento, compras verificadas, costos y recepción desde herramientas MCP. El plugin local está instalado en la computadora de Miguel; el servicio remoto está implementado, pero requiere proveedor OAuth y configuración antes de usarse con cuentas reales. No se hicieron movimientos de prueba en Neon ni se habilitó acceso a Lilian.
 
-Miguel autorizó commit y push de toda esta entrega. El resultado de publicación se añadirá al cierre, tras verificar el repositorio y el dominio.
+Commit de implementación: `5b9e53e` (`Add FoodIA purchase MCP pilot and simplify ChickenIA navigation`), enviado correctamente a `origin/main`. Se incluyeron 37 archivos; la carpeta ajena `Formatos-Internos/` quedó intacta y fuera del commit.
+
+Publicación verificada en `https://chickenia.chicanito.app`: inicio responde HTTP 200 con la navegación simplificada y el JavaScript publicado contiene el nuevo comportamiento. `/mcp` y `/.well-known/oauth-protected-resource` responden HTTP 503 con `Falta configurar el acceso FoodIA.`: el servicio está desplegado y cerrado mientras no se configure OAuth. Esto no equivale a una conexión de ChatGPT habilitada. La comprobación en producción fue de solo lectura; no registró compras ni alteró inventarios.
 
 ## Decisiones incorporadas
 
