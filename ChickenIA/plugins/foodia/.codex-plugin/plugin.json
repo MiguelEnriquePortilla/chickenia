@@ -1,0 +1,25 @@
+{
+  "name": "foodia",
+  "version": "0.1.0",
+  "description": "Compras, listas e inventario de Chicanito mediante FoodIA.",
+  "author": {
+    "name": "Chicken Chicanito"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "FoodIA",
+    "shortDescription": "Captura compras y consulta inventario.",
+    "longDescription": "Conecta compras verificadas, recepciones y costos con ChickenIA.",
+    "developerName": "Chicken Chicanito",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Consulta las existencias de CEDIS.",
+      "Registra una compra de Sam’s.",
+      "Analiza las compras de esta semana."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

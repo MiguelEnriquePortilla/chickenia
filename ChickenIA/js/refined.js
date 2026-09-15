@@ -19,7 +19,7 @@
   const actions=document.querySelector('.inv-header-actions');if(actions)actions.hidden=true;
   header.append(tools);
   const send=document.querySelector('#composer button');if(send){send.innerHTML=svg('M12 19V5 M5 12l7-7 7 7');send.setAttribute('aria-label','Enviar pregunta');send.title='Enviar pregunta';}
-  const paths=['M12 3v18 M3 12h18 M5 5l14 14','M3 7l9-4 9 4v11l-9 4-9-4z M3 7l9 4 9-4 M12 11v11','M6 5h12v16H6z M9 3h6v4H9z','M4 20V10 M12 20V4 M20 20v-7','M4 4h16v12H9l-5 4z'];document.querySelectorAll('.menu-icon').forEach((el,i)=>el.innerHTML=svg(paths[i]));
+  const paths=['M12 3v18 M3 12h18 M5 5l14 14','M3 7l9-4 9 4v11l-9 4-9-4z M3 7l9 4 9-4 M12 11v11','M6 5h12v16H6z M9 3h6v4H9z','M4 20V10 M12 20V4 M20 20v-7','M4 4h16v12H9l-5 4z'];document.querySelectorAll('.menu-icon').forEach((el,i)=>el.innerHTML=svg(paths[el.closest('a')?.getAttribute('href')==='/supervision.html'?2:el.closest('a')?.getAttribute('href')==='/dashboard.html'?3:4]));
  }
  setup();window.addEventListener('chickenia:shell',setup);
 })();

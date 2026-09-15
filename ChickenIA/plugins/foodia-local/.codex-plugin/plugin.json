@@ -1,0 +1,23 @@
+{
+  "name": "foodia-local",
+  "version": "0.1.0",
+  "description": "Pruebas locales aisladas de compras e inventario FoodIA.",
+  "author": {
+    "name": "Chicken Chicanito"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "FoodIA local - pruebas",
+    "shortDescription": "Ensaya compras sin tocar datos reales.",
+    "longDescription": "Base de pruebas local, separada de ChickenIA en Neon.",
+    "developerName": "Chicken Chicanito",
+    "category": "Productivity",
+    "capabilities": [
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Probemos una compra ficticia en CEDIS."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

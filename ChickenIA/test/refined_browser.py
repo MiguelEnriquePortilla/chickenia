@@ -37,7 +37,7 @@ try:
       page.locator('#areas-toggle').click();expect(page.locator('#areas')).to_contain_text('Cocina')
       assert page.locator('#areas-toggle').evaluate('(e)=>getComputedStyle(e).color')==page.locator('body').evaluate('(e)=>getComputedStyle(e).color')
       page.locator('#areas-toggle').click()
-      page.locator('.account-menu > summary').click();page.locator('#menu-expand-all').click();expect(page.locator('#movements-toggle')).to_have_attribute('aria-expanded','true')
+      page.locator('.account-menu > summary').click();page.locator('#menu-expand-all').click();expect(page.locator('#areas-toggle')).to_have_attribute('aria-expanded','true')
       page.locator('.account-menu > summary').click();page.keyboard.press('Escape');assert not page.locator('.account-menu').evaluate('(e)=>e.open')
      page.screenshot(path=str(out/((route.strip('/').replace('.html','') or 'home')+'-'+theme+'-'+str(width)+'.png')))
   page.set_viewport_size({'width':1440,'height':1000});page.goto(base+'/preguntale.html');expect(page.locator('#workspace')).to_be_visible()

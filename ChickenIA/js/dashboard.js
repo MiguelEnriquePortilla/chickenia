@@ -134,13 +134,9 @@ async function init() {
 async function load() {
   if (!state.location) return;
   try {
-    const [summary, movements] = await Promise.all([
-      api(`summary?location_id=${state.location.id}&date=${state.date}`),
-      api(`inventory-movements?location_id=${state.location.id}&date=${state.date}`),
-    ]);
+    const summary = await api(`summary?location_id=${state.location.id}&date=${state.date}`);
     renderStatusBar(summary);
     renderSummary(summary);
-    renderMovements(movements);
   } catch (err) {
     console.error(err);
   }
@@ -231,8 +227,6 @@ function selectDashboardArea(code) {
     setCollapsible('areas-toggle','areas',true);
     if(!current)document.getElementById('areas-card').insertAdjacentHTML('beforeend','<p id="dashboard-area-empty">Esta área todavía no tiene indicadores de supervisión cargados.</p>');
   }
-  // Legacy movements have no operational-area association; keep them in overview.
-  document.getElementById('movements-toggle').closest('.card').hidden=code!=='general';
 }
 function renderSummary(summary) {
   ChickenFeedback.summary(summary);
@@ -259,21 +253,6 @@ function renderSummary(summary) {
 
   renderCriticalPending($('#critical-pending'), summary.critical_pending);
 
-  const crossEl = $('#cross-check');
-  if (summary.cross_check) {
-    const { recibido, sobrante } = summary.cross_check;
-    const vendidoImplicito = recibido - sobrante;
-    crossEl.innerHTML = `
-      <h2>Verificación cruzada — pollo (moto)</h2>
-      <p>Recibido en la mañana: <strong>${recibido}</strong></p>
-      <p>Sobrante al cierre: <strong>${sobrante}</strong></p>
-      <p>Vendido implícito: <strong>${vendidoImplicito}</strong></p>
-      <p class="hint">Compara este número contra el reporte de venta del día y, cuando esté conectado Poster, contra el detalle de venta real.</p>
-    `;
-    crossEl.style.display = 'block';
-  } else {
-    crossEl.style.display = 'none';
-  }
   AreaNavigation.mount(document.getElementById('app-content'),selectDashboardArea);
 }
 

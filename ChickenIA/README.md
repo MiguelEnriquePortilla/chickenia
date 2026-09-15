@@ -1,5 +1,9 @@
 # ChickenIA
 
+## FoodIA — piloto del 14 de septiembre de 2026
+
+Compras conversacionales mediante MCP, listas orientadoras, costos, recepción e historial. Plugin local instalado y pruebas aisladas; conexión remota preparada pero pendiente de configurar OAuth. La navegación web se simplifica a Supervisión/asistencia, Dashboard y preguntas rápidas. Ver [cómo probarlo](GUIA_FOODIA.md), [configuración técnica](FOODIA_PILOTO.md) y [reporte de entrega](REPORTE_FOODIA_2026-09-14.md). Las secciones anteriores a esta entrega conservan contexto histórico.
+
 ## Estado al cierre del 11 de septiembre de 2026
 
 Implementación publicada: `c105098`. Ver [reporte de sesión](REPORTE_SESION_2026-09-11.md) y [handoff vigente](HANDOFF_2026-09-11_CIERRE_CHAT.md).

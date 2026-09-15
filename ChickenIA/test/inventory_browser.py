@@ -114,6 +114,8 @@ try:
             page.evaluate('(theme)=>document.documentElement.dataset.theme=theme',theme)
             for width in [390,1100]:
                 page.set_viewport_size({'width':width,'height':900})
+                # Let the responsive matchMedia callback settle before reading menu state.
+                page.evaluate('() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))')
                 for tab in ['home','stock','supply','production','sales','counts','receipts','opening','history','catalog']:
                     nav_click('[data-tab='+tab+']')
                     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), (tab,width)

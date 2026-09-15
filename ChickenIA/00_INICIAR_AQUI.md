@@ -1,5 +1,7 @@
 # ChickenIA — retomar la siguiente sesión
 
+> **Último trabajo — 14 de septiembre:** piloto FoodIA local implementado y probado; plugin `foodia-local@personal` instalado. Miguel autorizó commit/push de código y documentación. Primero probar el flujo local, sin incorporar a Lilian todavía. Leer [guía de uso](GUIA_FOODIA.md), [piloto técnico](FOODIA_PILOTO.md) y [reporte de entrega](REPORTE_FOODIA_2026-09-14.md). La conexión remota no está activada hasta configurar OAuth. Los avisos anteriores de esta página son históricos.
+
 > **Trabajo local más reciente:** [Rastro y Apertura de Sucursal separados](HANDOFF_RASTRO_SUCURSAL_2026-09-11.md). Incluye los horarios y la revisión de movimientos antes del pase de salida confirmados por el usuario. Esta implementación todavía no tiene commit/push ni publicación; conservar estos cambios al continuar.
 
 > **Cambio posterior importante:** acceso compartido para todo el equipo durante las pruebas. Leer primero [handoff de acceso de prueba](HANDOFF_2026-09-11_ACCESO_PRUEBA.md). Sustituye las restricciones por persona descritas en los cierres anteriores.

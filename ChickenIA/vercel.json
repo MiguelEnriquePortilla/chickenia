@@ -3,7 +3,41 @@
   "outputDirectory": "public",
   "installCommand": "npm ci --omit=dev",
   "headers": [
-    {"source": "/inventario.html", "headers": [{"key": "Cache-Control", "value": "no-cache"}, {"key": "X-Content-Type-Options", "value": "nosniff"}]},
-    {"source": "/js/inventory.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}]}
+    {
+      "source": "/inventario.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    },
+    {
+      "source": "/js/inventory.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/mcp",
+      "destination": "/api/foodia-mcp"
+    },
+    {
+      "source": "/.well-known/oauth-protected-resource",
+      "destination": "/api/foodia-mcp?resource=1"
+    },
+    {
+      "source": "/.well-known/oauth-protected-resource/mcp",
+      "destination": "/api/foodia-mcp?resource=1"
+    }
   ]
 }

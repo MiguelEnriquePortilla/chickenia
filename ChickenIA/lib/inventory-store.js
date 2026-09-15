@@ -3,6 +3,10 @@ const { createHash } = require('node:crypto');
 const { freshState, applyOperation, InventoryError } = require('./inventory-domain');
 
 const migrations = [
+  `CREATE TABLE IF NOT EXISTS food_purchases (id uuid PRIMARY KEY, business_id text NOT NULL CHECK(business_id='chicanito'), data jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`,
+  `CREATE TABLE IF NOT EXISTS food_purchase_lines (purchase_id uuid NOT NULL REFERENCES food_purchases(id), item_id text NOT NULL, data jsonb NOT NULL, PRIMARY KEY(purchase_id,item_id))`,
+  `CREATE TABLE IF NOT EXISTS food_drafts (id uuid PRIMARY KEY, actor_id text NOT NULL, command jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now())`,
+  `CREATE TABLE IF NOT EXISTS food_lists (id uuid PRIMARY KEY, business_id text NOT NULL CHECK(business_id='chicanito'), data jsonb NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS inv_state (id integer PRIMARY KEY CHECK (id=1), version integer NOT NULL DEFAULT 0, data jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`,
   `CREATE TABLE IF NOT EXISTS inv_events (id uuid PRIMARY KEY, version integer NOT NULL UNIQUE, actor_id text NOT NULL, fingerprint text NOT NULL, kind text NOT NULL, business_date date NOT NULL, data jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now())`,
   `CREATE INDEX IF NOT EXISTS inv_events_date ON inv_events (business_date, version DESC)`,
@@ -16,6 +20,18 @@ const COMMIT_SQL = `WITH changed AS (
 ), logged AS (
  INSERT INTO inv_events(id,version,actor_id,fingerprint,kind,business_date,data)
  SELECT $3::uuid,version,$4,$5,$6,$7::date,$8::jsonb FROM changed RETURNING version
+), shopping_list AS (
+ INSERT INTO food_lists(id,business_id,data)
+ SELECT $3::uuid,'chicanito',$8::jsonb->'detail'->'list' FROM logged WHERE $6='foodList'
+), document AS (
+ INSERT INTO food_purchases(id,business_id,data)
+ SELECT ($8::jsonb->'detail'->'document'->>'id')::uuid,'chicanito',$8::jsonb->'detail'->'document'
+ FROM logged WHERE $6 IN ('foodPurchase','foodReceive','foodVoid','foodCost')
+ ON CONFLICT(id) DO UPDATE SET data=excluded.data,updated_at=now() RETURNING id,data
+), document_lines AS (
+ INSERT INTO food_purchase_lines(purchase_id,item_id,data)
+ SELECT document.id,line->>'item',line FROM document, jsonb_array_elements(document.data->'lines') line
+ ON CONFLICT(purchase_id,item_id) DO UPDATE SET data=excluded.data
 ), reversed AS (
  INSERT INTO inv_reversals(original_id,reversal_id)
  SELECT $9::uuid,$3::uuid FROM logged WHERE $9::uuid IS NOT NULL

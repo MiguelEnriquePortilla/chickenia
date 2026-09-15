@@ -2,9 +2,12 @@
   "name": "chickenia",
   "version": "1.0.0",
   "private": true,
-  "description": "ChickenIA — supervisión operativa en tiempo real para Chicken Chicanito",
+  "description": "ChickenIA â€” supervisiÃ³n operativa en tiempo real para Chicken Chicanito",
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.4"
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@neondatabase/serverless": "^0.10.4",
+    "jose": "^6.2.12",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8"
@@ -13,9 +16,11 @@
     "node": ">=22 <25"
   },
   "scripts": {
-    "test": "node --test test/inventory.test.js test/routines.test.js test/rastro-sucursal.test.js test/proteins.test.js test/kitchen.test.js test/chicken-query.test.js test/pilot-access.test.js",
+    "test": "node --test test/inventory.test.js test/routines.test.js test/rastro-sucursal.test.js test/proteins.test.js test/kitchen.test.js test/chicken-query.test.js test/pilot-access.test.js test/foodia.test.js test/foodia-mcp.test.js test/foodia-local.test.js",
     "build": "node scripts/build-static.js",
     "dev:inventory": "node scripts/dev-inventory.js",
-    "setup:inventory": "node scripts/create-inventory-users.js"
+    "setup:inventory": "node scripts/create-inventory-users.js",
+    "test:foodia": "node --test test/foodia.test.js test/foodia-mcp.test.js test/foodia-local.test.js",
+    "foodia:local": "node scripts/foodia-local.js"
   }
 }

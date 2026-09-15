@@ -7,6 +7,7 @@ class InventoryError extends Error {
 }
 const fail = (message, status) => { throw new InventoryError(message, status); };
 const roles = {
+  foodPurchase: ['manager'], foodReceive: ['manager'], foodVoid: ['manager'], foodCost: ['manager'], foodList: ['manager'],
   purchaseRequest: ['kitchen','manager'], approvePurchase: ['dispatch','manager'],
   initial: ['manager'], supplier: ['manager'], request: ['kitchen', 'manager'],
   send: ['dispatch', 'manager'], receive: ['manager'], transitReturn: ['manager'],
@@ -106,7 +107,9 @@ function applyOperation(original, command, actor, now = new Date().toISOString()
       event.deltas.push({ location, item, qty: delta });
     }
   }
-  if (type === 'purchaseRequest') {
+  if (['foodPurchase','foodReceive','foodVoid','foodCost','foodList'].includes(type)) {
+    require('./food-purchases').applyPurchase({state,command,actor,event,move,getItem,quantity,fail,text,date});
+  } else if (type === 'purchaseRequest') {
     const supplier=text(command.supplier,'Proveedor',100), due=date(command.due), location=getLocation(command.location);
     if(due<event.date)fail('La compra debe programarse para hoy o una fecha futura.');
     if(!['local','foraneo'].includes(command.supplierType))fail('Tipo de proveedor inválido.');
@@ -133,6 +136,7 @@ function applyOperation(original, command, actor, now = new Date().toISOString()
     if(type==='supplier'){
       const purchase=state.purchases?.find(p=>p.id===command.purchase);
       if(!purchase)fail('Selecciona el pedido validado por Lilian.');
+      if(purchase.foodia)fail('Esta compra se recibe desde FoodIA para conservar costos y evitar duplicados.');
       if(location!==(purchase.location||'cedis'))fail('Recibe en la ubicación autorizada en la orden.');
       if(purchase.request){
         const receipt=text(command.receipt,'Comprobante',150);
