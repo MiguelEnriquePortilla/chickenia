@@ -7,6 +7,11 @@ const stockLine=z.object({item:str,qty}).strict();
 const costLine=z.object({item:str,unitPriceCents:cents.nullable().optional(),totalCents:cents.nullable().optional()}).strict();
 const purchaseLine=costLine.extend({stockQty:qty,purchaseQty:qty,purchaseUnit:str,conversionNote:z.string().max(300).optional()}).strict();
 const operation=z.discriminatedUnion('type',[
+  z.object({type:z.literal('request'),due:date,lines:z.array(stockLine).min(1).max(100),note}).strict(),
+  z.object({type:z.literal('send'),request:id,lines:z.array(stockLine).min(1).max(100),note}).strict(),
+  z.object({type:z.literal('receive'),request:id,shipment:id,lines:z.array(stockLine).min(1).max(100),note}).strict(),
+  z.object({type:z.literal('transitReturn'),request:id,shipment:id,lines:z.array(stockLine).min(1).max(100),note:z.string().min(1).max(1000)}).strict(),
+  z.object({type:z.literal('closeRequest'),request:id,note:z.string().min(1).max(1000)}).strict(),
   z.object({type:z.literal('foodPurchase'),supplier:str,market:str,date,destination:z.enum(['cedis','sucursal']),received:z.boolean(),lines:z.array(purchaseLine).min(1).max(100),list:id.optional(),receipt:z.string().max(200).optional(),paymentMethod:z.string().max(60).optional(),paidCents:cents.nullable().optional(),note}).strict(),
   z.object({type:z.literal('foodReceive'),purchase:id,lines:z.array(stockLine).min(1).max(100),note}).strict(),
   z.object({type:z.literal('foodVoid'),purchase:id,note:z.string().min(1).max(1000)}).strict(),
@@ -27,6 +32,7 @@ function createServer(repo,query,actor){
   register('foodia_commit','Guarda el borrador autorizado del usuario y devuelve folio. Puede modificar existencias o anular una compra: explica el efecto del borrador antes de ejecutarlo. Reutiliza el mismo draftId en reintentos. Un conflicto de versión exige revisar datos y preparar de nuevo; no repetir automáticamente con un ID nuevo.',z.object({draftId:id}).strict(),true,({draftId})=>api.commit(draftId),true);
   register('foodia_purchases','Consulta compras FoodIA por fechas inclusive, precios, recepción, pagos y costos pendientes. No incluye gastos históricos no registrados aquí. Importes en centavos y cantidades de líneas en milésimas.',z.object({from:date,to:date}).strict(),false,({from,to})=>api.purchases(from,to));
   register('foodia_lists','Consulta las últimas 100 listas orientadoras y sus existencias observadas. Cantidades en milésimas. No son compras ni movimientos.',z.object({}).strict(),false,()=>api.lists());
+  register('foodia_movements','Consulta solicitudes CEDIS a sucursal por fecha solicitada inclusive, con envíos, recepciones y devoluciones. Cantidades humanas y unidad de catálogo. Sin costos. Para escribir usa foodia_prepare con request (solicitar, no mueve saldo), send (CEDIS a tránsito), receive (tránsito a sucursal), transitReturn (tránsito a CEDIS) o closeRequest (cierre con motivo). En receive y transitReturn indica request y shipment. No confundas una solicitud con una entrega.',z.object({from:date,to:date}).strict(),false,({from,to})=>api.movements(from,to));
   return server;
 }
 module.exports={createServer,operation};

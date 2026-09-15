@@ -35,6 +35,14 @@ function service(repo,query,actor){
     return {from,to,currency:'MXN',source:'FoodIA food_purchases',queriedAt:new Date().toISOString(),purchases:docs,knownTotalCents:valid.reduce((n,d)=>n+d.knownTotalCents,0),missingCostDocuments:valid.filter(d=>d.costStatus!=='complete').length,knownPaidCents:valid.reduce((n,d)=>n+(d.paidCents??0),0),missingPaymentDocuments:valid.filter(d=>d.paidCents===null).length,note:'Importes en centavos; cantidades de renglón en milésimas. Solo compras registradas por FoodIA, no gastos históricos de otras fuentes.'};
   }
   async function lists(){return {lists:(await query("SELECT data FROM food_lists WHERE business_id='chicanito' ORDER BY data->>'date' DESC LIMIT 100",[])).map(r=>r.data),note:'Cantidades en milésimas de la unidad declarada; guías orientadoras, sin candados.'};}
-  return {prepare,commit,inventory,purchases,lists};
+  async function movements(from,to){
+    const valid=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v))&&new Date(v).toISOString().slice(0,10)===v;
+    if(!valid(from)||!valid(to)||from>to)throw new InventoryError('Periodo inválido.');
+    const current=await repo.snapshot(),items=new Map(current.data.items.map(i=>[i.id,i]));
+    const lines=rows=>rows.map(l=>({item:l.item,name:items.get(l.item)?.name||l.item,unit:items.get(l.item)?.unit||null,qty:l.qty/1000}));
+    const requests=current.data.requests.filter(r=>r.due>=from&&r.due<=to).map(r=>({...r,lines:lines(r.lines),shipments:r.shipments.map(s=>({...s,lines:lines(s.lines),received:lines(s.received),returned:lines(s.returned||[])}))}));
+    return {from,to,version:current.version,requests,source:'ChickenIA inv_state.requests',note:'Cantidades humanas. Filtrado por fecha solicitada, no por fecha del envío. Solicitar no mueve saldo; enviar descuenta CEDIS; recibir suma sucursal. Incluye solicitudes abiertas y hasta las últimas 50 cerradas conservadas; no es un histórico completo. Existencia anterior y entradas de una hoja no se infieren de estos datos.'};
+  }
+  return {prepare,commit,inventory,purchases,lists,movements};
 }
 module.exports={service};

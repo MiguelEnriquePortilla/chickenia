@@ -26,7 +26,7 @@ test('MCP por HTTP real: OAuth/JWT, descubrimiento, borrador, escritura y lectur
     response=await fetch(url,{method:'POST',headers:{Authorization:'Bearer '+await token('lilian-test',config.resource,'-1m')}});assert.equal(response.status,401);
     response=await fetch(url,{method:'POST',headers:{Origin:'https://evil.example',Authorization:'Bearer '+await token('lilian-test')}});assert.equal(response.status,403);
     const lilian=await connect('lilian-test'),miguel=await connect('miguel-test'),reader=await connect('reader-test');
-    const tools=await lilian.listTools();assert.equal(tools.tools.length,6);assert.equal(tools.tools.find(t=>t.name==='foodia_commit').annotations.destructiveHint,true);
+    const tools=await lilian.listTools();assert.equal(tools.tools.length,7);assert.equal(tools.tools.find(t=>t.name==='foodia_commit').annotations.destructiveHint,true);
     const call=async(client,name,args)=>{const out=await client.callTool({name,arguments:args});assert.ok(!out.isError,JSON.stringify(out));return out.structuredContent;};
     let prepared=await call(lilian,'foodia_prepare',{operation:{type:'initial',location:'cedis',lines:[{item:'morron',qty:0}],note:'Conteo real de prueba'}});
     await call(lilian,'foodia_commit',{draftId:prepared.draftId});
@@ -36,6 +36,20 @@ test('MCP por HTTP real: OAuth/JWT, descubrimiento, borrador, escritura y lectur
     const stock=await call(miguel,'foodia_inventory',{search:'morron'});assert.equal(stock.items[0].cedis,2);
     const report=await call(miguel,'foodia_purchases',{from:today(new Date()),to:today(new Date())});assert.equal(report.knownTotalCents,2000);assert.equal(report.purchases[0].actor.name,'Lilian');
     const denied=await reader.callTool({name:'foodia_commit',arguments:{draftId:prepared.draftId}});assert.equal(denied.isError,true);
+    const run=async operation=>{const d=await call(miguel,'foodia_prepare',{operation});return call(miguel,'foodia_commit',{draftId:d.draftId});};
+    await run({type:'initial',location:'sucursal',lines:[{item:'morron',qty:0}],note:'Prueba'});
+    const request=await run({type:'request',due:today(new Date()),lines:[{item:'morron',qty:2}]});
+    assert.equal((await call(miguel,'foodia_inventory',{search:'morron'})).items[0].cedis,2);
+    const shipment=await run({type:'send',request:request.folio,lines:[{item:'morron',qty:2}]});
+    const receipt=await run({type:'receive',request:request.folio,shipment:shipment.folio,lines:[{item:'morron',qty:1}],note:'Una pieza sigue en tránsito'});
+    await call(miguel,'foodia_commit',{draftId:receipt.folio});
+    const movementStock=(await call(miguel,'foodia_inventory',{search:'morron'})).items[0];assert.equal(movementStock.cedis,0);assert.equal(movementStock.sucursal,1);
+    const over=await miguel.callTool({name:'foodia_prepare',arguments:{operation:{type:'receive',request:request.folio,shipment:shipment.folio,lines:[{item:'morron',qty:2}]}}});assert.equal(over.isError,true);
+    const movementReport=await call(reader,'foodia_movements',{from:today(new Date()),to:today(new Date())});assert.equal(movementReport.requests[0].lines[0].qty,2);assert.equal(movementReport.requests[0].shipments[0].received[0].qty,1);
+    await run({type:'transitReturn',request:request.folio,shipment:shipment.folio,lines:[{item:'morron',qty:1}],note:'Retorno de la pieza pendiente'});
+    await run({type:'closeRequest',request:request.folio,note:'Cierre de prueba'});
+    assert.equal((await call(miguel,'foodia_inventory',{search:'morron'})).items[0].cedis,1);
+    assert.equal((await call(miguel,'foodia_purchases',{from:today(new Date()),to:today(new Date())})).knownTotalCents,2000);
     const bad=await lilian.callTool({name:'foodia_prepare',arguments:{operation:{type:'catalog',name:'X',unit:'kg',area:'Almacén',kind:'supply',step:1,unexpected:'no'}}});assert.equal(bad.isError,true);
   }finally{for(const c of clients)await c.close();await new Promise(r=>web.close(r));await db.close();}
 });

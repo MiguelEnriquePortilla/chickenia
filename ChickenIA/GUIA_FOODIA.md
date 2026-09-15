@@ -4,6 +4,16 @@ fudIA local está instalado en la computadora de Miguel. Permite ensayar compras
 
 ## Empezar
 
+### Captura por dictado y movimientos diarios
+
+Con el plugin seleccionado, invoca `$subir-gastos` para compras y precios, o `$movimientos-inventario` para solicitudes, envíos y recepciones de CEDIS a sucursal sin costos. Puedes dictar con el micrófono de la aplicación; las skills reciben la transcripción y no cambian el modelo.
+
+Ejemplo de movimientos: «Solicita para mañana quince kilos de papa». Después registra por separado «enviamos diez kilos de ese pedido» y «recibimos ocho; faltan dos». Solicitar no mueve saldo; enviar descuenta CEDIS; recibir suma sucursal. Cada paso devuelve su folio, admite cantidades parciales y evita duplicados al reintentar el mismo borrador.
+
+Pide «Muéstrame la semana por producto y solicitudes de lunes a domingo» para un resumen similar a la hoja. Entradas recibidas, solicitudes y envíos son conceptos separados. No se deducen saldos anteriores ni se convierten bultos a kg sin equivalencia. La consulta actual conserva solicitudes abiertas y las últimas 50 cerradas; no constituye un histórico completo. El registro de solicitudes solo admite hoy o fechas futuras.
+
+La versión actual añade `foodia_movements`. Si una tarea conserva únicamente las seis herramientas anteriores, necesita recargar el plugin. El piloto permite un solo proceso sobre la base local: no abras simultáneamente la consola y el MCP; si queda una conexión anterior, cierra completamente Codex y vuelve a abrirlo antes de comprobar `foodia_session` y las siete herramientas.
+
 1. Abre una nueva tarea en Codex y selecciona **fudIA local - pruebas** en los plugins.
 2. Escribe `$fudia-pruebas` y tu solicitud. Por ejemplo: **“Probemos una compra ficticia de Sam’s destinada a CEDIS.”**
 3. Si la tarea actual aún no muestra el plugin, podemos hacer la misma prueba aquí mediante la consola local. No mantengas simultáneamente el plugin y la consola abiertos sobre la misma base.
