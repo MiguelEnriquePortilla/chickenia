@@ -1,5 +1,13 @@
 # ChickenIA — retomar la siguiente sesión
 
+> **Vigente — 15 de septiembre de 2026:** leer [HANDOFF_FUDIA_REPORTES_2026-09-15.md](HANDOFF_FUDIA_REPORTES_2026-09-15.md) y [REPORTE_FUDIA_2026-09-15.md](REPORTE_FUDIA_2026-09-15.md). Compras y movimientos conversacionales locales probados; bloqueo entre tareas corregido. Próximo objetivo explícito de Miguel: crear una skill de reportes rápidos y precisos de operaciones, movimientos y compras. Solicitud de prueba cerrada y verificada en versión 9, recepción completa y tránsito cero. Base local excluida de Git; OAuth remoto pendiente.
+
+**Prompt vigente:** Lee el handoff del 15 de septiembre y crea la skill de reportes operativos de fudIA, verificando fuentes, fechas, unidades y pendientes en el piloto local. No trasladar pruebas a producción.
+
+## Archivo histórico de instrucciones anteriores
+
+Las indicaciones de «próximo objetivo», «último cierre» y «sin commit» que siguen corresponden a sus fechas; no son el estado actual ni reemplazan el handoff anterior.
+
 > **Último trabajo — 14 de septiembre:** piloto FoodIA local implementado y probado; plugin `foodia-local@personal` instalado. Miguel autorizó commit/push de código y documentación. Primero probar el flujo local, sin incorporar a Lilian todavía. Leer [guía de uso](GUIA_FOODIA.md), [piloto técnico](FOODIA_PILOTO.md) y [reporte de entrega](REPORTE_FOODIA_2026-09-14.md). La conexión remota no está activada hasta configurar OAuth. Los avisos anteriores de esta página son históricos.
 
 > **Trabajo local más reciente:** [Rastro y Apertura de Sucursal separados](HANDOFF_RASTRO_SUCURSAL_2026-09-11.md). Incluye los horarios y la revisión de movimientos antes del pase de salida confirmados por el usuario. Esta implementación todavía no tiene commit/push ni publicación; conservar estos cambios al continuar.

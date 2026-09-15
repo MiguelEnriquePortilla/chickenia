@@ -1,5 +1,11 @@
 # ChickenIA
 
+## Estado vigente — fudIA, 15 de septiembre de 2026
+
+Piloto local de compras y movimientos diarios probado con Miguel. Skills: `$subir-gastos` y `$movimientos-inventario`, además de `$fudia-pruebas`. Solicitud → envío → recepción parcial/completa funciona sin costos en las transferencias. MCP corregido para compartir la base entre tareas por turnos. El acceso remoto sigue pendiente de OAuth.
+
+Leer [guía de uso](GUIA_FOODIA.md), [reporte de cierre](REPORTE_FUDIA_2026-09-15.md) y [handoff vigente](HANDOFF_FUDIA_REPORTES_2026-09-15.md). Próxima sesión: skill de reportes precisos de operaciones, inventario y compras. Código y documentación en GitHub; base de pruebas en `.local/foodia-pilot/postgres`, excluida de Git y sin respaldo adicional en Drive. Los estados fechados siguientes son históricos.
+
 ## FoodIA — piloto del 14 de septiembre de 2026
 
 Compras conversacionales mediante MCP, listas orientadoras, costos, recepción e historial. Plugin local instalado y pruebas aisladas; conexión remota preparada pero pendiente de configurar OAuth. La navegación web se simplifica a Supervisión/asistencia, Dashboard y preguntas rápidas. Ver [cómo probarlo](GUIA_FOODIA.md), [configuración técnica](FOODIA_PILOTO.md) y [reporte de entrega](REPORTE_FOODIA_2026-09-14.md). Las secciones anteriores a esta entrega conservan contexto histórico.
