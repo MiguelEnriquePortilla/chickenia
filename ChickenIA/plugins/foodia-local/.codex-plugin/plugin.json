@@ -1,13 +1,13 @@
 {
   "name": "foodia-local",
-  "version": "0.1.0",
-  "description": "Pruebas locales aisladas de compras e inventario FoodIA.",
+  "version": "0.1.0+codex.20260915032730",
+  "description": "Pruebas locales aisladas de compras e inventario fudIA.",
   "author": {
     "name": "Chicken Chicanito"
   },
   "skills": "./skills/",
   "interface": {
-    "displayName": "FoodIA local - pruebas",
+    "displayName": "fudIA local - pruebas",
     "shortDescription": "Ensaya compras sin tocar datos reales.",
     "longDescription": "Base de pruebas local, separada de ChickenIA en Neon.",
     "developerName": "Chicken Chicanito",

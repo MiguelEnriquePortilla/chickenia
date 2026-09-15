@@ -1,11 +1,11 @@
 # Cómo probar FoodIA
 
-FoodIA local está instalado en la computadora de Miguel. Permite ensayar compras conversando, con una base de prueba separada de la operación real. No hace falta conectar a Lilian ni contratar otro plan para estas pruebas.
+fudIA local está instalado en la computadora de Miguel. Permite ensayar compras conversando, con una base de prueba separada de la operación real. No hace falta conectar a Lilian ni contratar otro plan para estas pruebas.
 
 ## Empezar
 
-1. Abre una nueva tarea en Codex y selecciona **FoodIA local - pruebas** en los plugins.
-2. Escribe `$foodia-pruebas` y tu solicitud. Por ejemplo: **“Probemos una compra ficticia de Sam’s destinada a CEDIS.”**
+1. Abre una nueva tarea en Codex y selecciona **fudIA local - pruebas** en los plugins.
+2. Escribe `$fudia-pruebas` y tu solicitud. Por ejemplo: **“Probemos una compra ficticia de Sam’s destinada a CEDIS.”**
 3. Si la tarea actual aún no muestra el plugin, podemos hacer la misma prueba aquí mediante la consola local. No mantengas simultáneamente el plugin y la consola abiertos sobre la misma base.
 
 Los registros de prueba se conservan entre sesiones. Los ejemplos de validación automática viven en otras bases y no se mezclan con tu piloto. El catálogo inicial existe, pero sus saldos son desconocidos hasta que indiquemos un conteo de prueba.

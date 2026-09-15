@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "foodia": {
+    "fudia": {
       "command": "C:/Users/hp/AppData/Local/Programs/Python312/Lib/site-packages/playwright/driver/node.exe",
       "args": [
         "C:/Users/hp/Desktop/CHICANITO/02-OPERACION/ChickenIA/scripts/foodia-local.js",

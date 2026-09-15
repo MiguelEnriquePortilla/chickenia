@@ -35,11 +35,11 @@ Acciones de consola: `inventory`, `prepare` (con `operation`), `commit` (con `dr
 
 ## Plugin local
 
-Paquete: `plugins/foodia-local`. Incluye el skill `foodia-pruebas` y un servidor MCP por stdio que usa el mismo ejecutor y la misma base local. Sus rutas son específicas de esta computadora. No es el paquete que se compartirá con Lilian.
+Paquete: `plugins/foodia-local`. Incluye el skill `fudia-pruebas` y un servidor MCP por stdio que usa el mismo ejecutor y la misma base local. Sus rutas son específicas de esta computadora. No es el paquete que se compartirá con Lilian.
 
-Después de registrar e instalar el paquete en el catálogo personal, abrir una nueva tarea y seleccionar **FoodIA local - pruebas**. Se puede invocar el skill con `$foodia-pruebas` y pedir una prueba. La instalación no inyecta herramientas retroactivamente en una tarea ya abierta. En esta tarea podemos seguir con la consola local sin instalar nada.
+Después de registrar e instalar el paquete en el catálogo personal, abrir una nueva tarea y seleccionar **fudIA local - pruebas**. Se puede invocar el skill con `$fudia-pruebas` y pedir una prueba. La instalación no inyecta herramientas retroactivamente en una tarea ya abierta. En esta tarea podemos seguir con la consola local sin instalar nada.
 
-Instalación local confirmada: `foodia-local@personal`, versión `0.1.0`, en el catálogo personal de Miguel. La fuente instalada vive en `C:/Users/hp/plugins/foodia-local`; el paquete de desarrollo sigue en `plugins/foodia-local`. Para probar el plugin en otra tarea seleccionar **FoodIA local - pruebas** e invocar `$foodia-pruebas`. No mantener abierta esa conexión mientras se use la consola sobre la misma base.
+Instalación local confirmada: `foodia-local@personal`, versión `0.1.0`, en el catálogo personal de Miguel. La fuente instalada vive en `C:/Users/hp/plugins/foodia-local`; el paquete de desarrollo sigue en `plugins/foodia-local`. Para probar el plugin en otra tarea seleccionar **fudIA local - pruebas** e invocar `$fudia-pruebas`. No mantener abierta esa conexión mientras se use la consola sobre la misma base.
 
 ## Pruebas reproducibles
 

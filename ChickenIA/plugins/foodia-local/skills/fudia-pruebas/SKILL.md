@@ -1,11 +1,11 @@
 ---
-name: foodia-pruebas
-description: Ensaya listas, compras, costos y recepciones en la base local aislada de FoodIA. Úsala cuando Miguel pida probar el flujo sin tocar datos reales ni conectar a Lilian.
+name: fudia-pruebas
+description: Ensaya listas, compras, costos y recepciones en la base local aislada de fudIA. Úsala cuando Miguel pida probar el flujo sin tocar datos reales ni conectar a Lilian.
 ---
 
-# Pruebas locales de FoodIA
+# Pruebas locales de fudIA
 
-Este plugin conecta el MCP local de pruebas. Ninguna operación modifica Neon ni la producción de ChickenIA. Identifica las respuestas y folios como pruebas. Si no están disponibles las herramientas FoodIA, no afirmes que el plugin está conectado ni que guardaste datos.
+Este plugin conecta el MCP local de pruebas. Ninguna operación modifica Neon ni la producción de ChickenIA. Identifica las respuestas y folios como pruebas. Si no están disponibles las herramientas fudIA, no afirmes que el plugin está conectado ni que guardaste datos.
 
 Consulta artículos con `foodia_inventory`. Prepara operaciones con `foodia_prepare` y guarda lo autorizado con `foodia_commit`; conserva el mismo borrador para reintentar. `foodia_lists` consulta listas y `foodia_purchases` compras por periodo. Un borrador no es una compra guardada.
 
@@ -15,4 +15,4 @@ Sam’s tiene destino CEDIS. Lilian verifica al comprar, sin doble revisión. Ll
 
 Ejemplos dictados o fotos pueden alimentar un borrador; aclara solo lo ilegible o ambiguo. Usa datos ficticios claramente identificados si Miguel pide una simulación. No importes las fotos de diseño como movimientos reales. Para costos incompletos, omite precio y explica que quedan pendientes. Para anular utiliza `foodVoid` con motivo; conserva historial.
 
-Esta configuración local depende de la carpeta de desarrollo y de Node instalado en la computadora de Miguel. No compartirla con Lilian ni anunciar compatibilidad Android; el plugin remoto FoodIA es una entrega separada.
+Esta configuración local depende de la carpeta de desarrollo y de Node instalado en la computadora de Miguel. No compartirla con Lilian ni anunciar compatibilidad Android; el plugin remoto fudIA es una entrega separada.
