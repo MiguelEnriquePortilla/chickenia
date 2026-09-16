@@ -43,5 +43,23 @@
       "source": "/.well-known/oauth-protected-resource/mcp",
       "destination": "/api/foodia-mcp?resource=1"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/supervision-telegram?action=cron&cut=apertura",
+      "schedule": "30 15 * * *"
+    },
+    {
+      "path": "/api/supervision-telegram?action=cron&cut=comida",
+      "schedule": "0 18 * * *"
+    },
+    {
+      "path": "/api/supervision-telegram?action=cron&cut=precierre",
+      "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/supervision-telegram?action=cron&cut=cierre",
+      "schedule": "0 1 * * *"
+    }
   ]
 }

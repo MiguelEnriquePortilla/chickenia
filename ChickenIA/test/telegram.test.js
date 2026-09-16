@@ -9,13 +9,15 @@ test('authentication fails closed', () => {
   assert.equal(authorized(`Bearer ${secret}`, secret), true);
   assert.equal(authorized(`Bearer ${'b'.repeat(32)}`, secret), false);
 });
-test('four Mexico City checkpoints, five minute windows, no backfill', () => {
+test('four Mexico City checkpoints tolerate Hobby delay without early sends or backfill', () => {
   for (const [i,iso] of ['2026-09-16T15:30:00Z','2026-09-16T18:00:00Z','2026-09-16T23:00:00Z','2026-09-17T01:00:00Z'].entries()) {
     const result=currentCut(new Date(iso));
     assert.equal(result.date,'2026-09-16');
     assert.equal(result.cut.id,CUTS[i].id);
     assert.equal(currentCut(new Date(Date.parse(iso)-1000)).cut,undefined);
-    assert.equal(currentCut(new Date(Date.parse(iso)+300000)).cut,undefined);
+    assert.equal(currentCut(new Date(Date.parse(iso)+59*60000),CUTS[i].id).cut.id,CUTS[i].id);
+    assert.equal(currentCut(new Date(Date.parse(iso)+65*60000),CUTS[i].id).cut,undefined);
+    assert.equal(currentCut(new Date(iso),CUTS[(i+1)%4].id).cut,undefined);
   }
 });
 test('block score excludes closing tasks and exposes unclassified activities', () => {
@@ -61,7 +63,7 @@ test('endpoint persists a single immutable snapshot under concurrent dispatch an
     CREATE TABLE kitchen_plans(activity_id int,plan_date date);`);
   const dbModule=require('../lib/supervision/db'),telegram=require('../lib/supervision/telegram');
   const originalEnsure=dbModule.ensureTables,originalCut=telegram.currentCut,originalFetch=global.fetch;
-  const keys=['SUPERVISION_NOTIFY_SECRET','SUPERVISION_LOCATION_ID','SUPERVISION_NOTIFY_ENABLED','TELEGRAM_CHAT_ID','TELEGRAM_BOT_TOKEN','CRON_SECRET'];
+  const keys=['SUPERVISION_NOTIFY_SECRET','SUPERVISION_LOCATION_ID','SUPERVISION_NOTIFY_ENABLED','TELEGRAM_CHAT_ID','TELEGRAM_BOT_TOKEN','CRON_SECRET','SUPERVISION_NOTIFY_START_AT'];
   const saved=Object.fromEntries(keys.map(k=>[k,process.env[k]]));
   Object.assign(process.env,{SUPERVISION_NOTIFY_SECRET:'s'.repeat(32),SUPERVISION_LOCATION_ID:'1',SUPERVISION_NOTIFY_ENABLED:'true',TELEGRAM_CHAT_ID:'-5489495348',TELEGRAM_BOT_TOKEN:'test'});
   let sends=0;
@@ -75,6 +77,12 @@ test('endpoint persists a single immutable snapshot under concurrent dispatch an
     return {status,body};
   };
   try {
+    process.env.SUPERVISION_NOTIFY_START_AT='2099-01-01T18:00:00Z';
+    assert.match((await call('dispatch')).body.skipped,/primer reporte/);
+    assert.equal(sends,0);
+    process.env.SUPERVISION_NOTIFY_START_AT='invalid';
+    assert.equal((await call('dispatch')).status,503);
+    delete process.env.SUPERVISION_NOTIFY_START_AT;
     assert.equal((await call('preview','GET',false)).status,401);
     assert.equal((await call('dispatch','GET')).status,405);
     assert.equal((await call('cron','GET')).status,401);

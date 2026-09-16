@@ -1,5 +1,13 @@
 # Conexión de supervisión con Telegram
 
+## Activación autorizada — 16 septiembre, mediodía
+
+Miguel autorizó iniciar hoy con el reporte actual y trabajar por separado la clasificación de tareas. Después cambió el equipo Development a Pro; confirmado en Vercel. SUPERVISION_NOTIFY_ENABLED se cambió a true en Production. Se publican cuatro crons diarios, con cut explícito: 09:30, 12:00, 17:00 y 19:00 CDMX (15:30, 18:00, 23:00 y 01:00 UTC).
+
+El corte de las 12:00 del día de activación se ejecutará manualmente después del despliegue, ya que su horario transcurrió durante la actualización. Conserva la hora real de captura. La ventana admite hasta 65 minutos de demora, nunca adelanta el corte ni reconstruye datos pasados. La clave única impide duplicarlo si también lo invoca Vercel. Pro programa con precisión de minuto; esta tolerancia no retrasa deliberadamente los mensajes.
+
+Las secciones siguientes conservan el historial de preparación; la decisión de esperar a Pro o mantener avisos desactivados queda sustituida por esta activación.
+
 Estado al 16 de septiembre: conexión publicada y verificada en producción, implementación `2d5f2cd`. Envío real desde el servidor de ChickenIA confirmado por Telegram (message_id 4); prueba local anterior: message_id 3. Cuatro tarjetas de supervisión visibles y desglose de apertura revisado en navegador. El programador sigue desactivado por decisión de Miguel hasta cambiar a Pro.
 Grupo creado desde Info Chicanito: **Chicanito · Supervisión diaria**.
 ID verificado con envío real del bot: `-5489495348`.

@@ -12,10 +12,10 @@ function authorized(header, secret) {
   const a = Buffer.from(header), b = Buffer.from(`Bearer ${secret}`);
   return a.length === b.length && timingSafeEqual(a, b);
 }
-function currentCut(now = new Date()) {
+function currentCut(now = new Date(), requestedCut) {
   const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: ZONE, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now).map(p => [p.type, p.value]));
   const minute = Number(parts.hour) * 60 + Number(parts.minute);
-  const cut = CUTS.find(c => { const [h,m] = c.time.split(':').map(Number); return minute >= h*60+m && minute < h*60+m+5; });
+  const cut = CUTS.find(c => { const [h,m] = c.time.split(':').map(Number); return (!requestedCut || c.id === requestedCut) && minute >= h*60+m && minute < h*60+m+65; });
   return { date: `${parts.year}-${parts.month}-${parts.day}`, cut };
 }
 function score(rows) {
@@ -31,9 +31,9 @@ function report(rows, cut, date, location, capturedAt) {
 function message(snapshot) {
   const cut = CUTS.find(c => c.id === snapshot.cut);
   const pct = n => n === null ? 'sin actividades' : `${n}%`;
-  const lines = [`ChickenIA · ${cut.label} · ${cut.time}`, `${snapshot.location} · ${snapshot.date}`, cut.focus, '', 'Cumplimiento del bloque / avance total del día:'];
+  const lines = [`ChickenIA · ${cut.label} · horario previsto ${cut.time}`, `${snapshot.location} · ${snapshot.date}`, 'Reporte automático de verificaciones registradas.', cut.focus, '', 'Cumplimiento del bloque / avance total del día:'];
   for (const area of snapshot.areas) lines.push(`${area.name}: ${pct(area.block)} / ${pct(area.day)}${area.critical_pending ? ` · ${area.critical_pending} críticos pendientes del bloque` : ''}${area.unclassified ? ` · ${area.unclassified} actividades sin bloque` : ''}`);
-  lines.push('', `Avance total del día: ${pct(snapshot.overall_score)}`, 'Porcentajes según verificaciones registradas; no certifican existencias ni producción.', `Reporte capturado: ${new Date(snapshot.captured_at).toLocaleTimeString('es-MX', { timeZone: ZONE, hour12: false })}`, `https://chickenia.chicanito.app/supervision.html?date=${snapshot.date}`);
+  lines.push('', `Avance total del día: ${pct(snapshot.overall_score)}`, 'Porcentajes según verificaciones registradas; no certifican existencias ni producción.', `Hora real de captura (CDMX): ${new Date(snapshot.captured_at).toLocaleTimeString('es-MX', { timeZone: ZONE, hour12: false })}`, 'Si el envío se retrasa, refleja el avance a la hora real de captura.', `https://chickenia.chicanito.app/supervision.html?date=${snapshot.date}`);
   const result = lines.join('\n');
   if (result.length > 4000) throw new Error('Reporte demasiado largo');
   return result;

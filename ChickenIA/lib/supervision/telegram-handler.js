@@ -18,9 +18,15 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true, message_id: id });
     }
     const now = new Date();
-    const { date, cut: due } = currentCut(now);
+    if (action === 'dispatch' && process.env.SUPERVISION_NOTIFY_START_AT) {
+      const start = Date.parse(process.env.SUPERVISION_NOTIFY_START_AT);
+      if (!Number.isFinite(start)) return res.status(503).json({ error: 'Fecha de activación inválida' });
+      if (now.getTime() < start) return res.status(200).json({ skipped: 'El primer reporte está programado para la hora de activación' });
+    }
+    if (req.query?.cut && !CUTS.some(c => c.id === req.query.cut)) return res.status(400).json({ error: 'Corte inválido' });
+    const { date, cut: due } = currentCut(now, req.query?.cut);
     const cut = action === 'preview' ? CUTS.find(c => c.id === req.query?.cut) || due || CUTS[0] : due;
-    if (!cut) return res.status(200).json({ skipped: 'Fuera de la ventana de cinco minutos del corte' });
+    if (!cut) return res.status(200).json({ skipped: 'Fuera de la ventana de 65 minutos del corte; no se reconstruyen cortes pasados' });
     if (action === 'dispatch' && process.env.SUPERVISION_NOTIFY_ENABLED !== 'true') return res.status(503).json({ error: 'Avisos desactivados' });
     if (action === 'dispatch' && (!process.env.TELEGRAM_BOT_TOKEN || !/^-\d+$/.test(process.env.TELEGRAM_CHAT_ID || ''))) return res.status(503).json({ error: 'Telegram sin configurar' });
     const locationId = Number(process.env.SUPERVISION_LOCATION_ID);
