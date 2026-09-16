@@ -28,6 +28,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/supervision-telegram",
+      "destination": "/api/summary?telegram=1"
+    },
+    {
       "source": "/mcp",
       "destination": "/api/foodia-mcp"
     },

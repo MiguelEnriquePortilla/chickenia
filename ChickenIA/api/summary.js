@@ -4,6 +4,7 @@ const { ensureTables } = require('../lib/supervision/db');
 const { CUTS, report } = require('../lib/supervision/telegram');
 
 module.exports = async (req, res) => {
+  if (req.query?.telegram === '1') return require('../lib/supervision/telegram-handler')(req, res);
   try {
     const sql = await ensureTables();
     const { location_id, date } = req.query;

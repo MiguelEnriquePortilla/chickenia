@@ -1,6 +1,6 @@
 'use strict';
-const { authorized, currentCut, CUTS, report, message, sendTelegram } = require('../lib/supervision/telegram');
-const { ensureTables } = require('../lib/supervision/db');
+const { authorized, currentCut, CUTS, report, message, sendTelegram } = require('./telegram');
+const { ensureTables } = require('./db');
 
 // No browser-facing credentials. Scheduler calls this with Authorization: Bearer.
 module.exports = async (req, res) => {

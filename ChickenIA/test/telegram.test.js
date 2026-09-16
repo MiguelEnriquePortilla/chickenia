@@ -68,10 +68,10 @@ test('endpoint persists a single immutable snapshot under concurrent dispatch an
   global.fetch=async()=>{sends++;return {ok:true,json:async()=>({ok:true,result:{message_id:99}})};};
   dbModule.ensureTables=async()=>sql;
   telegram.currentCut=()=>({date:'2026-09-16',cut:CUTS[0]});
-  const handler=require('../api/supervision-telegram');
+  const handler=require('../api/summary');
   const call=async(action,method='POST',auth=true)=>{
     let status,body;
-    await handler({method,query:{action},headers:{authorization:auth?`Bearer ${process.env.SUPERVISION_NOTIFY_SECRET}`:undefined}}, {setHeader(){},status(n){status=n;return this;},json(v){body=v;}});
+    await handler({method,query:{action,telegram:'1'},headers:{authorization:auth?`Bearer ${process.env.SUPERVISION_NOTIFY_SECRET}`:undefined}}, {setHeader(){},status(n){status=n;return this;},json(v){body=v;}});
     return {status,body};
   };
   try {
