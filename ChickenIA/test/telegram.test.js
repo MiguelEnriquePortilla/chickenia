@@ -31,7 +31,8 @@ test('block score excludes closing tasks and exposes unclassified activities', (
   assert.equal(snapshot.areas[0].critical_pending,0);
   assert.equal(snapshot.areas[1].block,null);
   assert.equal(snapshot.areas[1].unclassified,1);
-  assert.match(message(snapshot),/Cocina: 100% \/ 50%/);
+  assert.match(message(snapshot),/✅ Cocina\nBloque: ▰{10} 100%\nDía: 50%/);
+  assert.match(message(snapshot),/⚪ Caja\nBloque: sin actividades asignadas\nDía: 0%/);
   assert.match(message(snapshot),/no certifican existencias/);
 });
 test('transport sends plain text only to configured group and sanitizes failures', async () => {

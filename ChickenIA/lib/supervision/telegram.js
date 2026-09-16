@@ -30,10 +30,23 @@ function report(rows, cut, date, location, capturedAt) {
 }
 function message(snapshot) {
   const cut = CUTS.find(c => c.id === snapshot.cut);
-  const pct = n => n === null ? 'sin actividades' : `${n}%`;
-  const lines = [`ChickenIA · ${cut.label} · horario previsto ${cut.time}`, `${snapshot.location} · ${snapshot.date}`, 'Reporte automático de verificaciones registradas.', cut.focus, '', 'Cumplimiento del bloque / avance total del día:'];
-  for (const area of snapshot.areas) lines.push(`${area.name}: ${pct(area.block)} / ${pct(area.day)}${area.critical_pending ? ` · ${area.critical_pending} críticos pendientes del bloque` : ''}${area.unclassified ? ` · ${area.unclassified} actividades sin bloque` : ''}`);
-  lines.push('', `Avance total del día: ${pct(snapshot.overall_score)}`, 'Porcentajes según verificaciones registradas; no certifican existencias ni producción.', `Hora real de captura (CDMX): ${new Date(snapshot.captured_at).toLocaleTimeString('es-MX', { timeZone: ZONE, hour12: false })}`, 'Si el envío se retrasa, refleja el avance a la hora real de captura.', `https://chickenia.chicanito.app/supervision.html?date=${snapshot.date}`);
+  const pct = n => n == null ? 'sin actividades asignadas' : `${n}%`;
+  const bar = n => {
+    if (n == null) return 'Sin porcentaje disponible';
+    const filled = Math.max(0, Math.min(10, Math.floor(n / 10)));
+    return `${'▰'.repeat(filled)}${'▱'.repeat(10-filled)} ${pct(n)}`;
+  };
+  const icons = {apertura:'🌅',comida:'🍽️',precierre:'🕔',cierre:'🌙'};
+  const critical = snapshot.areas.reduce((sum,a)=>sum+a.critical_pending,0);
+  const unclassified = snapshot.areas.reduce((sum,a)=>sum+a.unclassified,0);
+  const lines = [`🐔 CHICKENIA · SUPERVISIÓN`, `${icons[cut.id]} ${cut.label} · ${cut.time}`, `📍 ${snapshot.location} | 📅 ${snapshot.date}`, '', '📊 AVANCE TOTAL DEL DÍA', bar(snapshot.overall_score), '', '🎯 EN ESTE CORTE', cut.focus, '', '🏷️ CUMPLIMIENTO POR ÁREA'];
+  for (const area of snapshot.areas) {
+    const icon = area.critical_pending ? '🔴' : area.block == null ? '⚪' : area.block === 100 ? '✅' : '🔎';
+    lines.push('', `${icon} ${area.name}`, area.block == null ? 'Bloque: sin actividades asignadas' : `Bloque: ${bar(area.block)}`, `Día: ${pct(area.day)}`);
+    if(area.critical_pending)lines.push(`⚠️ ${area.critical_pending} críticos pendientes del bloque`);
+    if(area.unclassified)lines.push(`🧩 ${area.unclassified} actividades aún sin clasificar por bloque`);
+  }
+  lines.push('', '📌 PARA DAR SEGUIMIENTO', critical ? `⚠️ ${critical} críticos pendientes en los bloques clasificados.` : 'No hay críticos pendientes en los bloques clasificados.', ...(unclassified ? [`🧩 ${unclassified} actividades sin bloque: cuentan en el día; falta completar su clasificación.`] : []), '', 'ℹ️ Porcentajes según verificaciones registradas; no certifican existencias ni producción.', '✅ Bloque al 100% · 🔎 Por verificar · 🔴 Críticos pendientes · ⚪ Sin actividades de bloque', `🕒 Captura real (CDMX): ${new Date(snapshot.captured_at).toLocaleTimeString('es-MX', { timeZone: ZONE, hour12: false })}`, 'Reporte automático; refleja los registros a la hora de captura.', '', '👉 Ver detalle en ChickenIA', `https://chickenia.chicanito.app/supervision.html?date=${snapshot.date}`);
   const result = lines.join('\n');
   if (result.length > 4000) throw new Error('Reporte demasiado largo');
   return result;
