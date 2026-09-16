@@ -1,5 +1,11 @@
 # ChickenIA
 
+## Estado vigente — supervisión, 16 de septiembre de 2026
+
+Reportes de Telegram activos en Vercel Pro: **09:30, 12:00, 14:00, 17:00 y 19:00, hora CDMX**, todos los días. Primer reporte real recibido y confirmado por Miguel. Formato con emojis y barras de avance publicado; último cambio funcional `038f3cb`.
+
+Para retomar, leer el [reporte de cierre y pendientes](REPORTE_SESION_2026-09-16.md) y la [guía de Telegram](TELEGRAM_SUPERVISION.md). Pendiente: confirmar el siguiente envío y continuar la asignación de actividades, ponderaciones y metas con Nancy. El reporte usa los datos disponibles del checklist; no equivale a medición automática de inventario o producción. El piloto fudIA conserva su estado independiente, descrito abajo.
+
 ## Estado vigente — fudIA, 15 de septiembre de 2026
 
 Piloto local de compras y movimientos diarios probado con Miguel. Skills: `$subir-gastos` y `$movimientos-inventario`, además de `$fudia-pruebas`. Solicitud → envío → recepción parcial/completa funciona sin costos en las transferencias. MCP corregido para compartir la base entre tareas por turnos. El acceso remoto sigue pendiente de OAuth.

@@ -1,54 +1,51 @@
-# Conexión de supervisión con Telegram
+﻿# Supervisión por Telegram — guía vigente
 
-## Horario vigente: cinco cortes
+Actualizada al cierre del 16 de septiembre de 2026. Implementación publicada: `038f3cb`. Ver [reporte de sesión](REPORTE_SESION_2026-09-16.md).
 
-Miguel pidió agregar revisión a las 14:00 para no esperar hasta las 17:00. Horarios CDMX: 09:30, 12:00, 14:00, 17:00 y 19:00. El nuevo corte `produccion` revisa el bloque de operación y usa el cron diario `0 20 * * *` UTC. Conserva el corte de las 17:00 previo al cierre. Todos usan el formato con emojis y barras de avance publicado en `ba12cf2`.
+## Estado operativo
 
-## Activación autorizada — 16 septiembre, mediodía
+Vercel Pro confirmado; `SUPERVISION_NOTIFY_ENABLED=true` en Production. Cinco crons activos todos los días, zona America/Mexico_City: **09:30 apertura, 12:00 comida, 14:00 producción y actividades, 17:00 precierre y 19:00 cierre**. El cron de cierre corresponde a 01:00 UTC del día siguiente en relación con la fecha local.
 
-Miguel autorizó iniciar hoy con el reporte actual y trabajar por separado la clasificación de tareas. Después cambió el equipo Development a Pro; confirmado en Vercel. SUPERVISION_NOTIFY_ENABLED se cambió a true en Production. Se publican cuatro crons diarios, con cut explícito: 09:30, 12:00, 17:00 y 19:00 CDMX (15:30, 18:00, 23:00 y 01:00 UTC).
+Grupo: **Chicanito · Supervisión diaria**, creado desde Info Chicanito. Bot: `@chicanito_supervision_bot`, miembro con permiso de enviar. Lilian (`@ErikaLiliamLopez`) agregada. Nancy y cuenta personal de Miguel pendientes.
 
-El corte de las 12:00 del día de activación se ejecutará manualmente después del despliegue, ya que su horario transcurrió durante la actualización. Conserva la hora real de captura. La ventana admite hasta 65 minutos de demora, nunca adelanta el corte ni reconstruye datos pasados. La clave única impide duplicarlo si también lo invoca Vercel. Pro programa con precisión de minuto; esta tolerancia no retrasa deliberadamente los mensajes.
+Primer reporte real recibido y confirmado por Miguel: corte comida del 16 de septiembre, captura a las 12:11:49 CDMX, message_id 5. Se ejecutó al terminar la activación porque ya había transcurrido el horario. El siguiente corte previsto al cierre de la sesión es el de las 14:00; todavía no se ha confirmado su recepción.
 
-Las secciones siguientes conservan el historial de preparación; la decisión de esperar a Pro o mantener avisos desactivados queda sustituida por esta activación.
+## Formato y datos
 
-Estado al 16 de septiembre: conexión publicada y verificada en producción, implementación `2d5f2cd`. Envío real desde el servidor de ChickenIA confirmado por Telegram (message_id 4); prueba local anterior: message_id 3. Cuatro tarjetas de supervisión visibles y desglose de apertura revisado en navegador. El programador sigue desactivado por decisión de Miguel hasta cambiar a Pro.
-Grupo creado desde Info Chicanito: **Chicanito · Supervisión diaria**.
-ID verificado con envío real del bot: `-5489495348`.
-Bot: `@chicanito_supervision_bot` (ChickenIA · Supervisión), agregado como miembro normal.
-Lilian (`@ErikaLiliamLopez`) agregada por indicación de Miguel. Nancy y cuenta personal de Miguel pendientes.
-Credenciales guardadas en `.env.telegram.local`, excluido de Git; avisos desactivados. No copiar su contenido a documentación ni chats.
-Variables de Telegram cargadas como secretos solo de Production en Vercel. Sucursal verificada por API de producción: Jojutla Mercado, ID 1. Plan confirmado: Hobby (prueba Pro expirada). Preparada también CRON_SECRET para el futuro programador nativo de Vercel. Avisos desactivados; no hay crons en vercel.json.
-Validación: 9 pruebas aprobadas (telegram, routines y rastro-sucursal); build estático aprobado.
+Emojis, barras de texto, avance general y por área, porcentaje del bloque y del día, pendientes críticos y actividades sin bloque. Incluye fecha, hora real de captura y enlace a Supervisión. No adjunta imágenes. Los porcentajes miden cumplimiento ponderado del checklist; no prueban por sí solos existencias ni cantidades producidas.
 
-## Activación
+Supervisión muestra cinco tarjetas desplegables. Un corte guardado utiliza su snapshot inmutable; uno sin captura se identifica como consulta actual. Actualiza cada minuto con la página visible. Las actividades sin clasificación quedan visibles, sin asignarlas arbitrariamente.
 
-1. Crear un bot propio mediante @BotFather y agregarlo al grupo. Basta permiso de enviar mensajes; no necesita leer todas las conversaciones ni ser administrador.
-2. Guardar en las variables de servidor de Vercel (nunca en JS público, Git o conversaciones):
-   - `TELEGRAM_BOT_TOKEN`: token del bot.
-   - `TELEGRAM_CHAT_ID`: ID del grupo; verificarlo si el grupo se convierte en supergrupo.
-   - `SUPERVISION_NOTIFY_SECRET`: secreto aleatorio de al menos 32 caracteres.
-   - `SUPERVISION_LOCATION_ID`: ID real de la sucursal de la tabla locations.
-   - `SUPERVISION_NOTIFY_ENABLED`: mantener `false` hasta terminar la prueba.
-3. Desplegar mediante el repositorio existente de ChickenIA.
-4. Consultar `GET /api/supervision-telegram?action=preview&cut=apertura` con cabecera `Authorization: Bearer <secreto>`. Los cortes válidos son apertura, comida, precierre y cierre. La vista previa no envía mensajes ni registra un corte.
-5. Ejecutar `POST /api/supervision-telegram?action=test` con la misma cabecera. Este paso sí envía un mensaje de prueba al grupo. Confirmar recepción.
-6. Cuando Miguel confirme Pro: verificar `CRON_SECRET` ya guardado en Production, ejecutar `node scripts/enable-supervision-cron.js --pro-confirmed`, establecer `SUPERVISION_NOTIFY_ENABLED=true` y publicar vercel.json por Git. Vercel llamará `GET /api/supervision-telegram?action=cron` con `Authorization: Bearer <CRON_SECRET>`.
+## Configuración y rutas
 
-El programador está preparado pero no activado. Miguel decidió continuar con Hobby y cambiar a Pro después. No usar una pestaña abierta ni una computadora personal como dependencia de los avisos. Las equivalencias UTC actuales son 15:30, 18:00, 23:00 y 01:00 del día siguiente. El POST dispatch sigue disponible para un programador externo; el GET cron solo acepta CRON_SECRET.
+Variables de servidor en Production: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `SUPERVISION_NOTIFY_SECRET`, `CRON_SECRET`, `SUPERVISION_LOCATION_ID` y `SUPERVISION_NOTIFY_ENABLED`. Ubicación configurada: Jojutla Mercado, ID 1. Credenciales locales en `.env.telegram.local`, excluido de Git y con avisos desactivados localmente. Nunca copiar valores a documentación o código público.
 
-## Comportamiento y límites
+Ruta pública `/api/supervision-telegram`, reescrita en `vercel.json` hacia `/api/summary?telegram=1`, con manejador privado. Conserva 12 funciones serverless.
 
-- Compatible con las 12 funciones de Hobby: la URL de Telegram se reescribe hacia summary, que delega al manejador privado antes de consultar datos. No añade una función serverless. El primer intento con función independiente fue rechazado por el límite; producción se mantuvo en la versión anterior hasta publicar esta corrección.
-- Verificación real: acceso anónimo a Telegram devuelve 401; preview autorizado devuelve Jojutla y 9 áreas; summary devuelve los 4 horarios y notifications_enabled=false; POST test devuelve 200 con message_id 4.
+- `GET ?action=preview&cut=produccion`: vista previa sin enviar ni guardar corte, con Bearer `SUPERVISION_NOTIFY_SECRET`.
+- `POST ?action=test`: envía una prueba real, con el mismo secreto; usar únicamente cuando se requiera una prueba autorizada.
+- `POST ?action=dispatch&cut=produccion`: despacho protegido con el mismo secreto, sujeto a ventana y deduplicación.
+- `GET ?action=cron&cut=produccion`: ejecución de Vercel, requiere Bearer `CRON_SECRET`.
 
-- Ventana de envío: cinco minutos a partir del horario. No se reconstruyen cortes pasados con datos actuales. Supervisar fallas del programador: una ejecución fuera de ventana se omite.
-- Porcentaje ponderado del bloque y del día; las actividades sin bloque quedan indicadas, no se asignan arbitrariamente. No representa medición automática de inventario o producción.
-- Snapshot por ubicación/fecha/corte en `supervision_telegram_deliveries`, con hora real de captura. Cambios posteriores de checklist no modifican el reporte guardado.
-- Restricción única y reclamo antes del envío evitan duplicados concurrentes. Una entrega incierta queda `unknown` (o `sending` si el proceso se interrumpe); revisar Telegram antes de cualquier recuperación manual. No hay reenvío automático de resultados inciertos.
-- Supervisión muestra cuatro tarjetas desplegables con cumplimiento por área, bloque y día. Si existe un corte guardado muestra el snapshot; si no, identifica expresamente el avance como consulta actual, no histórica. Se actualiza cada minuto mientras la página esté visible. Las actividades todavía sin bloque aparecen indicadas; su clasificación requiere revisar el catálogo.
-- Desactivar: `SUPERVISION_NOTIFY_ENABLED=false` y redesplegar; detener también el programador. El endpoint de prueba sigue disponible solo con el secreto.
+Cortes válidos: `apertura`, `comida`, `produccion`, `precierre`, `cierre`. El generador `node scripts/enable-supervision-cron.js --pro-confirmed` produce los cinco horarios UTC en `vercel.json`, conservando otros crons. Publicación por GitHub, push a `main`, raíz Git `02-OPERACION/`, Root Directory de Vercel `ChickenIA`.
 
-Fuentes: https://core.telegram.org/bots/tutorial y https://vercel.com/docs/cron-jobs/usage-and-pricing
+## Protección y recuperación
 
-Pruebas: `node --test test/telegram.test.js`.
+Ventana de hasta 65 minutos a partir del corte; nunca se adelanta ni se reconstruye un corte pasado con datos actuales. La tolerancia no retrasa deliberadamente los avisos. El envío depende del servidor, no de una pestaña abierta.
+
+Snapshots en `supervision_telegram_deliveries`, con clave única ubicación/fecha/corte y reclamo antes de enviar. Cambios posteriores en el checklist no alteran el reporte guardado. Un resultado incierto queda `unknown`, o `sending` si se interrumpe el proceso. Revisar Telegram antes de recuperar manualmente: no hay reenvío automático ciego.
+
+Para desactivar avisos: cambiar `SUPERVISION_NOTIFY_ENABLED=false`, redesplegar y detener el programador. El endpoint de prueba protegido sigue disponible. No desactivar al cerrar una sesión de trabajo.
+
+## Verificación realizada
+
+Cinco crons visibles y habilitados en Vercel. Preview de producción: HTTP 200, corte `produccion`, horario `14:00`, emojis y barras presentes. Seis pruebas de Telegram y rutinas aprobadas para el último cambio: `node --test test/telegram.test.js test/routines.test.js`. En entregas previas se comprobaron build, autenticación, navegador, envío real y snapshots inmutables.
+
+## Historial resumido
+
+- `2d5f2cd`: conexión publicada usando la función summary existente tras resolver el límite de funciones de Hobby.
+- `818986a`: activación de cuatro cortes; actualización a Pro y primer reporte real.
+- `ba12cf2`: emojis y barras de avance.
+- `038f3cb`: quinto corte a las 14:00, conservando el de las 17:00.
+
+Las decisiones históricas de esperar a Pro, mantener avisos apagados, usar cuatro cortes o una ventana de cinco minutos quedan sustituidas por esta guía.
