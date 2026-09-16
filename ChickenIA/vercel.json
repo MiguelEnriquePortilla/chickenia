@@ -54,6 +54,10 @@
       "schedule": "0 18 * * *"
     },
     {
+      "path": "/api/supervision-telegram?action=cron&cut=produccion",
+      "schedule": "0 20 * * *"
+    },
+    {
       "path": "/api/supervision-telegram?action=cron&cut=precierre",
       "schedule": "0 23 * * *"
     },

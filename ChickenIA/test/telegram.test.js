@@ -9,15 +9,15 @@ test('authentication fails closed', () => {
   assert.equal(authorized(`Bearer ${secret}`, secret), true);
   assert.equal(authorized(`Bearer ${'b'.repeat(32)}`, secret), false);
 });
-test('four Mexico City checkpoints tolerate Hobby delay without early sends or backfill', () => {
-  for (const [i,iso] of ['2026-09-16T15:30:00Z','2026-09-16T18:00:00Z','2026-09-16T23:00:00Z','2026-09-17T01:00:00Z'].entries()) {
+test('five Mexico City checkpoints tolerate Hobby delay without early sends or backfill', () => {
+  for (const [i,iso] of ['2026-09-16T15:30:00Z','2026-09-16T18:00:00Z','2026-09-16T20:00:00Z','2026-09-16T23:00:00Z','2026-09-17T01:00:00Z'].entries()) {
     const result=currentCut(new Date(iso));
     assert.equal(result.date,'2026-09-16');
     assert.equal(result.cut.id,CUTS[i].id);
     assert.equal(currentCut(new Date(Date.parse(iso)-1000)).cut,undefined);
     assert.equal(currentCut(new Date(Date.parse(iso)+59*60000),CUTS[i].id).cut.id,CUTS[i].id);
     assert.equal(currentCut(new Date(Date.parse(iso)+65*60000),CUTS[i].id).cut,undefined);
-    assert.equal(currentCut(new Date(iso),CUTS[(i+1)%4].id).cut,undefined);
+    assert.equal(currentCut(new Date(iso),CUTS[(i+1)%CUTS.length].id).cut,undefined);
   }
 });
 test('block score excludes closing tasks and exposes unclassified activities', () => {

@@ -4,6 +4,7 @@ const ZONE = 'America/Mexico_City';
 const CUTS = [
   { id: 'apertura', time: '09:30', block: 'apertura', label: 'Apertura', focus: 'Verificar las rutinas de apertura y resolver pendientes.' },
   { id: 'comida', time: '12:00', block: 'operacion', label: 'Preparación para la comida', focus: 'Revisar inventario disponible y preparación de producción para la comida.' },
+  { id: 'produccion', time: '14:00', block: 'operacion', label: 'Producción y actividades', focus: 'Verificar producción disponible, reposiciones y avance de actividades durante la venta de comida.' },
   { id: 'precierre', time: '17:00', block: 'operacion', label: 'Antes del cierre', focus: 'Revisar pendientes antes de comenzar las rutinas de cierre.' },
   { id: 'cierre', time: '19:00', block: 'cierre', label: 'Revisión del cierre', focus: 'Revisar avance de cierre e incidencias de todas las áreas.' },
 ];
@@ -36,7 +37,7 @@ function message(snapshot) {
     const filled = Math.max(0, Math.min(10, Math.floor(n / 10)));
     return `${'▰'.repeat(filled)}${'▱'.repeat(10-filled)} ${pct(n)}`;
   };
-  const icons = {apertura:'🌅',comida:'🍽️',precierre:'🕔',cierre:'🌙'};
+  const icons = {apertura:'🌅',comida:'🍽️',produccion:'🍗',precierre:'🕔',cierre:'🌙'};
   const critical = snapshot.areas.reduce((sum,a)=>sum+a.critical_pending,0);
   const unclassified = snapshot.areas.reduce((sum,a)=>sum+a.unclassified,0);
   const lines = [`🐔 CHICKENIA · SUPERVISIÓN`, `${icons[cut.id]} ${cut.label} · ${cut.time}`, `📍 ${snapshot.location} | 📅 ${snapshot.date}`, '', '📊 AVANCE TOTAL DEL DÍA', bar(snapshot.overall_score), '', '🎯 EN ESTE CORTE', cut.focus, '', '🏷️ CUMPLIMIENTO POR ÁREA'];

@@ -39,7 +39,7 @@ test('routine migration is repeatable and preserves historical catalogue and che
     const oldSummary=await call(summary,{location_id:1,date:'2026-01-01'});
     assert.equal(oldSummary.areas[0].score,100);
     assert.equal(oldSummary.areas[0].total_items,1);
-    assert.deepEqual(oldSummary.checkpoints.map(c=>c.time),['09:30','12:00','17:00','19:00']);
+    assert.deepEqual(oldSummary.checkpoints.map(c=>c.time),['09:30','12:00','14:00','17:00','19:00']);
     assert.ok(oldSummary.checkpoints.every(c=>!c.captured&&c.snapshot===null));
     await db.exec('CREATE TABLE supervision_telegram_deliveries(location_id int,report_date date,checkpoint text,snapshot jsonb,status text)');
     const frozen={areas:[{name:'Rosticero',block:25,day:10}],overall_score:10,captured_at:'2026-01-01T15:30:00Z'};

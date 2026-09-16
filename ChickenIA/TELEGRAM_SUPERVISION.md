@@ -1,5 +1,9 @@
 # Conexión de supervisión con Telegram
 
+## Horario vigente: cinco cortes
+
+Miguel pidió agregar revisión a las 14:00 para no esperar hasta las 17:00. Horarios CDMX: 09:30, 12:00, 14:00, 17:00 y 19:00. El nuevo corte `produccion` revisa el bloque de operación y usa el cron diario `0 20 * * *` UTC. Conserva el corte de las 17:00 previo al cierre. Todos usan el formato con emojis y barras de avance publicado en `ba12cf2`.
+
 ## Activación autorizada — 16 septiembre, mediodía
 
 Miguel autorizó iniciar hoy con el reporte actual y trabajar por separado la clasificación de tareas. Después cambió el equipo Development a Pro; confirmado en Vercel. SUPERVISION_NOTIFY_ENABLED se cambió a true en Production. Se publican cuatro crons diarios, con cut explícito: 09:30, 12:00, 17:00 y 19:00 CDMX (15:30, 18:00, 23:00 y 01:00 UTC).
