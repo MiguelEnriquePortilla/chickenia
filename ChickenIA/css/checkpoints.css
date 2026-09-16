@@ -1,7 +1,7 @@
 .checkpoints-panel{max-width:1200px;margin:20px auto;padding:0 18px;color:inherit}
 .checkpoints-panel h2{font-size:1.1rem;margin:0 0 6px}
 .checkpoints-panel>p{font-size:.85rem;margin:0 0 12px}
-.checkpoints-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.checkpoints-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
 .checkpoint{border:1px solid #8793a466;border-radius:12px;padding:14px;min-width:0}
 .checkpoint summary{cursor:pointer;display:grid;gap:5px;list-style:none}
 .checkpoint time{font-size:1.3rem;font-weight:700}
