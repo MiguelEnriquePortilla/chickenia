@@ -39,6 +39,15 @@ test('routine migration is repeatable and preserves historical catalogue and che
     const oldSummary=await call(summary,{location_id:1,date:'2026-01-01'});
     assert.equal(oldSummary.areas[0].score,100);
     assert.equal(oldSummary.areas[0].total_items,1);
+    assert.deepEqual(oldSummary.checkpoints.map(c=>c.time),['09:30','12:00','17:00','19:00']);
+    assert.ok(oldSummary.checkpoints.every(c=>!c.captured&&c.snapshot===null));
+    await db.exec('CREATE TABLE supervision_telegram_deliveries(location_id int,report_date date,checkpoint text,snapshot jsonb,status text)');
+    const frozen={areas:[{name:'Rosticero',block:25,day:10}],overall_score:10,captured_at:'2026-01-01T15:30:00Z'};
+    await sql`INSERT INTO supervision_telegram_deliveries VALUES(1,'2026-01-01','apertura',${JSON.stringify(frozen)}::jsonb,'sent')`;
+    const withCut=await call(summary,{location_id:1,date:'2026-01-01'});
+    assert.equal(withCut.checkpoints[0].captured,true);
+    assert.equal(withCut.checkpoints[0].snapshot.overall_score,10);
+    assert.notEqual(withCut.checkpoints[0].current.overall_score,10);
     assert.equal(current[1].activities.length,kitchen.filter(r=>r[7]==='daily').length);
     const weekly=(await sql`SELECT id FROM activities WHERE area_id=2 AND frequency='weekly' ORDER BY id LIMIT 1`)[0];
     await sql`INSERT INTO kitchen_plans(activity_id,plan_date,kg,scheduled_by) VALUES(${weekly.id},'2099-01-01',5,'Nancy')`;

@@ -1,6 +1,7 @@
 // api/summary.js — resumen ponderado del día por ubicación: score por área,
 // pendientes críticos, y verificación cruzada de pollo para unidades móviles.
 const { ensureTables } = require('../lib/supervision/db');
+const { CUTS, report } = require('../lib/supervision/telegram');
 
 module.exports = async (req, res) => {
   try {
@@ -13,7 +14,7 @@ module.exports = async (req, res) => {
     const locationType = loc[0].type;
 
     const activities = await sql`
-      SELECT a.id, a.area_id, ar.code AS area_code, ar.name AS area_name, a.name, a.criticality, a.weight, a.requires_quantity, a.unit
+      SELECT a.id, a.area_id, ar.code AS area_code, ar.name AS area_name, a.name, a.criticality, a.weight, a.requires_quantity, a.unit, a.routine_block
       FROM activities a JOIN areas ar ON ar.id = a.area_id
       WHERE ar.location_type = ${locationType} AND a.active = true
         AND (a.frequency <> 'weekly' OR EXISTS (SELECT 1 FROM kitchen_plans kp WHERE kp.activity_id=a.id AND kp.plan_date=${date}::date))
@@ -69,6 +70,20 @@ module.exports = async (req, res) => {
       }
     }
 
+    // Existing daily totals stay unchanged. Saved cuts never use later checklist edits.
+    let savedCuts = [];
+    if (locationType === 'tienda') {
+      const [table] = await sql`SELECT to_regclass('public.supervision_telegram_deliveries') AS name`;
+      if (table.name) savedCuts = await sql`SELECT checkpoint, snapshot, status FROM supervision_telegram_deliveries WHERE location_id=${location_id} AND report_date=${date}::date`;
+    }
+    const rows = activities.map(a => ({ ...a, done: !!checkByActivity[a.id]?.done }));
+    const checkpoints = locationType === 'tienda' ? CUTS.map(cut => {
+      const saved = savedCuts.find(r => r.checkpoint === cut.id);
+      return { ...cut, captured: !!saved, delivery_status: saved?.status || null,
+        snapshot: saved?.snapshot || null,
+        current: report(rows, cut, date, loc[0].name, new Date().toISOString()) };
+    }) : [];
+    res.setHeader?.('Cache-Control', 'no-store');
     res.status(200).json({
       location: loc[0],
       date,
@@ -76,6 +91,8 @@ module.exports = async (req, res) => {
       areas,
       critical_pending: criticalPending,
       cross_check: crossCheck,
+      checkpoints,
+      checkpoint_notifications_enabled: process.env.SUPERVISION_NOTIFY_ENABLED === 'true',
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

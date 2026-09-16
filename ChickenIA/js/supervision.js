@@ -499,6 +499,8 @@ async function refreshSummary() {
   if (!state.location) return;
   try {
     const summary = await api(`summary?location_id=${state.location.id}&date=${state.date}`);
+    if (summary.date !== state.date) return;
+    window.ChickenCheckpoints?.render(summary);
     ChickenFeedback.summary(summary);
     $('#overall-score').textContent = summary.overall_score + '%';
     summary.areas.forEach((a) => {
@@ -518,3 +520,4 @@ async function refreshSummary() {
 }
 
 init();
+setInterval(() => { if (!document.hidden) refreshSummary(); }, 60000);
