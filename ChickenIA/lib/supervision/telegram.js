@@ -24,30 +24,27 @@ function score(rows) {
   return total ? Math.round(rows.reduce((s,r) => s+(r.done ? Number(r.weight) : 0),0)*100/total) : null;
 }
 function report(rows, cut, date, location, capturedAt) {
+  const { blockFor, guidance } = require('./report-guidance');
+  rows = rows.map(row => ({ ...row, routine_block: blockFor(row) }));
   const groups = new Map();
   for (const row of rows) { if (!groups.has(row.area_name)) groups.set(row.area_name, []); groups.get(row.area_name).push(row); }
   const areas = [...groups].map(([name, items]) => ({ name, day: score(items), block: score(items.filter(r => r.routine_block === cut.block)), critical_pending: items.filter(r => !r.done && r.criticality === 'critica' && r.routine_block === cut.block).length, unclassified: items.filter(r => !r.routine_block).length }));
-  return { date, cut: cut.id, scheduled_time: cut.time, captured_at: capturedAt, location, areas, overall_score: score(rows) };
+  return { date, cut: cut.id, scheduled_time: cut.time, captured_at: capturedAt, location, areas, overall_score: score(rows), instruction: guidance(rows, cut) };
 }
 function message(snapshot) {
   const cut = CUTS.find(c => c.id === snapshot.cut);
-  const pct = n => n == null ? 'sin actividades asignadas' : `${n}%`;
-  const bar = n => {
-    if (n == null) return 'Sin porcentaje disponible';
-    const filled = Math.max(0, Math.min(10, Math.floor(n / 10)));
-    return `${'▰'.repeat(filled)}${'▱'.repeat(10-filled)} ${pct(n)}`;
-  };
-  const icons = {apertura:'🌅',comida:'🍽️',produccion:'🍗',precierre:'🕔',cierre:'🌙'};
-  const critical = snapshot.areas.reduce((sum,a)=>sum+a.critical_pending,0);
-  const unclassified = snapshot.areas.reduce((sum,a)=>sum+a.unclassified,0);
-  const lines = [`🐔 CHICKENIA · SUPERVISIÓN`, `${icons[cut.id]} ${cut.label} · ${cut.time}`, `📍 ${snapshot.location} | 📅 ${snapshot.date}`, '', '📊 AVANCE TOTAL DEL DÍA', bar(snapshot.overall_score), '', '🎯 EN ESTE CORTE', cut.focus, '', '🏷️ CUMPLIMIENTO POR ÁREA'];
-  for (const area of snapshot.areas) {
-    const icon = area.critical_pending ? '🔴' : area.block == null ? '⚪' : area.block === 100 ? '✅' : '🔎';
-    lines.push('', `${icon} ${area.name}`, area.block == null ? 'Bloque: sin actividades asignadas' : `Bloque: ${bar(area.block)}`, `Día: ${pct(area.day)}`);
-    if(area.critical_pending)lines.push(`⚠️ ${area.critical_pending} críticos pendientes del bloque`);
-    if(area.unclassified)lines.push(`🧩 ${area.unclassified} actividades aún sin clasificar por bloque`);
-  }
-  lines.push('', '📌 PARA DAR SEGUIMIENTO', critical ? `⚠️ ${critical} críticos pendientes en los bloques clasificados.` : 'No hay críticos pendientes en los bloques clasificados.', ...(unclassified ? [`🧩 ${unclassified} actividades sin bloque: cuentan en el día; falta completar su clasificación.`] : []), '', 'ℹ️ Porcentajes según verificaciones registradas; no certifican existencias ni producción.', '✅ Bloque al 100% · 🔎 Por verificar · 🔴 Críticos pendientes · ⚪ Sin actividades de bloque', `🕒 Captura real (CDMX): ${new Date(snapshot.captured_at).toLocaleTimeString('es-MX', { timeZone: ZONE, hour12: false })}`, 'Reporte automático; refleja los registros a la hora de captura.', '', '👉 Ver detalle en ChickenIA', `https://chickenia.chicanito.app/supervision.html?date=${snapshot.date}`);
+  const captured = new Date(snapshot.captured_at).toLocaleTimeString('es-MX', { timeZone: ZONE, hour12: false });
+  const lines = [
+    'CHICKENIA · SUPERVISIÓN',
+    `${snapshot.location} · ${snapshot.date} · ${captured} (CDMX)`,
+    cut.label,
+    '',
+    snapshot.overall_score == null ? 'Avance del día: sin datos' : `Avance del día: ${snapshot.overall_score}% verificado`,
+    '',
+    snapshot.instruction || 'Supervisor: revisa los pendientes del día con cada responsable y registra las verificaciones en ChickenIA.',
+    '',
+    `https://chickenia.chicanito.app/supervision.html?date=${snapshot.date}`,
+  ];
   const result = lines.join('\n');
   if (result.length > 4000) throw new Error('Reporte demasiado largo');
   return result;

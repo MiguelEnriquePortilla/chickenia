@@ -31,9 +31,10 @@ test('block score excludes closing tasks and exposes unclassified activities', (
   assert.equal(snapshot.areas[0].critical_pending,0);
   assert.equal(snapshot.areas[1].block,null);
   assert.equal(snapshot.areas[1].unclassified,1);
-  assert.match(message(snapshot),/✅ Cocina\nBloque: ▰{10} 100%\nDía: 50%/);
-  assert.match(message(snapshot),/⚪ Caja\nBloque: sin actividades asignadas\nDía: 0%/);
-  assert.match(message(snapshot),/no certifican existencias/);
+  assert.match(message(snapshot),/Avance del día: 40% verificado/);
+  assert.match(message(snapshot),/pendientes sin horario definido/);
+  assert.equal((message(snapshot).match(/%/g)||[]).length,1);
+  assert.doesNotMatch(message(snapshot),/Bloque:|Día:|▰|▱/);
 });
 test('transport sends plain text only to configured group and sanitizes failures', async () => {
   const env={TELEGRAM_BOT_TOKEN:'secret-token',TELEGRAM_CHAT_ID:'-5489495348'};
@@ -55,10 +56,10 @@ test('endpoint persists a single immutable snapshot under concurrent dispatch an
   const sql=async(parts,...values)=>(await db.query(parts.reduce((s,p,i)=>s+(i?'$'+i:'')+p,''),values)).rows;
   await db.exec(`CREATE TABLE locations(id int primary key,name text,type text);
     INSERT INTO locations VALUES(1,'Jojutla','tienda');
-    CREATE TABLE areas(id int primary key,name text,location_type text,active boolean,order_index int);
-    INSERT INTO areas VALUES(1,'Cocina','tienda',true,1);
-    CREATE TABLE activities(id int primary key,area_id int,weight int,criticality text,routine_block text,active boolean,frequency text,valid_from date,valid_until date,order_index int);
-    INSERT INTO activities VALUES(1,1,6,'alta','apertura',true,'daily',null,null,1);
+    CREATE TABLE areas(id int primary key,code text,name text,location_type text,active boolean,order_index int);
+    INSERT INTO areas VALUES(1,'cocina','Cocina','tienda',true,1);
+    CREATE TABLE activities(id int primary key,name text,area_id int,weight int,criticality text,routine_block text,active boolean,frequency text,valid_from date,valid_until date,order_index int);
+    INSERT INTO activities VALUES(1,'Preparar cocina',1,6,'alta','apertura',true,'daily',null,null,1);
     CREATE TABLE activity_checks(activity_id int,location_id int,check_date date,done boolean);
     INSERT INTO activity_checks VALUES(1,1,'2026-09-16',true);
     CREATE TABLE kitchen_plans(activity_id int,plan_date date);`);
