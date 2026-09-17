@@ -24,30 +24,62 @@ function score(rows) {
   return total ? Math.round(rows.reduce((s,r) => s+(r.done ? Number(r.weight) : 0),0)*100/total) : null;
 }
 function report(rows, cut, date, location, capturedAt) {
-  const { blockFor, guidance } = require('./report-guidance');
+  const { blockFor, guidance, areaSummary } = require('./report-guidance');
   rows = rows.map(row => ({ ...row, routine_block: blockFor(row) }));
   const groups = new Map();
   for (const row of rows) { if (!groups.has(row.area_name)) groups.set(row.area_name, []); groups.get(row.area_name).push(row); }
   const areas = [...groups].map(([name, items]) => ({ name, day: score(items), block: score(items.filter(r => r.routine_block === cut.block)), critical_pending: items.filter(r => !r.done && r.criticality === 'critica' && r.routine_block === cut.block).length, unclassified: items.filter(r => !r.routine_block).length }));
+  for (const area of areas) Object.assign(area, areaSummary(groups.get(area.name), cut));
   return { date, cut: cut.id, scheduled_time: cut.time, captured_at: capturedAt, location, areas, overall_score: score(rows), instruction: guidance(rows, cut) };
 }
 function message(snapshot) {
   const cut = CUTS.find(c => c.id === snapshot.cut);
   const captured = new Date(snapshot.captured_at).toLocaleTimeString('es-MX', { timeZone: ZONE, hour12: false });
   const lines = [
-    'CHICKENIA · SUPERVISIÓN',
-    `${snapshot.location} · ${snapshot.date} · ${captured} (CDMX)`,
+    '🐔 CHICKENIA · SUPERVISIÓN',
+    `${snapshot.location} · ${snapshot.date} · Captura ${captured} CDMX`,
     cut.label,
     '',
     snapshot.overall_score == null ? 'Avance del día: sin datos' : `Avance del día: ${snapshot.overall_score}% verificado`,
     '',
+    ...snapshot.areas.map(a => `${({complete:'✅',critical:'🔴',pending:'🔎',later:'🕒'})[a.status] || '🔎'} ${a.name}: ${a.day == null ? 'sin datos' : a.day+'%'} · ${a.summary || 'Consultar detalle'}`),
+    '',
     snapshot.instruction || 'Supervisor: revisa los pendientes del día con cada responsable y registra las verificaciones en ChickenIA.',
     '',
-    `https://chickenia.chicanito.app/supervision.html?date=${snapshot.date}`,
+    'Ver dashboard actualizado:',
+    dashboardUrl(snapshot),
   ];
   const result = lines.join('\n');
   if (result.length > 4000) throw new Error('Reporte demasiado largo');
   return result;
+}
+function dashboardUrl(snapshot) {
+  return `https://chickenia.chicanito.app/dashboard.html?date=${encodeURIComponent(snapshot.date)}`;
+}
+
+async function sendReport(snapshot, png, env = process.env, fetchImpl = fetch) {
+  if (!env.TELEGRAM_BOT_TOKEN || !/^-\d+$/.test(env.TELEGRAM_CHAT_ID || '')) throw new Error('Telegram sin configurar');
+  const full = message(snapshot);
+  // A photo caption is limited to 1024 characters; the image retains every area.
+  const caption = full.length <= 1024 ? full : [
+    '🐔 CHICKENIA · SUPERVISIÓN', `${snapshot.location} · ${snapshot.date}`,
+    `${CUTS.find(c => c.id === snapshot.cut).label} · Captura ${new Date(snapshot.captured_at).toLocaleTimeString('es-MX',{timeZone:ZONE,hour12:false})} CDMX`,
+    `Avance del día: ${snapshot.overall_score == null ? 'sin datos' : snapshot.overall_score+'% verificado'}`,
+    '', snapshot.instruction,
+    '', 'Detalle por área en la imagen. El dashboard muestra los registros actualizados.',
+  ].join('\n');
+  if (caption.length > 1024) throw new Error('Resumen demasiado largo');
+  const body = new FormData();
+  body.set('chat_id',env.TELEGRAM_CHAT_ID);
+  body.set('photo',new Blob([png],{type:'image/png'}),'supervision.png');
+  body.set('caption',caption);
+  body.set('reply_markup',JSON.stringify({inline_keyboard:[[{text:'Ver dashboard del día',url:dashboardUrl(snapshot)}]]}));
+  try {
+    const response = await fetchImpl(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendPhoto`,{method:'POST',body,signal:AbortSignal.timeout(20000)});
+    const data = await response.json();
+    if (!response.ok || !data.ok || !data.result?.message_id) throw new Error();
+    return data.result.message_id;
+  } catch { throw new Error('No se pudo confirmar la imagen en Telegram. Revisar el grupo antes de reintentar.'); }
 }
 async function sendTelegram(text, env = process.env, fetchImpl = fetch) {
   if (!env.TELEGRAM_BOT_TOKEN || !/^-\d+$/.test(env.TELEGRAM_CHAT_ID || '')) throw new Error('Telegram sin configurar');
@@ -59,4 +91,4 @@ async function sendTelegram(text, env = process.env, fetchImpl = fetch) {
     return data.result.message_id;
   } catch { throw new Error('No se pudo confirmar el envío a Telegram. Revisar el grupo antes de reintentar.'); }
 }
-module.exports = { CUTS, ZONE, authorized, currentCut, score, report, message, sendTelegram };
+module.exports = { CUTS, ZONE, authorized, currentCut, score, report, message, sendTelegram, sendReport, dashboardUrl };

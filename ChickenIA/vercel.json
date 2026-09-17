@@ -2,6 +2,9 @@
   "buildCommand": "node scripts/build-static.js",
   "outputDirectory": "public",
   "installCommand": "npm ci --omit=dev",
+  "functions": {
+    "api/summary.js": { "includeFiles": "lib/supervision/NotoSans.ttf" }
+  },
   "headers": [
     {
       "source": "/inventario.html",

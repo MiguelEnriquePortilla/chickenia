@@ -33,7 +33,7 @@ test('block score excludes closing tasks and exposes unclassified activities', (
   assert.equal(snapshot.areas[1].unclassified,1);
   assert.match(message(snapshot),/Avance del día: 40% verificado/);
   assert.match(message(snapshot),/pendientes sin horario definido/);
-  assert.equal((message(snapshot).match(/%/g)||[]).length,1);
+  assert.equal((message(snapshot).match(/%/g)||[]).length,3);
   assert.doesNotMatch(message(snapshot),/Bloque:|Día:|▰|▱/);
 });
 test('transport sends plain text only to configured group and sanitizes failures', async () => {

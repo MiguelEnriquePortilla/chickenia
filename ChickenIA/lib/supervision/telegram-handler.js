@@ -1,5 +1,6 @@
 'use strict';
-const { authorized, currentCut, CUTS, report, message, sendTelegram } = require('./telegram');
+const { authorized, currentCut, CUTS, report, message, sendTelegram, sendReport } = require('./telegram');
+const { renderReport } = require('./report-image');
 const { ensureTables } = require('./db');
 
 // No browser-facing credentials. Scheduler calls this with Authorization: Bearer.
@@ -46,7 +47,16 @@ module.exports = async (req, res) => {
       ORDER BY ar.order_index, a.order_index`;
     const snapshot = report(rows, cut, date, location.name, now.toISOString());
     const text = message(snapshot);
-    if (action === 'preview') return res.status(200).json({ preview: true, snapshot, text });
+    if (action === 'preview') {
+      if (req.query?.format === 'png') {
+        const png = await renderReport(snapshot);
+        res.setHeader('Content-Type','image/png');
+        return res.status(200).send(png);
+      }
+      return res.status(200).json({ preview: true, snapshot, text });
+    }
+    // Render before claiming delivery; a local rendering failure cannot send anything.
+    const png = await renderReport(snapshot);
     await sql`CREATE TABLE IF NOT EXISTS supervision_telegram_deliveries (
       id BIGSERIAL PRIMARY KEY, location_id INT NOT NULL REFERENCES locations(id), report_date DATE NOT NULL,
       checkpoint TEXT NOT NULL, snapshot JSONB NOT NULL, chat_id TEXT NOT NULL,
@@ -57,7 +67,7 @@ module.exports = async (req, res) => {
       ON CONFLICT(location_id,report_date,checkpoint) DO NOTHING RETURNING id`;
     if (!claimed.length) return res.status(200).json({ skipped: 'Corte ya registrado; no se repite el envío' });
     try {
-      const id = await sendTelegram(text);
+      const id = await sendReport(snapshot, png);
       await sql`UPDATE supervision_telegram_deliveries SET status='sent',message_id=${id} WHERE id=${claimed[0].id}`;
       return res.status(200).json({ ok: true, checkpoint: cut.id, message_id: id });
     } catch {

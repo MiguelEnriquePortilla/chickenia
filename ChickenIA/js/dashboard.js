@@ -3,7 +3,11 @@ const $ = (sel) => document.querySelector(sel);
 const state = {
   locations: [],
   location: null,
-  date: new Date().toISOString().slice(0, 10),
+  date: (() => {
+    const requested = new URLSearchParams(location.search).get('date');
+    if (/^\d{4}-\d{2}-\d{2}$/.test(requested || '') && Number.isFinite(Date.parse(requested)) && new Date(requested).toISOString().slice(0,10) === requested) return requested;
+    return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  })(),
 };
 
 // One signed session shared with inventory and Chicken-IA.

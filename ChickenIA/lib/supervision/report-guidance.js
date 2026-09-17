@@ -31,17 +31,36 @@ function blockFor(row) {
   return row.routine_block || null;
 }
 
-function guidance(rows, cut) {
+function duePending(rows, cut) {
   const dueBlocks = cut.block === 'apertura' ? ['apertura'] : cut.block === 'cierre' ? ['apertura', 'operacion', 'cierre'] : ['apertura', 'operacion'];
   const pending = rows.filter(r => !r.done);
   const [hour, minute] = cut.time.split(':').map(Number);
-  const due = pending.filter(r => {
+  return pending.filter(r => {
     if (!dueBlocks.includes(blockFor(r))) return false;
     const time = (r.name || '').match(/^(\d{1,2}):(\d{2})\s*([ap])\.?\s*m\.?/i);
     if (!time) return true;
     const scheduled = (Number(time[1]) % 12 + (time[3].toLowerCase() === 'p' ? 12 : 0)) * 60 + Number(time[2]);
     return scheduled <= hour * 60 + minute;
   });
+}
+
+function areaSummary(rows, cut) {
+  const pending = rows.filter(r => !r.done);
+  const due = duePending(rows, cut);
+  const critical = due.filter(r => r.criticality === 'critica');
+  const unknown = pending.filter(r => !blockFor(r));
+  const first = critical[0] || due[0];
+  return {
+    total: rows.length, done: rows.length - pending.length,
+    status: !pending.length ? 'complete' : critical.length ? 'critical' : due.length || unknown.length ? 'pending' : 'later',
+    summary: !pending.length ? 'Verificaciones completas' : critical.length ? `${critical.length} ${critical.length === 1 ? 'crítica' : 'críticas'} por verificar` : due.length ? `${due.length} por verificar ahora` : unknown.length ? 'Revisar horario de pendientes' : 'Rutinas posteriores pendientes',
+    next_task: first?.name || null,
+  };
+}
+
+function guidance(rows, cut) {
+  const pending = rows.filter(r => !r.done);
+  const due = duePending(rows, cut);
   const critical = due.filter(r => r.criticality === 'critica');
   const unknown = pending.filter(r => !blockFor(r));
   const areas = [...new Set((critical.length ? critical : due).map(r => r.area_name))];
@@ -53,4 +72,4 @@ function guidance(rows, cut) {
   return `Las actividades correspondientes a este corte están verificadas; quedan rutinas posteriores. Supervisor: ${cut.focus.charAt(0).toLowerCase()}${cut.focus.slice(1)}`;
 }
 
-module.exports = { blockFor, guidance, classifications };
+module.exports = { blockFor, guidance, classifications, areaSummary };
