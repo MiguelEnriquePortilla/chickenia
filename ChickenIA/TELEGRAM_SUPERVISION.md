@@ -1,6 +1,6 @@
 ﻿# Supervisión por Telegram — guía vigente
 
-Actualizada al cierre del 16 de septiembre de 2026. Implementación publicada: `038f3cb`. Ver [reporte de sesión](REPORTE_SESION_2026-09-16.md).
+Actualizada el 16 de septiembre de 2026 por la noche. Implementación publicada: `84a3a6c`. Ver [reporte de sesión](REPORTE_SESION_2026-09-16.md).
 
 ## Estado operativo
 
@@ -8,13 +8,17 @@ Vercel Pro confirmado; `SUPERVISION_NOTIFY_ENABLED=true` en Production. Cinco cr
 
 Grupo: **Chicanito · Supervisión diaria**, creado desde Info Chicanito. Bot: `@chicanito_supervision_bot`, miembro con permiso de enviar. Lilian (`@ErikaLiliamLopez`) agregada. Nancy y cuenta personal de Miguel pendientes.
 
-Primer reporte real recibido y confirmado por Miguel: corte comida del 16 de septiembre, captura a las 12:11:49 CDMX, message_id 5. Se ejecutó al terminar la activación porque ya había transcurrido el horario. El siguiente corte previsto al cierre de la sesión es el de las 14:00; todavía no se ha confirmado su recepción.
+Miguel confirmó los reportes de texto del 16 de septiembre, incluido el cierre de las 19:00. El primer reporte previsto con imagen es el 17/09/2026 a las 09:30 CDMX; queda confirmar su recepción y legibilidad.
 
 ## Formato y datos
 
-Emojis, barras de texto, avance general y por área, porcentaje del bloque y del día, pendientes críticos y actividades sin bloque. Incluye fecha, hora real de captura y enlace a Supervisión. No adjunta imágenes. Los porcentajes miden cumplimiento ponderado del checklist; no prueban por sí solos existencias ni cantidades producidas.
+Un solo envío sendPhoto: PNG, texto y botón «Ver dashboard del día». Imagen con avance diario, nueve áreas, porcentaje diario por área, verificadas/total, interpretación y primera actividad prioritaria pendiente cuando corresponde. Termina con una instrucción al supervisor. Sin porcentajes por bloque ni barras de texto. Los porcentajes miden cumplimiento ponderado del checklist; no prueban existencias ni producción.
 
-Supervisión muestra cinco tarjetas desplegables. Un corte guardado utiliza su snapshot inmutable; uno sin captura se identifica como consulta actual. Actualiza cada minuto con la página visible. Las actividades sin clasificación quedan visibles, sin asignarlas arbitrariamente.
+Imagen y texto usan el mismo snapshot y muestran la hora real. Si el texto excede 1024 caracteres, la leyenda conserva contexto e instrucción; todo el detalle sigue en la imagen. El botón abre dashboard.html?date=AAAA-MM-DD con acceso autenticado y fecha correcta. El dashboard consulta registros actualizados y puede superar el avance del corte.
+
+Los estados distinguen completas, críticas por verificar, otras pendientes actuales y rutinas posteriores. Se arrastran pendientes anteriores y se respetan horarios explícitos. La migración de `296392d` corrigió las cuatro áreas sin bloque y las tareas tardías de Supervisión conservando IDs, pesos y verificaciones; preview posterior: cero sin clasificar.
+
+Supervisión conserva cinco tarjetas de cortes. Un corte guardado utiliza su snapshot inmutable; uno sin captura se identifica como consulta actual. Actualiza cada minuto con la página visible.
 
 ## Configuración y rutas
 
@@ -23,6 +27,7 @@ Variables de servidor en Production: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `
 Ruta pública `/api/supervision-telegram`, reescrita en `vercel.json` hacia `/api/summary?telegram=1`, con manejador privado. Conserva 12 funciones serverless.
 
 - `GET ?action=preview&cut=produccion`: vista previa sin enviar ni guardar corte, con Bearer `SUPERVISION_NOTIFY_SECRET`.
+- `GET ?action=preview&cut=produccion&format=png`: PNG protegido, sin enviar ni guardar corte. Consulta actual; no reconstruye la captura histórica.
 - `POST ?action=test`: envía una prueba real, con el mismo secreto; usar únicamente cuando se requiera una prueba autorizada.
 - `POST ?action=dispatch&cut=produccion`: despacho protegido con el mismo secreto, sujeto a ventana y deduplicación.
 - `GET ?action=cron&cut=produccion`: ejecución de Vercel, requiere Bearer `CRON_SECRET`.
@@ -39,7 +44,9 @@ Para desactivar avisos: cambiar `SUPERVISION_NOTIFY_ENABLED=false`, redesplegar 
 
 ## Verificación realizada
 
-Cinco crons visibles y habilitados en Vercel. Preview de producción: HTTP 200, corte `produccion`, horario `14:00`, emojis y barras presentes. Seis pruebas de Telegram y rutinas aprobadas para el último cambio: `node --test test/telegram.test.js test/routines.test.js`. En entregas previas se comprobaron build, autenticación, navegador, envío real y snapshots inmutables.
+11 pruebas de reportes aprobadas (`npm run test:telegram`) y build correcto. Producción: JSON y PNG HTTP 200. Imagen inspeccionada: captura 20:39:56 CDMX, nueve áreas al 100%, 131877 bytes. Es vista previa, no envío real; queda confirmar recepción de la primera foto automática mañana.
+
+Renderizador: lib/supervision/report-image.js con Sharp y NotoSans.ttf (OFL incluida). Vercel incluye explícitamente la fuente en summary. Interpretación: report-guidance.js. Envío: telegram.js y telegram-handler.js. Se renderiza antes del reclamo de entrega; después solo el ganador envía una foto. Un resultado incierto no provoca reintento automático ni segundo mensaje de respaldo. El endpoint de prueba sigue enviando solo texto de conexión.
 
 ## Historial resumido
 
@@ -47,5 +54,7 @@ Cinco crons visibles y habilitados en Vercel. Preview de producción: HTTP 200, 
 - `818986a`: activación de cuatro cortes; actualización a Pro y primer reporte real.
 - `ba12cf2`: emojis y barras de avance.
 - `038f3cb`: quinto corte a las 14:00, conservando el de las 17:00.
+- `296392d`: clasificación y resumen breve; Miguel lo consideró demasiado escueto.
+- `84a3a6c`: imagen del corte, detalle por área, instrucción y botón al dashboard. Formato vigente aprobado por Miguel.
 
 Las decisiones históricas de esperar a Pro, mantener avisos apagados, usar cuatro cortes o una ventana de cinco minutos quedan sustituidas por esta guía.

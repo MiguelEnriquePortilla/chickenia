@@ -1,6 +1,22 @@
 # Cierre de sesión — 16 de septiembre de 2026
 
-## Resultado
+## Actualización final para mañana
+
+Implementación visual `84a3a6c` commiteada, enviada a main y verificada en producción. Sustituye los formatos de texto anteriores. Miguel autorizó publicar y documentar para continuar mañana.
+
+Cada corte enviará una imagen con avance diario y detalle por área, texto e instrucción, y botón al dashboard de la fecha. Se distinguen tareas completas, críticas actuales y rutinas posteriores. La imagen conserva la hora del snapshot; el dashboard puede avanzar después. Si la leyenda supera 1024 caracteres, el detalle permanece en la imagen.
+
+11 pruebas de reportes y build aprobados. JSON y PNG de producción respondieron HTTP 200; imagen de las 20:39:56 CDMX inspeccionada, nueve áreas al 100%, 131877 bytes. Totales por área: 56,31,23,25,15,13,7,27,8. No se envió una prueba al grupo ni se repitió el reporte de las 19:00; el transporte sendPhoto se probó con simulación.
+
+Siguiente corte previsto: **17/09/2026, 09:30 CDMX**. Confirmar con Miguel recepción, legibilidad de la foto y apertura del dashboard con fecha correcta. Los cinco crons y avisos de Production siguen activos; no requieren esta computadora.
+
+La clasificación de `296392d` sigue vigente; cero actividades sin bloque en la vista previa. Revisar ajustes operativos con Nancy si surgen. Ante envío incierto revisar grupo y registro antes de reintentar.
+
+Guía vigente: TELEGRAM_SUPERVISION.md. Archivos nuevos: report-image.js, NotoSans.ttf y su licencia, test/report-image.test.js. Cambios en telegram.js, telegram-handler.js, report-guidance.js, js/dashboard.js, package.json/lock y vercel.json. Pruebas: npm run test:telegram. Publicación: push a main, raíz Git 02-OPERACION, Root Directory ChickenIA. Credenciales ignoradas en .env.telegram.local; nunca imprimir valores.
+
+Los apartados siguientes conservan el historial de la sesión inicial y sus estados quedan sustituidos por esta actualización.
+
+## Resultado inicial (histórico)
 
 Supervisión conectada a Telegram y activa en producción con Vercel Pro. Miguel confirmó la recepción del primer reporte real del mediodía. Última implementación publicada y verificada: `038f3cb`, en `main` de MiguelEnriquePortilla/chickenia.
 
