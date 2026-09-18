@@ -12,6 +12,8 @@ Miguel confirmó los reportes de texto del 16 de septiembre, incluido el cierre 
 
 ## Formato y datos
 
+Actualización 18/09/2026: la imagen también incorpora Cierre de Caja y Producción reales de Jojutla, con estado sin captura/borrador/finalizado. Se mantienen los cinco horarios y la deduplicación. Guardar o finalizar no envía inmediatamente. Ver CAPTURA_DIARIA_PRODUCCION.md. Los datos financieros se consultan en la API autenticada, no en summary público.
+
 Un solo envío sendPhoto: PNG, texto y botón «Ver dashboard del día». Imagen con avance diario, nueve áreas, porcentaje diario por área, verificadas/total, interpretación y primera actividad prioritaria pendiente cuando corresponde. Termina con una instrucción al supervisor. Sin porcentajes por bloque ni barras de texto. Los porcentajes miden cumplimiento ponderado del checklist; no prueban existencias ni producción.
 
 Imagen y texto usan el mismo snapshot y muestran la hora real. Si el texto excede 1024 caracteres, la leyenda conserva contexto e instrucción; todo el detalle sigue en la imagen. El botón abre dashboard.html?date=AAAA-MM-DD con acceso autenticado y fecha correcta. El dashboard consulta registros actualizados y puede superar el avance del corte.

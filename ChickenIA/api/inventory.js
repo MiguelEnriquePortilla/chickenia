@@ -6,6 +6,7 @@ const { roles, OPENING_TASKS, today, InventoryError } = require('../lib/inventor
 function createHandler(getRepository = production, queryOverride) {
   let migrated;
   return async (req, res) => {
+    if(String(req.query?.action||'').startsWith('daily-'))return require('../lib/daily-handler')(req,res,queryOverride);
     res.setHeader('Cache-Control','no-store');
     res.setHeader('X-Content-Type-Options','nosniff');
     try {

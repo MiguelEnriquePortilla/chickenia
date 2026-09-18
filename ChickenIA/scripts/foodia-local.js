@@ -35,6 +35,12 @@ async function main(){
     if(name==='foodia_session')return handler();
     const result=queue.then(()=>withDatabase(handler));queue=result.catch(()=>{});return result;
   };
+  if(process.argv.includes('--cash-web')){
+    const cash=require('../lib/cash-close').cashService(query,actor);
+    const production=require('../lib/production-daily').service(query,actor);
+    await require('./cash-close-web').start({run,cash,production});
+    return;
+  }
   if(process.argv.includes('--stdio')){
     const {StdioServerTransport}=require('@modelcontextprotocol/sdk/server/stdio.js');
     const server=require('../lib/food-mcp').createServer(repo,query,actor,run);
@@ -42,7 +48,11 @@ async function main(){
     const close=async()=>{if(closing)return;closing=true;await queue;await server.close();process.exit(0);};
     process.once('SIGTERM',close);process.once('SIGINT',close);process.stdin.once('end',close);return;
   }
-  let raw='';for await(const chunk of process.stdin){raw+=chunk;if(Buffer.byteLength(raw)>100000)throw new Error('Input too large.');}
+  let raw='';
+  const inputAt=process.argv.indexOf('--input');
+  if(inputAt>=0)raw=fs.readFileSync(process.argv[inputAt+1],'utf8').replace(/^\uFEFF/,'');
+  else for await(const chunk of process.stdin){raw+=chunk;if(Buffer.byteLength(raw)>100000)throw new Error('Input too large.');}
+  if(Buffer.byteLength(raw)>100000)throw new Error('Input too large.');
   const request=JSON.parse(raw),api=service(repo,query,actor);
   const result=await run(async()=>{
     switch(request.action){
@@ -52,6 +62,10 @@ async function main(){
       case 'purchases':return api.purchases(request.from,request.to);
       case 'lists':return api.lists();
       case 'movements':return api.movements(request.from,request.to);
+      case 'cashGet':return require('../lib/cash-close').cashService(query,actor).get(request.date);
+      case 'cashSave':return require('../lib/cash-close').cashService(query,actor).save(request);
+      case 'productionGet':return require('../lib/production-daily').service(query,actor).get(request.date);
+      case 'productionSave':return require('../lib/production-daily').service(query,actor).save(request);
       default:throw new Error('Unknown action.');
     }
   });

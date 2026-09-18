@@ -49,7 +49,7 @@
   async function load(){
     const result=await api();snapshot=result;
     const next=new URLSearchParams(window.location.search).get('next');
-    if(next){const destination=new URL(next,window.location.origin);if(destination.origin===window.location.origin&&['/dashboard.html','/preguntale.html','/supervision.html'].includes(destination.pathname)){window.location.replace(destination.href);return;}}
+    if(next){const destination=new URL(next,window.location.origin);if(destination.origin===window.location.origin&&['/dashboard.html','/preguntale.html','/supervision.html','/captura.html'].includes(destination.pathname)){window.location.replace(destination.href);return;}}
     basicPanel=new URLSearchParams(window.location.search).get('panel')==='nancy'||result.user.id==='nancy';
     if(basicPanel&&!result.user.pilot&&!['home','requestForm','incoming','proteins','kitchenPlanning','kitchenProduction','weeklyPurchases'].includes(tab))tab='home';
     if(tab==='catalog'&&!can('catalog'))tab='home';

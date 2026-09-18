@@ -141,12 +141,28 @@ async function load() {
     const summary = await api(`summary?location_id=${state.location.id}&date=${state.date}`);
     renderStatusBar(summary);
     renderSummary(summary);
+    await loadDailyCaptures();
   } catch (err) {
     console.error(err);
   }
 }
 
 const RING_CIRCUMFERENCE = 2 * Math.PI * 30;
+
+async function loadDailyCaptures(){
+  const host=document.getElementById('daily-captures'),date=state.date;
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const money=v=>v===null?'Pendiente':new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(v/100);
+  try{
+    const d=await api('inventory?action=daily-overview&date='+encodeURIComponent(date));
+    if(state.date!==date)return;
+    const c=d.cash,p=d.production;
+    const status=r=>!r?.revision?'Sin captura':r.finalized?'Finalizado':'Borrador · Provisional';
+    host.innerHTML=`<h2>Caja y producción</h2><div class="daily-columns">
+      ${c?`<section><h3>Cierre de Caja</h3><p>${status(c)}</p>${c.revision?`<dl><dt>Efectivo esperado</dt><dd>${money(c.totals.expected)}</dd><dt>Efectivo contado</dt><dd>${money(c.totals.counted)}</dd><dt>Sobra (+) / falta (−)</dt><dd>${money(c.totals.cashDifference)}</dd><dt>Entrega pendiente</dt><dd>${money(c.totals.deliveryPending)}</dd></dl>`:''}<a href="/captura.html?mode=close&date=${date}">${c.finalized?'Ver cierre':'Abrir cierre'}</a></section>`:''}
+      <section><h3>Producción</h3><p>${status(p)}</p>${p.revision?`<p>${p.totals.active} productos del día · ${p.totals.pendingBatches} tandas pendientes</p><p>${p.totals.missing.length} datos o revisiones pendientes</p>`:''}<a href="/captura.html?mode=production&date=${date}">${p.finalized?'Ver producción':'Abrir producción'}</a></section></div>`;
+  }catch(e){if(state.date===date)host.innerHTML='<h2>Caja y producción</h2><p>'+esc(e.message)+'</p>';}
+}
 const prevAreaStatus = {};
 
 function renderStatusBar(summary) {

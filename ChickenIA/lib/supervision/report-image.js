@@ -36,6 +36,11 @@ async function renderReport(snapshot) {
   y += 18;
   y += await text('SIGUIENTE PASO',44,y,22,'#ff8094',872,true) + 14;
   y += await text(snapshot.instruction,44,y,24,'#ffffff',872) + 30;
+  if(snapshot.daily?.lines?.length){
+    y += await text('CAJA Y PRODUCCIÓN',44,y,22,'#ff8094',872,true) + 18;
+    for(const line of snapshot.daily.lines)y += await text(line,44,y,23,'#ffffff',872) + 14;
+    y+=14;
+  }
   y += await text('La imagen conserva este corte. El dashboard puede mostrar avances posteriores.',44,y,20,'#c6c9d0',872) + 44;
   const background = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${y}"><rect width="100%" height="100%" fill="#202226"/>${graphics.join('')}</svg>`);
   return sharp(background).composite(overlays).png().toBuffer();

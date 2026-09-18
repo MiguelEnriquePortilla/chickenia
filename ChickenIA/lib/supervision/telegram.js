@@ -45,6 +45,7 @@ function message(snapshot) {
     ...snapshot.areas.map(a => `${({complete:'✅',critical:'🔴',pending:'🔎',later:'🕒'})[a.status] || '🔎'} ${a.name}: ${a.day == null ? 'sin datos' : a.day+'%'} · ${a.summary || 'Consultar detalle'}`),
     '',
     snapshot.instruction || 'Supervisor: revisa los pendientes del día con cada responsable y registra las verificaciones en ChickenIA.',
+    ...(snapshot.daily?.lines?.length?['',...snapshot.daily.lines]:[]),
     '',
     'Ver dashboard actualizado:',
     dashboardUrl(snapshot),

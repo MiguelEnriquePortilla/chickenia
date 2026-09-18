@@ -46,6 +46,7 @@ module.exports = async (req, res) => {
         AND (a.valid_until IS NULL OR a.valid_until > ${date}::date)
       ORDER BY ar.order_index, a.order_index`;
     const snapshot = report(rows, cut, date, location.name, now.toISOString());
+    if(locationId===1)snapshot.daily=await require('../daily-summary').snapshot(sql,date);
     const text = message(snapshot);
     if (action === 'preview') {
       if (req.query?.format === 'png') {

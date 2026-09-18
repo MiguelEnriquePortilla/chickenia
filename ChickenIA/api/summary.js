@@ -80,8 +80,11 @@ module.exports = async (req, res) => {
     const rows = activities.map(a => ({ ...a, done: !!checkByActivity[a.id]?.done }));
     const checkpoints = locationType === 'tienda' ? CUTS.map(cut => {
       const saved = savedCuts.find(r => r.checkpoint === cut.id);
+      // Financial capture is available only through the authenticated daily API.
+      const publicSnapshot=saved?.snapshot?{...saved.snapshot}:null;
+      if(publicSnapshot)delete publicSnapshot.daily;
       return { ...cut, captured: !!saved, delivery_status: saved?.status || null,
-        snapshot: saved?.snapshot || null,
+        snapshot: publicSnapshot,
         current: report(rows, cut, date, loc[0].name, new Date().toISOString()) };
     }) : [];
     res.setHeader?.('Cache-Control', 'no-store');
