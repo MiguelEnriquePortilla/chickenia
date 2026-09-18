@@ -6,6 +6,7 @@ const denominations={b1000:100000,b500:50000,b200:20000,b100:10000,b50:5000,b20:
 const cashKeys=['opening','cashSales','otherIn','refunds','expenses','firstTurn','withdrawals','otherCoins','retained','delivered'];
 const paymentKeys=['cash','credit','debit','transfer','other'];
 const schema=z.object({
+  photo:z.object({format:z.literal('cierre-una-pagina-v1'),sourceFile:z.string().max(250),sourceSha256:z.string().regex(/^[a-f0-9]{64}$/),coinsTotal:amount,cardTotal:amount}).strict().optional(),
   cashier:words,cut:words,receiver:words,deliveryTime:words,receipt:words,explanation:words,
   cash:z.object(Object.fromEntries(cashKeys.map(k=>[k,amount]))).strict(),
   counts:z.object(Object.fromEntries(Object.keys(denominations).map(k=>[k,z.number().int().min(0).max(100000).nullable()]))).strict(),
@@ -22,7 +23,7 @@ const difference=(a,b)=>a===null||b===null?null:a-b;
 function calculate(data){
   const d=schema.parse(data),c=d.cash;
   const expected=sum([c.opening,c.cashSales,c.otherIn,c.refunds===null?null:-c.refunds,c.expenses===null?null:-c.expenses,c.firstTurn===null?null:-c.firstTurn,c.withdrawals===null?null:-c.withdrawals]);
-  const counted=sum([...Object.entries(denominations).map(([k,v])=>d.counts[k]===null?null:d.counts[k]*v),c.otherCoins]);
+  const counted=d.photo?sum([...Object.entries(denominations).filter(([k])=>k.startsWith('b')).map(([k,v])=>d.counts[k]===null?null:d.counts[k]*v),d.photo.coinsTotal]):sum([...Object.entries(denominations).map(([k,v])=>d.counts[k]===null?null:d.counts[k]*v),c.otherCoins]);
   const toDeliver=difference(counted,c.retained),cashDifference=difference(counted,expected),deliveryPending=difference(toDeliver,c.delivered);
   const payments=Object.fromEntries(paymentKeys.map(k=>[k,difference(d.payments[k].confirmed,d.payments[k].expected)]));
   const paymentTotal=sum(paymentKeys.map(k=>d.payments[k].expected));
@@ -30,14 +31,15 @@ function calculate(data){
   const missing=[];
   if(!d.cashier)missing.push('Nombre de quien prepara');
   if(!d.cut)missing.push('Identificador del corte');
-  cashKeys.filter(k=>c[k]===null).forEach(k=>missing.push('cash.'+k));
-  Object.keys(denominations).filter(k=>d.counts[k]===null).forEach(k=>missing.push('counts.'+k));
-  paymentKeys.forEach(k=>{if(d.payments[k].expected===null||d.payments[k].confirmed===null)missing.push('payments.'+k);});
-  if(d.salesTotal===null)missing.push('Venta del corte');
+  (d.photo?['expenses','firstTurn','retained','delivered']:cashKeys).filter(k=>c[k]===null).forEach(k=>missing.push('cash.'+k));
+  Object.keys(denominations).filter(k=>(!d.photo||k.startsWith('b'))&&d.counts[k]===null).forEach(k=>missing.push('counts.'+k));
+  if(!d.photo)paymentKeys.forEach(k=>{if(d.payments[k].expected===null||d.payments[k].confirmed===null)missing.push('payments.'+k);});
+  if(!d.photo&&d.salesTotal===null)missing.push('Venta del corte');
   if(!d.receiver)missing.push('Quién recibe');
   if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(d.deliveryTime))missing.push('Hora de entrega HH:MM');
   if(!d.receipt)missing.push('Referencia de entrega');
-  if(Object.values(d.evidence).includes('pending'))missing.push('Revisión de comprobantes');
+  if(d.photo){if(d.photo.coinsTotal===null)missing.push('Total de monedas');if(d.photo.cardTotal===null)missing.push('Total tarjeta');if(d.payments.transfer.confirmed===null)missing.push('Total transferencia');}
+  if(!d.photo&&Object.values(d.evidence).includes('pending'))missing.push('Revisión de comprobantes');
   const warnings=[];
   if(expected!==null&&expected<0)warnings.push('Las salidas exceden el efectivo disponible');
   if(toDeliver!==null&&toDeliver<0)warnings.push('Se deja más efectivo del contado');
@@ -58,7 +60,7 @@ function calculate(data){
     if(rows.length&&total!==null&&c[key]!==null&&total!==c[key])warnings.push('Detalle no coincide con '+type);
   }
   if(warnings.length&&!d.explanation)missing.push('Motivo de diferencias');
-  return {expected,counted,cashDifference,toDeliver,deliveryPending,paymentTotal,salesDifference,payments,missing,warnings,canFinalize:missing.length===0};
+  return {expenses:c.expenses,cardTotal:d.photo?d.photo.cardTotal:sum([d.payments.credit.confirmed,d.payments.debit.confirmed]),transferTotal:d.payments.transfer.confirmed,expected,counted,cashDifference,toDeliver,deliveryPending,paymentTotal,salesDifference,payments,missing,warnings,canFinalize:missing.length===0};
 }
 function validDate(date){return typeof date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(date)&&Number.isFinite(Date.parse(date))&&new Date(date).toISOString().slice(0,10)===date;}
 function cashService(databaseQuery,actor){

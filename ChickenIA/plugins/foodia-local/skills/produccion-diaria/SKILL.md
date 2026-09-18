@@ -5,6 +5,10 @@ description: Captura producción de Cocina, Freidoras y Rosticero por preguntas 
 
 # Producción diaria
 
+## Hoja fotografiada de proteínas y caja
+
+La foto CD-01 usa el flujo de cierre-caja y su [guía de foto](../cierre-caja/references/foto-cierre.md). Incluye llegada cruda, tres producciones, sobrantes y mermas. No obliga a registrar cocina ni planes de producción ausentes; no genera movimientos de inventario. Conserva captura previa y verifica cada guardado.
+
 ## Operación real (predeterminada)
 
 Abre https://chickenia.chicanito.app/captura.html?mode=production con date=fecha CDMX solicitada. Usa el acceso normal de ChickenIA; no fabriques credenciales ni cookies. Retoma el borrador visible, acepta dictado por área y completa el formulario con los datos autorizados. Verifica guardado; finaliza solo por instrucción del usuario. Dashboard y cortes de Telegram consultan estos registros; no se suman al inventario ni se convierten en compras.

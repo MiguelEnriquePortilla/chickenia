@@ -1,9 +1,13 @@
 ---
 name: cierre-caja
-description: Captura y retoma el cierre diario de Chicanito por preguntas o ficha visual autenticada en ChickenIA. Distingue operación real del piloto local de pruebas.
+description: Captura el cierre diario y sus gastos en ChickenIA desde una foto de WhatsApp de la hoja de proteínas y caja, dictado o formulario. Usar cuando se arrastra la foto para subir el cierre o los gastos. Distingue operación real de pruebas locales.
 ---
 
 # Cierre de Caja
+
+## Foto de WhatsApp: cierre, proteínas y gastos
+
+Si el usuario adjunta la hoja de cierre para capturarla, sigue [references/foto-cierre.md](references/foto-cierre.md). Registra caja y proteínas como borradores reales de la misma fecha; no uses el piloto de compras. Una foto compartida solo como referencia de diseño no se registra.
 
 ## Operación real (predeterminada)
 

@@ -159,8 +159,8 @@ async function loadDailyCaptures(){
     const c=d.cash,p=d.production;
     const status=r=>!r?.revision?'Sin captura':r.finalized?'Finalizado':'Borrador · Provisional';
     host.innerHTML=`<h2>Caja y producción</h2><div class="daily-columns">
-      ${c?`<section><h3>Cierre de Caja</h3><p>${status(c)}</p>${c.revision?`<dl><dt>Efectivo esperado</dt><dd>${money(c.totals.expected)}</dd><dt>Efectivo contado</dt><dd>${money(c.totals.counted)}</dd><dt>Sobra (+) / falta (−)</dt><dd>${money(c.totals.cashDifference)}</dd><dt>Entrega pendiente</dt><dd>${money(c.totals.deliveryPending)}</dd></dl>`:''}<a href="/captura.html?mode=close&date=${date}">${c.finalized?'Ver cierre':'Abrir cierre'}</a></section>`:''}
-      <section><h3>Producción</h3><p>${status(p)}</p>${p.revision?`<p>${p.totals.active} productos del día · ${p.totals.pendingBatches} tandas pendientes</p><p>${p.totals.missing.length} datos o revisiones pendientes</p>`:''}<a href="/captura.html?mode=production&date=${date}">${p.finalized?'Ver producción':'Abrir producción'}</a></section></div>`;
+      ${c?`<section><h3>Cierre de Caja</h3><p>${status(c)}</p>${c.revision?`<dl><dt>Efectivo esperado</dt><dd>${money(c.totals.expected)}</dd><dt>Efectivo contado</dt><dd>${money(c.totals.counted)}</dd><dt>Sobra (+) / falta (−)</dt><dd>${money(c.totals.cashDifference)}</dd><dt>Gastos pagados de caja</dt><dd>${money(c.totals.expenses)}</dd><dt>Tarjeta</dt><dd>${money(c.totals.cardTotal)}</dd><dt>Transferencia</dt><dd>${money(c.totals.transferTotal)}</dd><dt>Entrega pendiente</dt><dd>${money(c.totals.deliveryPending)}</dd></dl>`:''}</section>`:''}
+      <section><h3>Producción</h3><p>${status(p)}</p>${p.revision?`<p>${p.totals.active} productos del día · ${p.totals.pendingBatches} tandas pendientes</p><p>${p.totals.missing.length} datos o revisiones pendientes</p><p>Pollo producido: ${p.totals.chickenPieces??"Pendiente"} piezas · Costilla: ${p.totals.costillaKg??"Pendiente"} kg</p>`:''}</section></div>`;
   }catch(e){if(state.date===date)host.innerHTML='<h2>Caja y producción</h2><p>'+esc(e.message)+'</p>';}
 }
 const prevAreaStatus = {};

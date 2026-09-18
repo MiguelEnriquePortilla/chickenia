@@ -2,6 +2,7 @@
 const {z}=require('zod');
 const qty=z.number().min(0).max(1000000).multipleOf(0.001).nullable();
 const units=z.enum(['kg','litros','porciones','piezas','pollos']).nullable();
+const extraFields=['receivedRaw','done3'];
 const fields=['previousRaw','previousCooked','plan1','done1','plan2','done2','closingCooked','closingRaw'];
 const catalog=[
   ...['Arroz blanco','Arroz rojo','Espagueti preparado','Nopales','Puré de papa','Papas cambray','Ensalada de col','Adobo tradicional','Adobo tres chiles','Salsa barbecue','Marinado para rostizado','Espagueti y verduras','Rajas con papas','Crema para espagueti','Pasta de codo cocida','Pasta de espagueti cocida'].map((name,i)=>({id:'cocina-'+i,name,area:'Cocina',rawUnit:null,unit:null})),
@@ -9,36 +10,40 @@ const catalog=[
   {id:'rosti',name:'Rosti',area:'Rosticero',rawUnit:'pollos',unit:'pollos'},
   {id:'costilla',name:'Costilla',area:'Rosticero',rawUnit:'kg',unit:'kg'},
 ];
-const schema=z.object({responsible:z.string().trim().max(200),employeeMeal:z.string().trim().max(1000),notes:z.string().trim().max(1000),
-  lines:z.array(z.object({id:z.string(),active:z.boolean(),unit:units,...Object.fromEntries(fields.map(k=>[k,qty]))}).strict()).length(catalog.length),
+const schema=z.object({photo:z.object({format:z.literal('cierre-una-pagina-v1'),sourceFile:z.string().max(250),sourceSha256:z.string().regex(/^[a-f0-9]{64}$/),deliveredBy:z.string().max(200),receivedBy:z.string().max(200),batchTimes:z.array(z.string().max(20)).length(3)}).strict().optional(),losses:z.array(z.object({productId:z.enum(['freidoras-4','rosti','costilla']),state:z.enum(['crudo','cocido']),type:z.enum(['merma','cortesia','consumo','devolucion']),quantity:qty,unit:units,reason:z.string().max(1000)}).strict()).max(100).optional(),responsible:z.string().trim().max(200),employeeMeal:z.string().trim().max(1000),notes:z.string().trim().max(1000),
+  lines:z.array(z.object({id:z.string(),active:z.boolean(),unit:units,...Object.fromEntries(extraFields.map(k=>[k,qty.optional()])),...Object.fromEntries(fields.map(k=>[k,qty]))}).strict()).length(catalog.length),
   purchases:z.object(Object.fromEntries(['Leche','Aceite','Crema LALA'].map(k=>[k,z.object({qty,unit:z.string().trim().max(50)}).strict()]))).strict(),
 }).strict();
 function blank(){return {responsible:'',employeeMeal:'',notes:'',lines:catalog.map(r=>({id:r.id,active:true,unit:r.unit,...Object.fromEntries(fields.map(k=>[k,null]))})),purchases:Object.fromEntries(['Leche','Aceite','Crema LALA'].map(k=>[k,{qty:null,unit:''}]))};}
 function calculate(data){
-  const d=schema.parse(data),missing=[],warnings=[];
+  const d=schema.parse(data),missing=[],warnings=[],photo=!!d.photo;
+  const included=r=>r.active&&(!photo||['freidoras-4','rosti','costilla'].includes(r.id));
   if(new Set(d.lines.map(r=>r.id)).size!==catalog.length||d.lines.some(r=>!catalog.some(c=>c.id===r.id)))throw Object.assign(Error('Catálogo de producción inválido.'),{status:400});
   if(!d.responsible)missing.push('Responsable');
   let pending=0;
   for(const r of d.lines){
     const c=catalog.find(c=>c.id===r.id);
     if(c.unit&&c.unit!==r.unit)throw Object.assign(Error('Conserva la unidad de '+c.name),{status:400});
-    if(!r.active)continue;
+    if(!included(r))continue;
     if(!r.unit)missing.push('Unidad de '+c.name);
-    for(const k of fields){
-      const raw=k==='previousRaw'||k==='closingRaw';
+    for(const k of photo?['previousRaw','previousCooked','receivedRaw','done1','done2','done3','closingCooked','closingRaw']:fields){
+      const raw=k==='previousRaw'||k==='closingRaw'||k==='receivedRaw';
       if(raw&&!c.rawUnit)continue;
-      if(r[k]===null)missing.push(c.name+': '+k);
+      if(r[k]==null)missing.push(c.name+': '+k);
       const unit=raw?c.rawUnit:r.unit;
-      if(r[k]!==null&&['pollos','piezas','porciones'].includes(unit)&&!Number.isInteger(r[k]))throw Object.assign(Error(c.name+': usa cantidades enteras para '+unit),{status:400});
+      if(r[k]!=null&&['pollos','piezas','porciones'].includes(unit)&&!Number.isInteger(r[k]))throw Object.assign(Error(c.name+': usa cantidades enteras para '+unit),{status:400});
     }
     if(fields.some(k=>r[k]!==null)&&!r.unit)warnings.push('Define la unidad de '+c.name);
-    for(const n of [1,2])if(r['plan'+n]>0&&(r['done'+n]===null||r['done'+n]<r['plan'+n]))pending++;
-    if(r.previousCooked!==null&&r.done1!==null&&r.done2!==null&&r.closingCooked!==null&&r.closingCooked>r.previousCooked+r.done1+r.done2)warnings.push(c.name+': el sobrante supera lo disponible registrado');
+    for(const n of photo?[]:[1,2])if(r['plan'+n]>0&&(r['done'+n]===null||r['done'+n]<r['plan'+n]))pending++;
+    if(r.previousCooked!==null&&r.done1!==null&&r.done2!==null&&(!photo||r.done3!=null)&&r.closingCooked!==null&&r.closingCooked>r.previousCooked+r.done1+r.done2+(photo?r.done3:0))warnings.push(c.name+': el sobrante supera lo disponible registrado');
   }
-  for(const [name,p]of Object.entries(d.purchases))if(p.qty===null||(p.qty>0&&!p.unit))missing.push('Compra: '+name);
-  if(!d.employeeMeal)missing.push('Comida de empleados (o Sin comida)');
+  if(!photo)for(const [name,p]of Object.entries(d.purchases))if(p.qty===null||(p.qty>0&&!p.unit))missing.push('Compra: '+name);
+  if(!photo&&!d.employeeMeal)missing.push('Comida de empleados (o Sin comida)');
   if(warnings.length&&!d.notes)missing.push('Aclaraciones');
-  return {active:d.lines.filter(r=>r.active).length,pendingBatches:pending,missing,warnings,canFinalize:missing.length===0};
+  const produced=Object.fromEntries(d.lines.filter(included).map(r=>{const values=photo?[r.done1,r.done2,r.done3]:[r.done1,r.done2];return [r.id,values.some(v=>v==null)?null:values.reduce((a,b)=>a+b,0)];}));
+  const chickenPieces=produced['freidoras-4']==null||produced.rosti==null?null:produced['freidoras-4']+produced.rosti*8;
+  for(const loss of d.losses||[]){const c=catalog.find(c=>c.id===loss.productId);const expectedUnit=loss.state==='crudo'?c.rawUnit:c.unit;if(loss.unit!==expectedUnit)throw Object.assign(Error('Unidad de merma inválida para '+c.name),{status:400});if(loss.quantity==null||!loss.reason)missing.push('Merma o consumo: cantidad y motivo');}
+  return {produced,chickenPieces,costillaKg:produced.costilla??null,active:d.lines.filter(included).length,pendingBatches:pending,missing,warnings,canFinalize:missing.length===0};
 }
 function service(databaseQuery,actor){
   const live=actor.environment==='production';
@@ -57,7 +62,7 @@ function service(databaseQuery,actor){
     const [previous]=await query('SELECT data FROM production_daily_pilot WHERE date=$1::date',[date]);
     if(previous)for(const line of parsed.lines){
       const old=previous.data.lines.find(r=>r.id===line.id);
-      if(old&&old.unit!==line.unit&&fields.some(k=>old[k]!==null)&&fields.some(k=>line[k]!==null))fail('Para cambiar unidad, vacía primero las cantidades del producto y vuelve a capturarlas con la unidad correcta.');
+      if(old&&old.unit!==line.unit&&[...fields,...extraFields].some(k=>old[k]!=null)&&[...fields,...extraFields].some(k=>line[k]!=null))fail('Para cambiar unidad, vacía primero las cantidades del producto y vuelve a capturarlas con la unidad correcta.');
     }
     const rows=await query(`WITH saved AS (
       INSERT INTO production_daily_pilot(date,revision,data,finalized) SELECT $1::date,1,$3::jsonb,$4 WHERE $2::int=0 OR EXISTS(SELECT 1 FROM production_daily_pilot WHERE date=$1::date)

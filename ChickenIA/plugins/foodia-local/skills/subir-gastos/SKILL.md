@@ -1,9 +1,15 @@
 ---
 name: subir-gastos
-description: Captura compras y sus costos en fudIA local a partir de dictado o texto. Usar cuando Miguel diga subir gastos, registrar una compra o quiera dictar productos y precios. Es un piloto local de compras, no contabilidad general.
+description: Recibe gastos por foto, dictado o texto. Las fotos del cierre diario de proteínas y caja se capturan en ChickenIA mediante cierre-caja; las compras por producto siguen en el piloto local de fudIA.
 ---
 
 # Subir gastos
+
+## Foto del cierre diario: ChickenIA real
+
+Si la imagen es el formato de cierre con proteínas, efectivo y gastos, usa la skill instalada `cierre-caja` en `C:/Users/hp/.codex/skills/cierre-caja/SKILL.md` y su referencia `references/foto-cierre.md`. La foto se registra en el cierre real y alimenta dashboard/reportes; no es una compra para `foodia_prepare` ni se envía a pruebas locales. No deduzcas productos, proveedores o costos unitarios del total de gastos. Fotos compartidas para diseñar el formato no autorizan su captura.
+
+## Compras por producto: piloto local
 
 Opera con el MCP de fudIA en la base local de pruebas. Consulta `foodia_session` al comenzar para verificar conexión y entorno. No afirmes conexión ni guardado si no hay respuesta de las herramientas. No cambia el modelo ni activa el micrófono: recibe el texto o transcripción que entregue la aplicación.
 

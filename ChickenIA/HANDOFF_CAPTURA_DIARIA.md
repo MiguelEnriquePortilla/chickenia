@@ -1,5 +1,9 @@
 # Captura diaria: estado al 18/09/2026
 
+## Actualización: foto del cierre de una página
+
+Implementación local preparada y probada para llegada cruda, tres producciones, mermas, tarjeta conjunta, monedas totales y gastos de cierre. Skills actualizadas para lectura de foto adjunta y captura autenticada. Se quitaron los accesos de formularios del dashboard, conservando resultados. Ver [CAPTURA_FOTO_CIERRE.md](CAPTURA_FOTO_CIERRE.md). No se capturó la foto usada como referencia ni se enviaron reportes de prueba. Estado de publicación de esta actualización: pendiente de verificar.
+
 ## Cierre de sesion: estado vigente
 
 - Commit funcional `5cc9127`, push a main y despliegue verificado. Miguel confirmo que el formato se ve bien.
