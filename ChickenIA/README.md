@@ -1,5 +1,15 @@
 # ChickenIA
 
+## Estado vigente: captura diaria, 18 de septiembre de 2026
+
+Publicado y verificado: **`5cc9127`**. Cierre de Caja y Produccion tienen ficha con marca, guardado real autenticado, resumen en dashboard y en los cortes programados de Telegram. Los estados fechados inferiores son historicos y no reemplazan esta entrega.
+
+- [Cierre de Caja](https://chickenia.chicanito.app/captura.html?mode=close)
+- [Produccion](https://chickenia.chicanito.app/captura.html?mode=production)
+- [Dashboard](https://chickenia.chicanito.app/dashboard.html)
+
+Para retomar: [handoff de captura diaria](HANDOFF_CAPTURA_DIARIA.md), [guia tecnica y limites](CAPTURA_DIARIA_PRODUCCION.md) y [cierre de sesion](REPORTE_SESION_2026-09-18.md). Primero probar un borrador real con Miguel, revisar el dashboard y confirmar el siguiente corte de Telegram. Despues: compras por foto con revision humana; mas adelante gastos corrientes. El piloto local permanece separado y no fue importado.
+
 ## Estado vigente — supervisión, 16 de septiembre de 2026
 
 Reportes de Telegram activos en Vercel Pro: **09:30, 12:00, 14:00, 17:00 y 19:00, hora CDMX**, todos los días. Primer reporte real recibido y confirmado por Miguel. Formato con emojis y barras de avance publicado; último cambio funcional `038f3cb`.

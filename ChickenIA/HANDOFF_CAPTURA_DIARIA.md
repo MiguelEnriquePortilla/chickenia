@@ -1,5 +1,20 @@
 # Captura diaria: estado al 18/09/2026
 
+## Cierre de sesion: estado vigente
+
+- Commit funcional `5cc9127`, push a main y despliegue verificado. Miguel confirmo que el formato se ve bien.
+- Formatos reales: `/captura.html?mode=close` y `/captura.html?mode=production`. Guardar borrador antes de finalizar; finalizados sin reapertura.
+- Dashboard autenticado con ambos resumenes. Telegram incorpora Caja y Produccion en el siguiente corte programado; guardar no envia inmediatamente.
+- Verificacion publicada: captura HTTP 200 con modo production; API sin sesion HTTP 401; preview protegido de Telegram HTTP 200 con ambos estados sin captura. No se enviaron mensajes de prueba ni se insertaron registros reales.
+- 25 pruebas aprobadas y build correcto. Skills instaladas actualizadas para priorizar la ficha real; CLI/MCP locales siguen siendo pruebas.
+- No importar ni borrar el borrador local de Nancy del 18/09 (fondo de 5000). No tocar `../Formatos-Internos/`, ajeno a esta entrega.
+- Siguiente sesion: captura real breve, verificar persistencia y dashboard, confirmar siguiente Telegram recibido. Luego definir compras por foto con confirmacion de conceptos, cantidades y costos antes de guardar; no implementado aun.
+- Mantener entregas pequenas y respuestas concisas por consumo de tokens. No ampliar a nomina/servicios ni contabilidad general en esta prueba.
+
+Detalles y limites: [CAPTURA_DIARIA_PRODUCCION.md](CAPTURA_DIARIA_PRODUCCION.md). Evidencia de cierre: [REPORTE_SESION_2026-09-18.md](REPORTE_SESION_2026-09-18.md).
+
+## Historial del piloto (no es el estado actual)
+
 Actualización: la entrega real está implementada; consultar CAPTURA_DIARIA_PRODUCCION.md. El texto siguiente conserva el estado histórico del piloto. No importar sus registros a producción.
 
 Piloto local implementado de Cierre de Caja y Producción. No publicado ni conectado al dashboard remoto o Telegram financiero. Usuario pidió cerrar el alcance y reducir consumo de tokens antes de ajustar el plan.
