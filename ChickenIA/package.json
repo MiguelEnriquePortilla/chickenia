@@ -17,7 +17,7 @@
     "node": ">=22 <25"
   },
   "scripts": {
-    "test:daily": "node --test test/daily-capture.test.js test/daily-live.test.js",
+    "test:daily": "node --test test/daily-capture.test.js test/daily-live.test.js test/daily-photo.test.js",
     "test": "node --test test/inventory.test.js test/routines.test.js test/rastro-sucursal.test.js test/proteins.test.js test/kitchen.test.js test/chicken-query.test.js test/pilot-access.test.js test/foodia.test.js test/foodia-mcp.test.js test/foodia-local.test.js",
     "test:telegram": "node --test test/telegram.test.js test/report-guidance.test.js test/report-image.test.js",
     "build": "node scripts/build-static.js",

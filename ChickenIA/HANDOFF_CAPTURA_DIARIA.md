@@ -2,7 +2,7 @@
 
 ## Actualización: foto del cierre de una página
 
-Implementación local preparada y probada para llegada cruda, tres producciones, mermas, tarjeta conjunta, monedas totales y gastos de cierre. Skills actualizadas para lectura de foto adjunta y captura autenticada. Se quitaron los accesos de formularios del dashboard, conservando resultados. Ver [CAPTURA_FOTO_CIERRE.md](CAPTURA_FOTO_CIERRE.md). No se capturó la foto usada como referencia ni se enviaron reportes de prueba. Estado de publicación de esta actualización: pendiente de verificar.
+Implementación publicada en `0f7103e` para llegada cruda, tres producciones, mermas, tarjeta conjunta, monedas totales y gastos de cierre. Skills instaladas actualizadas para lectura de foto adjunta y captura autenticada. Se quitaron los accesos de formularios del dashboard, conservando resultados. Ver [CAPTURA_FOTO_CIERRE.md](CAPTURA_FOTO_CIERRE.md). Verificado en el sitio publicado: `/daily/app.js` incluye el modo foto; `/js/dashboard.js` ya no enlaza a captura y conserva gastos/resultados. Pasaron 20 pruebas de dominio/API/reportes y el recorrido visual de guardar caja y tercera producción contra API aislada. No se capturó la foto de referencia ni se enviaron reportes de prueba. Pendiente: aprobación visual del PDF de una página y primera captura autenticada con una foto real autorizada.
 
 ## Cierre de sesion: estado vigente
 

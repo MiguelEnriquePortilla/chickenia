@@ -1,5 +1,7 @@
 # Caja y producción: operación real
 
+Actualización 18/09: el modo de foto CD-01 y gastos de cierre está publicado; ver [CAPTURA_FOTO_CIERRE.md](CAPTURA_FOTO_CIERRE.md). El dashboard ya no ofrece enlaces a los formularios, pero conserva resultados. Las compras de inventario siguen siendo un flujo separado; gastos de caja no crean compras automáticamente.
+
 18 de septiembre de 2026. Entrega autorizada por Miguel: marca, captura real, dashboard y Telegram. Compras y gasto corriente siguen fuera de esta entrega.
 
 ## Uso
