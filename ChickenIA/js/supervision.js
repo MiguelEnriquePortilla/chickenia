@@ -265,6 +265,7 @@ async function loadChecklist() {
 }
 
 function render() {
+  document.querySelectorAll('[data-report]').forEach(a=>{const mode=a.dataset.report;a.href=(mode==='rastro'?'/rastro.html?':'/captura.html?format=digital&mode='+mode+'&')+'date='+state.date;});
   const html = state.areas
     .map((area) => {
       const isOpen = state.openAreas ? state.openAreas.has(area.code) : false;
@@ -298,6 +299,7 @@ function render() {
 }
 
 function selectOperationalArea(code) {
+  $('#daily-reports').hidden=!['general','supervision'].includes(code)||state.location?.code!=='jojutla';
   document.querySelector('.attendance-wrap').hidden = !['general','supervision'].includes(code);
   document.querySelectorAll('#checklist .area-block').forEach(section => {
     section.hidden = code !== 'general' && section.dataset.areaCode !== code;
