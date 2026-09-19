@@ -60,7 +60,9 @@ function initDigital(){
 async function save(finalize=false){if(!state||!$('#form').reportValidity())return false;clearTimeout(timer);sequence++;lock(true);$('#error').textContent='';try{state=await api('/api/'+mode,{date:state.date,revision:state.revision,data:state.data,finalize});dirty=false;render();return true;}catch(e){failure(e);return false;}finally{lock(false);}}
 async function recalculate(){const token=++sequence;if(!$('#form').checkValidity())return;try{const result=await api('/api/calculate',{mode,data:state.data});if(token!==sequence)return;state.totals=result.totals;renderSummary();refreshButtons();}catch(e){if(token===sequence)failure(e);}}
 function render(){
-  $('#title').textContent=mode==='close'?'Cierre de Caja':'Producción del día';
+  $('#title').textContent=mode==='close'?'Cierre de Caja':'Producción Diaria';
+  document.title=$('#title').textContent+' · ChickenIA';
+  $('#supervision-link').href='/supervision.html?area=supervision&date='+state.date;
   $('#save-status').textContent=state.finalized?'Finalizado · '+environmentLabel:state.revision?`Borrador guardado · Versión ${state.revision}`:'Nuevo borrador · Sin guardar';
   if(live)$('#dashboard-link').href='/dashboard.html?date='+state.date;
   document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));

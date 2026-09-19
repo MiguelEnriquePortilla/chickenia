@@ -2,7 +2,7 @@
 (()=>{
  const svg=path=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="${path}"/></svg>`;
  function setup(){
-  const header=document.querySelector('.app-header,.inv-header,.landing');if(!header||header.querySelector('.header-tools'))return;
+  const header=document.querySelector('.app-header,.inv-header,.landing,.daily-header');if(!header||header.querySelector('.header-tools'))return;
   const tools=document.createElement('div');tools.className='header-tools';
   const theme=document.createElement('button');theme.type='button';theme.className='theme-control';
   function update(){const dark=document.documentElement.dataset.theme==='dark';theme.innerHTML=svg(dark?'M12 8a4 4 0 100 8 4 4 0 000-8 M12 2v2 M12 20v2 M2 12h2 M20 12h2 M5 5l1 1 M18 18l1 1 M5 19l1-1 M18 6l1-1':'M20 15A9 9 0 019 4a9 9 0 1011 11');theme.setAttribute('aria-label',dark?'Activar modo día':'Activar modo noche');theme.title=theme.getAttribute('aria-label');}

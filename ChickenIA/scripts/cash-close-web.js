@@ -16,6 +16,9 @@ async function start({run,cash,production}){
       if(req.method==='GET'&&['/app.js','/style.css'].includes(url.pathname)){
         res.writeHead(200,{'Content-Type':url.pathname.endsWith('.js')?'application/javascript':'text/css'});return res.end(fs.readFileSync(path.join(root,url.pathname.slice(1))));
       }
+      if(req.method==='GET'&&['/js/theme-init.js','/js/refined.js','/css/refined.css','/css/reports.css'].includes(url.pathname)){
+        res.writeHead(200,{'Content-Type':url.pathname.endsWith('.js')?'application/javascript':'text/css'});return res.end(fs.readFileSync(path.join(__dirname,'..',url.pathname.slice(1))));
+      }
       if(req.method==='GET'&&url.pathname==='/icons/icon-192.jpg'){res.writeHead(200,{'Content-Type':'image/jpeg'});return res.end(fs.readFileSync(path.join(__dirname,'../icons/icon-192.jpg')));}
       if(req.method==='GET'&&url.pathname==='/api/close')return json(200,await run(()=>cash.get(url.searchParams.get('date'))));
       if(req.method==='GET'&&url.pathname==='/api/production')return json(200,await run(()=>production.get(url.searchParams.get('date'))));

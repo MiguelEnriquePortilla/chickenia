@@ -1,5 +1,8 @@
 .checkpoints-panel{max-width:1200px;margin:20px auto;padding:0 18px;color:inherit}
-.checkpoints-panel h2{font-size:1.1rem;margin:0 0 6px}
+.checkpoints-panel>summary{font-size:1.1rem;font-weight:600;cursor:pointer;padding:18px;border:1px solid var(--border-soft);border-radius:12px;background:var(--surface);color:var(--text);min-height:48px}
+.checkpoints-panel[open]>summary{margin-bottom:16px}
+.checkpoints-panel>summary:hover{background:var(--hover)}
+.checkpoints-panel>summary:focus-visible{outline:2px solid var(--gold,#c56b16);outline-offset:3px}
 .checkpoints-panel>p{font-size:.85rem;margin:0 0 12px}
 .checkpoints-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
 .checkpoint{border:1px solid #8793a466;border-radius:12px;padding:14px;min-width:0}

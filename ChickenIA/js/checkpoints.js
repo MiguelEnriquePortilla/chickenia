@@ -1,4 +1,11 @@
 'use strict';
+const checkpointsPanel = document.getElementById('daily-checkpoints');
+if (checkpointsPanel) {
+  try { checkpointsPanel.open = localStorage.getItem('chickenia_checkpoints_open') === 'true'; } catch {}
+  checkpointsPanel.addEventListener('toggle', () => {
+    try { localStorage.setItem('chickenia_checkpoints_open', String(checkpointsPanel.open)); } catch {}
+  });
+}
 window.ChickenCheckpoints = {
   render(summary) {
     const grid=document.getElementById('checkpoints-grid');

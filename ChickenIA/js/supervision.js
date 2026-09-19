@@ -286,7 +286,7 @@ function render() {
     .join('');
   $('#checklist').innerHTML = html || '<p>No hay actividades configuradas para esta ubicación.</p>';
 
-  document.querySelectorAll('.accordion-header').forEach((header) => {
+  document.querySelectorAll('#checklist .accordion-header').forEach((header) => {
     header.addEventListener('click', () => {
       const code = header.closest('.area-block').dataset.areaCode;
       toggleArea(code);
@@ -299,7 +299,7 @@ function render() {
 }
 
 function selectOperationalArea(code) {
-  $('#daily-reports').hidden=!['general','supervision'].includes(code)||state.location?.code!=='jojutla';
+  $('#daily-reports').hidden=state.location?.code!=='jojutla';
   document.querySelector('.attendance-wrap').hidden = !['general','supervision'].includes(code);
   document.querySelectorAll('#checklist .area-block').forEach(section => {
     section.hidden = code !== 'general' && section.dataset.areaCode !== code;

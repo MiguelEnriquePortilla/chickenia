@@ -53,22 +53,14 @@
 </div>
 
 <div id="area-status-bar" class="area-status-bar" style="display:none;"></div>
-<section class="checkpoints-panel" aria-labelledby="checkpoints-title">
-  <h2 id="checkpoints-title">Puntos de control del día</h2>
+<details id="daily-checkpoints" class="checkpoints-panel">
+  <summary id="checkpoints-title">Puntos de control del día</summary>
   <p id="checkpoints-status" role="status">Cargando puntos de control…</p>
   <div id="checkpoints-grid" class="checkpoints-grid"></div>
-</section>
+</details>
 <link rel="stylesheet" href="/css/checkpoints.css">
 <script src="/js/checkpoints.js"></script>
 
-<section id="daily-reports" class="reports-panel" aria-labelledby="reports-title">
-  <h2 id="reports-title">Informes diarios</h2>
-  <div class="reports-list">
-    <a data-report="close" href="/captura.html?mode=close&amp;format=digital"><strong>Cierre de Caja</strong><span>Conteo, pagos, gastos, entrega y revisión de proteínas.</span></a>
-    <a data-report="production" href="/captura.html?mode=production&amp;format=digital"><strong>Producción Diaria</strong><span>Cocina, Freidoras, Rosticero, compras y comida.</span></a>
-    <a data-report="rastro" href="/rastro.html"><strong>Inventario de Rastro</strong><span>Existencia anterior, entradas, salidas e historial.</span></a>
-  </div>
-</section>
 <link rel="stylesheet" href="/css/reports.css">
 <div class="attendance-wrap">
   <section class="area-block" id="attendance-card">
@@ -87,6 +79,14 @@
 <main id="checklist" class="checklist">
   <p class="loading">Selecciona una ubicación...</p>
 </main>
+
+<nav id="daily-reports" class="reports-panel" aria-label="Formatos de operación">
+  <div class="reports-list">
+    <a data-report="close" href="/captura.html?mode=close&amp;format=digital">Cierre de Caja <span aria-hidden="true">→</span></a>
+    <a data-report="production" href="/captura.html?mode=production&amp;format=digital">Producción Diaria <span aria-hidden="true">→</span></a>
+    <a data-report="rastro" href="/rastro.html">Inventario de Rastro <span aria-hidden="true">→</span></a>
+  </div>
+</nav>
 
 <script src="/js/supervision.js"></script>
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
