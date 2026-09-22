@@ -14,10 +14,20 @@
 <link rel="stylesheet" href="/css/style.css" />
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/refined.css">
+<link rel="preload" as="image" href="/icons/welcome-mascot.png" />
+<link rel="stylesheet" href="/css/welcome.css">
 <script src="/js/refined.js" defer></script>
+<script src="/js/welcome.js" defer></script>
 </head>
 <body>
-<div class="landing">
+<section id="chicken-welcome" class="chicken-welcome" aria-label="Bienvenida a ChickenIA" hidden>
+  <img class="chicken-welcome__mascot" src="/icons/welcome-mascot.png" width="1024" height="1536" alt="Mascota de ChickenIA" fetchpriority="high" decoding="async" />
+  <p class="chicken-welcome__brand">CHICKEN<span>·IA</span></p>
+  <p class="chicken-welcome__message" role="status">Preparando ChickenIA…</p>
+  <div class="chicken-welcome__track" aria-hidden="true"><div class="chicken-welcome__fill"></div></div>
+  <button class="chicken-welcome__skip" type="button">Entrar ahora</button>
+</section>
+<div class="landing" id="chicken-home">
   <div class="mascot-badge">
     <img src="https://www.chicanito.app/assets/brand/logo-badge.jpg" alt="Chicanito" />
   </div>
