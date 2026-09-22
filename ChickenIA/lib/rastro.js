@@ -10,7 +10,7 @@ async function read(query,day){
   const [location]=await query("SELECT id FROM locations WHERE code='rastro' AND active=true");
   if(!location)fail('Falta configurar la ubicación Rastro.',409);
   const items=await query('SELECT id,sku,name,unit FROM inventory_items WHERE active=true AND sku=ANY($1::text[]) ORDER BY name',[skus]);
-  const movements=await query('SELECT *,movement_date::text AS day FROM inventory_movements WHERE location_id=$1 ORDER BY movement_date,id',[location.id]);
+  const movements=await query('SELECT *,movement_date::text AS day FROM inventory_movements WHERE location_id=$1 AND item_id=ANY($2::int[]) ORDER BY movement_date,id',[location.id,items.map(i=>i.id)]);
   for(const movement of movements)movement.movement_date=movement.day;
   if(movements.some(m=>!['initial','entry','exit'].includes(m.movement_type)))fail('Rastro tiene movimientos de otro formato. Revisa el historial antes de continuar.',409);
   const revision=movements.reduce((n,m)=>Math.max(n,m.id),0);

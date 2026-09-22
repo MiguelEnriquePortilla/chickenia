@@ -16,7 +16,8 @@ async function initGate() {
     const response = await fetch('/api/inventory?action=session', {cache:'no-store'});
     if(response.status===401){location.replace('/inventario.html?next='+encodeURIComponent(location.pathname+location.search));return;}
     if(!response.ok)throw new Error('No se pudo comprobar el acceso. Recarga para reintentar.');
-    await response.json();
+    const session=await response.json();
+    state.isManager=session.user?.role==='manager';
     document.getElementById('password-gate').style.display='none';
     document.getElementById('app-content').hidden=false;
     init();
@@ -137,14 +138,27 @@ async function init() {
 
 async function load() {
   if (!state.location) return;
+  const proteins=loadProteinOverview();
   try {
     const summary = await api(`summary?location_id=${state.location.id}&date=${state.date}`);
     renderStatusBar(summary);
     renderSummary(summary);
-    await loadDailyCaptures();
+    await Promise.all([loadDailyCaptures(),proteins]);
   } catch (err) {
     console.error(err);
   }
+}
+
+async function loadProteinOverview(){
+  const host=document.getElementById('protein-overview'),day=state.date,v=window.ChickenProteinView;
+  if(!state.isManager){host.hidden=true;return;}
+  host.hidden=false;
+  try{
+    const d=await api('protein-inventory?view=admin&date='+encodeURIComponent(day));
+    if(state.date!==day)return;
+    const open=host.querySelector('details')?.open;
+    host.innerHTML='<h2>Inventario de Proteínas · CEDIS</h2><p>Pollos · '+v.esc(day)+'</p>'+v.cards(d)+'<h3>Envíos a Sucursal</h3>'+v.shipments(d)+'<details'+(open?' open':'')+'><summary>Resumen semanal</summary>'+v.week(d)+'</details>';
+  }catch(e){if(state.date===day)host.innerHTML='<h2>Inventario de Proteínas</h2><p role="alert">'+v.esc(e.message)+'</p>';}
 }
 
 const RING_CIRCUMFERENCE = 2 * Math.PI * 30;

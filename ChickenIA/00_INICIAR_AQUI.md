@@ -1,5 +1,15 @@
 # ChickenIA — retomar la siguiente sesión
 
+## Inventario de Proteínas — 21 septiembre 2026
+
+Nuevo apartado implementado y probado; Miguel autorizó su publicación. Leer
+[acuerdos, funcionamiento y validación](INVENTARIO_PROTEINAS.md).
+En este apartado todo se captura en **pollos con decimales**: **Pollo por preparar**
+y **Pollos Marinados**, separados para Rostizado y Crujiente, ambos en CEDIS.
+«Piezas sueltas» eran pollos marinados y sus cifras ya estaban en pollos completos.
+No convertirlas entre ocho ni precargar las cantidades de la foto. Esta decisión
+reemplaza la regla histórica de piezas para el nuevo apartado únicamente.
+
 > **Vigente — 15 de septiembre de 2026:** leer [HANDOFF_FUDIA_REPORTES_2026-09-15.md](HANDOFF_FUDIA_REPORTES_2026-09-15.md) y [REPORTE_FUDIA_2026-09-15.md](REPORTE_FUDIA_2026-09-15.md). Compras y movimientos conversacionales locales probados; bloqueo entre tareas corregido. Próximo objetivo explícito de Miguel: crear una skill de reportes rápidos y precisos de operaciones, movimientos y compras. Solicitud de prueba cerrada y verificada en versión 9, recepción completa y tránsito cero. Base local excluida de Git; OAuth remoto pendiente.
 
 **Prompt vigente:** Lee el handoff del 15 de septiembre y crea la skill de reportes operativos de fudIA, verificando fuentes, fechas, unidades y pendientes en el piloto local. No trasladar pruebas a producción.

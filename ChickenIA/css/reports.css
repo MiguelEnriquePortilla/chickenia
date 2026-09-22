@@ -1,6 +1,6 @@
 /* Scoped report controls use the same palette as the rest of ChickenIA. */
 .reports-panel{margin:24px auto 40px;padding:0 18px;max-width:1200px}
-.reports-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.reports-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .reports-list a{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;padding:18px;border:1px solid var(--border-soft);border-radius:12px;background:var(--surface);color:var(--text);font:600 16px/1.4 Arial,sans-serif;text-decoration:none}
 .reports-list a:hover{background:var(--hover)}
 .reports-list a:focus-visible{outline:2px solid var(--accent-text);outline-offset:3px}

@@ -31,6 +31,8 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'item_id, location_id, movement_type, quantity, movement_date y recorded_by son requeridos' });
       }
       const locations = await sql`SELECT code FROM locations WHERE id=${location_id}`;
+      const proteinItems=await sql`SELECT sku FROM inventory_items WHERE id=${item_id}`;
+      if(proteinItems[0]?.sku?.startsWith('PRO-'))return res.status(409).json({error:'Registra proteínas desde Inventario de Proteínas.'});
       if(locations[0]?.code==='rastro')return res.status(409).json({error:'Registra Rastro desde su informe diario para comprobar existencias y evitar duplicados.'});
       const rows = await sql`
         INSERT INTO inventory_movements (item_id, location_id, movement_type, quantity, movement_date, notes, recorded_by)
