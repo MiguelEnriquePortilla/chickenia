@@ -17,11 +17,12 @@ const request=z.discriminatedUnion('action',[
  z.object({...base,action:z.literal('send'),amount:qty.positive(),slot:z.enum(['morning','noon','other'])}).strict(),
  z.object({...base,action:z.literal('receive'),amount:qty,shipment:z.number().int().positive()}).strict(),
  z.object({...base,action:z.literal('count'),raw:qty,marinated:qty}).strict(),
+ z.object({...base,action:z.literal('rectify'),raw:qty,marinated:qty}).strict(),
  z.object({...base,action:z.literal('waste'),amount:qty.positive(),state:z.enum(['raw','marinated'])}).strict(),
 ]);
 const fail=(message,status=400)=>{throw Object.assign(Error(message),{status});};
 const units=v=>Math.round(Number(v)*1000),decimal=v=>v/1000;
-const stockKinds=['initial','entry','exit'];
+const stockKinds=['initial','entry','exit','protein-adjustment'];
 const sign=m=>m.movement_type==='exit'?-1:1;
 function metadata(value){try{return JSON.parse(value)||{};}catch{return {};}}
 async function location(query){
@@ -59,8 +60,10 @@ function summarize(events,day){
   const raw=stateAt(events,protein,'raw',day),marinated=stateAt(events,protein,'marinated',day);
   const daily=events.filter(e=>e.protein===protein&&e.day===day);
   const amount=(action,kind)=>decimal(daily.filter(e=>e.meta.action===action&&(!kind||e.movement_type===kind)).reduce((n,e)=>n+units(e.quantity),0));
+  const correction=events.filter(e=>e.protein===protein&&e.day<=day&&e.meta.action==='rectify').at(-1);
   return {protein,name:names[protein],raw,marinated,total:raw.current===null||marinated.current===null?null:decimal(units(raw.current)+units(marinated.current)),
-   entries:amount('entry'),prepared:amount('marinate','entry'),sent:amount('send'),received:amount('receive'),waste:amount('waste')};
+   entries:amount('entry'),prepared:amount('marinate','entry'),sent:amount('send'),received:amount('receive'),waste:amount('waste'),adjustment:amount('rectify'),
+   correction:correction?{date:correction.day,actor:correction.recorded_by,at:correction.recorded_at,notes:correction.meta.notes,before:correction.meta.before,after:correction.meta.after}:null};
  });
  return rows;
 }
@@ -80,7 +83,7 @@ function report(data,day){
 async function read(query,day){date.parse(day);return report(await records(query),day);}
 async function save(query,body,user){
  const d=request.parse(body);
- const allowed=d.action==='initial'?['manager']:d.action==='receive'?['manager','kitchen']:['manager','processor','dispatch'];
+ const allowed=['initial','rectify'].includes(d.action)?['manager']:d.action==='receive'?['manager','kitchen']:['manager','processor','dispatch'];
  if(!allowed.includes(user.role))fail('Tu cuenta no tiene permiso para este movimiento.',403);
  if(d.date>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City'}).format(new Date()))fail('No se pueden registrar movimientos futuros.');
  await query("SELECT id FROM locations WHERE code='rastro' FOR UPDATE");
@@ -92,6 +95,13 @@ async function save(query,body,user){
   if(own.length)fail('Esta proteína ya tiene existencia inicial.',409);
  }else if(row.raw.current===null||row.marinated.current===null)fail('Gerencia debe registrar primero las existencias iniciales de esta proteína.',409);
  if(['initial','entry','marinate','send','waste'].includes(d.action)&&own.some(e=>e.movement_type==='protein-count'&&e.day>d.date))fail('Hay un conteo físico posterior. Registra el ajuste en la fecha actual para conservar esa verificación.',409);
+ if(['entry','marinate','send','waste'].includes(d.action)&&own.some(e=>e.meta.action==='rectify'&&e.day>d.date))fail('Ya se rectificó el inventario después de esa fecha. Usa la fecha actual para registrar el movimiento.',409);
+ if(d.action==='rectify'){
+  if(d.notes.length<3)fail('Escribe el motivo de la rectificación.');
+  const latest=own.at(-1)?.day;
+  if(latest>d.date)fail('Ya hay registros posteriores. Selecciona una fecha desde '+latest+' y escribe cuántos pollos quedan realmente en CEDIS.',409);
+  if(d.raw===row.raw.current&&d.marinated===row.marinated.current)fail('Las cantidades son iguales a las guardadas. No hay nada que rectificar.');
+ }
  if(d.action==='waste'&&!d.notes)fail('Indica el motivo de la merma.');
  if(d.action==='count'&&(d.raw!==row.raw.current||d.marinated!==row.marinated.current)&&!d.notes)fail('Explica la diferencia del conteo en Observaciones.');
  if(d.action==='receive'){
@@ -113,6 +123,13 @@ async function save(query,body,user){
   case 'send':await add('marinated','exit',d.amount,{slot:d.slot});break;
   case 'receive':await add('marinated','protein-received',d.amount,{shipment:d.shipment});break;
   case 'count':await add('raw','protein-count',d.raw,{expected:row.raw.current});await add('marinated','protein-count',d.marinated,{expected:row.marinated.current});break;
+  case 'rectify':{
+   const before={raw:row.raw.current,marinated:row.marinated.current},after={raw:d.raw,marinated:d.marinated};
+   // Signed adjustments are distinct from provider entries, shipments and waste.
+   // Preserve both original balances and targets; never rewrite prior movements.
+   for(const state of ['raw','marinated'])await add(state,'protein-adjustment',decimal(units(after[state])-units(before[state])),{before,after});
+   break;
+  }
   case 'waste':await add(d.state,'exit',d.amount);break;
  }
  const next=await records(query);

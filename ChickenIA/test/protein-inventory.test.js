@@ -74,4 +74,41 @@ test('API session, admin summary, origin, persisted transaction and duplicate re
   assert.equal((await call()).data.rows[0].total,1.5);
  }finally{auth.authenticate=original;await f.db.close();}
 });
-module.exports={schema};
+test('rectification fixes actual stock, preserves original records and separates corrections from shipments',async()=>{
+ const f=await fixture(),base={date:'2026-09-14',protein:'cruji'};
+ try{
+  let d=await f.save({...base,revision:0,action:'initial',raw:180,marinated:30});
+  const initial=await f.query('SELECT * FROM inventory_movements ORDER BY id');
+  const body={...base,revision:d.revision,action:'rectify',raw:150,marinated:0,notes:'Se sumaron los que salieron por error'};
+  await assert.rejects(f.save(body,processor),e=>e.status===403);
+  await assert.rejects(f.save({...body,notes:' '}),/motivo/);
+  await assert.rejects(f.save({...body,raw:-1}));
+  await assert.rejects(f.save({...body,raw:150.0001}));
+  await assert.rejects(f.save({...body,raw:180,marinated:30}),/iguales/);
+  d=await f.save(body);const r=d.rows[1];
+  assert.equal(r.total,150);assert.equal(r.adjustment,-60);assert.equal(r.sent,0);assert.equal(r.entries,0);assert.equal(r.waste,0);assert.equal(d.shipments.length,0);
+  assert.deepEqual(r.correction.before,{raw:180,marinated:30});assert.deepEqual(r.correction.after,{raw:150,marinated:0});assert.equal(r.correction.actor,'Miguel');
+  assert.deepEqual(await f.query("SELECT * FROM inventory_movements WHERE movement_type='initial' ORDER BY id"),initial);
+  assert.equal(d.history.filter(e=>e.action==='rectify').length,2);
+  assert.equal((await f.read('2026-09-15')).rows[1].raw.previous,150);
+  assert.equal((await f.read('2026-09-13')).rows[1].total,null);
+  assert.equal(d.week[0].rows[1].adjustment,-60);
+  await assert.rejects(f.save(body),e=>e.status===409);
+  // Fractional redistribution does not alter the total; both legs are audited.
+  d=await f.save({...base,revision:d.revision,action:'rectify',raw:145.875,marinated:4.125,notes:'Corregir separación del pollo contado'});
+  assert.equal(d.rows[1].total,150);
+  d=await f.save({...base,revision:d.revision,action:'send',amount:4.125,slot:'morning'});
+  assert.equal(d.rows[1].total,145.875);assert.equal(d.rows[1].sent,4.125);
+  const shipment=d.shipments[0].id;
+  d=await f.save({...base,revision:d.revision,action:'receive',shipment,amount:4.125},kitchen);
+  d=await f.save({...base,revision:d.revision,action:'rectify',raw:144.875,marinated:0,notes:'Error de un pollo en la apertura'});
+  assert.equal(d.shipments[0].receipt.amount,4.125);assert.equal(d.shipments[0].sent,4.125);assert.equal(d.pending,0);
+  const later={...base,date:'2026-09-15',revision:d.revision,action:'entry',amount:1};d=await f.save(later);
+  await assert.rejects(f.save({...body,revision:d.revision}),/registros posteriores/);
+  d=await f.save({...body,date:'2026-09-15',revision:d.revision,raw:145,marinated:0});
+  await assert.rejects(f.save({...base,revision:d.revision,action:'entry',amount:1}),/rectificó/);
+  assert.equal((await f.read('2026-09-15')).rows[1].total,145);
+  const simultaneous=await Promise.allSettled([1,2].map(()=>f.save({...body,date:'2026-09-15',revision:d.revision,raw:146,marinated:0})));
+  assert.equal(simultaneous.filter(r=>r.status==='fulfilled').length,1);assert.equal((await f.read('2026-09-15')).rows[1].total,146);
+ }finally{await f.db.close();}
+});

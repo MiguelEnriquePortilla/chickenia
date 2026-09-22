@@ -4,6 +4,42 @@ Implementado y probado localmente. Miguel aprobó la publicación por GitHub/Ver
 el 21 de septiembre de 2026. Las pruebas no cargaron existencias en Neon.
 No confundir las capturas de pruebas con inventario real.
 
+## Ajuste aprobado: captura sencilla y rectificación
+
+Miguel pidió simplificar el lenguaje después de que una salida se capturara como
+pollo que seguía en CEDIS. La pantalla y el dashboard ahora dicen «pollos que quedan
+en CEDIS», «sin marinar» y «Pollos Marinados en CEDIS». Un aviso explica:
+**hay 180 − salen 30 = quedan 150**. El botón **SALIDA A SUCURSAL** abre la salida;
+la vista previa calcula la resta real antes de guardar. Llegadas de proveedor y
+salidas son opciones distintas; ya no se selecciona una entrada por defecto.
+
+**RECTIFICAR INVENTARIO** permite a supervisión/gerencia (rol manager) escribir
+las dos cantidades reales que quedan en CEDIS, con campos vacíos, motivo obligatorio
+y confirmación de antes/después. Es una corrección del saldo, no una edición o
+anulación de envíos. Si únicamente falta registrar una salida, se usa SALIDA A
+SUCURSAL para que la entrega y su recepción queden vinculadas. No se corrigen
+automáticamente cifras de la foto ni se infieren cantidades reales.
+
+La rectificación agrega dos movimientos `protein-adjustment` con diferencias
+firmadas (pueden ser negativas o cero), una operación común y ambos estados antes
+y después. Se conservan los originales, usuario autenticado, fecha operativa, hora
+de servidor y motivo. No cuenta como compra, marinado, merma, salida o recepción.
+Dashboard, semana e historial muestran las rectificaciones por separado. No altera
+envíos ni recepciones ya confirmadas. Un conteo anterior conserva su diferencia y
+avisa que hubo movimientos posteriores.
+
+Se exige apertura previa. No se permite rectificar antes de registros posteriores
+de la misma proteína, ni insertar movimientos de stock con fecha anterior a una
+rectificación posterior. Así las cantidades verificadas no cambian silenciosamente.
+Se rechazan rectificaciones sin cambios, cantidades negativas, fechas futuras,
+permisos insuficientes y repeticiones con revisión vieja. Todo es transaccional;
+no crea tablas ni modifica los saldos durante el despliegue.
+
+Validación de este ajuste: 29 pruebas de dominio/API/PostgreSQL y regresión;
+recorrido en navegador con API real local, cancelación/confirmación, persistencia,
+historial, dashboard, temas día/noche y móvil/escritorio. Los datos de prueba se
+mantienen en PostgreSQL temporal, sin capturas reales en Neon.
+
 ## Acuerdos de Miguel
 
 - Apartado independiente en Supervisión y Asistencia, junto a Caja, Producción y Rastro.
@@ -33,6 +69,8 @@ usuario autenticado, hora del servidor, fecha operativa y observaciones.
 5. Conteo físico: ambos estados, sin prellenado; compara con lo calculado y conserva
    diferencias, sin ajustar automáticamente el saldo. Requiere motivo si difiere.
 6. Merma: salida explícita del estado seleccionado y motivo obligatorio.
+7. Rectificar inventario: guarda las cantidades reales en CEDIS con historial de
+   antes/después y motivo. Disponible para manager, como la apertura.
 
 Gerencia abre existencias; manager/processor/dispatch registran operaciones en
 CEDIS; manager/kitchen confirma recepción. El resumen del dashboard exige manager.
@@ -61,7 +99,7 @@ anterior `inv_state`: es independiente y tiene otra clasificación y unidades.
 Para operar este control, registrar aperturas verificadas y sus movimientos aquí;
 no contabilizar el mismo movimiento también en el motor anterior.
 
-Tipos de stock: `initial`, `entry`, `exit`. Conteos y recepciones usan
+Tipos de stock: `initial`, `entry`, `exit`, `protein-adjustment`. Conteos y recepciones usan
 `protein-count` y `protein-received`, sin efecto en el saldo de CEDIS. `notes` guarda
 el motivo, acción, usuario, vínculo de envío y un identificador común por operación.
 Rastro consulta solo su catálogo, excluyendo estas proteínas. El endpoint antiguo

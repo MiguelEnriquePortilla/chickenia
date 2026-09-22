@@ -6,25 +6,30 @@
  const requested=new URLSearchParams(location.search).get('date');
  $('#date').value=requested&&/^\d{4}-\d{2}-\d{2}$/.test(requested)?requested:today;
  $('#date').max=today;
- const actions={initial:'Existencias iniciales',entry:'Entrada de proveedor',marinate:'Pasar a Pollos Marinados',send:'Enviar a Sucursal',receive:'Confirmar recepción en Sucursal',count:'Conteo físico en CEDIS',waste:'Registrar merma'};
- const guidance={initial:'Cuenta por separado lo que está por preparar y lo que ya está marinado en CEDIS. Esta apertura se registra una sola vez.',entry:'Lo recibido del proveedor se suma al pollo por preparar.',marinate:'Se descuenta del pollo por preparar y se suma a Pollos Marinados. El total en CEDIS no cambia.',send:'Se descuentan Pollos Marinados de CEDIS. Sucursal confirmará lo que recibió.',receive:'Cuenta lo recibido y confirma el total de esa entrega, incluso cero si no llegó. Si hay diferencia, explica el motivo. Cada envío se confirma una sola vez.',count:'Captura lo contado físicamente en CEDIS. Una diferencia queda registrada para revisión y no cambia el saldo.',waste:'Registra lo que sale por merma y explica el motivo.'};
+ const actions={initial:'Primera captura: lo que hay en CEDIS',send:'SALIDA A SUCURSAL — se resta de CEDIS',entry:'Llegó pollo del proveedor — se suma',marinate:'Ya marinamos estos pollos — siguen en CEDIS',receive:'Sucursal: confirmar lo que llegó',count:'Contar los pollos — solo comparar',waste:'Pollo perdido o dañado — se resta',rectify:'RECTIFICAR INVENTARIO — corregir lo que hay'};
+ const guidance={initial:'Escribe lo que está físicamente en CEDIS al comenzar. Separa los pollos sin marinar de los marinados. No cuentes un pollo dos veces ni incluyas los que ya salieron.',entry:'Escribe solo los pollos nuevos que trajo el proveedor a CEDIS. No escribas aquí los que salen a Sucursal.',marinate:'Escribe cuántos pollos acabas de marinar. Pasan de sin marinar a Pollos Marinados. Todavía están en CEDIS: el total no aumenta.',send:'Escribe cuántos pollos marinados salen de CEDIS hacia Sucursal. Se RESTAN de CEDIS. No escribas cuántos quedan. Si aún aparecen sin marinar, registra primero que ya se marinaron.',receive:'Estás confirmando en Sucursal cuántos pollos llegaron de esa entrega. Ya se descontaron al salir de CEDIS; no se vuelven a restar.',count:'Escribe lo que contaste en CEDIS. Esto solo compara y muestra diferencias. Para corregir lo guardado, usa RECTIFICAR INVENTARIO.',waste:'Escribe cuántos pollos se perdieron o dañaron y explica qué pasó. Se restan de CEDIS.',rectify:'Cuenta los pollos que realmente quedan en CEDIS y escribe las cantidades correctas. Reemplazarán las cantidades actuales. No incluyas los que ya salieron. Explica el error. Si solo falta registrar una salida, usa SALIDA A SUCURSAL para que también quede registrada la entrega.'};
  const field=(id,label)=>`<label>${label} (pollos)<input id="${id}" name="${id}" type="number" min="0" max="1000000" step="0.001" inputmode="decimal" required placeholder="Sin captura" autocomplete="off"></label>`;
- function lock(on){busy=on;$('#capture').disabled=on||!snapshot;$('#date').disabled=on;$('#reload').disabled=on;}
+ function lock(on){busy=on;$('#capture').disabled=on||!snapshot;$('#date').disabled=on;$('#reload').disabled=on;document.querySelectorAll('[data-start-action]').forEach(b=>b.disabled=on||!snapshot);}
  async function api(body,day){const r=await fetch('/api/protein-inventory?date='+encodeURIComponent(day),body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{cache:'no-store'});if(r.status===401){location.assign('/inventario.html?next='+encodeURIComponent('/proteinas.html?date='+day));throw Error('Inicia sesión para continuar.');}const data=await r.json();if(!r.ok)throw Error(data.error);return data;}
  function form(){
   if(!snapshot)return;
   const protein=$('#protein').value,role=snapshot.role,row=snapshot.rows.find(r=>r.protein===protein),before=$('#action').value;
-  const allowed=Object.keys(actions).filter(a=>a==='initial'?role==='manager'&&row.raw.current===null:a==='receive'?['manager','kitchen'].includes(role):role!=='kitchen'&&row.raw.current!==null);
-  $('#action').innerHTML=allowed.map(a=>`<option value="${a}">${actions[a]}</option>`).join('');
+  const allowed=Object.keys(actions).filter(a=>a==='initial'?role==='manager'&&row.raw.current===null:a==='rectify'?role==='manager'&&row.raw.current!==null:a==='receive'?['manager','kitchen'].includes(role):role!=='kitchen'&&row.raw.current!==null);
+  $('#action').innerHTML='<option value="">Elige qué vas a registrar</option>'+allowed.map(a=>`<option value="${a}">${actions[a]}</option>`).join('');
   if(allowed.includes(before))$('#action').value=before;
+  else if(allowed.includes('initial'))$('#action').value='initial';
+  $('#rectify-shortcut').hidden=role!=='manager';$('#send-shortcut').hidden=role==='kitchen';
   $('#notes').value='';fields();
  }
  function fields(){
   const action=$('#action').value,protein=$('#protein').value;
   lastAction=action;
-  $('#guidance').textContent=guidance[action]||'Gerencia debe registrar primero las existencias iniciales.';
-  $('#notes').required=action==='waste';$('#save').disabled=!action;
-  let html=['initial','count'].includes(action)?field('raw','Pollo por preparar')+field('marinated','Pollos Marinados'):action?field('amount',action==='receive'?'Total recibido':'Cantidad'):'';
+  $('#guidance').textContent=guidance[action]||'Elige una opción. Para descontar una entrega, usa SALIDA A SUCURSAL.';
+  $('#notes').required=['waste','rectify'].includes(action);$('#save').disabled=!action;
+  $('#notes-label').textContent=action==='rectify'?'¿Qué error estás corrigiendo? (obligatorio)':'Comentario';
+  $('#save').textContent=action==='rectify'?'Revisar y confirmar rectificación':action==='send'?'Guardar salida y restar de CEDIS':'Guardar';
+  const labels={send:'¿Cuántos pollos salen a Sucursal?',entry:'¿Cuántos pollos nuevos trajo el proveedor?',marinate:'¿Cuántos pollos acabas de marinar?',receive:'¿Cuántos pollos llegaron a Sucursal?',waste:'¿Cuántos pollos se perdieron o dañaron?'};
+  let html=['initial','count','rectify'].includes(action)?field('raw','Sin marinar que hay en CEDIS')+field('marinated','Pollos Marinados que hay en CEDIS'):action?field('amount',labels[action]):'';
   if(action==='send')html+='<label>Entrega<select id="slot"><option value="morning">Mañana</option><option value="noon">Mediodía</option><option value="other">Otra entrega</option></select></label>';
   if(action==='waste')html+='<label>Estado<select id="stock-state"><option value="raw">Pollo por preparar</option><option value="marinated">Pollos Marinados</option></select></label>';
   if(action==='receive'){
@@ -33,6 +38,10 @@
    if(!pending.length){html='<p>No hay envíos pendientes de recepción para esta proteína.</p>';$('#save').disabled=true;}
   }
   $('#fields').innerHTML=html;$('#preview').textContent='';
+  if(action==='rectify'){
+   const r=snapshot.rows.find(r=>r.protein===protein);
+   $('#preview').textContent=`Ahora dice: sin marinar ${view.fmt(r.raw.current)} + marinados ${view.fmt(r.marinated.current)} = ${view.fmt(r.total)} pollos en CEDIS. Escribe arriba lo que hay realmente.`;
+  }
  }
  function render(){
   $('#back').href='/supervision.html?area=supervision&date='+snapshot.date;
@@ -47,21 +56,39 @@
  }
  function preview(){
   const action=$('#action').value,r=snapshot.rows.find(r=>r.protein===$('#protein').value),amount=$('#amount');
+  if(['initial','count','rectify'].includes(action)){
+   const raw=$('#raw'),mar=$('#marinated');if([raw,mar].some(i=>i.value===''||!i.validity.valid)){$('#preview').textContent='Completa ambas cantidades para ver cómo quedará el inventario.';return;}
+   const total=Math.round((Number(raw.value)+Number(mar.value))*1000)/1000;
+   $('#preview').textContent=(action==='rectify'?`Ahora dice ${view.fmt(r.total)}. Quedará: `:action==='count'?'Contaste: ':'Se guardará: ')+`${view.fmt(Number(raw.value))} sin marinar + ${view.fmt(Number(mar.value))} marinados = ${view.fmt(total)} pollos en CEDIS.`;return;
+  }
   if(!amount||amount.value===''||!amount.validity.valid){$('#preview').textContent='';return;}
   const n=Number(amount.value),round=v=>Math.round(v*1000)/1000;
   let raw=r.raw.current,mar=r.marinated.current;
   if(action==='entry')raw+=n;if(action==='marinate'){raw-=n;mar+=n;}if(action==='send')mar-=n;
   if(action==='waste'){if($('#stock-state').value==='raw')raw-=n;else mar-=n;}
-  $('#preview').textContent=action==='receive'?'Se guardará tu nombre y la hora de confirmación.':`Después de guardar: por preparar ${view.fmt(round(raw))} · Pollos Marinados ${view.fmt(round(mar))} · total ${view.fmt(round(raw+mar))}`;
+  $('#preview').textContent=action==='send'?`En CEDIS hay ${view.fmt(r.total)} − salen ${view.fmt(n)} = quedan ${view.fmt(round(raw+mar))} pollos. De los ${view.fmt(r.marinated.current)} marinados quedarán ${view.fmt(round(mar))}.`:
+   action==='receive'?'Se guardará lo recibido en Sucursal, tu nombre y la hora.':`Quedarán en CEDIS: ${view.fmt(round(raw))} sin marinar + ${view.fmt(round(mar))} marinados = ${view.fmt(round(raw+mar))} pollos.`;
+  if(action==='send'&&mar<0)$('#preview').textContent='No hay suficientes Pollos Marinados registrados para esa salida. Revisa las cantidades o registra primero que ya se marinaron.';
  }
  $('#protein').onchange=()=>{if(dirty&&!confirm('¿Descartar esta captura sin guardar?')){$('#protein').value=$('#protein').dataset.previous||'rosti';return;}dirty=false;$('#protein').dataset.previous=$('#protein').value;form();};
  $('#action').onchange=()=>{if(dirty&&!confirm('¿Descartar esta captura sin guardar?')){$('#action').value=lastAction;return;}fields();dirty=false;$('#notes').value='';};
+ document.querySelectorAll('[data-start-action]').forEach(b=>b.onclick=()=>{
+  if(busy||!snapshot)return;
+  if(dirty&&!confirm('¿Descartar esta captura sin guardar?'))return;
+  const action=b.dataset.startAction;
+  if(![...$('#action').options].some(o=>o.value===action)){$('#error').textContent='Primero elige la proteína y registra cuántos pollos hay en CEDIS.';$('#protein').focus();return;}
+  dirty=false;$('#notes').value='';$('#error').textContent='';$('#action').value=action;fields();$('#protein-form').scrollIntoView({behavior:'smooth',block:'start'});$('#fields input')?.focus({preventScroll:true});
+ });
  $('#protein-form').addEventListener('input',e=>{if(['protein','action'].includes(e.target.id))return;dirty=true;$('#status').textContent='Cambios sin guardar';preview();});
  $('#protein-form').onsubmit=async e=>{
   e.preventDefault();if(busy||!snapshot)return;const action=$('#action').value,body={date:loadedDate,revision:snapshot.revision,protein:$('#protein').value,action,notes:$('#notes').value};
   for(const key of ['raw','marinated','amount','shipment'])if($('#'+key))body[key]=Number($('#'+key).value);
   if(action==='send')body.slot=$('#slot').value;if(action==='waste')body.state=$('#stock-state').value;
-  lock(true);$('#error').textContent='';try{snapshot=await api(body,loadedDate);dirty=false;render();$('#status').textContent='Movimiento guardado correctamente · '+snapshot.date;}catch(error){$('#error').textContent=error.message;}finally{lock(false);}
+  if(action==='rectify'){
+   const r=snapshot.rows.find(r=>r.protein===body.protein);
+   if(!confirm(`${view.names[body.protein]} · ${loadedDate}\nSin marinar: ${view.fmt(r.raw.current)} → ${view.fmt(body.raw)}\nPollos Marinados: ${view.fmt(r.marinated.current)} → ${view.fmt(body.marinated)}\nMotivo: ${body.notes}\n\n¿Guardar estas cantidades como lo que realmente hay en CEDIS? La corrección quedará registrada con tu nombre.`))return;
+  }
+  lock(true);$('#error').textContent='';try{snapshot=await api(body,loadedDate);dirty=false;render();$('#status').textContent=(action==='rectify'?'Inventario rectificado correctamente':'Movimiento guardado correctamente')+' · '+snapshot.date;}catch(error){$('#error').textContent=error.message;}finally{lock(false);}
  };
  $('#reload').onclick=()=>{if(!dirty||confirm('¿Descartar la captura sin guardar y actualizar?'))load();};
  $('#date').onchange=()=>{if(dirty&&!confirm('¿Descartar la captura sin guardar y cambiar de fecha?')){$('#date').value=loadedDate;return;}load();};
