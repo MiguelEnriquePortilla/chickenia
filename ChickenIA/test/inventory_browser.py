@@ -92,8 +92,8 @@ try:
         page.locator('#production-form button').click()
         expect(page.locator('#production-form [name=qty]')).to_have_value('')
         nav_click('[data-tab=sales]')
-        page.locator('[name=presentation]').select_option('medio')
-        page.locator('#sale-form [name=qty]').fill('3')
+        page.locator('#sale-form [name=item]').select_option('rosti-cocinado')
+        page.locator('#sale-form [name=qty]').fill('1.5')
         page.locator('#sale-form button').click()
         expect(page.locator('#sale-form [name=qty]')).to_have_value('')
         assert snap()['data']['balances']['sucursal:rosti-cocinado']==8500

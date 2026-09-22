@@ -14,6 +14,19 @@ const token=payload+'.'+crypto.createHmac('sha256',process.env.INVENTORY_SESSION
  let tail=Promise.resolve();
  const connect=async()=>{const before=tail;let done;tail=new Promise(r=>done=r);await before;return {query:(s,p)=>db.query(s,p),release:done};};
  const handler=require('../api/protein-inventory').createHandler(connect),rastro=require('../api/rastro').createHandler(connect);
+ const q=async(s,p)=>(await db.query(s,p)).rows;
+ const inventory=require('../api/inventory').createHandler(()=>require('../lib/inventory-store').repository(q),q);
+ let checks,areas;
+ if(process.env.TEST_CHICKEN_UNITS==='1'){
+  await db.exec(`CREATE TABLE areas(id int PRIMARY KEY,code text,name text,location_type text,active boolean,order_index int);
+   INSERT INTO areas VALUES(1,'freidoras','Freidoras','tienda',true,1);
+   CREATE TABLE activities(id int PRIMARY KEY,area_id int,name text,criticality text,weight int,requires_quantity boolean,unit text,indicator_type text,target text,frequency text,routine_block text,order_index int,active boolean,valid_from date,valid_until date);
+   INSERT INTO activities VALUES(1,1,'Pollo crujiente preparado','critica',5,true,'piezas','PRODUCCIÓN','8–16 piezas','daily','operacion',1,true,NULL,NULL);
+   CREATE TABLE kitchen_plans(activity_id int,plan_date date,kg numeric);
+   CREATE TABLE activity_checks(activity_id int,location_id int,check_date date,done boolean,quantity numeric,quality_score numeric,notes text,checked_by text,checked_at timestamptz,UNIQUE(activity_id,location_id,check_date));`);
+  require('../lib/supervision/db').ensureTables=async()=>(strings,...values)=>q(strings.reduce((s,t,i)=>s+t+(i<values.length?'$'+(i+1):''),''),values);
+  checks=require('../api/checks');areas=require('../api/areas');
+ }
  await db.exec("INSERT INTO inventory_items(sku,name,category,unit) VALUES('VER-001','Jitomate','Verduras','kg'),('RAS-011','Bolsas','Rastro','pieza');");
  const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json'};
  const server=http.createServer(async(req,res)=>{
@@ -22,9 +35,14 @@ const token=payload+'.'+crypto.createHmac('sha256',process.env.INVENTORY_SESSION
    let raw='';for await(const chunk of req)raw+=chunk;try{req.body=raw?JSON.parse(raw):{};}catch{return res.status(400).json({error:'JSON'});}return (url.pathname==='/api/rastro'?rastro:handler)(req,res);
   }
   if(url.pathname==='/api/inventory'){
+   if(process.env.TEST_CHICKEN_UNITS==='1'){
+    let raw='';for await(const chunk of req)raw+=chunk;req.body=raw?JSON.parse(raw):{};return inventory(req,res);
+   }
    if(url.searchParams.get('action')==='session')return res.json({user:{id:user.id,name:user.name,role:user.role}});
    return res.json({cash:null,production:{revision:0}});
   }
+  if(checks&&url.pathname==='/api/checks'){let raw='';for await(const chunk of req)raw+=chunk;req.body=raw?JSON.parse(raw):{};return checks(req,res);}
+  if(areas&&url.pathname==='/api/areas')return areas(req,res);
   if(url.pathname==='/api/locations')return res.json([{id:1,code:'jojutla',name:'Jojutla',type:'tienda'}]);
   if(url.pathname==='/api/summary')return res.json({date:req.query.date,location:{id:1},overall_score:0,areas:[],critical_pending:[],cross_check:null});
   if(url.pathname.startsWith('/api/'))return res.json([]);

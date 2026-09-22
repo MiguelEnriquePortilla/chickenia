@@ -20,9 +20,9 @@ test('production keeps plans distinct from made and validates units',()=>{
   const d=prod.blank();d.lines[0].unit='kg';d.lines[0].plan1=10;assert.equal(d.lines[0].done1,null);
   assert.ok(prod.calculate(d).missing.length>0);
   d.lines[0].done1=8;assert.equal(prod.calculate(d).pendingBatches,1);
-  const cruji=d.lines.find(r=>r.id==='freidoras-4');cruji.done1=1.5;assert.throws(()=>prod.calculate(d),/enteras/);
+  const cruji=d.lines.find(r=>r.id==='freidoras-4');cruji.done1=1.5;assert.doesNotThrow(()=>prod.calculate(d));
   cruji.done1=8;cruji.unit='kg';assert.throws(()=>prod.calculate(d),/unidad/);
-  cruji.unit='piezas';d.lines[1].id=d.lines[0].id;assert.throws(()=>prod.calculate(d),/Catálogo/);
+  cruji.unit='pollos';d.lines[1].id=d.lines[0].id;assert.throws(()=>prod.calculate(d),/Catálogo/);
 });
 test('both stores persist drafts, reject stale writes and preserve audit history',async()=>{
   const {PGlite}=require('@electric-sql/pglite'),db=new PGlite(),query=async(s,p)=>(await db.query(s,p)).rows;

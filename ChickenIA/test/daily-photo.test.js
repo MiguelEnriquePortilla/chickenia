@@ -17,9 +17,9 @@ test('three protein batches total production only and preserve unknowns and kitc
   const cruji=d.lines.find(r=>r.id==='freidoras-4'),rosti=d.lines.find(r=>r.id==='rosti'),costilla=d.lines.find(r=>r.id==='costilla');
   Object.assign(cruji,{previousRaw:20,receivedRaw:50,done1:80,done2:16,done3:0});
   Object.assign(rosti,{done1:10,done2:2,done3:1});Object.assign(costilla,{done1:5.5,done2:2,done3:0});
-  const t=prod.calculate(d);assert.equal(t.produced['freidoras-4'],96);assert.equal(t.chickenPieces,200);assert.equal(t.costillaKg,7.5);
+  const t=prod.calculate(d);assert.equal(t.produced['freidoras-4'],96);assert.equal(t.chickenTotal,109);assert.equal(t.costillaKg,7.5);
   assert.equal(t.active,3);assert.ok(!t.missing.some(x=>x.includes('Arroz')||x.includes('Compra:')||x.includes('plan')));
-  cruji.done3=null;assert.equal(prod.calculate(d).chickenPieces,null);
+  cruji.done3=null;assert.equal(prod.calculate(d).chickenTotal,null);
   d.losses=[{productId:'costilla',state:'cocido',type:'merma',quantity:1,unit:'piezas',reason:'Daño'}];
   assert.throws(()=>prod.calculate(d),/Unidad de merma/);
 });

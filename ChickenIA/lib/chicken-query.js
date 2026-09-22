@@ -24,7 +24,7 @@ async function answer(context, query, now=new Date()) {
     if(date!==today(now))return {...result,title:'Esta consulta está disponible para hoy.',warnings:['El saldo actual no representa un inventario histórico. Selecciona Hoy para consultar existencias y compras actuales.']};
     const [snapshot]=await query('SELECT version,data,updated_at FROM inv_state WHERE id=1',[]);
     if(!snapshot)throw new InventoryError('Inventario no inicializado.',503);
-    const s=snapshot.data;
+    const s=require('./chicken-units').display(snapshot.data);
     result.areaName='CEDIS y Sucursal · Todas las áreas';
     result.updatedAt=snapshot.updated_at;
     result.sources=[{label:'Ver inventario y compras',href:'/inventario.html?area=general'+(intent==='nancy'?'&panel=nancy':'')}];

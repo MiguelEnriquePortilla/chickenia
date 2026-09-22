@@ -67,7 +67,8 @@ module.exports = async (req, res) => {
       const recibido = recibidoAct ? checkByActivity[recibidoAct.id] : null;
       const sobrante = sobranteAct ? checkByActivity[sobranteAct.id] : null;
       if (recibido && sobrante && recibido.quantity != null && sobrante.quantity != null) {
-        crossCheck = { recibido: Number(recibido.quantity), sobrante: Number(sobrante.quantity) };
+        const units=require('../lib/chicken-units');
+        crossCheck = { recibido: Number(units.check(recibido,recibidoAct).quantity), sobrante: Number(units.check(sobrante,sobranteAct).quantity),unit:'pollos' };
       }
     }
 

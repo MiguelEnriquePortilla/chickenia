@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
     const byArea = {};
     for (const act of activities) {
       if (!byArea[act.area_id]) byArea[act.area_id] = [];
-      byArea[act.area_id].push(act);
+      byArea[act.area_id].push(require('../lib/chicken-units').activity(act));
     }
     const result = areas.map((a) => ({ ...a, activities: byArea[a.id] || [] }));
     res.status(200).json(result);

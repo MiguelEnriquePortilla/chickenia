@@ -1,5 +1,12 @@
 # Estado vigente de ChickenIA — 22 septiembre 2026
 
+## Regla vigente: TODO pollo en pollos, 22/09/2026
+
+Leer [unidades de pollo y compatibilidad histórica](UNIDADES_POLLO.md).
+Toda captura de pollo admite pollos con decimales, incluidos Producción, mermas,
+inventarios, ventas y supervisión. Sustituye las instrucciones anteriores de piezas.
+Splash revisado: es el inicio nativo de Android; no se modificó.
+
 Este documento reemplaza los pendientes y reglas generales de sesiones anteriores
 cuando contradigan los acuerdos siguientes. Miguel pidió continuar con ajustes
 concretos, sin volver a diseñar ni repetir preguntas ya resueltas.

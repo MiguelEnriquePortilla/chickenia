@@ -6,30 +6,31 @@ const extraFields=['receivedRaw','done3'];
 const fields=['previousRaw','previousCooked','plan1','done1','plan2','done2','closingCooked','closingRaw'];
 const catalog=[
   ...['Arroz blanco','Arroz rojo','Espagueti preparado','Nopales','Puré de papa','Papas cambray','Ensalada de col','Adobo tradicional','Adobo tres chiles','Salsa barbecue','Marinado para rostizado','Espagueti y verduras','Rajas con papas','Crema para espagueti','Pasta de codo cocida','Pasta de espagueti cocida'].map((name,i)=>({id:'cocina-'+i,name,area:'Cocina',rawUnit:null,unit:null})),
-  ...['Salsa verde','Ensalada campesina','Sopa de codo','Papas gajo','Cruji'].map((name,i)=>({id:'freidoras-'+i,name,area:'Freidoras',rawUnit:i===4?'pollos':null,unit:i===4?'piezas':null})),
+  ...['Salsa verde','Ensalada campesina','Sopa de codo','Papas gajo','Cruji'].map((name,i)=>({id:'freidoras-'+i,name,area:'Freidoras',rawUnit:i===4?'pollos':null,unit:i===4?'pollos':null})),
   {id:'rosti',name:'Rosti',area:'Rosticero',rawUnit:'pollos',unit:'pollos'},
   {id:'costilla',name:'Costilla',area:'Rosticero',rawUnit:'kg',unit:'kg'},
 ];
-const schema=z.object({chickenUnit:z.literal('piezas').optional(),digital:z.boolean().optional(),receipt:z.object({deliveredBy:z.string().max(200),receivedBy:z.string().max(200),batchTimes:z.array(z.string().max(20)).length(3)}).strict().optional(),photo:z.object({format:z.literal('cierre-una-pagina-v1'),sourceFile:z.string().max(250),sourceSha256:z.string().regex(/^[a-f0-9]{64}$/),deliveredBy:z.string().max(200),receivedBy:z.string().max(200),batchTimes:z.array(z.string().max(20)).length(3)}).strict().optional(),losses:z.array(z.object({productId:z.enum(['freidoras-4','rosti','costilla']),state:z.enum(['crudo','cocido']),type:z.enum(['merma','cortesia','consumo','devolucion']),quantity:qty,unit:units,reason:z.string().max(1000)}).strict()).max(100).optional(),responsible:z.string().trim().max(200),employeeMeal:z.string().trim().max(1000),notes:z.string().trim().max(1000),
+const schema=z.object({chickenUnit:z.enum(['piezas','pollos']).optional(),digital:z.boolean().optional(),receipt:z.object({deliveredBy:z.string().max(200),receivedBy:z.string().max(200),batchTimes:z.array(z.string().max(20)).length(3)}).strict().optional(),photo:z.object({format:z.literal('cierre-una-pagina-v1'),sourceFile:z.string().max(250),sourceSha256:z.string().regex(/^[a-f0-9]{64}$/),deliveredBy:z.string().max(200),receivedBy:z.string().max(200),batchTimes:z.array(z.string().max(20)).length(3)}).strict().optional(),losses:z.array(z.object({productId:z.enum(['freidoras-4','rosti','costilla']),state:z.enum(['crudo','cocido']),type:z.enum(['merma','cortesia','consumo','devolucion']),quantity:qty,unit:units,reason:z.string().max(1000)}).strict()).max(100).optional(),responsible:z.string().trim().max(200),employeeMeal:z.string().trim().max(1000),notes:z.string().trim().max(1000),
   lines:z.array(z.object({id:z.string(),active:z.boolean(),unit:units,...Object.fromEntries(extraFields.map(k=>[k,qty.optional()])),...Object.fromEntries(fields.map(k=>[k,qty]))}).strict()).length(catalog.length),
   purchases:z.object(Object.fromEntries(['Leche','Aceite','Crema LALA'].map(k=>[k,z.object({qty,unit:z.string().trim().max(50)}).strict()]))).strict(),
 }).strict();
-function blank(){return {responsible:'',employeeMeal:'',notes:'',lines:catalog.map(r=>({id:r.id,active:true,unit:r.unit,...Object.fromEntries(fields.map(k=>[k,null]))})),purchases:Object.fromEntries(['Leche','Aceite','Crema LALA'].map(k=>[k,{qty:null,unit:''}]))};}
-function pieces(data){
-  const d=structuredClone(data);
-  if(d.chickenUnit==='piezas')return d;
+function blank(){return {chickenUnit:'pollos',responsible:'',employeeMeal:'',notes:'',lines:catalog.map(r=>({id:r.id,active:true,unit:r.unit,...Object.fromEntries(fields.map(k=>[k,null]))})),purchases:Object.fromEntries(['Leche','Aceite','Crema LALA'].map(k=>[k,{qty:null,unit:''}]))};}
+// Normalize legacy captures in memory; immutable stored revisions keep their original units.
+function chickens(data){
+  const d=structuredClone(schema.parse(data));
+  if(d.chickenUnit==='pollos')return d;
   for(const r of d.lines){
     if(!['freidoras-4','rosti'].includes(r.id))continue;
-    const keys=r.id==='rosti'?[...fields,...extraFields]:['previousRaw','closingRaw','receivedRaw'];
-    for(const key of keys)if(r[key]!=null)r[key]=Math.round(r[key]*8*1000)/1000;
-    r.unit='piezas';
+    const keys=d.chickenUnit==='piezas'?[...fields,...extraFields]:r.id==='freidoras-4'?[...fields,...extraFields].filter(k=>!['previousRaw','closingRaw','receivedRaw'].includes(k)):[];
+    for(const key of keys)if(r[key]!=null)r[key]=r[key]/8;
+    r.unit='pollos';
   }
-  for(const loss of d.losses||[])if(loss.unit==='pollos'){if(loss.quantity!=null)loss.quantity*=8;loss.unit='piezas';}
-  d.chickenUnit='piezas';return d;
+  for(const loss of d.losses||[])if(['freidoras-4','rosti'].includes(loss.productId)&&loss.unit==='piezas'){if(loss.quantity!=null)loss.quantity/=8;loss.unit='pollos';}
+  d.chickenUnit='pollos';return d;
 }
-function captureCatalog(data){return catalog.map(c=>data.chickenUnit==='piezas'&&['rosti','freidoras-4'].includes(c.id)?{...c,rawUnit:'piezas',unit:'piezas'}:c);}
+function captureCatalog(){return catalog;}
 function calculate(data){
-  const d=schema.parse(data),missing=[],warnings=[],photo=!!d.photo&&!d.digital;
+  const d=schema.parse(chickens(data)),missing=[],warnings=[],photo=!!d.photo&&!d.digital;
   const currentCatalog=captureCatalog(d);
   const included=r=>r.active&&(!photo||['freidoras-4','rosti','costilla'].includes(r.id));
   if(new Set(d.lines.map(r=>r.id)).size!==catalog.length||d.lines.some(r=>!catalog.some(c=>c.id===r.id)))throw Object.assign(Error('Catálogo de producción inválido.'),{status:400});
@@ -45,7 +46,7 @@ function calculate(data){
       if(raw&&!c.rawUnit)continue;
       if(r[k]==null)missing.push(c.name+': '+k);
       const unit=raw?c.rawUnit:r.unit;
-      if(r[k]!=null&&(['piezas','porciones'].includes(unit)||(unit==='pollos'&&raw))&&!Number.isInteger(r[k]))throw Object.assign(Error(c.name+': usa cantidades enteras para '+unit),{status:400});
+      if(r[k]!=null&&['piezas','porciones'].includes(unit)&&!Number.isInteger(r[k]))throw Object.assign(Error(c.name+': usa cantidades enteras para '+unit),{status:400});
     }
     if(fields.some(k=>r[k]!==null)&&!r.unit)warnings.push('Define la unidad de '+c.name);
     for(const n of photo?[]:[1,2])if(r['plan'+n]>0&&(r['done'+n]===null||r['done'+n]<r['plan'+n]))pending++;
@@ -54,10 +55,10 @@ function calculate(data){
   if(!photo)for(const [name,p]of Object.entries(d.purchases))if(p.qty===null||(p.qty>0&&!p.unit))missing.push('Compra: '+name);
   if(!photo&&!d.employeeMeal)missing.push('Comida de empleados (o Sin comida)');
   if(warnings.length&&!d.notes)missing.push('Aclaraciones');
-  const produced=Object.fromEntries(d.lines.filter(included).map(r=>{const values=(photo||d.digital)?[r.done1,r.done2,r.done3]:[r.done1,r.done2];return [r.id,values.some(v=>v==null)?null:values.reduce((a,b)=>a+b,0)];}));
-  const chickenPieces=produced['freidoras-4']==null||produced.rosti==null?null:produced['freidoras-4']+produced.rosti*(d.chickenUnit==='piezas'?1:8);
+  const produced=Object.fromEntries(d.lines.filter(included).map(r=>{const values=(photo||d.digital)?[r.done1,r.done2,r.done3]:[r.done1,r.done2];return [r.id,values.some(v=>v==null)?null:values.reduce((a,b)=>a+Math.round(b*1000),0)/1000];}));
+  const chickenTotal=produced['freidoras-4']==null||produced.rosti==null?null:Math.round((produced['freidoras-4']+produced.rosti)*1000)/1000;
   for(const loss of d.losses||[]){const c=currentCatalog.find(c=>c.id===loss.productId);const expectedUnit=loss.state==='crudo'?c.rawUnit:c.unit;if(loss.unit!==expectedUnit)throw Object.assign(Error('Unidad de merma inválida para '+c.name),{status:400});if(loss.unit==='piezas'&&loss.quantity!=null&&!Number.isInteger(loss.quantity))throw Object.assign(Error('Las piezas deben ser enteras.'),{status:400});if(loss.quantity==null||!loss.reason)missing.push('Merma o consumo: cantidad y motivo');}
-  return {produced,chickenPieces,costillaKg:produced.costilla??null,active:d.lines.filter(included).length,pendingBatches:pending,missing,warnings,canFinalize:missing.length===0};
+  return {produced,chickenTotal,costillaKg:produced.costilla??null,active:d.lines.filter(included).length,pendingBatches:pending,missing,warnings,canFinalize:missing.length===0};
 }
 function service(databaseQuery,actor){
   const live=actor.environment==='production';
@@ -66,16 +67,16 @@ function service(databaseQuery,actor){
   if(!['local-test','production'].includes(actor.environment)||actor.business!=='chicanito')fail('Producción disponible solo en pruebas locales.',403);
   const valid=date=>typeof date==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(date)&&Number.isFinite(Date.parse(date))&&new Date(date).toISOString().slice(0,10)===date;
   async function migrate(){await query('CREATE TABLE IF NOT EXISTS production_daily_pilot(date date PRIMARY KEY,revision int NOT NULL,data jsonb NOT NULL,finalized boolean NOT NULL,updated_at timestamptz NOT NULL DEFAULT now())');await query('CREATE TABLE IF NOT EXISTS production_daily_pilot_history(date date NOT NULL,revision int NOT NULL,data jsonb NOT NULL,finalized boolean NOT NULL,actor text NOT NULL,created_at timestamptz NOT NULL DEFAULT now(),PRIMARY KEY(date,revision))');}
-  async function get(date){if(!valid(date))fail('Fecha inválida.');await migrate();const [row]=await query('SELECT revision,data,finalized,updated_at FROM production_daily_pilot WHERE date=$1::date',[date]);const result=row||{revision:0,data:blank(),finalized:false};return {environment:actor.environment,date,...result,data:pieces(result.data),catalog:captureCatalog(pieces(result.data)),totals:calculate(pieces(result.data))};}
+  async function get(date){if(!valid(date))fail('Fecha inválida.');await migrate();const [row]=await query('SELECT revision,data,finalized,updated_at FROM production_daily_pilot WHERE date=$1::date',[date]);const result=row||{revision:0,data:blank(),finalized:false};return {environment:actor.environment,date,...result,data:chickens(result.data),catalog:captureCatalog(chickens(result.data)),totals:calculate(chickens(result.data))};}
   async function save({date,revision,data,finalize=false}){
     if(!actor.canWrite)fail('Sin permiso de escritura.',403);
     if(!valid(date)||!Number.isSafeInteger(revision)||revision<0||typeof finalize!=='boolean')fail('Fecha o versión inválida.');
-    const parsed=schema.parse(data),totals=calculate(parsed);
+    const parsed=schema.parse(chickens(data)),totals=calculate(parsed);
     if(finalize&&!totals.canFinalize)fail('Faltan datos: '+totals.missing.join(', '));
     await migrate();
     const [previous]=await query('SELECT data FROM production_daily_pilot WHERE date=$1::date',[date]);
     if(previous)for(const line of parsed.lines){
-      const old=(parsed.chickenUnit==='piezas'?pieces(previous.data):previous.data).lines.find(r=>r.id===line.id);
+      const old=chickens(previous.data).lines.find(r=>r.id===line.id);
       if(old&&old.unit!==line.unit&&[...fields,...extraFields].some(k=>old[k]!=null)&&[...fields,...extraFields].some(k=>line[k]!=null))fail('Para cambiar unidad, vacía primero las cantidades del producto y vuelve a capturarlas con la unidad correcta.');
     }
     const rows=await query(`WITH saved AS (
@@ -89,4 +90,4 @@ function service(databaseQuery,actor){
   }
   return {get,save};
 }
-module.exports={pieces,captureCatalog,schema,blank,calculate,service,catalog};
+module.exports={chickens,captureCatalog,schema,blank,calculate,service,catalog};

@@ -39,7 +39,7 @@ Solo Cruji, Rosti y costilla: no marcar cocina como cero ni excluir productos de
 | Entregó / recibió proteína; horas | Mermas y recepción |
 | Merma / cortesía / consumo | Mermas y consumo: producto, estado, cantidad, unidad, tipo y motivo |
 
-Cruji crudo en pollos y cocido en piezas; Rosti en pollos; costilla en kg. Total pollo producido en piezas = Cruji + Rosti × 8. Total costilla independiente. No sumar llegadas ni inventario anterior al total producido. Los totales los calcula el servicio; coteja contra lo escrito. Fracciones de pollo no admitidas por el servicio actual requieren aclaración, nunca redondear. Recepción registrada aquí es observación de la hoja: no genera transferencia, compra ni movimiento Poster.
+Desde el 22/09/2026, Cruji y Rosti se capturan siempre en pollos con hasta tres decimales, crudos y cocidos. Costilla permanece en kg. Total pollo producido en pollos = Cruji + Rosti. No multiplicar por ocho. Total costilla independiente. No sumar llegadas ni inventario anterior al total producido. Los totales los calcula el servicio; coteja contra lo escrito. Medio pollo = 0.5; un cuarto = 0.25. No redondear fracciones. Recepción registrada aquí es observación de la hoja: no genera transferencia, compra ni movimiento Poster.
 
 ## Guardado y resultados
 

@@ -1,5 +1,12 @@
 # Informes digitales — 19 septiembre 2026
 
+## Regla vigente: TODO pollo en pollos, 22/09/2026
+
+Leer [unidades de pollo y compatibilidad histórica](UNIDADES_POLLO.md).
+Toda captura de pollo admite pollos con decimales, incluidos Producción, mermas,
+inventarios, ventas y supervisión. Sustituye las instrucciones anteriores de piezas.
+Splash revisado: es el inicio nativo de Android; no se modificó.
+
 ## Estado vigente: 22 septiembre 2026
 
 Leer primero [cierre de sesión y acuerdos vigentes](REPORTE_SESION_2026-09-22.md).

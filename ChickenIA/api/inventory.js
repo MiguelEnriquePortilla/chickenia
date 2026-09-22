@@ -7,6 +7,8 @@ function createHandler(getRepository = production, queryOverride) {
   let migrated;
   return async (req, res) => {
     if(String(req.query?.action||'').startsWith('daily-'))return require('../lib/daily-handler')(req,res,queryOverride);
+    const chicken=require('../lib/chicken-units'),pollos=req.query?.chickenUnit==='pollos';
+    const view=value=>pollos?chicken.display(value):value;
     res.setHeader('Cache-Control','no-store');
     res.setHeader('X-Content-Type-Options','nosniff');
     try {
@@ -38,18 +40,18 @@ function createHandler(getRepository = production, queryOverride) {
       if (req.method === 'GET') {
         if (action === 'proteins') {
           const current = await repo.snapshot(), day = today(new Date());
-          return res.status(200).json(require('../lib/protein-report').proteinReport(current, await repo.dailyEvents(day, current.version), day));
+          return res.status(200).json(view(require('../lib/protein-report').proteinReport(current, await repo.dailyEvents(day, current.version), day)));
         }
         if (action === 'history') {
           const before = req.query.before == null ? 2147483647 : Number(req.query.before);
           if (!Number.isInteger(before) || before < 1) throw new InventoryError('Página inválida.');
-          return res.status(200).json(await repo.history(before));
+          return res.status(200).json(view(await repo.history(before)));
         }
         if (action !== 'snapshot') throw new InventoryError('Ruta desconocida.',404);
-        return res.status(200).json({ ...(await repo.snapshot()), user, permissions:Object.keys(roles).filter(k=>roles[k].includes(user.role)), openingTasks:OPENING_TASKS, today:today(new Date()) });
+        return res.status(200).json(view({ ...(await repo.snapshot()), user, permissions:Object.keys(roles).filter(k=>roles[k].includes(user.role)), openingTasks:OPENING_TASKS, today:today(new Date()) }));
       }
       if (action !== 'operation') throw new InventoryError('Ruta desconocida.',404);
-      return res.status(200).json(await repo.execute(req.body,user));
+      return res.status(200).json(view(await repo.execute(pollos?chicken.command({...req.body,chickenUnit:'pollos'}):req.body,user)));
     } catch (error) {
       const status = error.status || 500;
       if (status === 500) console.error('inventory failed', error.code || error.name);

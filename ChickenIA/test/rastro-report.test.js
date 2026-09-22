@@ -53,12 +53,12 @@ test('Rastro rectifications preserve movements, audit differences and carry thre
   assert.equal((await q('SELECT count(*) FROM inventory_movements WHERE item_id=3'))[0].count,0);
  }finally{await db.close();}
 });
-test('Legacy whole chickens convert once to pieces, raw and cooked; piece fractions are rejected',()=>{
- const d=prod.blank(),r=d.lines.find(l=>l.id==='rosti'),c=d.lines.find(l=>l.id==='freidoras-4');
- Object.assign(r,{previousRaw:20,closingCooked:3.75,done1:20,done2:20});Object.assign(c,{previousRaw:20,done1:48,done2:0});
- const p=prod.pieces(d);assert.equal(p.lines.find(l=>l.id==='rosti').closingCooked,30);assert.equal(p.lines.find(l=>l.id==='rosti').previousRaw,160);assert.equal(p.lines.find(l=>l.id==='freidoras-4').done1,48);
- assert.deepEqual(prod.pieces(p),p);assert.equal(prod.calculate(p).chickenPieces,368);
- p.lines.find(l=>l.id==='rosti').closingCooked=3.75;assert.throws(()=>prod.calculate(p),/enteras/);
+test('Legacy mixed units convert once to pollos without changing the stored source',()=>{
+ const d=prod.blank();delete d.chickenUnit;
+ const r=d.lines.find(l=>l.id==='rosti'),c=d.lines.find(l=>l.id==='freidoras-4');
+ c.unit='piezas';Object.assign(r,{previousRaw:20,closingCooked:3.75,done1:20,done2:20});Object.assign(c,{previousRaw:20,done1:48,done2:0});
+ const p=prod.chickens(d);assert.equal(p.lines.find(l=>l.id==='rosti').closingCooked,3.75);assert.equal(p.lines.find(l=>l.id==='rosti').previousRaw,20);assert.equal(p.lines.find(l=>l.id==='freidoras-4').done1,6);
+ assert.deepEqual(prod.chickens(p),p);assert.equal(prod.calculate(p).chickenTotal,46);assert.equal(c.done1,48);
 });
 test('Digital cash totals use total coins and combined card payments without photo metadata',()=>{
  const d=cash.blank();d.digital={coinsTotal:91300,cardTotal:76700,preparedTime:'',deliveredBy:'',reviewedBy:''};

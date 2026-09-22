@@ -1,8 +1,8 @@
 {
   "api/areas.js": {
-    "mtime": 1789139387.3566694,
-    "ast_hash": "d24d46e97f3457df93c84fea85811d24",
-    "semantic_hash": "d24d46e97f3457df93c84fea85811d24"
+    "mtime": 1790120894.12348,
+    "ast_hash": "5c7934d5b493acd3f34f2a5243fbd598",
+    "semantic_hash": "5c7934d5b493acd3f34f2a5243fbd598"
   },
   "api/attendance.js": {
     "mtime": 1789139387.3566694,
@@ -10,9 +10,9 @@
     "semantic_hash": "dd5a1e91359a02daddaa3b6537a61ef7"
   },
   "api/checks.js": {
-    "mtime": 1789139387.3566694,
-    "ast_hash": "7df777db76157b64a377c7f6201ab71e",
-    "semantic_hash": "7df777db76157b64a377c7f6201ab71e"
+    "mtime": 1790120895.502996,
+    "ast_hash": "3b3e9f461d3a383bc9cb605405cf7715",
+    "semantic_hash": "3b3e9f461d3a383bc9cb605405cf7715"
   },
   "api/chicken-ia.js": {
     "mtime": 1789143606.6260893,
@@ -40,9 +40,9 @@
     "semantic_hash": "9f157880e9621b3f87396b49057ff9a9"
   },
   "api/inventory.js": {
-    "mtime": 1789738667.6438265,
-    "ast_hash": "ae6edfb5eec4d1402341f4320441b3d7",
-    "semantic_hash": "ae6edfb5eec4d1402341f4320441b3d7"
+    "mtime": 1790120654.2121527,
+    "ast_hash": "d2b94f8ed11deb88bbb644be7f9b4e2a",
+    "semantic_hash": "d2b94f8ed11deb88bbb644be7f9b4e2a"
   },
   "api/kitchen-plan.js": {
     "mtime": 1789139387.3566694,
@@ -65,9 +65,9 @@
     "semantic_hash": "bb63eed091e2f8ac53d6276766cd1bd1"
   },
   "api/summary.js": {
-    "mtime": 1789738929.2348058,
-    "ast_hash": "381172b7fe78786e0134a77f7b1927f6",
-    "semantic_hash": "381172b7fe78786e0134a77f7b1927f6"
+    "mtime": 1790120897.9669158,
+    "ast_hash": "32b09438ba77349cd807bf38572d54ed",
+    "semantic_hash": "32b09438ba77349cd807bf38572d54ed"
   },
   "js/area-navigation.js": {
     "mtime": 1789418133.9928567,
@@ -85,9 +85,9 @@
     "semantic_hash": "d78b317532783e9a7d64ae70b35b26aa"
   },
   "js/dashboard.js": {
-    "mtime": 1790118283.2640455,
-    "ast_hash": "1a8990abf4365efeeb60ada49c47f16e",
-    "semantic_hash": "1a8990abf4365efeeb60ada49c47f16e"
+    "mtime": 1790120582.322936,
+    "ast_hash": "86cafe2a4d57f5ce877cd7d773742de3",
+    "semantic_hash": "86cafe2a4d57f5ce877cd7d773742de3"
   },
   "js/feedback.js": {
     "mtime": 1789137073.3580322,
@@ -95,9 +95,9 @@
     "semantic_hash": "63043388955b15ec80f1074c935f2edf"
   },
   "js/inventory.js": {
-    "mtime": 1790030929.9880888,
-    "ast_hash": "04590947760d46ec62939982ac2bdf45",
-    "semantic_hash": "04590947760d46ec62939982ac2bdf45"
+    "mtime": 1790120656.0288732,
+    "ast_hash": "9c4bb26117f542b334a07a154a0c1ec2",
+    "semantic_hash": "9c4bb26117f542b334a07a154a0c1ec2"
   },
   "js/protein-inventory.js": {
     "mtime": 1790047814.8513205,
@@ -125,9 +125,9 @@
     "semantic_hash": "2395e32182fc657475cdec2d8352a48c"
   },
   "js/supervision.js": {
-    "mtime": 1790030869.93019,
-    "ast_hash": "3bf7260611f711642ca9d0fdd7f2af60",
-    "semantic_hash": "3bf7260611f711642ca9d0fdd7f2af60"
+    "mtime": 1790120896.6545525,
+    "ast_hash": "cb77b5fd6272fda89e20bfd6de9ff35f",
+    "semantic_hash": "cb77b5fd6272fda89e20bfd6de9ff35f"
   },
   "js/theme-init.js": {
     "mtime": 1789849120.0577002,
@@ -145,14 +145,14 @@
     "semantic_hash": "b5a44a995047f0ede67dd0bcd6aad2a9"
   },
   "lib/cash-ui/app.js": {
-    "mtime": 1789849276.735932,
-    "ast_hash": "7a3c0360562b959b88144b263dd38859",
-    "semantic_hash": "7a3c0360562b959b88144b263dd38859"
+    "mtime": 1790120582.322936,
+    "ast_hash": "b86773c65d05456ed6d4fa5a01bd62c0",
+    "semantic_hash": "b86773c65d05456ed6d4fa5a01bd62c0"
   },
   "lib/chicken-query.js": {
-    "mtime": 1789151232.547814,
-    "ast_hash": "f74d3729ea12bd5893b657c218c6af50",
-    "semantic_hash": "f74d3729ea12bd5893b657c218c6af50"
+    "mtime": 1790120899.15338,
+    "ast_hash": "55840b46fec00bf5585361bc0210f904",
+    "semantic_hash": "55840b46fec00bf5585361bc0210f904"
   },
   "lib/daily-handler.js": {
     "mtime": 1789738928.5150898,
@@ -160,9 +160,9 @@
     "semantic_hash": "585a7848478b7203b9f6b1b9b7163d17"
   },
   "lib/daily-summary.js": {
-    "mtime": 1789748789.6266785,
-    "ast_hash": "02dc0d71d85397ced990e754230aa4ee",
-    "semantic_hash": "02dc0d71d85397ced990e754230aa4ee"
+    "mtime": 1790120582.322936,
+    "ast_hash": "a9e22ad44b92aba5a035b6bc6d3301a2",
+    "semantic_hash": "a9e22ad44b92aba5a035b6bc6d3301a2"
   },
   "lib/food-auth.js": {
     "mtime": 1789423354.237153,
@@ -190,9 +190,9 @@
     "semantic_hash": "d65562e75f4bce66f3506476e90b0830"
   },
   "lib/inventory-domain.js": {
-    "mtime": 1789423350.7378097,
-    "ast_hash": "922b9018c451e66649725603790206e2",
-    "semantic_hash": "922b9018c451e66649725603790206e2"
+    "mtime": 1790120655.436831,
+    "ast_hash": "3f48daa577ee6abb9ab4f3545cc2a0a2",
+    "semantic_hash": "3f48daa577ee6abb9ab4f3545cc2a0a2"
   },
   "lib/inventory-store.js": {
     "mtime": 1789423353.086321,
@@ -210,9 +210,9 @@
     "semantic_hash": "e218203d2cc06bb2deda8fd247100ded"
   },
   "lib/production-daily.js": {
-    "mtime": 1789842640.3009129,
-    "ast_hash": "d312b6fb3adaa459f071a648e53c2ee3",
-    "semantic_hash": "d312b6fb3adaa459f071a648e53c2ee3"
+    "mtime": 1790121120.5373015,
+    "ast_hash": "cb113003a5186c330486cd638aa57255",
+    "semantic_hash": "cb113003a5186c330486cd638aa57255"
   },
   "lib/protein-inventory.js": {
     "mtime": 1790047762.1828902,
@@ -290,9 +290,9 @@
     "semantic_hash": "a0cdbdcf5bc4ad90f5e70a9370c610dc"
   },
   "package.json": {
-    "mtime": 1790030935.377285,
-    "ast_hash": "186a85cf949501bc7920d90b4cfc82a1",
-    "semantic_hash": "186a85cf949501bc7920d90b4cfc82a1"
+    "mtime": 1790121247.634194,
+    "ast_hash": "a00b1266d1c97d203ed1eae2481cc864",
+    "semantic_hash": "a00b1266d1c97d203ed1eae2481cc864"
   },
   "plugins/foodia-local/.mcp.json": {
     "mtime": 1789442850.4768033,
@@ -370,9 +370,9 @@
     "semantic_hash": "05fa3f668a6c434270d3e034b99be725"
   },
   "test/daily-capture.test.js": {
-    "mtime": 1789698797.1133924,
-    "ast_hash": "fa726c55bdbc1c9900474494dcf13c6f",
-    "semantic_hash": "fa726c55bdbc1c9900474494dcf13c6f"
+    "mtime": 1790121020.7715285,
+    "ast_hash": "0db594ebd5becb79187b4748fe933866",
+    "semantic_hash": "0db594ebd5becb79187b4748fe933866"
   },
   "test/daily-live.test.js": {
     "mtime": 1789738884.54201,
@@ -380,9 +380,9 @@
     "semantic_hash": "ad55830020a94c171d6f1257cf44f29f"
   },
   "test/daily-photo.test.js": {
-    "mtime": 1789748634.626712,
-    "ast_hash": "7e01299a61283597b54eb63d88c10e07",
-    "semantic_hash": "7e01299a61283597b54eb63d88c10e07"
+    "mtime": 1790121020.7715285,
+    "ast_hash": "7e196968e9ae7f484ce44e198301f487",
+    "semantic_hash": "7e196968e9ae7f484ce44e198301f487"
   },
   "test/fixtures.py": {
     "mtime": 1788895161.944968,
@@ -410,9 +410,9 @@
     "semantic_hash": "f8a8fb3798289e12dbfc00d65571046f"
   },
   "test/inventory_browser.py": {
-    "mtime": 1789423918.0930605,
-    "ast_hash": "088eb823bbec324c93f68cceabc10e76",
-    "semantic_hash": "088eb823bbec324c93f68cceabc10e76"
+    "mtime": 1790121247.634194,
+    "ast_hash": "5df90644216385225295b8c186ff5804",
+    "semantic_hash": "5df90644216385225295b8c186ff5804"
   },
   "test/kitchen.test.js": {
     "mtime": 1789143694.7182581,
@@ -430,9 +430,9 @@
     "semantic_hash": "448af7462bc40eec69737c7162117f62"
   },
   "test/protein-browser-server.js": {
-    "mtime": 1790118398.9144099,
-    "ast_hash": "b559ab58e4f5361f78bc5e505390b3c2",
-    "semantic_hash": "b559ab58e4f5361f78bc5e505390b3c2"
+    "mtime": 1790121121.7033231,
+    "ast_hash": "9c72738d1c2b25980ed472c50f037a0b",
+    "semantic_hash": "9c72738d1c2b25980ed472c50f037a0b"
   },
   "test/protein-inventory.test.js": {
     "mtime": 1790047762.6963203,
@@ -450,9 +450,9 @@
     "semantic_hash": "7f48cc61fcdb40e2ef71b173e0ac522c"
   },
   "test/rastro-report.test.js": {
-    "mtime": 1790118587.749506,
-    "ast_hash": "18a4bb64e7ead4b32e86cf7a7cd8c16b",
-    "semantic_hash": "18a4bb64e7ead4b32e86cf7a7cd8c16b"
+    "mtime": 1790121020.7715285,
+    "ast_hash": "13df6ceb7df51cfd7e514c87b1d843c7",
+    "semantic_hash": "13df6ceb7df51cfd7e514c87b1d843c7"
   },
   "test/rastro-sucursal.test.js": {
     "mtime": 1789151315.2390692,
@@ -503,5 +503,20 @@
     "mtime": 1790118399.8140817,
     "ast_hash": "8449ee10cb0a23e6ef276d8423151c68",
     "semantic_hash": "8449ee10cb0a23e6ef276d8423151c68"
+  },
+  "lib/chicken-units.js": {
+    "mtime": 1790121435.0054147,
+    "ast_hash": "3e7c048d87d9deceb94e89c35bd0a981",
+    "semantic_hash": "3e7c048d87d9deceb94e89c35bd0a981"
+  },
+  "test/chicken-units.test.js": {
+    "mtime": 1790121023.8829763,
+    "ast_hash": "a6571e1cdba718b012e43322e8f854c1",
+    "semantic_hash": "a6571e1cdba718b012e43322e8f854c1"
+  },
+  "test/chicken_units_browser.py": {
+    "mtime": 1790121342.1381297,
+    "ast_hash": "b83d2d3294064a7eb06cdb7c5e2460f9",
+    "semantic_hash": "b83d2d3294064a7eb06cdb7c5e2460f9"
   }
 }

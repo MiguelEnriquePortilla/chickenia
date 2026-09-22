@@ -15,6 +15,7 @@ function describe(c,p){
   }
   if(!p?.revision)result.push('Producción: sin captura.');
   else{
+    p={...p,data:production.chickens(p.data)};
     const t=production.calculate(p.data);
     result.push(`Producción · ${p.finalized?'Finalizada':'Borrador'} · ${t.pendingBatches} tandas pendientes de completar.`);
     for(const area of ['Cocina','Freidoras','Rosticero']){
@@ -24,7 +25,7 @@ function describe(c,p){
       const closing=lines.filter(r=>r.closingCooked!==null).length;
       result.push(`${area}: ${done}/${lines.length} productos con producción registrada; ${closing}/${lines.length} con sobrante registrado.`);
     }
-    result.push(`Pollo producido: ${t.chickenPieces??'pendiente'} piezas · Costilla: ${t.costillaKg??'pendiente'} kg.`);
+    result.push(`Pollo producido: ${t.chickenTotal??'pendiente'} pollos · Costilla: ${t.costillaKg??'pendiente'} kg.`);
     for(const loss of (p.data.losses||[]).slice(0,5))result.push(`${loss.type}: ${production.catalog.find(c=>c.id===loss.productId)?.name} ${loss.state}, ${loss.quantity??'pendiente'} ${loss.unit||''}. ${loss.reason}`);
     if(t.missing.length)result.push('Completar cantidades o revisiones pendientes; sin dato no equivale a cero.');
   }

@@ -60,6 +60,8 @@ function date(value) {
 }
 function today(now) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(now)); }
 function quantity(value, item, allowZero = true) {
+  // Raw/roasted chicken accepts thousandths; cooked CRUJI keeps legacy ledger units.
+  if(require('./chicken-units').ids.includes(item.id))item={...item,step:1};
   if ((typeof value !== 'number' && typeof value !== 'string') || String(value).trim() === '') fail(`Captura ${item.name}; vacío no es cero.`);
   const n = Number(value), scaled = Math.round(n * SCALE);
   if (!Number.isFinite(n) || n < 0 || n > 1000000 || Math.abs(n * SCALE - scaled) > 1e-6 || scaled % item.step || (!allowZero && !scaled)) fail(`Cantidad inválida para ${item.name} (${item.unit}).`);
