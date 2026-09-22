@@ -138,18 +138,26 @@ async function init() {
 
 async function load() {
   if (!state.location) return;
-  const proteins=loadProteinOverview();
+    const proteins=loadProteinOverview(),rastro=loadRastroOverview();
   try {
     const summary = await api(`summary?location_id=${state.location.id}&date=${state.date}`);
     renderStatusBar(summary);
     renderSummary(summary);
-    await Promise.all([loadDailyCaptures(),proteins]);
+      await Promise.all([loadDailyCaptures(),proteins,rastro]);
   } catch (err) {
     console.error(err);
   }
 }
 
-async function loadProteinOverview(){
+  async function loadRastroOverview(){
+    const host=document.getElementById('rastro-overview'),day=state.date,v=window.ChickenRastroView;
+    if(!state.isManager){host.hidden=true;return;}
+    host.hidden=false;
+    try{const d=await api('rastro?view=admin&date='+encodeURIComponent(day));if(state.date===day)host.innerHTML=v.render(d);}
+    catch(e){if(state.date===day)host.innerHTML='<h2>Inventario de Rastro</h2><p role="alert">'+v.esc(e.message)+'</p>';}
+  }
+
+  async function loadProteinOverview(){
   const host=document.getElementById('protein-overview'),day=state.date,v=window.ChickenProteinView;
   if(!state.isManager){host.hidden=true;return;}
   host.hidden=false;

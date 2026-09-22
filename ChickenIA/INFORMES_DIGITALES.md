@@ -1,5 +1,13 @@
 # Informes digitales — 19 septiembre 2026
 
+## Estado vigente: 22 septiembre 2026
+
+Leer primero [cierre de sesión y acuerdos vigentes](REPORTE_SESION_2026-09-22.md).
+Rastro incorpora RECTIFICAR INVENTARIO e histórico de tres días en el dashboard.
+Proteínas usa pollos completos con decimales; Producción conserva sus unidades.
+La bienvenida con mascota ya fue aprobada; el icono instalado permanece igual.
+Las fechas y pendientes anteriores quedan como contexto histórico.
+
 Supervisión y Asistencia incluye accesos con la fecha seleccionada a Cierre de Caja,
 Producción Diaria e Inventario de Rastro. No se crean tablas para Rastro: se utilizan
 `locations`, `inventory_items` e `inventory_movements`, configuradas por Miguel en Neon.

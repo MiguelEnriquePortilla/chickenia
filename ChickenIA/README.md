@@ -1,6 +1,38 @@
 # ChickenIA
 
-## Estado vigente: captura diaria, 18 de septiembre de 2026
+## Estado vigente: 22 septiembre 2026
+
+Leer primero [cierre de sesión y acuerdos vigentes](REPORTE_SESION_2026-09-22.md).
+Rastro incorpora RECTIFICAR INVENTARIO e histórico de tres días en el dashboard.
+Proteínas usa pollos completos con decimales; Producción conserva sus unidades.
+La bienvenida con mascota ya fue aprobada; el icono instalado permanece igual.
+Las fechas y pendientes anteriores quedan como contexto histórico.
+
+## Estado vigente — informes digitales, 19 septiembre 2026
+
+**Publicado en producción: `e690a4d`, push a `main` completado.** Supervisión y
+Asistencia incluye Cierre de Caja, Producción Diaria e Inventario de Rastro.
+
+Los tres formatos tienen botones independientes al final. Comparten modo día/noche
+y los puntos de control del día se pueden plegar. Ajuste visual comprobado en móvil
+y despliegue verificado; 13 pruebas de captura e inventario aprobadas en esta revisión.
+
+Sesión cerrada: documentación guardada en esta carpeta y servidor temporal de pruebas
+detenido. Para continuar, usar el reporte y el handoff enlazados abajo.
+
+- [Supervisión y Asistencia](https://chickenia.chicanito.app/supervision.html?area=supervision)
+- [Cierre de Caja digital](https://chickenia.chicanito.app/captura.html?mode=close&format=digital)
+- [Producción Diaria digital](https://chickenia.chicanito.app/captura.html?mode=production&format=digital)
+- [Inventario de Rastro](https://chickenia.chicanito.app/rastro.html)
+
+Para retomar: [reporte del 19/09 y ajustes pendientes](REPORTE_SESION_2026-09-19.md),
+[handoff](HANDOFF_CAPTURA_DIARIA.md) y [guía técnica](INFORMES_DIGITALES.md).
+18 pruebas aprobadas y build correcto; comprobación pública del despliegue realizada.
+Pendiente: primera captura autenticada de Rastro y revisión de Miguel. Todo pollo
+debe ir en piezas; aplicado en el formulario de producción, pendiente de extender
+al motor antiguo de inventario. Los estados fechados inferiores son históricos.
+
+## Histórico: captura diaria, 18 de septiembre de 2026
 
 Publicado y verificado: **`5cc9127`**. Cierre de Caja y Produccion tienen ficha con marca, guardado real autenticado, resumen en dashboard y en los cortes programados de Telegram. Los estados fechados inferiores son historicos y no reemplazan esta entrega.
 

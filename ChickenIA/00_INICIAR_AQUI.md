@@ -1,5 +1,13 @@
 # ChickenIA — retomar la siguiente sesión
 
+## Estado vigente: 22 septiembre 2026
+
+Leer primero [cierre de sesión y acuerdos vigentes](REPORTE_SESION_2026-09-22.md).
+Rastro incorpora RECTIFICAR INVENTARIO e histórico de tres días en el dashboard.
+Proteínas usa pollos completos con decimales; Producción conserva sus unidades.
+La bienvenida con mascota ya fue aprobada; el icono instalado permanece igual.
+Las fechas y pendientes anteriores quedan como contexto histórico.
+
 ## Inventario de Proteínas — 21 septiembre 2026
 
 Nuevo apartado implementado y probado; Miguel autorizó su publicación. Leer
@@ -9,6 +17,24 @@ y **Pollos Marinados**, separados para Rostizado y Crujiente, ambos en CEDIS.
 «Piezas sueltas» eran pollos marinados y sus cifras ya estaban en pollos completos.
 No convertirlas entre ocho ni precargar las cantidades de la foto. Esta decisión
 reemplaza la regla histórica de piezas para el nuevo apartado únicamente.
+
+## Entrada vigente — 19 septiembre 2026
+
+**Empezar aquí:** [reporte y pendientes del 19/09](REPORTE_SESION_2026-09-19.md).
+Publicado: `e690a4d`. Temas día/noche corregidos, tres botones al final y puntos
+de control colapsables. Próxima sesión: nuevos ajustes de Miguel.
+No ejecutar los objetivos históricos que aparecen más abajo.
+
+1. [Estado y acuerdos de captura](HANDOFF_CAPTURA_DIARIA.md).
+2. [Implementación de los tres informes](INFORMES_DIGITALES.md).
+3. [Mapa de documentación y archivos locales](MAPA_DOCUMENTACION.md).
+
+Mensaje para retomar: «Lee el reporte del 19/09. Vamos a ajustar los informes que
+ya están publicados en Supervisión y Asistencia, con todo pollo en piezas».
+
+---
+
+## Histórico — instrucciones anteriores, no activas
 
 > **Vigente — 15 de septiembre de 2026:** leer [HANDOFF_FUDIA_REPORTES_2026-09-15.md](HANDOFF_FUDIA_REPORTES_2026-09-15.md) y [REPORTE_FUDIA_2026-09-15.md](REPORTE_FUDIA_2026-09-15.md). Compras y movimientos conversacionales locales probados; bloqueo entre tareas corregido. Próximo objetivo explícito de Miguel: crear una skill de reportes rápidos y precisos de operaciones, movimientos y compras. Solicitud de prueba cerrada y verificada en versión 9, recepción completa y tránsito cero. Base local excluida de Git; OAuth remoto pendiente.
 

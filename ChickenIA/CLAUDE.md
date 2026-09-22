@@ -1,5 +1,17 @@
 # ChickenIA — contexto para Claude Code
 
+## Estado vigente: 22 septiembre 2026
+
+Leer primero [cierre de sesión y acuerdos vigentes](REPORTE_SESION_2026-09-22.md).
+Rastro incorpora RECTIFICAR INVENTARIO e histórico de tres días en el dashboard.
+Proteínas usa pollos completos con decimales; Producción conserva sus unidades.
+La bienvenida con mascota ya fue aprobada; el icono instalado permanece igual.
+Las fechas y pendientes anteriores quedan como contexto histórico.
+
+**Entrada vigente al 19/09/2026:** leer [00_INICIAR_AQUI.md](00_INICIAR_AQUI.md)
+y [REPORTE_SESION_2026-09-19.md](REPORTE_SESION_2026-09-19.md). Los próximos pasos
+de abajo son históricos. No reiniciar el diseño ni retomar capturas detenidas.
+
 **Nota 2026-08-26: la tarea de "pulir el acabado visual" descrita más abajo ya se completó**
 (formato + animaciones, dos rondas, ambas desplegadas y verificadas en producción). Lee
 `HANDOFF_COWORK.md` primero — tiene el detalle completo de esa sesión y los pendientes

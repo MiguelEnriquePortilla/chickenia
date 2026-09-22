@@ -1,0 +1,13 @@
+.report-page dialog{box-sizing:border-box;width:calc(100% - 32px);max-width:540px;max-height:90dvh;overflow:auto;border:1px solid var(--border-soft);border-radius:16px;padding:24px;background:var(--bg);color:var(--text)}
+.report-page dialog::backdrop{background:#0009}
+.report-page select{box-sizing:border-box;width:100%;min-height:48px;padding:12px;margin:8px 0;font:inherit;background:var(--bg);color:var(--text);border:1px solid var(--border-soft);border-radius:10px}
+.report-page select:focus-visible{outline:2px solid var(--accent-text)}
+#correct-error{color:#b32039}:root[data-theme="dark"] #correct-error{color:#ff9aa8}
+.rastro-correction{border-left:3px solid var(--accent-text);padding-left:12px;overflow-wrap:anywhere}
+#rastro-overview{grid-column:1/-1;min-width:0;padding:24px;border:1px solid var(--border-soft);border-radius:16px;background:var(--surface);color:var(--text)}
+#rastro-overview a{color:inherit;text-underline-offset:4px}
+.rastro-scroll{max-width:100%;overflow-x:auto}
+.rastro-summary{width:100%;border-collapse:collapse;font-size:.9rem}
+.rastro-summary th,.rastro-summary td{padding:12px;text-align:left;border-bottom:1px solid var(--border-soft);vertical-align:top;min-width:150px}
+.rastro-summary td p{margin:4px 0}.rastro-summary small{display:block;margin-top:8px;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:600px){#rastro-overview{padding:16px}.report-page dialog{padding:16px}}

@@ -12,12 +12,14 @@ const token=payload+'.'+crypto.createHmac('sha256',process.env.INVENTORY_SESSION
  const db=new PGlite();await db.exec(`CREATE TABLE locations(id serial PRIMARY KEY,code text,active boolean DEFAULT true);INSERT INTO locations(code) VALUES('rastro');CREATE TABLE inventory_items(id serial PRIMARY KEY,sku text UNIQUE,name text,category text,unit text,active boolean DEFAULT true);CREATE TABLE inventory_movements(id serial PRIMARY KEY,item_id int REFERENCES inventory_items(id),location_id int REFERENCES locations(id),movement_type text,quantity numeric,movement_date date,notes text,recorded_by text,recorded_at timestamptz DEFAULT now());`);
  // Serialize fixture connections to model separate PostgreSQL transactions on one embedded connection.
  let tail=Promise.resolve();
- const handler=require('../api/protein-inventory').createHandler(async()=>{const before=tail;let done;tail=new Promise(r=>done=r);await before;return {query:(s,p)=>db.query(s,p),release:done};});
+ const connect=async()=>{const before=tail;let done;tail=new Promise(r=>done=r);await before;return {query:(s,p)=>db.query(s,p),release:done};};
+ const handler=require('../api/protein-inventory').createHandler(connect),rastro=require('../api/rastro').createHandler(connect);
+ await db.exec("INSERT INTO inventory_items(sku,name,category,unit) VALUES('VER-001','Jitomate','Verduras','kg'),('RAS-011','Bolsas','Rastro','pieza');");
  const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json'};
  const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');req.query=Object.fromEntries(url.searchParams);res.status=s=>{res.statusCode=s;return res;};res.json=d=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(d));};
-  if(url.pathname==='/api/protein-inventory'){
-   let raw='';for await(const chunk of req)raw+=chunk;try{req.body=raw?JSON.parse(raw):{};}catch{return res.status(400).json({error:'JSON'});}return handler(req,res);
+  if(['/api/protein-inventory','/api/rastro'].includes(url.pathname)){
+   let raw='';for await(const chunk of req)raw+=chunk;try{req.body=raw?JSON.parse(raw):{};}catch{return res.status(400).json({error:'JSON'});}return (url.pathname==='/api/rastro'?rastro:handler)(req,res);
   }
   if(url.pathname==='/api/inventory'){
    if(url.searchParams.get('action')==='session')return res.json({user:{id:user.id,name:user.name,role:user.role}});

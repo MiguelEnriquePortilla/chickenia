@@ -9,3 +9,5 @@ public/
 test/results/
 .env.*
 !.env.example
+graphify-out/*/
+graphify-out/.*

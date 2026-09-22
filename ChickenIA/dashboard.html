@@ -14,7 +14,9 @@
 <link rel="stylesheet" href="/css/style.css" />
 <link rel="stylesheet" href="/css/daily-dashboard.css" />
 <link rel="stylesheet" href="/css/proteins.css" />
-<script src="/js/protein-view.js" defer></script>
+  <script src="/js/protein-view.js" defer></script>
+  <link rel="stylesheet" href="/css/rastro.css" />
+  <script src="/js/rastro-view.js" defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/area-navigation.css">
 <script src="/js/area-navigation.js"></script>
@@ -70,7 +72,8 @@
 <main class="dashboard-grid">
   <section id="daily-captures" aria-label="Caja y producción"></section>
   <section id="protein-overview" aria-label="Inventario de Proteínas" hidden></section>
-  <section class="card" id="areas-card">
+    <section id="rastro-overview" aria-label="Histórico de Inventario de Rastro" hidden></section>
+    <section class="card" id="areas-card">
     <button type="button" id="areas-toggle" class="movements-toggle" aria-expanded="false">
       <h2>Desempeño por área — detalle</h2>
       <span class="acc-chevron">▸</span>

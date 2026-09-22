@@ -4,3 +4,4 @@ test
 *.md
 .env*
 node_modules
+graphify-out

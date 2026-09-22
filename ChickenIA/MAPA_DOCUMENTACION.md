@@ -1,0 +1,41 @@
+# Mapa local de ChickenIA
+
+## Estado vigente: 22 septiembre 2026
+
+Leer primero [cierre de sesión y acuerdos vigentes](REPORTE_SESION_2026-09-22.md).
+Rastro incorpora RECTIFICAR INVENTARIO e histórico de tres días en el dashboard.
+Proteínas usa pollos completos con decimales; Producción conserva sus unidades.
+La bienvenida con mascota ya fue aprobada; el icono instalado permanece igual.
+Las fechas y pendientes anteriores quedan como contexto histórico.
+
+## Documentos vigentes
+
+| Necesidad | Archivo |
+|---|---|
+| Retomar la sesión | [00_INICIAR_AQUI.md](00_INICIAR_AQUI.md) |
+| Lo publicado y pendientes precisos | [REPORTE_SESION_2026-09-19.md](REPORTE_SESION_2026-09-19.md) |
+| Acuerdos de captura | [HANDOFF_CAPTURA_DIARIA.md](HANDOFF_CAPTURA_DIARIA.md) |
+| Funcionamiento de los informes | [INFORMES_DIGITALES.md](INFORMES_DIGITALES.md) |
+| Telegram existente | [TELEGRAM_SUPERVISION.md](TELEGRAM_SUPERVISION.md) |
+| Piloto local fudIA, frente separado | [GUIA_FOODIA.md](GUIA_FOODIA.md) |
+
+## Carpetas y responsabilidades
+
+- `api/`, `lib/`, `js/`, `css/`: aplicación y lógica; conservar sus rutas de ejecución.
+- `test/`: pruebas; `scripts/`: compilación y herramientas de desarrollo.
+- `public/`: salida generada del build, ignorada por Git; editar las fuentes.
+- `.local/`: bases y pruebas locales, ignoradas por Git; no son datos de producción.
+- `plugins/`: fuentes del plugin local; no confundir con los formularios publicados.
+- [Neon](../../12-CHICKENIA.NEON/README.md): exportación del esquema y acuerdos de base.
+- [PDF y formatos de referencia](../../10-CHATGPT-PROYECTOS/04-FORMATOS-PRODUCCION-Y-CIERRE/README.md).
+
+## Historial
+
+Los `HANDOFF_2026-09-11_*`, `REPORTE_SESION_2026-09-11*`, reportes del 16/09 y 18/09,
+`HANDOFF_CHICKENIA.md`, `CAPTURA_FOTO_CIERRE.md` y secciones anteriores de los README
+son antecedentes. Se conservan en sus rutas para no romper enlaces. Sus instrucciones
+de «siguiente paso» no se reactivan sin petición de Miguel.
+
+Actualizar el reporte vigente y este índice al cerrar una sesión. Evitar copias
+«final», «final2» o duplicados del mismo documento. No mover código, bases locales,
+archivos `.env`, configuración de Vercel ni formatos ajenos para ordenar documentación.

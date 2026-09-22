@@ -5,6 +5,7 @@ function createHandler(connect){return async(req,res)=>{
   try{
     const user=auth.authenticate(req);
     if(!['manager','processor','dispatch'].includes(user.role))throw Object.assign(Error('Sin permiso para Inventario de Rastro.'),{status:403});
+    if((req.query?.view==='admin'||req.method==='POST'&&req.body?.action==='rectify')&&user.role!=='manager')throw Object.assign(Error('Se requiere acceso de supervisión o gerencia.'),{status:403});
     if(!['GET','POST'].includes(req.method))throw Object.assign(Error('Método no permitido.'),{status:405});
     if(req.method==='POST'){
       let origin;try{origin=new URL(req.headers.origin);}catch{}
@@ -15,7 +16,7 @@ function createHandler(connect){return async(req,res)=>{
     await query('BEGIN ISOLATION LEVEL READ COMMITTED');
     if(req.method==='GET')await query("SELECT id FROM locations WHERE code='rastro' FOR SHARE");
     const result=req.method==='GET'?await domain.read(query,req.query.date):await domain.save(query,req.body,user);
-    await query('COMMIT');return res.status(200).json(result);
+    await query('COMMIT');return res.status(200).json({...result,role:user.role});
   }catch(e){if(db)await db.query('ROLLBACK').catch(()=>{});return res.status(e.status||(e.name==='ZodError'?400:500)).json({error:e.status?e.message:e.name==='ZodError'?'Revisa fecha y cantidades.':'No se pudo guardar. Conserva los datos y recarga para comprobar el estado.'});}
   finally{if(db)db.release();}
 };}

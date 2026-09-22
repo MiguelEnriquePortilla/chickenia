@@ -1,6 +1,43 @@
-# Captura diaria: estado al 18/09/2026
+# Captura diaria: estado vigente al 22/09/2026
+
+## Estado vigente: 22 septiembre 2026
+
+Leer primero [cierre de sesión y acuerdos vigentes](REPORTE_SESION_2026-09-22.md).
+Rastro incorpora RECTIFICAR INVENTARIO e histórico de tres días en el dashboard.
+Proteínas usa pollos completos con decimales; Producción conserva sus unidades.
+La bienvenida con mascota ya fue aprobada; el icono instalado permanece igual.
+Las fechas y pendientes anteriores quedan como contexto histórico.
+
+Publicado y enviado a `main`: **`e690a4d`**. El flujo acordado vuelve a ser digital:
+**Supervisión y Asistencia → Cierre de Caja / Producción Diaria / Inventario de Rastro**.
+Todos los pollos deben capturarse en piezas (8 piezas = 1 entero). Rastro calcula
+existencia anterior + entradas − salidas y conserva movimientos por fecha.
+
+Ajuste visual publicado: tres accesos independientes al final, visibles en las áreas
+de Jojutla; controles y formularios con modo día/noche compartido. Puntos de control
+del día colapsables con preferencia guardada. Caja y Producción ya no comparten pestañas.
+Verificados contraste y navegación móvil en ambos modos; 13 pruebas de captura e
+inventario aprobadas. Despliegue y CSS confirmados en producción, sin capturar datos reales.
+
+Leer primero [cierre de sesión y pendientes](REPORTE_SESION_2026-09-19.md) y
+[implementación de informes digitales](INFORMES_DIGITALES.md). Las pruebas locales
+pasaron y los archivos nuevos están publicados; falta comprobar el primer guardado
+autenticado de Rastro en producción. La regla de piezas está aplicada a la nueva
+Producción Diaria; la migración del motor antiguo de inventario sigue pendiente.
+
+La documentación de cierre está guardada localmente; servidor de pruebas detenido.
+
+La siguiente sesión será para ajustes concretos de Miguel. No reiniciar el diseño,
+repetir preguntas ya respondidas, completar la foto del 18/09 ni activar envíos nuevos.
+El sobrante Rosti del 18/09 sigue pendiente en campo numérico; quedó en aclaraciones.
+
+---
+
+## Histórico al 18/09/2026 — no sustituye el estado anterior
 
 ## Actualización: foto del cierre de una página
+
+CD-01 aprobado por Miguel tras quitar el renglón adicional de totales. Para hoy 18/09/2026 usará solo esta hoja: adjunta manualmente la foto en la conversación a las 18:45 CDMX. Capturar y verificar caja y proteínas para el corte existente de las 19:00 (cron `0 1 * * *` UTC). No se creó otro envío ni importación automática. Pendiente recibir y guardar la primera foto real; no finalizar automáticamente ni garantizar inclusión de datos llegados después de generada la instantánea.
 
 Implementación publicada en `0f7103e` para llegada cruda, tres producciones, mermas, tarjeta conjunta, monedas totales y gastos de cierre. Skills instaladas actualizadas para lectura de foto adjunta y captura autenticada. Se quitaron los accesos de formularios del dashboard, conservando resultados. Ver [CAPTURA_FOTO_CIERRE.md](CAPTURA_FOTO_CIERRE.md). Verificado en el sitio publicado: `/daily/app.js` incluye el modo foto; `/js/dashboard.js` ya no enlaza a captura y conserva gastos/resultados. Pasaron 20 pruebas de dominio/API/reportes y el recorrido visual de guardar caja y tercera producción contra API aislada. No se capturó la foto de referencia ni se enviaron reportes de prueba. Pendiente: aprobación visual del PDF de una página y primera captura autenticada con una foto real autorizada.
 

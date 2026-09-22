@@ -1,0 +1,507 @@
+{
+  "api/areas.js": {
+    "mtime": 1789139387.3566694,
+    "ast_hash": "d24d46e97f3457df93c84fea85811d24",
+    "semantic_hash": "d24d46e97f3457df93c84fea85811d24"
+  },
+  "api/attendance.js": {
+    "mtime": 1789139387.3566694,
+    "ast_hash": "dd5a1e91359a02daddaa3b6537a61ef7",
+    "semantic_hash": "dd5a1e91359a02daddaa3b6537a61ef7"
+  },
+  "api/checks.js": {
+    "mtime": 1789139387.3566694,
+    "ast_hash": "7df777db76157b64a377c7f6201ab71e",
+    "semantic_hash": "7df777db76157b64a377c7f6201ab71e"
+  },
+  "api/chicken-ia.js": {
+    "mtime": 1789143606.6260893,
+    "ast_hash": "cb9258398827dc81e602a610107eee26",
+    "semantic_hash": "cb9258398827dc81e602a610107eee26"
+  },
+  "api/employees.js": {
+    "mtime": 1789139387.3566694,
+    "ast_hash": "5299b4c0925a09da92f39e66f5d36048",
+    "semantic_hash": "5299b4c0925a09da92f39e66f5d36048"
+  },
+  "api/foodia-mcp.js": {
+    "mtime": 1789423698.172601,
+    "ast_hash": "3242a6f655efbe0bf0d32cd0f920d1b9",
+    "semantic_hash": "3242a6f655efbe0bf0d32cd0f920d1b9"
+  },
+  "api/inventory-items.js": {
+    "mtime": 1789139387.3566694,
+    "ast_hash": "92616137effc42310451c7b0b77e2863",
+    "semantic_hash": "92616137effc42310451c7b0b77e2863"
+  },
+  "api/inventory-movements.js": {
+    "mtime": 1790030934.2252586,
+    "ast_hash": "9f157880e9621b3f87396b49057ff9a9",
+    "semantic_hash": "9f157880e9621b3f87396b49057ff9a9"
+  },
+  "api/inventory.js": {
+    "mtime": 1789738667.6438265,
+    "ast_hash": "ae6edfb5eec4d1402341f4320441b3d7",
+    "semantic_hash": "ae6edfb5eec4d1402341f4320441b3d7"
+  },
+  "api/kitchen-plan.js": {
+    "mtime": 1789139387.3566694,
+    "ast_hash": "78d02954e3d688611b66bf718c1af9c9",
+    "semantic_hash": "78d02954e3d688611b66bf718c1af9c9"
+  },
+  "api/locations.js": {
+    "mtime": 1789139387.3566694,
+    "ast_hash": "a05966985c06df9ee77f920b60ff969d",
+    "semantic_hash": "a05966985c06df9ee77f920b60ff969d"
+  },
+  "api/protein-inventory.js": {
+    "mtime": 1790030663.3741236,
+    "ast_hash": "560540e7f051a72d422a831960bbc0ff",
+    "semantic_hash": "560540e7f051a72d422a831960bbc0ff"
+  },
+  "api/rastro.js": {
+    "mtime": 1790117903.0571604,
+    "ast_hash": "bb63eed091e2f8ac53d6276766cd1bd1",
+    "semantic_hash": "bb63eed091e2f8ac53d6276766cd1bd1"
+  },
+  "api/summary.js": {
+    "mtime": 1789738929.2348058,
+    "ast_hash": "381172b7fe78786e0134a77f7b1927f6",
+    "semantic_hash": "381172b7fe78786e0134a77f7b1927f6"
+  },
+  "js/area-navigation.js": {
+    "mtime": 1789418133.9928567,
+    "ast_hash": "422166d229485f62d46c187f62aa877f",
+    "semantic_hash": "422166d229485f62d46c187f62aa877f"
+  },
+  "js/checkpoints.js": {
+    "mtime": 1789849117.0046737,
+    "ast_hash": "fe6d64bbc632a0bc8494d9db814b222d",
+    "semantic_hash": "fe6d64bbc632a0bc8494d9db814b222d"
+  },
+  "js/chicken-chat.js": {
+    "mtime": 1789151233.6658034,
+    "ast_hash": "d78b317532783e9a7d64ae70b35b26aa",
+    "semantic_hash": "d78b317532783e9a7d64ae70b35b26aa"
+  },
+  "js/dashboard.js": {
+    "mtime": 1790118283.2640455,
+    "ast_hash": "1a8990abf4365efeeb60ada49c47f16e",
+    "semantic_hash": "1a8990abf4365efeeb60ada49c47f16e"
+  },
+  "js/feedback.js": {
+    "mtime": 1789137073.3580322,
+    "ast_hash": "63043388955b15ec80f1074c935f2edf",
+    "semantic_hash": "63043388955b15ec80f1074c935f2edf"
+  },
+  "js/inventory.js": {
+    "mtime": 1790030929.9880888,
+    "ast_hash": "04590947760d46ec62939982ac2bdf45",
+    "semantic_hash": "04590947760d46ec62939982ac2bdf45"
+  },
+  "js/protein-inventory.js": {
+    "mtime": 1790047814.8513205,
+    "ast_hash": "696472f035a4275a29f5237031176172",
+    "semantic_hash": "696472f035a4275a29f5237031176172"
+  },
+  "js/protein-view.js": {
+    "mtime": 1790047707.6868389,
+    "ast_hash": "e5bde7149a5cf355ec4d5cd11334a388",
+    "semantic_hash": "e5bde7149a5cf355ec4d5cd11334a388"
+  },
+  "js/rastro-view.js": {
+    "mtime": 1790118603.7108014,
+    "ast_hash": "e893e78dad6f2e4df2bc543c659d9995",
+    "semantic_hash": "e893e78dad6f2e4df2bc543c659d9995"
+  },
+  "js/rastro.js": {
+    "mtime": 1790117986.0561736,
+    "ast_hash": "41d9f1069618ba8093dd3b3e34914a82",
+    "semantic_hash": "41d9f1069618ba8093dd3b3e34914a82"
+  },
+  "js/refined.js": {
+    "mtime": 1789849119.057514,
+    "ast_hash": "2395e32182fc657475cdec2d8352a48c",
+    "semantic_hash": "2395e32182fc657475cdec2d8352a48c"
+  },
+  "js/supervision.js": {
+    "mtime": 1790030869.93019,
+    "ast_hash": "3bf7260611f711642ca9d0fdd7f2af60",
+    "semantic_hash": "3bf7260611f711642ca9d0fdd7f2af60"
+  },
+  "js/theme-init.js": {
+    "mtime": 1789849120.0577002,
+    "ast_hash": "94451e337031fe7279d3da74fabe464b",
+    "semantic_hash": "94451e337031fe7279d3da74fabe464b"
+  },
+  "js/welcome.js": {
+    "mtime": 1790049921.728555,
+    "ast_hash": "a8cc3c8667bc7d3bb836e5287d232cf8",
+    "semantic_hash": "a8cc3c8667bc7d3bb836e5287d232cf8"
+  },
+  "lib/cash-close.js": {
+    "mtime": 1789842124.6681614,
+    "ast_hash": "b5a44a995047f0ede67dd0bcd6aad2a9",
+    "semantic_hash": "b5a44a995047f0ede67dd0bcd6aad2a9"
+  },
+  "lib/cash-ui/app.js": {
+    "mtime": 1789849276.735932,
+    "ast_hash": "7a3c0360562b959b88144b263dd38859",
+    "semantic_hash": "7a3c0360562b959b88144b263dd38859"
+  },
+  "lib/chicken-query.js": {
+    "mtime": 1789151232.547814,
+    "ast_hash": "f74d3729ea12bd5893b657c218c6af50",
+    "semantic_hash": "f74d3729ea12bd5893b657c218c6af50"
+  },
+  "lib/daily-handler.js": {
+    "mtime": 1789738928.5150898,
+    "ast_hash": "585a7848478b7203b9f6b1b9b7163d17",
+    "semantic_hash": "585a7848478b7203b9f6b1b9b7163d17"
+  },
+  "lib/daily-summary.js": {
+    "mtime": 1789748789.6266785,
+    "ast_hash": "02dc0d71d85397ced990e754230aa4ee",
+    "semantic_hash": "02dc0d71d85397ced990e754230aa4ee"
+  },
+  "lib/food-auth.js": {
+    "mtime": 1789423354.237153,
+    "ast_hash": "ec38a17c07943efba7ef9e0e51e31ddb",
+    "semantic_hash": "ec38a17c07943efba7ef9e0e51e31ddb"
+  },
+  "lib/food-mcp.js": {
+    "mtime": 1789698105.1599789,
+    "ast_hash": "0b907c7628f413fa276405362082b9e4",
+    "semantic_hash": "0b907c7628f413fa276405362082b9e4"
+  },
+  "lib/food-purchases.js": {
+    "mtime": 1789423351.953022,
+    "ast_hash": "89f66d4ae3a69f2794891d2963046f8e",
+    "semantic_hash": "89f66d4ae3a69f2794891d2963046f8e"
+  },
+  "lib/food-service.js": {
+    "mtime": 1789480492.3506408,
+    "ast_hash": "5debb8bbf3e3728f94bd1702c92ae973",
+    "semantic_hash": "5debb8bbf3e3728f94bd1702c92ae973"
+  },
+  "lib/inventory-auth.js": {
+    "mtime": 1789143605.5616558,
+    "ast_hash": "d65562e75f4bce66f3506476e90b0830",
+    "semantic_hash": "d65562e75f4bce66f3506476e90b0830"
+  },
+  "lib/inventory-domain.js": {
+    "mtime": 1789423350.7378097,
+    "ast_hash": "922b9018c451e66649725603790206e2",
+    "semantic_hash": "922b9018c451e66649725603790206e2"
+  },
+  "lib/inventory-store.js": {
+    "mtime": 1789423353.086321,
+    "ast_hash": "b94d4eb0edbbbb14379da54e45b3b3d1",
+    "semantic_hash": "b94d4eb0edbbbb14379da54e45b3b3d1"
+  },
+  "lib/kitchen-items.js": {
+    "mtime": 1789138729.6124773,
+    "ast_hash": "0f8b49cf4c6446f9536d8f3d69d531f4",
+    "semantic_hash": "0f8b49cf4c6446f9536d8f3d69d531f4"
+  },
+  "lib/pilot-access.js": {
+    "mtime": 1789143604.9926016,
+    "ast_hash": "e218203d2cc06bb2deda8fd247100ded",
+    "semantic_hash": "e218203d2cc06bb2deda8fd247100ded"
+  },
+  "lib/production-daily.js": {
+    "mtime": 1789842640.3009129,
+    "ast_hash": "d312b6fb3adaa459f071a648e53c2ee3",
+    "semantic_hash": "d312b6fb3adaa459f071a648e53c2ee3"
+  },
+  "lib/protein-inventory.js": {
+    "mtime": 1790047762.1828902,
+    "ast_hash": "a58e5f5a84474fe8376071accdc800ee",
+    "semantic_hash": "a58e5f5a84474fe8376071accdc800ee"
+  },
+  "lib/protein-report.js": {
+    "mtime": 1789136946.0128553,
+    "ast_hash": "1f773c1ff305694dedaf6768fc214e9c",
+    "semantic_hash": "1f773c1ff305694dedaf6768fc214e9c"
+  },
+  "lib/rastro.js": {
+    "mtime": 1790117902.0257206,
+    "ast_hash": "c47c5fc33e7a888eb9545710f83649d9",
+    "semantic_hash": "c47c5fc33e7a888eb9545710f83649d9"
+  },
+  "lib/supervision/classification-migration.js": {
+    "mtime": 1789602312.8374991,
+    "ast_hash": "1bd5f3b6e2f5a299a8a090cad783c45b",
+    "semantic_hash": "1bd5f3b6e2f5a299a8a090cad783c45b"
+  },
+  "lib/supervision/cocina-routines.js": {
+    "mtime": 1789138898.8679469,
+    "ast_hash": "f0211abde72dcc263e6a34a497ffdcb5",
+    "semantic_hash": "f0211abde72dcc263e6a34a497ffdcb5"
+  },
+  "lib/supervision/db.js": {
+    "mtime": 1789602313.9904425,
+    "ast_hash": "c73ca795ca30333cc1c006edd8af5255",
+    "semantic_hash": "c73ca795ca30333cc1c006edd8af5255"
+  },
+  "lib/supervision/rastro-sucursal-migration.js": {
+    "mtime": 1789151173.4755144,
+    "ast_hash": "5d566b7ebb5576b69c89604d30a240a9",
+    "semantic_hash": "5d566b7ebb5576b69c89604d30a240a9"
+  },
+  "lib/supervision/rastro-sucursal-routines.js": {
+    "mtime": 1789151363.9410875,
+    "ast_hash": "b17669baae4aa28620ec3acf8c8311c3",
+    "semantic_hash": "b17669baae4aa28620ec3acf8c8311c3"
+  },
+  "lib/supervision/report-guidance.js": {
+    "mtime": 1789612705.937425,
+    "ast_hash": "b7bcb92024e2bad9dcf545235bb55765",
+    "semantic_hash": "b7bcb92024e2bad9dcf545235bb55765"
+  },
+  "lib/supervision/report-image.js": {
+    "mtime": 1789738809.5765817,
+    "ast_hash": "fda8ed79c5fac3127f609a1475af54b5",
+    "semantic_hash": "fda8ed79c5fac3127f609a1475af54b5"
+  },
+  "lib/supervision/rosticero-routines.js": {
+    "mtime": 1789134857.83355,
+    "ast_hash": "49ce30d825f152c64aa77ee3fbe61f0c",
+    "semantic_hash": "49ce30d825f152c64aa77ee3fbe61f0c"
+  },
+  "lib/supervision/routine-migration.js": {
+    "mtime": 1789138401.8826363,
+    "ast_hash": "9c0f2dd51806ae6c9f2be58716bd92f9",
+    "semantic_hash": "9c0f2dd51806ae6c9f2be58716bd92f9"
+  },
+  "lib/supervision/telegram-handler.js": {
+    "mtime": 1789738808.1376553,
+    "ast_hash": "66fd12b9786cc1acf0e196658e00268d",
+    "semantic_hash": "66fd12b9786cc1acf0e196658e00268d"
+  },
+  "lib/supervision/telegram.js": {
+    "mtime": 1789738808.8810074,
+    "ast_hash": "0d80bc04c6dc4b21b97e49d1b8e35a69",
+    "semantic_hash": "0d80bc04c6dc4b21b97e49d1b8e35a69"
+  },
+  "manifest.json": {
+    "mtime": 1788895161.944968,
+    "ast_hash": "a0cdbdcf5bc4ad90f5e70a9370c610dc",
+    "semantic_hash": "a0cdbdcf5bc4ad90f5e70a9370c610dc"
+  },
+  "package.json": {
+    "mtime": 1790030935.377285,
+    "ast_hash": "186a85cf949501bc7920d90b4cfc82a1",
+    "semantic_hash": "186a85cf949501bc7920d90b4cfc82a1"
+  },
+  "plugins/foodia-local/.mcp.json": {
+    "mtime": 1789442850.4768033,
+    "ast_hash": "8f32ce2e99b81504ceaea9b911ef2197",
+    "semantic_hash": "8f32ce2e99b81504ceaea9b911ef2197"
+  },
+  "plugins/foodia/.mcp.json": {
+    "mtime": 1789423702.7331548,
+    "ast_hash": "d0bd6b05c46b18e9482e8f7238de3a56",
+    "semantic_hash": "d0bd6b05c46b18e9482e8f7238de3a56"
+  },
+  "plugins/foodia/mcp.json": {
+    "mtime": 1789423920.9221022,
+    "ast_hash": "0a0bdeb83e51a9f9e9b69a1e306c448b",
+    "semantic_hash": "0a0bdeb83e51a9f9e9b69a1e306c448b"
+  },
+  "plugins/foodia/plugin.json": {
+    "mtime": 1789423920.9221022,
+    "ast_hash": "70550bdfec2bacfe26280e582b6b02f4",
+    "semantic_hash": "70550bdfec2bacfe26280e582b6b02f4"
+  },
+  "scripts/build-static.js": {
+    "mtime": 1790030928.9878426,
+    "ast_hash": "39fd661ec459eb4c912da7b27d506795",
+    "semantic_hash": "39fd661ec459eb4c912da7b27d506795"
+  },
+  "scripts/cash-close-web.js": {
+    "mtime": 1789849277.7881093,
+    "ast_hash": "de868be3d5e12a1ad6237be2958a9ffd",
+    "semantic_hash": "de868be3d5e12a1ad6237be2958a9ffd"
+  },
+  "scripts/create-inventory-users.js": {
+    "mtime": 1789039111.2767637,
+    "ast_hash": "400577db5d9d8118ef53a1379e92fdcc",
+    "semantic_hash": "400577db5d9d8118ef53a1379e92fdcc"
+  },
+  "scripts/dev-inventory.js": {
+    "mtime": 1789167998.3081892,
+    "ast_hash": "6bf52e1e83313accc6ab22081ba45b3d",
+    "semantic_hash": "6bf52e1e83313accc6ab22081ba45b3d"
+  },
+  "scripts/enable-supervision-cron.js": {
+    "mtime": 1789582802.3813324,
+    "ast_hash": "76b9dfd35150ce522add2ea760c39f11",
+    "semantic_hash": "76b9dfd35150ce522add2ea760c39f11"
+  },
+  "scripts/foodia-local.js": {
+    "mtime": 1789698104.1266048,
+    "ast_hash": "ccbbe02fe7ce40c8010ac53389a02830",
+    "semantic_hash": "ccbbe02fe7ce40c8010ac53389a02830"
+  },
+  "scripts/local-kitchen.js": {
+    "mtime": 1789139387.3566694,
+    "ast_hash": "b8246f0deb6cbd636cc3b32ae00aab4a",
+    "semantic_hash": "b8246f0deb6cbd636cc3b32ae00aab4a"
+  },
+  "scripts/sync-training-rastro.js": {
+    "mtime": 1789151365.09153,
+    "ast_hash": "4240ec4af5be6a8aff963b6f4f989490",
+    "semantic_hash": "4240ec4af5be6a8aff963b6f4f989490"
+  },
+  "sw.js": {
+    "mtime": 1788895161.9159577,
+    "ast_hash": "28cbb9fb5ffc0a7bf0baf0fabd611120",
+    "semantic_hash": "28cbb9fb5ffc0a7bf0baf0fabd611120"
+  },
+  "test/chicken-query.test.js": {
+    "mtime": 1789143694.7182581,
+    "ast_hash": "593ac67ef25f3a876cf34cba096ac126",
+    "semantic_hash": "593ac67ef25f3a876cf34cba096ac126"
+  },
+  "test/chicken_browser.py": {
+    "mtime": 1789141511.079085,
+    "ast_hash": "05fa3f668a6c434270d3e034b99be725",
+    "semantic_hash": "05fa3f668a6c434270d3e034b99be725"
+  },
+  "test/daily-capture.test.js": {
+    "mtime": 1789698797.1133924,
+    "ast_hash": "fa726c55bdbc1c9900474494dcf13c6f",
+    "semantic_hash": "fa726c55bdbc1c9900474494dcf13c6f"
+  },
+  "test/daily-live.test.js": {
+    "mtime": 1789738884.54201,
+    "ast_hash": "ad55830020a94c171d6f1257cf44f29f",
+    "semantic_hash": "ad55830020a94c171d6f1257cf44f29f"
+  },
+  "test/daily-photo.test.js": {
+    "mtime": 1789748634.626712,
+    "ast_hash": "7e01299a61283597b54eb63d88c10e07",
+    "semantic_hash": "7e01299a61283597b54eb63d88c10e07"
+  },
+  "test/fixtures.py": {
+    "mtime": 1788895161.944968,
+    "ast_hash": "444b0c971156d63137a85979b1dee072",
+    "semantic_hash": "444b0c971156d63137a85979b1dee072"
+  },
+  "test/foodia-local.test.js": {
+    "mtime": 1789737046.4713216,
+    "ast_hash": "1a36bff6191efc00403c81d804263e0b",
+    "semantic_hash": "1a36bff6191efc00403c81d804263e0b"
+  },
+  "test/foodia-mcp.test.js": {
+    "mtime": 1789480646.5220878,
+    "ast_hash": "bdd5ceea8cc727a5f65d148bff9a5556",
+    "semantic_hash": "bdd5ceea8cc727a5f65d148bff9a5556"
+  },
+  "test/foodia.test.js": {
+    "mtime": 1789423519.0329092,
+    "ast_hash": "b42ac522a49366c5ccd7953f7df94981",
+    "semantic_hash": "b42ac522a49366c5ccd7953f7df94981"
+  },
+  "test/inventory.test.js": {
+    "mtime": 1789143694.7182581,
+    "ast_hash": "f8a8fb3798289e12dbfc00d65571046f",
+    "semantic_hash": "f8a8fb3798289e12dbfc00d65571046f"
+  },
+  "test/inventory_browser.py": {
+    "mtime": 1789423918.0930605,
+    "ast_hash": "088eb823bbec324c93f68cceabc10e76",
+    "semantic_hash": "088eb823bbec324c93f68cceabc10e76"
+  },
+  "test/kitchen.test.js": {
+    "mtime": 1789143694.7182581,
+    "ast_hash": "37a7c10919cd9bb6cbff0143ca3920fb",
+    "semantic_hash": "37a7c10919cd9bb6cbff0143ca3920fb"
+  },
+  "test/pilot-access.test.js": {
+    "mtime": 1789143756.3101618,
+    "ast_hash": "f0356e9fe6918247ab4e594c6705ae3b",
+    "semantic_hash": "f0356e9fe6918247ab4e594c6705ae3b"
+  },
+  "test/pilot_browser.py": {
+    "mtime": 1789143842.5073574,
+    "ast_hash": "448af7462bc40eec69737c7162117f62",
+    "semantic_hash": "448af7462bc40eec69737c7162117f62"
+  },
+  "test/protein-browser-server.js": {
+    "mtime": 1790118398.9144099,
+    "ast_hash": "b559ab58e4f5361f78bc5e505390b3c2",
+    "semantic_hash": "b559ab58e4f5361f78bc5e505390b3c2"
+  },
+  "test/protein-inventory.test.js": {
+    "mtime": 1790047762.6963203,
+    "ast_hash": "50245df69027f9a33a9715289e0b6473",
+    "semantic_hash": "50245df69027f9a33a9715289e0b6473"
+  },
+  "test/protein_browser.py": {
+    "mtime": 1790047815.3541486,
+    "ast_hash": "b6632f3b056830f609beeae4b315ed0d",
+    "semantic_hash": "b6632f3b056830f609beeae4b315ed0d"
+  },
+  "test/proteins.test.js": {
+    "mtime": 1789136806.9070132,
+    "ast_hash": "7f48cc61fcdb40e2ef71b173e0ac522c",
+    "semantic_hash": "7f48cc61fcdb40e2ef71b173e0ac522c"
+  },
+  "test/rastro-report.test.js": {
+    "mtime": 1790118587.749506,
+    "ast_hash": "18a4bb64e7ead4b32e86cf7a7cd8c16b",
+    "semantic_hash": "18a4bb64e7ead4b32e86cf7a7cd8c16b"
+  },
+  "test/rastro-sucursal.test.js": {
+    "mtime": 1789151315.2390692,
+    "ast_hash": "f69b3a8d3fe42c6e25afc82b6a220897",
+    "semantic_hash": "f69b3a8d3fe42c6e25afc82b6a220897"
+  },
+  "test/rastro_browser.py": {
+    "mtime": 1790118583.7404885,
+    "ast_hash": "6794e9611e4fbea15dc2963d6b5958dd",
+    "semantic_hash": "6794e9611e4fbea15dc2963d6b5958dd"
+  },
+  "test/refined_browser.py": {
+    "mtime": 1789418133.9928567,
+    "ast_hash": "70e40e252ad21c7ad0eb12a1c374cd54",
+    "semantic_hash": "70e40e252ad21c7ad0eb12a1c374cd54"
+  },
+  "test/report-guidance.test.js": {
+    "mtime": 1789602502.242257,
+    "ast_hash": "602a2aba56007daa04619c634d18738e",
+    "semantic_hash": "602a2aba56007daa04619c634d18738e"
+  },
+  "test/report-image.test.js": {
+    "mtime": 1789612633.408683,
+    "ast_hash": "b6a217c435451991376415ab889ee1b3",
+    "semantic_hash": "b6a217c435451991376415ab889ee1b3"
+  },
+  "test/routines.test.js": {
+    "mtime": 1789582802.3839357,
+    "ast_hash": "ff4d8ae921283bb2d721f753e485ebac",
+    "semantic_hash": "ff4d8ae921283bb2d721f753e485ebac"
+  },
+  "test/run_visual_test.py": {
+    "mtime": 1789143925.6682496,
+    "ast_hash": "08b2f21ea0a0e2d4bf4b0b0ae50830e8",
+    "semantic_hash": "08b2f21ea0a0e2d4bf4b0b0ae50830e8"
+  },
+  "test/telegram.test.js": {
+    "mtime": 1789612630.8447013,
+    "ast_hash": "62ec23d416c451f2fa3273538a8e76b3",
+    "semantic_hash": "62ec23d416c451f2fa3273538a8e76b3"
+  },
+  "vercel.json": {
+    "mtime": 1789612632.21339,
+    "ast_hash": "f8676071dfdade8a34dc58c834972aad",
+    "semantic_hash": "f8676071dfdade8a34dc58c834972aad"
+  },
+  "test/rastro_inventory_browser.py": {
+    "mtime": 1790118399.8140817,
+    "ast_hash": "8449ee10cb0a23e6ef276d8423151c68",
+    "semantic_hash": "8449ee10cb0a23e6ef276d8423151c68"
+  }
+}
