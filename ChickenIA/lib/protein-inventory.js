@@ -11,7 +11,7 @@ const catalog=[
 ];
 const names={rosti:'Rostizado',cruji:'Crujiente'};
 const base={date,revision:z.number().int().nonnegative(),protein:z.enum(['rosti','cruji']),notes:z.string().trim().max(1000).default('')};
-const request=z.discriminatedUnion('action',[
+const singleRequest=z.discriminatedUnion('action',[
  z.object({...base,action:z.literal('initial'),raw:qty,marinated:qty}).strict(),
  ...['entry','marinate'].map(action=>z.object({...base,action:z.literal(action),amount:qty.positive()}).strict()),
  z.object({...base,action:z.literal('send'),amount:qty.positive(),slot:z.enum(['morning','noon','other'])}).strict(),
@@ -20,6 +20,11 @@ const request=z.discriminatedUnion('action',[
  z.object({...base,action:z.literal('rectify'),raw:qty,marinated:qty}).strict(),
  z.object({...base,action:z.literal('waste'),amount:qty.positive(),state:z.enum(['raw','marinated'])}).strict(),
 ]);
+const batchLine=z.object({protein:base.protein,entry:qty.optional(),marinate:qty.optional(),send:qty.optional()}).strict();
+const batchRequest=z.object({action:z.literal('movements'),date,revision:base.revision,
+ lines:z.array(batchLine).min(1).max(2).refine(lines=>new Set(lines.map(l=>l.protein)).size===lines.length),
+ slot:z.enum(['morning','noon','other']),deliveredBy:z.string().trim().max(200),receivedBy:z.string().trim().max(200),notes:base.notes}).strict();
+const request=z.union([singleRequest,batchRequest]);
 const fail=(message,status=400)=>{throw Object.assign(Error(message),{status});};
 const units=v=>Math.round(Number(v)*1000),decimal=v=>v/1000;
 const stockKinds=['initial','entry','exit','protein-adjustment'];
@@ -83,6 +88,20 @@ function report(data,day){
 async function read(query,day){date.parse(day);return report(await records(query),day);}
 async function save(query,body,user){
  const d=request.parse(body);
+ if(d.action==='movements'){
+  if(!['manager','processor','dispatch'].includes(user.role))fail('Tu cuenta no tiene permiso para este movimiento.',403);
+  const operations=d.lines.flatMap(line=>['entry','marinate','send'].filter(action=>line[action]>0).map(action=>({protein:line.protein,action,amount:line[action]})));
+  if(!operations.length)fail('Captura al menos un movimiento mayor que cero.');
+  let revision=d.revision,result;
+  const notes=[d.notes,d.deliveredBy?'Entrega: '+d.deliveredBy:'',d.receivedBy?'Recibe: '+d.receivedBy:''].filter(Boolean).join(' · ');
+  if(notes.length>1000)fail('Acorta las observaciones y los nombres a un máximo de 1000 caracteres en total.');
+  // The caller owns one transaction: any failed line rolls back the whole form.
+  for(const op of operations){
+   result=await save(query,{date:d.date,revision,notes,...op,...(op.action==='send'?{slot:d.slot}:{})},user);
+   revision=result.revision;
+  }
+  return result;
+ }
  const allowed=['initial','rectify'].includes(d.action)?['manager']:d.action==='receive'?['manager','kitchen']:['manager','processor','dispatch'];
  if(!allowed.includes(user.role))fail('Tu cuenta no tiene permiso para este movimiento.',403);
  if(d.date>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City'}).format(new Date()))fail('No se pueden registrar movimientos futuros.');

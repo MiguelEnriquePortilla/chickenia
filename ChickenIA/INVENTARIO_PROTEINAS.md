@@ -1,3 +1,9 @@
+# Actualizacion 24/09/2026
+
+La captura cotidiana usa fichas fijas como Rastro y un guardado atomico para ambas
+proteinas. Ver [handoff vigente](HANDOFF_PROTEINAS_2026-09-24.md). Las reglas de
+inventario documentadas abajo se conservan; el selector queda para operaciones especiales.
+
 # Inventario de Proteínas — 21 septiembre 2026
 
 Implementado y probado localmente. Miguel aprobó la publicación por GitHub/Vercel

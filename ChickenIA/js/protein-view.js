@@ -20,5 +20,5 @@ window.ChickenProteinView=(()=>{
  }).join('')+'<p class="protein-hint">Las entradas y salidas se acumulan; las últimas tres columnas muestran la existencia al día consultado. No se suman existencias entre días.</p>';}
  function history(d){const labels={initial:'Primera captura',entry:'Llegó del proveedor (+)',marinate:'Se marinó',send:'Salió a Sucursal (−)',receive:'Sucursal recibió',count:'Conteo para comparar',waste:'Pérdida (−)',rectify:'RECTIFICACIÓN DE INVENTARIO'};
   return `<div class="protein-scroll"><table><thead><tr><th>Fecha</th><th>Proteína / estado</th><th>Qué se registró</th><th>Pollos</th><th>Quién / cuándo</th><th>Comentario</th></tr></thead><tbody>${d.history.map(e=>`<tr><td>${esc(e.date)}</td><td>${names[e.protein]}<br>${e.state==='raw'?'Sin marinar':'Pollos Marinados'}</td><td>${labels[e.action]||esc(e.kind)}${e.action==='marinate'?(e.kind==='exit'?' · se restó sin marinar':' · se sumó marinado'):''}</td><td>${e.action==='rectify'?`${fmt(e.before?.[e.state])} → ${fmt(e.after?.[e.state])}`:fmt(e.quantity)}</td><td>${esc(e.actor)}<br>${esc(time(e.at))}</td><td>${esc(e.notes)}</td></tr>`).join('')||'<tr><td colspan="6">Sin movimientos esta semana.</td></tr>'}</tbody></table></div>`;}
- return {esc,fmt,cards,shipments,week,history,names,slots};
+ return {esc,fmt,verification,cards,shipments,week,history,names,slots};
 })();

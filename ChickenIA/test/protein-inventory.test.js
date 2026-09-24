@@ -112,3 +112,21 @@ test('rectification fixes actual stock, preserves original records and separates
   assert.equal(simultaneous.filter(r=>r.status==='fulfilled').length,1);assert.equal((await f.read('2026-09-15')).rows[1].total,146);
  }finally{await f.db.close();}
 });
+
+test('fixed form saves both proteins atomically, rejects stale retry and keeps shipment receipts separate',async()=>{
+ const f=await fixture(),date='2026-09-14';
+ try{
+  let d=await f.save({date,revision:0,protein:'rosti',action:'initial',raw:100,marinated:40});
+  d=await f.save({date,revision:d.revision,protein:'cruji',action:'initial',raw:10,marinated:0});
+  const body={date,revision:d.revision,action:'movements',slot:'noon',deliveredBy:'Eliseo',receivedBy:'Nancy',notes:'Entrega',lines:[{protein:'rosti',entry:20,marinate:30,send:50},{protein:'cruji',marinate:2.5,send:3}]};
+  await assert.rejects(f.save(body),/supera/);assert.equal((await f.read()).revision,d.revision);
+  assert.equal((await f.read()).rows[0].total,140);
+  body.lines[1].send=2.5;d=await f.save(body);
+  assert.equal(d.rows[0].raw.current,90);assert.equal(d.rows[0].marinated.current,20);
+  assert.equal(d.rows[1].total,7.5);assert.equal(d.shipments.length,2);assert.equal(d.pending,2);
+  assert.match(d.shipments[0].notes,/Entrega: Eliseo/);assert.equal(d.shipments[0].receipt,null);
+  await assert.rejects(f.save(body),e=>e.status===409);
+  await assert.rejects(f.save({...body,revision:d.revision,lines:[{protein:'rosti',entry:0}]}),/mayor que cero/);
+  await assert.rejects(f.save({...body,revision:d.revision},kitchen),e=>e.status===403);
+ }finally{await f.db.close();}
+});

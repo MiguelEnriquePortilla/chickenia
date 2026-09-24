@@ -1,3 +1,10 @@
+# Estado vigente: Proteinas como Rastro - 24/09/2026
+
+Captura con fichas fijas para Rostizado y Crujiente: habia, llega, se marino, sale y queda.
+Guardado conjunto, campos vacios despues de guardar y operaciones especiales separadas.
+Leer [handoff y validacion](HANDOFF_PROTEINAS_2026-09-24.md).
+Este ajuste sustituye el selector de movimientos cotidianos descrito anteriormente.
+
 # ChickenIA
 
 ## Regla vigente: TODO pollo en pollos, 22/09/2026
