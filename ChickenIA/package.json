@@ -18,7 +18,7 @@
   },
   "scripts": {
     "test:daily": "node --test test/daily-capture.test.js test/daily-live.test.js test/daily-photo.test.js test/rastro-report.test.js test/protein-inventory.test.js test/chicken-units.test.js",
-    "test": "node --test test/inventory.test.js test/routines.test.js test/rastro-sucursal.test.js test/proteins.test.js test/kitchen.test.js test/chicken-query.test.js test/pilot-access.test.js test/foodia.test.js test/foodia-mcp.test.js test/foodia-local.test.js",
+    "test": "node --test test/operational-adjustments.test.js test/inventory.test.js test/routines.test.js test/rastro-sucursal.test.js test/proteins.test.js test/kitchen.test.js test/chicken-query.test.js test/pilot-access.test.js test/foodia.test.js test/foodia-mcp.test.js test/foodia-local.test.js",
     "test:telegram": "node --test test/telegram.test.js test/report-guidance.test.js test/report-image.test.js",
     "build": "node scripts/build-static.js",
     "dev:inventory": "node scripts/dev-inventory.js",

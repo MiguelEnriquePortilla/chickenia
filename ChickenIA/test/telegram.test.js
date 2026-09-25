@@ -63,6 +63,7 @@ test('endpoint persists a single immutable snapshot under concurrent dispatch an
     CREATE TABLE activity_checks(activity_id int,location_id int,check_date date,done boolean);
     INSERT INTO activity_checks VALUES(1,1,'2026-09-16',true);
     CREATE TABLE kitchen_plans(activity_id int,plan_date date);`);
+  await db.exec('ALTER TABLE activities ADD COLUMN measurement text; ALTER TABLE activity_checks ADD COLUMN quality_score int');
   const dbModule=require('../lib/supervision/db'),telegram=require('../lib/supervision/telegram');
   const originalEnsure=dbModule.ensureTables,originalCut=telegram.currentCut,originalFetch=global.fetch;
   const keys=['SUPERVISION_NOTIFY_SECRET','SUPERVISION_LOCATION_ID','SUPERVISION_NOTIFY_ENABLED','TELEGRAM_CHAT_ID','TELEGRAM_BOT_TOKEN','CRON_SECRET','SUPERVISION_NOTIFY_START_AT'];

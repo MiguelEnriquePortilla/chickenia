@@ -9,7 +9,7 @@
  const actions={initial:'Primera captura: lo que hay en CEDIS',send:'SALIDA A SUCURSAL — se resta de CEDIS',entry:'Llegó pollo del proveedor — se suma',marinate:'Ya marinamos estos pollos — siguen en CEDIS',receive:'Sucursal: confirmar lo que llegó',count:'Contar los pollos — solo comparar',waste:'Pollo perdido o dañado — se resta',rectify:'RECTIFICAR INVENTARIO — corregir lo que hay'};
  const guidance={initial:'Escribe lo que está físicamente en CEDIS al comenzar. Separa los pollos sin marinar de los marinados. No cuentes un pollo dos veces ni incluyas los que ya salieron.',entry:'Escribe solo los pollos nuevos que trajo el proveedor a CEDIS. No escribas aquí los que salen a Sucursal.',marinate:'Escribe cuántos pollos acabas de marinar. Pasan de sin marinar a Pollos Marinados. Todavía están en CEDIS: el total no aumenta.',send:'Escribe cuántos pollos marinados salen de CEDIS hacia Sucursal. Se RESTAN de CEDIS. No escribas cuántos quedan. Si aún aparecen sin marinar, registra primero que ya se marinaron.',receive:'Estás confirmando en Sucursal cuántos pollos llegaron de esa entrega. Ya se descontaron al salir de CEDIS; no se vuelven a restar.',count:'Escribe lo que contaste en CEDIS. Esto solo compara y muestra diferencias. Para corregir lo guardado, usa RECTIFICAR INVENTARIO.',waste:'Escribe cuántos pollos se perdieron o dañaron y explica qué pasó. Se restan de CEDIS.',rectify:'Cuenta los pollos que realmente quedan en CEDIS y escribe las cantidades correctas. Reemplazarán las cantidades actuales. No incluyas los que ya salieron. Explica el error. Si solo falta registrar una salida, usa el campo Lo que sale ahora a Sucursal en la ficha superior.'};
  const field=(id,label)=>`<label>${label} (pollos)<input id="${id}" name="${id}" type="number" min="0" max="1000000" step="0.001" inputmode="decimal" required placeholder="Sin captura" autocomplete="off"></label>`;
- function lock(on){busy=on;$('#movements-capture').disabled=on||!snapshot||snapshot.role==='kitchen'||(dirty&&dirtyForm==='other');$('#capture').disabled=on||!snapshot||(dirty&&dirtyForm==='movements');$('#date').disabled=on;$('#reload').disabled=on;document.querySelectorAll('[data-start-action]').forEach(b=>b.disabled=on||!snapshot);}
+ function lock(on){busy=on;$('#reset-shortcut').disabled=on||!snapshot||snapshot.role!=='manager'||loadedDate!==today;$('#movements-capture').disabled=on||!snapshot||snapshot.role==='kitchen'||(dirty&&dirtyForm==='other');$('#capture').disabled=on||!snapshot||(dirty&&dirtyForm==='movements');$('#date').disabled=on;$('#reload').disabled=on;document.querySelectorAll('[data-start-action]').forEach(b=>b.disabled=on||!snapshot);}
  async function api(body,day){const r=await fetch('/api/protein-inventory?date='+encodeURIComponent(day),body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{cache:'no-store'});if(r.status===401){location.assign('/inventario.html?next='+encodeURIComponent('/proteinas.html?date='+day));throw Error('Inicia sesión para continuar.');}const data=await r.json();if(!r.ok)throw Error(data.error);return data;}
  function form(){
   if(!snapshot)return;
@@ -18,7 +18,7 @@
   $('#action').innerHTML='<option value="">Elige qué vas a registrar</option>'+allowed.map(a=>`<option value="${a}">${actions[a]}</option>`).join('');
   if(allowed.includes(before))$('#action').value=before;
   else if(allowed.includes('initial'))$('#action').value='initial';
-  $('#rectify-shortcut').hidden=role!=='manager';
+  $('#rectify-shortcut').hidden=role!=='manager';$('#reset-shortcut').hidden=role!=='manager';
   $('#notes').value='';fields();
  }
  function fields(){
@@ -71,13 +71,14 @@
   lock(true);$('#error').textContent='';try{snapshot=await api(body,loadedDate);dirty=false;render();$('#status').textContent='Movimientos guardados correctamente · '+snapshot.date;}catch(error){$('#error').textContent=error.message;}finally{lock(false);}
  };
  function render(){
+  $('#reset-info').textContent=snapshot.reset?'Ciclo reiniciado el '+snapshot.reset.date+' por '+snapshot.reset.actor+'. '+snapshot.reset.notes:'';
   $('#back').href='/supervision.html?area=supervision&date='+snapshot.date;
   $('#balances').innerHTML=movementCards();$('#shipments').innerHTML=view.shipments(snapshot);$('#week').innerHTML=view.week(snapshot);$('#history').innerHTML=view.history(snapshot);
   $('#movements-form').reset();form();$('#status').textContent='Datos al '+snapshot.date+' · '+new Date().toLocaleTimeString('es-MX');
  }
  async function load(){
   const day=$('#date').value;if(!day)return;lock(true);$('#error').textContent='';
-  try{const data=await api(null,day);snapshot=data;loadedDate=day;dirty=false;render();}
+  try{const data=await api(null,day);snapshot=data;loadedDate=day;dirty=false;const url=new URL(location.href);url.searchParams.set('date',day);history.replaceState(null,'',url);render();}
   catch(e){$('#error').textContent=e.message;if(loadedDate)$('#date').value=loadedDate;}
   finally{lock(false);}
  }
@@ -116,6 +117,17 @@
    if(!confirm(`${view.names[body.protein]} · ${loadedDate}\nSin marinar: ${view.fmt(r.raw.current)} → ${view.fmt(body.raw)}\nPollos Marinados: ${view.fmt(r.marinated.current)} → ${view.fmt(body.marinated)}\nMotivo: ${body.notes}\n\n¿Guardar estas cantidades como lo que realmente hay en CEDIS? La corrección quedará registrada con tu nombre.`))return;
   }
   lock(true);$('#error').textContent='';try{snapshot=await api(body,loadedDate);dirty=false;render();$('#status').textContent=(action==='rectify'?'Inventario rectificado correctamente':'Movimiento guardado correctamente')+' · '+snapshot.date;}catch(error){$('#error').textContent=error.message;}finally{lock(false);}
+ };
+ $('#reset-shortcut').onclick=async()=>{
+  if(busy||!snapshot||snapshot.role!=='manager'||loadedDate!==today)return;
+  if(dirty&&!confirm('Hay una captura sin guardar. ¿Descartarla para reiniciar Proteínas?'))return;
+  const notes=prompt('Motivo del reinicio de Proteínas:');if(notes===null)return;
+  if(notes.trim().length<3){$('#error').textContent='Escribe el motivo del reinicio.';return;}
+  const balances=snapshot.rows.map(r=>r.name+': '+view.fmt(r.raw.current)+' sin marinar + '+view.fmt(r.marinated.current)+' marinados → 0').join('\n');
+  if(!confirm(balances+'\n\nSe cerrará el ciclo anterior: saldos, acumulados y recepciones pendientes empezarán en cero hoy. La bitácora anterior queda conservada.\nMotivo: '+notes+'\n\n¿Reiniciar las dos proteínas con tu autorización actual?'))return;
+  lock(true);$('#error').textContent='';
+  try{snapshot=await api({action:'reset',date:loadedDate,revision:snapshot.revision,notes:notes.trim(),confirm:true},loadedDate);dirty=false;render();$('#status').textContent='Proteínas reiniciadas en cero. Ya puedes rectificar con el inventario físico de hoy.';}
+  catch(e){$('#error').textContent=e.message;}finally{lock(false);}
  };
  $('#reload').onclick=()=>{if(!dirty||confirm('¿Descartar la captura sin guardar y actualizar?'))load();};
  $('#date').onchange=()=>{if(dirty&&!confirm('¿Descartar la captura sin guardar y cambiar de fecha?')){$('#date').value=loadedDate;return;}load();};

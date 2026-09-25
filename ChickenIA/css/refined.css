@@ -51,3 +51,5 @@ input,select,textarea,.inv-body input,.inv-body select,.inv-body textarea{border
 [hidden]{display:none!important}.chat-composer button svg{width:22px;height:22px;margin:auto}.inv-grid{align-items:start}.stock-preview{font-size:15px}.stock-preview strong{font-size:30px;font-weight:500}.stock-preview p{color:var(--gray)}
 
 .theme-control{border:1px solid var(--border-soft);border-radius:10px;color:var(--text);cursor:pointer}.landing:before{opacity:.065}:root[data-theme="dark"] .landing:before{filter:grayscale(1) invert(1);opacity:.07}:root[data-theme="dark"] .crit-chip,:root[data-theme="dark"] .acc-meta.has-critical,:root[data-theme="dark"] .overall-score-value{color:#ff8c92}
+
+.bar-close-fields{width:100%;display:grid;gap:12px}.bar-count-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px}.bar-count-grid label{display:grid;gap:5px}.bar-count-grid input,.quality-score{max-width:100%;width:100%;box-sizing:border-box}.activity-extra:has(.bar-close-fields){flex-wrap:wrap}.activity-extra .quality-score{width:105px}

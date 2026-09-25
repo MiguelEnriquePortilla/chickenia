@@ -1,3 +1,7 @@
+# Estado vigente — 25 septiembre 2026
+
+Leer [ajustes de actividades, porcentajes y reinicio de Proteínas](HANDOFF_AJUSTES_2026-09-25.md). Sustituye las actividades anteriores afectadas. Reinicio real solicitado por Miguel para hoy: comprobar su recibo antes de cualquier nueva ejecución. No repetirlo al retomar.
+
 # ChickenIA — retomar la siguiente sesión
 
 ## Regla vigente: TODO pollo en pollos, 22/09/2026

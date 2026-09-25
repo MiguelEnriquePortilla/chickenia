@@ -11,7 +11,8 @@ try:
   browser=p.chromium.launch(channel='msedge')
   page=browser.new_page(viewport={'width':390,'height':844});errors=[]
   page.on('pageerror',lambda e:errors.append(str(e)))
-  page.on('dialog',lambda d:d.accept())
+  dialog_handler=lambda d:d.accept()
+  page.on('dialog',dialog_handler)
   page.goto(base+'/proteinas.html?date=2026-09-14')
   expect(page.locator('#balances')).to_contain_text('Sin captura')
   page.locator('#other-operations summary').click()
@@ -49,6 +50,26 @@ try:
   page.locator('#save').click()
   expect(page.locator('#status')).to_contain_text('Inventario rectificado correctamente')
   expect(page.locator('[data-protein="rosti"] [data-result]')).to_contain_text('109.5 pollos')
+  expect(page.locator('#reset-shortcut')).to_be_disabled()
+  today=page.evaluate("new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City'}).format(new Date())")
+  page.locator('#date').fill(today);page.locator('#date').press('Tab')
+  expect(page.locator('#reset-shortcut')).to_be_enabled()
+  page.remove_listener('dialog',dialog_handler)
+  page.on('dialog',lambda d:d.accept('Arqueo de prueba' if d.type=='prompt' else ''))
+  page.locator('#reset-shortcut').click()
+  expect(page.locator('#status')).to_contain_text('reiniciadas en cero')
+  for protein in ['rosti','cruji']:
+   expect(page.locator('[data-protein="'+protein+'"] [data-result]')).to_contain_text('0 pollos')
+  expect(page.locator('#shipments')).to_contain_text('0 envíos pendientes')
+  page.reload()
+  expect(page.locator('#reset-info')).to_contain_text('Ciclo reiniciado')
+  page.locator('#rectify-shortcut').click()
+  page.locator('#raw').fill('12.125');page.locator('#marinated').fill('0');page.locator('#notes').fill('Arqueo físico después del reinicio')
+  page.locator('#save').click()
+  try:expect(page.locator('#status')).to_contain_text('Inventario rectificado correctamente')
+  except Exception:
+   print('Errors:',errors,'API:',page.locator('#error').inner_text());raise
+  expect(page.locator('[data-protein="rosti"] [data-result]')).to_contain_text('12.125 pollos')
   for width in [390,1280]:
    page.set_viewport_size({'width':width,'height':900})
    for theme in ['light','dark']:

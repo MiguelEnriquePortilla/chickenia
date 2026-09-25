@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
     if (!location || location.type !== 'tienda') return res.status(503).json({ error: 'Sucursal no válida' });
     // One statement provides a consistent catalogue/check snapshot.
     const rows = await sql`
-      SELECT a.id, a.name, ar.code AS area_code, ar.name AS area_name, a.weight, a.criticality, a.routine_block, COALESCE(c.done,false) AS done
+      SELECT a.id, a.name, ar.code AS area_code, ar.name AS area_name, a.weight, a.criticality, a.routine_block, a.measurement, c.quality_score, COALESCE(c.done,false) AS done
       FROM activities a JOIN areas ar ON ar.id=a.area_id
       LEFT JOIN activity_checks c ON c.activity_id=a.id AND c.location_id=${locationId} AND c.check_date=${date}::date
       WHERE ar.location_type=${location.type} AND ar.active=true AND a.active=true

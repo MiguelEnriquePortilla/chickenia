@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
     `;
     const activities = await sql`
       SELECT a.id, a.area_id, a.name, a.criticality, a.weight, a.requires_quantity, a.unit,
-        a.indicator_type, COALESCE((SELECT 'Meta programada: ' || kp.kg || ' kg' FROM kitchen_plans kp WHERE kp.activity_id=a.id AND kp.plan_date=${date}::date),a.target) AS target, a.frequency, a.routine_block, a.order_index
+        a.measurement, a.indicator_type, COALESCE((SELECT 'Meta programada: ' || kp.kg || ' kg' FROM kitchen_plans kp WHERE kp.activity_id=a.id AND kp.plan_date=${date}::date),a.target) AS target, a.frequency, a.routine_block, a.order_index
       FROM activities a
       JOIN areas ar ON ar.id = a.area_id
       WHERE ar.location_type = ${locationType} AND a.active = true

@@ -130,3 +130,36 @@ test('fixed form saves both proteins atomically, rejects stale retry and keeps s
   await assert.rejects(f.save({...body,revision:d.revision},kitchen),e=>e.status===403);
  }finally{await f.db.close();}
 });
+
+
+test('reset starts a zero cycle atomically, archives old receipts and preserves unrelated inventory',async()=>{
+ const f=await fixture(),day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City'}).format(new Date());
+ try{
+  let d=await f.save({date:day,revision:0,protein:'rosti',action:'initial',raw:100,marinated:20});
+  d=await f.save({date:day,revision:d.revision,protein:'rosti',action:'send',amount:5,slot:'morning'});
+  const shipment=d.shipments[0].id;
+  await f.query("INSERT INTO inventory_movements(item_id,location_id,movement_type,quantity,movement_date,notes,recorded_by) VALUES(1,1,'entry',9,$1,'Verdura sin cambios','Nancy')",[day]);
+  const before=await f.query('SELECT * FROM inventory_movements ORDER BY id');
+  const body={date:day,revision:d.revision,action:'reset',notes:'Inicio del ciclo y arqueo autorizado',confirm:true};
+  await assert.rejects(f.save(body,processor),e=>e.status===403);
+  await assert.rejects(f.save({...body,confirm:false}));
+  await assert.rejects(f.save({...body,date:'2026-01-01'}),/hoy/);
+  let inserts=0;
+  await assert.rejects(f.db.transaction(async tx=>domain.save(async(s,p)=>{
+   if(s.startsWith('INSERT INTO inventory_movements')&&++inserts===3)throw Error('simulated write failure');
+   return (await tx.query(s,p)).rows;
+  },body,manager)),/simulated/);
+  assert.deepEqual(await f.query('SELECT * FROM inventory_movements ORDER BY id'),before);
+  d=await f.save(body);
+  assert.deepEqual(d.rows.map(r=>[r.raw.current,r.marinated.current,r.total,r.sent,r.entries]),[[0,0,0,0,0],[0,0,0,0,0]]);
+  assert.equal(d.pending,0);assert.equal(d.shipments.length,0);assert.equal(d.history.length,4);assert.equal(d.reset.actor,'Miguel');
+  assert.deepEqual(await f.query('SELECT * FROM inventory_movements WHERE id<= $1 ORDER BY id',[before.at(-1).id]),before);
+  await assert.rejects(f.save(body),e=>e.status===409);
+  await assert.rejects(f.save({date:day,revision:d.revision,protein:'rosti',action:'receive',shipment,amount:5},kitchen),/envío no existe/);
+  d=await f.save({date:day,revision:d.revision,protein:'rosti',action:'rectify',raw:12.125,marinated:2.5,notes:'Arqueo físico de hoy'});
+  d=await f.save({date:day,revision:d.revision,protein:'cruji',action:'entry',amount:10.125});
+  assert.equal(d.rows[0].total,14.625);assert.equal(d.rows[1].total,10.125);
+  const reloaded=await f.read(day);assert.equal(reloaded.rows[0].total,14.625);
+  d=await f.save({...body,revision:d.revision});assert.deepEqual(d.rows.map(r=>r.total),[0,0]);
+ }finally{await f.db.close();}
+});

@@ -2,6 +2,8 @@ const routines = require('./rosticero-routines');
 
 module.exports = async function migrateRoutines(sql, weights) {
   await sql`ALTER TABLE activities ADD COLUMN IF NOT EXISTS routine_block TEXT`;
+  await sql`ALTER TABLE activities ADD COLUMN IF NOT EXISTS measurement TEXT`;
+  await sql`ALTER TABLE activity_checks ADD COLUMN IF NOT EXISTS closure JSONB`;
   await sql`ALTER TABLE activities ADD COLUMN IF NOT EXISTS valid_from DATE`;
   await sql`ALTER TABLE activities ADD COLUMN IF NOT EXISTS valid_until DATE`;
   await sql`CREATE TABLE IF NOT EXISTS checklist_catalog_versions (

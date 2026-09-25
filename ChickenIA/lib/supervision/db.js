@@ -545,6 +545,7 @@ async function ensureTables() {
   await require('./routine-migration')(sql, CRITICALITY_WEIGHT);
   await require('./rastro-sucursal-migration')(sql, CRITICALITY_WEIGHT, SEED_ACTIVITIES);
   await require('./classification-migration')(sql, SEED_ACTIVITIES);
+  await require('./operational-adjustments').migrate(sql);
   return sql;
 }
 

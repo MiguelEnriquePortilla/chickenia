@@ -24,7 +24,22 @@ const token=payload+'.'+crypto.createHmac('sha256',process.env.INVENTORY_SESSION
    INSERT INTO activities VALUES(1,1,'Pollo crujiente preparado','critica',5,true,'piezas','PRODUCCIÓN','8–16 piezas','daily','operacion',1,true,NULL,NULL);
    CREATE TABLE kitchen_plans(activity_id int,plan_date date,kg numeric);
    CREATE TABLE activity_checks(activity_id int,location_id int,check_date date,done boolean,quantity numeric,quality_score numeric,notes text,checked_by text,checked_at timestamptz,UNIQUE(activity_id,location_id,check_date));`);
+  await db.exec('ALTER TABLE activities ADD COLUMN measurement text; ALTER TABLE activity_checks ADD COLUMN closure jsonb');
   require('../lib/supervision/db').ensureTables=async()=>(strings,...values)=>q(strings.reduce((s,t,i)=>s+t+(i<values.length?'$'+(i+1):''),''),values);
+  checks=require('../api/checks');areas=require('../api/areas');
+ }
+ if(process.env.TEST_OPERATIONAL_ADJUSTMENTS==='1'){
+  await db.exec(`CREATE TABLE areas(id serial PRIMARY KEY,code text UNIQUE,name text,location_type text DEFAULT 'tienda',active boolean DEFAULT true,order_index int DEFAULT 1);
+   CREATE TABLE activities(id serial PRIMARY KEY,area_id int,name text,criticality text DEFAULT 'media',weight int DEFAULT 3,requires_quantity boolean DEFAULT false,unit text,indicator_type text,target text,routine_block text DEFAULT 'operacion',frequency text DEFAULT 'daily',order_index int DEFAULT 1,active boolean DEFAULT true,valid_from date,valid_until date);
+   CREATE TABLE kitchen_plans(activity_id int,plan_date date,kg numeric);
+   CREATE TABLE checklist_catalog_versions(version text PRIMARY KEY,effective_date date);
+   CREATE TABLE activity_checks(activity_id int,location_id int,check_date date,done boolean,quantity numeric,quality_score int,notes text,checked_by text,checked_at timestamptz,UNIQUE(activity_id,location_id,check_date));`);
+  const sql=(strings,...values)=>q(strings.reduce((s,t,i)=>s+t+(i<values.length?'$'+(i+1):''),''),values);
+  const adjustments=require('../lib/supervision/operational-adjustments');
+  for(const code of ['cocina','freidoras','rosticero','ventas_barras','supervision'])await q('INSERT INTO areas(code,name) VALUES($1,$1)',[code]);
+  for(const c of adjustments.changes)await q('INSERT INTO activities(area_id,name) SELECT id,$1 FROM areas WHERE code=$2',[c.old,c.area]);
+  await adjustments.migrate(sql);
+  require('../lib/supervision/db').ensureTables=async()=>sql;
   checks=require('../api/checks');areas=require('../api/areas');
  }
  await db.exec("INSERT INTO inventory_items(sku,name,category,unit) VALUES('VER-001','Jitomate','Verduras','kg'),('RAS-011','Bolsas','Rastro','pieza');");

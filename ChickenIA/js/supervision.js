@@ -336,6 +336,9 @@ function renderActivity(act) {
   // hasta ahora). El placeholder muestra la meta del indicador cuando existe (marco de
   // 11 tipos, piloto en Freidoras) y si no, cae a la unidad — "Etapa 1": se captura el
   // valor, no se valida ni se colorea todavía contra la meta (eso es Etapa 2, aparte).
+  const percentField=act.measurement==='percentage'?`<label>Cumplimiento (%) <input class="quality-score" type="number" min="0" max="100" step="1" inputmode="numeric" placeholder="0 a 100" value="${c.quality_score??''}"></label>`:'';
+  const leftoverProducts=[['cruji','Cruji','pollos'],['papas','Papas gajo','kg'],['campesina','Campesina','kg'],['salsas','Salsas','kg'],['col','Ensalada de col','kg'],['pure','Puré de papa','kg'],['codo','Codo','kg']];
+  const closeField=act.measurement==='bar-close'?`<div class="bar-close-fields"><p>Conteo al momento del cierre parcial. Escribe 0 si no hay sobrante.</p><div class="bar-count-grid">${leftoverProducts.map(([id,name,unit])=>`<label>${name} (${unit})<input type="number" data-leftover="${id}" data-unit="${unit}" min="0" max="1000000" step="0.001" inputmode="decimal" value="${c.closure?.lines?.find(l=>l.product===id)?.quantity??''}"></label>`).join('')}</div><label><input type="checkbox" class="authorize-closure"> Autorizar este cierre con mi sesión de ChickenIA</label><button type="button" class="save-closure btn btn-primary">Autorizar y guardar cierre parcial</button><a href="/inventario.html?next=%2Fsupervision.html%3Farea%3Dventas_barras">Iniciar sesión para autorizar</a><p class="closure-receipt">${c.closure?'Autorizó: '+escapeAttr(c.closure.authorized_name)+' · '+new Date(c.closure.authorized_at).toLocaleString('es-MX'):''}</p></div>`:'';
   const qtyField = act.requires_quantity
     ? `<input type="number" min="0" step="${['kg','pollos'].includes(act.unit) ? '0.001' : '0.01'}" inputmode="decimal" class="qty"
          placeholder="${act.target ? 'meta: ' + escapeAttr(act.target) : (act.unit || 'cantidad')}"
@@ -349,8 +352,8 @@ function renderActivity(act) {
         <span>${act.name}${act.routine_block && act.target ? `<small class="activity-criterion">${act.target}</small>` : ''}</span>
       </label>
       <div class="activity-extra">
-        ${qtyField}
-        <input type="text" class="notes" placeholder="observaciones" value="${c.notes ?? ''}" />
+        ${qtyField}${percentField}${closeField}
+        <input type="text" class="notes" placeholder="${act.measurement==='promotion'?'¿Cuál es la promo del día? (obligatorio)':'observaciones'}" value="${escapeAttr(c.notes ?? '')}" />
         ${savedTag}
       </div>
     </div>
@@ -368,6 +371,15 @@ function attachHandlers(act) {
   const notes = row.querySelector('.notes');
   const qty = row.querySelector('.qty');
 
+  if(act.measurement==='bar-close'){
+    row.querySelector('.save-closure').addEventListener('click',()=>{
+      if(!row.querySelector('.authorize-closure').checked){alert('Confirma la autorización del cierre parcial.');return;}
+      chk.checked=true;saveCheck(act,row);
+    });
+    chk.addEventListener('change',()=>{chk.checked=!!state.checksByActivity[act.id]?.done;alert('Usa Autorizar y guardar cierre parcial después de completar el conteo.');});
+    return;
+  }
+  row.querySelector('.quality-score')?.addEventListener('change',()=>saveCheck(act,row));
   chk.addEventListener('change', () => saveCheck(act, row));
   notes.addEventListener('change', () => saveCheck(act, row));
   qty?.addEventListener('change', () => saveCheck(act, row));
@@ -390,6 +402,8 @@ async function saveCheck(act, row) {
     done: chk.checked,
     quantity: qty && qty.value !== '' ? Number(qty.value) : null,
     quantity_unit: act.unit,
+    quality_score: row.querySelector('.quality-score')?.value ? Number(row.querySelector('.quality-score').value) : null,
+    ...(act.measurement==='bar-close'?{authorize_closure:row.querySelector('.authorize-closure').checked,closure:{lines:[...row.querySelectorAll('[data-leftover]')].map(i=>({product:i.dataset.leftover,unit:i.dataset.unit,quantity:i.value===''?null:Number(i.value)}))}}:{}),
     notes: notes.value || null,
     checked_by: state.supervisor,
   };
@@ -402,12 +416,14 @@ async function saveCheck(act, row) {
     });
     ChickenFeedback.saved('Actividad guardada ✓');
     state.checksByActivity[act.id] = saved;
+    if(saved.closure){row.querySelector('.closure-receipt').textContent='Autorizó: '+saved.closure.authorized_name+' · '+new Date(saved.closure.authorized_at).toLocaleString('es-MX');row.querySelector('.authorize-closure').checked=false;}
     row.classList.toggle('done', saved.done);
     row.classList.remove('just-saved');
     void row.offsetWidth;
     row.classList.add('just-saved');
     refreshSummary();
   } catch (err) {
+    chk.checked=!!state.checksByActivity[act.id]?.done;
     alert('No se pudo guardar: ' + err.message);
   }
 }

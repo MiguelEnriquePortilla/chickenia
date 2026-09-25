@@ -1,0 +1,64 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const {PGlite}=require('@electric-sql/pglite');
+const adjustment=require('../lib/supervision/operational-adjustments');
+const measurement=require('../lib/supervision/measurement');
+test('targeted catalogue migration preserves history, transfers carrots once and validates new captures through real APIs',async()=>{
+ const db=new PGlite(),sql=async(parts,...v)=>(await db.query(parts.reduce((s,p,i)=>s+(i?'$'+i:'')+p,''),v)).rows;
+ const dbModule=require('../lib/supervision/db'),auth=require('../lib/inventory-auth');
+ const original=dbModule.ensureTables,originalAuth=auth.authenticate;
+ try{
+  await db.exec(`CREATE TABLE areas(id serial PRIMARY KEY,code text UNIQUE,name text,location_type text DEFAULT 'tienda',active boolean DEFAULT true,order_index int DEFAULT 1);
+   CREATE TABLE activities(id serial PRIMARY KEY,area_id int,name text,criticality text DEFAULT 'media',weight int DEFAULT 3,requires_quantity boolean DEFAULT false,unit text,indicator_type text,target text,routine_block text DEFAULT 'operacion',frequency text DEFAULT 'daily',order_index int DEFAULT 1,valid_from date,valid_until date,active boolean DEFAULT true);
+   CREATE TABLE activity_checks(activity_id int,location_id int,check_date date,done boolean,quantity numeric,quality_score int,notes text,checked_by text,checked_at timestamptz,UNIQUE(activity_id,location_id,check_date));
+   CREATE TABLE checklist_catalog_versions(version text PRIMARY KEY,effective_date date);
+   CREATE TABLE locations(id int,code text,name text,type text);INSERT INTO locations VALUES(1,'jojutla','Jojutla','tienda');
+   CREATE TABLE kitchen_plans(activity_id int,plan_date date,kg numeric);`);
+  for(const code of ['cocina','freidoras','rosticero','ventas_barras','supervision'])await sql`INSERT INTO areas(code,name) VALUES(${code},${code})`;
+  for(const c of adjustment.changes)await sql`INSERT INTO activities(area_id,name) SELECT id,${c.old} FROM areas WHERE code=${c.area}`;
+  await sql`UPDATE activities SET requires_quantity=true,unit='kg' WHERE name='Zanahoria en palitos para campesina'`;
+  await sql`INSERT INTO activities(area_id,name) SELECT id,'Sin cambios' FROM areas WHERE code='cocina'`;
+  await sql`INSERT INTO activity_checks VALUES(1,1,'2026-09-01',true,2,null,'Histórico','Nancy',now())`;
+  const before=await sql`SELECT * FROM activity_checks`;
+  await adjustment.migrate(sql);await adjustment.migrate(sql);
+  const live=await sql`SELECT a.*,ar.code FROM activities a JOIN areas ar ON ar.id=a.area_id WHERE valid_until IS NULL`;
+  assert.equal(live.length,7);
+  assert.equal(live.find(a=>a.name.startsWith('Zanahoria')).code,'freidoras');
+  assert.equal(live.filter(a=>a.measurement==='percentage').length,2);
+  assert.ok(live.find(a=>a.name==='Organizar barras para arranque').target.includes('Consumibles'));
+  assert.deepEqual((await sql`SELECT activity_id,notes FROM activity_checks`),before.map(({activity_id,notes})=>({activity_id,notes})));
+  assert.equal((await sql`SELECT count(*)::int n FROM checklist_catalog_versions`)[0].n,1);
+  dbModule.ensureTables=async()=>sql;
+  const checks=require('../api/checks'),summary=require('../api/summary');
+  const today=(await sql`SELECT effective_date::text AS day FROM checklist_catalog_versions`)[0].day;
+  const call=async(body,handler=checks,method='POST')=>{
+   let status,data;await handler({method,body,query:{location_id:1,date:today},headers:{host:'app.test',origin:'https://app.test'}},{setHeader(){},status(n){status=n;return this;},json(d){data=d;}});return {status,data};
+  };
+  const base={location_id:1,check_date:today,checked_by:'Nancy',done:true};
+  const percent=live.find(a=>a.measurement==='percentage');
+  for(const value of [null,-1,101,50.5,'50'])assert.equal((await call({...base,activity_id:percent.id,quality_score:value})).status,400);
+  assert.equal((await call({...base,activity_id:percent.id,quality_score:50})).status,200);
+  const scores=await call(null,summary,'GET');assert.equal(scores.status,200);
+  assert.equal(scores.data.areas.find(a=>a.area_code==='ventas_barras').score,10);
+  assert.equal(scores.data.checkpoints[0].current.areas.find(a=>a.name==='ventas_barras').day,10);
+  const promotion=live.find(a=>a.measurement==='promotion');
+  assert.equal((await call({...base,activity_id:promotion.id})).status,400);
+  assert.equal((await call({...base,activity_id:promotion.id,notes:'Promo de prueba'})).status,200);
+  const closing=live.find(a=>a.measurement==='bar-close');
+  const body={...base,activity_id:closing.id,authorize_closure:true,closure:{lines:measurement.products.map(([product,,unit])=>({product,unit,quantity:0}))}};
+  auth.authenticate=()=>({id:'nancy',name:'Nancy',role:'kitchen'});
+  assert.equal((await call(body)).status,403);
+  auth.authenticate=()=>({id:'miguel',name:'Miguel',role:'manager'});
+  assert.equal((await call({...body,closure:{lines:[]}})).status,400);
+  assert.equal((await call({...body,authorize_closure:false})).status,400);
+  body.closure.authorized_by='forged';body.closure.lines[0].quantity=.125;
+  const saved=await call(body);assert.equal(saved.status,200);assert.equal(saved.data.closure.authorized_by,'miguel');assert.equal(saved.data.closure.lines[0].quantity,.125);
+  assert.equal((await call({...base,activity_id:1})).status,409);
+ }finally{dbModule.ensureTables=original;auth.authenticate=originalAuth;await db.close();}
+});
+test('performance credit distinguishes 0%, 50%, 100% and legacy checkmarks',()=>{
+ for(const value of [0,50,100])assert.equal(measurement.credit({done:true,measurement:'percentage',quality_score:value}),value/100);
+ assert.equal(measurement.credit({done:true,measurement:'percentage'}),0);
+ assert.equal(measurement.credit({done:false,measurement:'percentage',quality_score:100}),0);
+ assert.equal(measurement.credit({done:true,quality_score:20}),1);
+});

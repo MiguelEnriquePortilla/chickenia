@@ -24,10 +24,18 @@ const batchLine=z.object({protein:base.protein,entry:qty.optional(),marinate:qty
 const batchRequest=z.object({action:z.literal('movements'),date,revision:base.revision,
  lines:z.array(batchLine).min(1).max(2).refine(lines=>new Set(lines.map(l=>l.protein)).size===lines.length),
  slot:z.enum(['morning','noon','other']),deliveredBy:z.string().trim().max(200),receivedBy:z.string().trim().max(200),notes:base.notes}).strict();
-const request=z.union([singleRequest,batchRequest]);
+const resetRequest=z.object({action:z.literal('reset'),date,revision:base.revision,notes:z.string().trim().min(3).max(1000),confirm:z.literal(true)}).strict();
+const request=z.union([singleRequest,batchRequest,resetRequest]);
 const fail=(message,status=400)=>{throw Object.assign(Error(message),{status});};
 const units=v=>Math.round(Number(v)*1000),decimal=v=>v/1000;
-const stockKinds=['initial','entry','exit','protein-adjustment'];
+const stockKinds=['initial','entry','exit','protein-adjustment','protein-reset'];
+const isInitial=e=>['initial','protein-reset'].includes(e.movement_type);
+function cycle(events,day){
+ const reset=events.filter(e=>e.day<=day&&e.movement_type==='protein-reset').at(-1);
+ if(!reset)return events;
+ const start=events.find(e=>e.meta.operation===reset.meta.operation).id;
+ return events.filter(e=>e.id>=start);
+}
 const sign=m=>m.movement_type==='exit'?-1:1;
 function metadata(value){try{return JSON.parse(value)||{};}catch{return {};}}
 async function location(query){
@@ -49,18 +57,19 @@ async function records(query){
  return {locationId,items,events,revision:events.reduce((n,e)=>Math.max(n,e.id),0)};
 }
 function stateAt(events,protein,state,day){
- const relevant=events.filter(e=>e.protein===protein&&e.state===state&&e.day<=day);
+ const relevant=cycle(events,day).filter(e=>e.protein===protein&&e.state===state&&e.day<=day);
  const stock=relevant.filter(e=>stockKinds.includes(e.movement_type));
- const initialized=stock.some(e=>e.movement_type==='initial');
+ const initialized=stock.some(isInitial);
  const sum=rows=>decimal(rows.reduce((n,e)=>n+units(e.quantity)*sign(e),0));
  const current=initialized?sum(stock):null;
  const count=relevant.filter(e=>e.movement_type==='protein-count').at(-1);
- return {current,previous:initialized?sum(stock.filter(e=>e.day<day||e.movement_type==='initial')):null,
-  initialDate:stock.find(e=>e.movement_type==='initial')?.day||null,
+ return {current,previous:initialized?sum(stock.filter(e=>e.day<day||isInitial(e))):null,
+  initialDate:stock.find(isInitial)?.day||null,
   count:count?{quantity:Number(count.quantity),expected:count.meta.expected,difference:decimal(units(count.quantity)-units(count.meta.expected)),actor:count.recorded_by,at:count.recorded_at,date:count.day,notes:count.meta.notes,
    movedSince:stock.some(e=>e.day>count.day||(e.day===count.day&&e.id>count.id))}:null};
 }
 function summarize(events,day){
+ events=cycle(events,day);
  const rows=Object.keys(names).map(protein=>{
   const raw=stateAt(events,protein,'raw',day),marinated=stateAt(events,protein,'marinated',day);
   const daily=events.filter(e=>e.protein===protein&&e.day===day);
@@ -73,7 +82,9 @@ function summarize(events,day){
  return rows;
 }
 function report(data,day){
- const {events,revision}=data;
+ const {revision}=data;
+ const events=cycle(data.events,day);
+ const restart=events.find(e=>e.movement_type==='protein-reset'&&e.day<=day);
  const start=new Date(day+'T12:00:00Z');start.setUTCDate(start.getUTCDate()-(start.getUTCDay()+6)%7);
  const week=Array.from({length:7},(_,i)=>{const d=new Date(start);d.setUTCDate(d.getUTCDate()+i);const value=d.toISOString().slice(0,10);return {date:value,rows:value<=day?summarize(events,value):null};});
  const shipments=events.filter(e=>e.meta.action==='send'&&e.day<=day).map(e=>{
@@ -81,13 +92,30 @@ function report(data,day){
   return {id:e.id,protein:e.protein,date:e.day,slot:e.meta.slot,sent:Number(e.quantity),actor:e.recorded_by,at:e.recorded_at,notes:e.meta.notes,
    receipt:receipt?{amount:Number(receipt.quantity),difference:decimal(units(receipt.quantity)-units(e.quantity)),actor:receipt.recorded_by,at:receipt.recorded_at,date:receipt.day,notes:receipt.meta.notes}:null};
  });
- return {date:day,revision,unit:'pollos',rows:summarize(events,day),week,shipments,
+ return {date:day,revision,unit:'pollos',reset:restart?{date:restart.day,actor:restart.recorded_by,at:restart.recorded_at,notes:restart.meta.notes}:null,rows:summarize(events,day),week,shipments,
   pending:shipments.filter(s=>!s.receipt).length,
   history:events.filter(e=>e.day<=day&&e.day>=week[0].date).map(e=>({id:e.id,date:e.day,protein:e.protein,state:e.state,quantity:Number(e.quantity),kind:e.movement_type,...e.meta,actor:e.recorded_by,at:e.recorded_at})).reverse()};
 }
 async function read(query,day){date.parse(day);return report(await records(query),day);}
 async function save(query,body,user){
  const d=request.parse(body);
+ if(d.action==='reset'){
+  if(user.role!=='manager')fail('Solo gerencia puede reiniciar Proteínas.',403);
+  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City'}).format(new Date());
+  if(d.date!==today)fail('El reinicio solo se permite para hoy.');
+  await query("SELECT id FROM locations WHERE code='rastro' FOR UPDATE");
+  await ensureCatalog(query);
+  const data=await records(query);
+  if(data.revision!==d.revision)fail('El inventario cambió. Recarga antes de reiniciar.',409);
+  if(data.events.some(e=>e.day>d.date))fail('Hay movimientos posteriores a hoy; revisa las fechas antes de reiniciar.',409);
+  const operation=randomUUID(),before=summarize(data.events,d.date);
+  for(const item of catalog){
+   const id=data.items.find(i=>i.sku===item.sku).id;
+   const meta={action:'reset',operation,notes:d.notes,actorId:user.id,before,previousRevision:data.revision};
+   await query('INSERT INTO inventory_movements(item_id,location_id,movement_type,quantity,movement_date,notes,recorded_by) VALUES($1,$2,$3,0,$4::date,$5,$6)',[id,data.locationId,'protein-reset',d.date,JSON.stringify(meta),user.name||user.id]);
+  }
+  return report(await records(query),d.date);
+ }
  if(d.action==='movements'){
   if(!['manager','processor','dispatch'].includes(user.role))fail('Tu cuenta no tiene permiso para este movimiento.',403);
   const operations=d.lines.flatMap(line=>['entry','marinate','send'].filter(action=>line[action]>0).map(action=>({protein:line.protein,action,amount:line[action]})));
@@ -109,6 +137,9 @@ async function save(query,body,user){
  await ensureCatalog(query);
  const data=await records(query);
  if(data.revision!==d.revision)fail('El inventario cambió. Recarga y revisa antes de guardar; no se duplicó la captura.',409);
+ const latestReset=data.events.filter(e=>e.movement_type==='protein-reset').at(-1);
+ if(latestReset&&d.date<latestReset.day)fail('El ciclo anterior está cerrado por el reinicio. Registra el movimiento en el ciclo actual.',409);
+ data.events=cycle(data.events,d.date);
  const own=data.events.filter(e=>e.protein===d.protein),row=summarize(data.events,d.date).find(r=>r.protein===d.protein);
  if(d.action==='initial'){
   if(own.length)fail('Esta proteína ya tiene existencia inicial.',409);
@@ -155,8 +186,8 @@ async function save(query,body,user){
  // Validate the full chronology, including future records after a backdated entry.
  for(const state of ['raw','marinated']){
   let balance=0,initial=false;
-  for(const e of next.events.filter(e=>e.protein===d.protein&&e.state===state&&stockKinds.includes(e.movement_type))){
-   if(e.movement_type==='initial'){if(initial)fail('Existencia inicial duplicada.',409);initial=true;}
+  for(const e of cycle(next.events,d.date).filter(e=>e.protein===d.protein&&e.state===state&&stockKinds.includes(e.movement_type))){
+   if(isInitial(e)){if(initial)fail('Existencia inicial duplicada.',409);initial=true;}
    if(!initial)fail('El movimiento es anterior a la existencia inicial.');
    balance+=units(e.quantity)*sign(e);if(balance<0)fail('La salida supera los pollos disponibles '+(state==='raw'?'por preparar.':'marinados.'));
   }

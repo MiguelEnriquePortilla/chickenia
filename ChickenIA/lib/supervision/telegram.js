@@ -21,7 +21,7 @@ function currentCut(now = new Date(), requestedCut) {
 }
 function score(rows) {
   const total = rows.reduce((s,r) => s+Number(r.weight),0);
-  return total ? Math.round(rows.reduce((s,r) => s+(r.done ? Number(r.weight) : 0),0)*100/total) : null;
+  return total ? Math.round(rows.reduce((s,r) => s+Number(r.weight)*require('./measurement').credit(r),0)*100/total) : null;
 }
 function report(rows, cut, date, location, capturedAt) {
   const { blockFor, guidance, areaSummary } = require('./report-guidance');

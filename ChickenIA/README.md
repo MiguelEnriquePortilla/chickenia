@@ -1,3 +1,7 @@
+# Estado vigente — 25 septiembre 2026
+
+Leer [ajustes de actividades, porcentajes y reinicio de Proteínas](HANDOFF_AJUSTES_2026-09-25.md). Sustituye las actividades anteriores afectadas. Reinicio real solicitado por Miguel para hoy: comprobar su recibo antes de cualquier nueva ejecución. No repetirlo al retomar.
+
 # Estado vigente: Proteinas como Rastro - 24/09/2026
 
 Captura con fichas fijas para Rostizado y Crujiente: habia, llega, se marino, sale y queda.

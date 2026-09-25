@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
     const locationType = loc[0].type;
 
     const activities = await sql`
-      SELECT a.id, a.area_id, ar.code AS area_code, ar.name AS area_name, a.name, a.criticality, a.weight, a.requires_quantity, a.unit, a.routine_block
+      SELECT a.id, a.area_id, ar.code AS area_code, ar.name AS area_name, a.name, a.criticality, a.weight, a.requires_quantity, a.unit, a.routine_block, a.measurement
       FROM activities a JOIN areas ar ON ar.id = a.area_id
       WHERE ar.location_type = ${locationType} AND a.active = true
         AND (a.frequency <> 'weekly' OR EXISTS (SELECT 1 FROM kitchen_plans kp WHERE kp.activity_id=a.id AND kp.plan_date=${date}::date))
@@ -38,7 +38,8 @@ module.exports = async (req, res) => {
       const c = checkByActivity[act.id];
       const done = c ? c.done : false;
       totalWeight += act.weight;
-      if (done) doneWeight += act.weight;
+      const earned=Number(act.weight)*require('../lib/supervision/measurement').credit({...act,...c});
+      doneWeight += earned;
       if (!done && act.criticality === 'critica') {
         criticalPending.push({ area_name: act.area_name, name: act.name });
       }
@@ -49,7 +50,7 @@ module.exports = async (req, res) => {
       a.total_weight += act.weight;
       a.total_items += 1;
       if (done) {
-        a.done_weight += act.weight;
+        a.done_weight += earned;
         a.done_items += 1;
       }
     }
@@ -78,7 +79,7 @@ module.exports = async (req, res) => {
       const [table] = await sql`SELECT to_regclass('public.supervision_telegram_deliveries') AS name`;
       if (table.name) savedCuts = await sql`SELECT checkpoint, snapshot, status FROM supervision_telegram_deliveries WHERE location_id=${location_id} AND report_date=${date}::date`;
     }
-    const rows = activities.map(a => ({ ...a, done: !!checkByActivity[a.id]?.done }));
+    const rows = activities.map(a => ({ ...a, ...checkByActivity[a.id], done: !!checkByActivity[a.id]?.done }));
     const checkpoints = locationType === 'tienda' ? CUTS.map(cut => {
       const saved = savedCuts.find(r => r.checkpoint === cut.id);
       // Financial capture is available only through the authenticated daily API.
