@@ -41,6 +41,7 @@ function message(snapshot) {
     cut.label,
     '',
     snapshot.overall_score == null ? 'Avance del día: sin datos' : `Avance del día: ${snapshot.overall_score}% verificado`,
+    ...(snapshot.proteins?.lines?.length?['',...snapshot.proteins.lines,'']:[]),
     '',
     ...snapshot.areas.map(a => `${({complete:'✅',critical:'🔴',pending:'🔎',later:'🕒'})[a.status] || '🔎'} ${a.name}: ${a.day == null ? 'sin datos' : a.day+'%'} · ${a.summary || 'Consultar detalle'}`),
     '',
@@ -51,6 +52,7 @@ function message(snapshot) {
     dashboardUrl(snapshot),
   ];
   const result = lines.join('\n');
+  if (result.length > 4000 && snapshot.proteins) return proteinCaption(snapshot)+'\n'+dashboardUrl(snapshot);
   if (result.length > 4000) throw new Error('Reporte demasiado largo');
   return result;
 }
@@ -58,11 +60,18 @@ function dashboardUrl(snapshot) {
   return `https://chickenia.chicanito.app/dashboard.html?date=${encodeURIComponent(snapshot.date)}`;
 }
 
+function proteinCaption(snapshot){
+  const time=new Date(snapshot.captured_at).toLocaleTimeString('es-MX',{timeZone:ZONE,hour12:false});
+  return ['🐔 CHICKENIA · SUPERVISIÓN',`${String(snapshot.location).slice(0,60)} · ${snapshot.date}`,`${CUTS.find(c=>c.id===snapshot.cut).label} · Captura ${time} CDMX`,
+    `Avance: ${snapshot.overall_score==null?'sin datos':snapshot.overall_score+'% verificado'}`,
+    '',...snapshot.proteins.lines,'','Detalle de supervisión y caja en la imagen.','Abrir dashboard para revisar pendientes.'].join('\n');
+}
+
 async function sendReport(snapshot, png, env = process.env, fetchImpl = fetch) {
   if (!env.TELEGRAM_BOT_TOKEN || !/^-\d+$/.test(env.TELEGRAM_CHAT_ID || '')) throw new Error('Telegram sin configurar');
   const full = message(snapshot);
   // A photo caption is limited to 1024 characters; the image retains every area.
-  const caption = full.length <= 1024 ? full : [
+  const caption = snapshot.proteins ? proteinCaption(snapshot) : full.length <= 1024 ? full : [
     '🐔 CHICKENIA · SUPERVISIÓN', `${snapshot.location} · ${snapshot.date}`,
     `${CUTS.find(c => c.id === snapshot.cut).label} · Captura ${new Date(snapshot.captured_at).toLocaleTimeString('es-MX',{timeZone:ZONE,hour12:false})} CDMX`,
     `Avance del día: ${snapshot.overall_score == null ? 'sin datos' : snapshot.overall_score+'% verificado'}`,
@@ -92,4 +101,4 @@ async function sendTelegram(text, env = process.env, fetchImpl = fetch) {
     return data.result.message_id;
   } catch { throw new Error('No se pudo confirmar el envío a Telegram. Revisar el grupo antes de reintentar.'); }
 }
-module.exports = { CUTS, ZONE, authorized, currentCut, score, report, message, sendTelegram, sendReport, dashboardUrl };
+module.exports = { CUTS, ZONE, authorized, currentCut, score, report, message, sendTelegram, sendReport, dashboardUrl, proteinCaption };

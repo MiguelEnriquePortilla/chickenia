@@ -94,7 +94,7 @@ function report(data,day){
   return {id:e.id,protein:e.protein,date:e.day,slot:e.meta.slot,sent:Number(e.quantity),actor:e.recorded_by,at:e.recorded_at,notes:e.meta.notes,
    receipt:receipt?{amount:Number(receipt.quantity),difference:decimal(units(receipt.quantity)-units(e.quantity)),actor:receipt.recorded_by,at:receipt.recorded_at,date:receipt.day,notes:receipt.meta.notes}:null};
  });
- return {inventory,date:day,revision,unit:'pollos',reset:restart?{date:restart.day,actor:restart.recorded_by,at:restart.recorded_at,notes:restart.meta.notes}:null,rows:summarize(events,day),week,shipments,
+ return {inventory,date:day,revision,unit:'pollos',lastRecordedAt:events.filter(e=>e.day<=day).map(e=>e.recorded_at).filter(Boolean).sort((a,b)=>new Date(a)-new Date(b)).at(-1)||null,reset:restart?{date:restart.day,actor:restart.recorded_by,at:restart.recorded_at,notes:restart.meta.notes}:null,rows:summarize(events,day),week,shipments,
   pending:shipments.filter(s=>!s.receipt).length,
   history:events.filter(e=>e.day<=day&&e.day>=week[0].date).map(e=>({id:e.id,date:e.day,protein:e.protein,state:e.state,quantity:Number(e.quantity),kind:e.movement_type,...e.meta,actor:e.recorded_by,at:e.recorded_at})).reverse()};
 }
@@ -196,7 +196,13 @@ async function save(query,body,user){
  }
  return report(next,d.date);
 }
-return {catalog,request,read,save,report,summarize};
+function reportMovements(movements,day){
+ date.parse(day);
+ const events=movements.filter(m=>catalog.some(i=>i.sku===m.sku)).map(m=>({...m,...catalog.find(i=>i.sku===m.sku),meta:metadata(m.notes)}));
+ if(events.some(e=>!stockKinds.concat(['protein-count','protein-received']).includes(e.movement_type)))fail('Movimientos incompatibles.',409);
+ return report({events,revision:events.reduce((n,e)=>Math.max(n,e.id),0)},day);
+}
+return {catalog,request,read,save,report,summarize,reportMovements};
 }
 // Separate SKU sets keep the original ledger intact; no historical rows are moved.
 const inventories={sucursal:createInventory('sucursal'),movil:createInventory('movil')};

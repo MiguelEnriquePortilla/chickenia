@@ -21,6 +21,13 @@ async function renderReport(snapshot) {
   y += await text('AVANCE DEL DÍA',44,y,22,'#c6c9d0',872) + 12;
   y += await text(snapshot.overall_score == null ? 'Sin datos' : `${snapshot.overall_score}%`,44,y,66,'#ff8094',872,true) + 12;
   y += await text('Según verificaciones registradas al momento del corte',44,y,20,'#c6c9d0',872) + 34;
+  if(snapshot.proteins?.lines?.length){
+    for(const line of snapshot.proteins.lines){
+      if(!line){y+=10;continue;}
+      y+=await text(line,44,y,23,line==='SUCURSAL'||line==='MÓVIL'?'#ff8094':'#ffffff',872)+10;
+    }
+    y+=20;
+  }
   for (const area of snapshot.areas) {
     graphics.push(`<path d="M44 ${y}H916" stroke="#3a3d44"/>`);
     y += 22;

@@ -162,10 +162,12 @@ async function load() {
   if(!state.isManager){host.hidden=true;return;}
   host.hidden=false;
   try{
-    const d=await api('protein-inventory?view=admin&date='+encodeURIComponent(day));
+    const d=await Promise.all(['sucursal','movil'].map(async inventory=>{
+      try{return await api('protein-inventory?view=admin&inventory='+inventory+'&date='+encodeURIComponent(day));}
+      catch{return {inventory,unavailable:true};}
+    }));
     if(state.date!==day)return;
-    const open=host.querySelector('details')?.open;
-    host.innerHTML='<h2>Inventario de Proteínas · CEDIS</h2><p>Pollos · '+v.esc(day)+'</p>'+v.cards(d)+'<h3>Envíos a Sucursal</h3>'+v.shipments(d)+'<details'+(open?' open':'')+'><summary>Resumen semanal</summary>'+v.week(d)+'</details>';
+    window.ChickenProteinDashboard.mount(host,d,day);
   }catch(e){if(state.date===day)host.innerHTML='<h2>Inventario de Proteínas</h2><p role="alert">'+v.esc(e.message)+'</p>';}
 }
 

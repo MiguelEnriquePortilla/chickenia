@@ -15,6 +15,7 @@ const token=payload+'.'+crypto.createHmac('sha256',process.env.INVENTORY_SESSION
  const connect=async()=>{const before=tail;let done;tail=new Promise(r=>done=r);await before;return {query:(s,p)=>db.query(s,p),release:done};};
  const handler=require('../api/protein-inventory').createHandler(connect),rastro=require('../api/rastro').createHandler(connect);
  const q=async(s,p)=>(await db.query(s,p)).rows;
+ if(process.env.TEST_PROTEIN_DASHBOARD==='1')await require('./protein-dashboard-fixture').seed(q);
  const inventory=require('../api/inventory').createHandler(()=>require('../lib/inventory-store').repository(q),q);
  let checks,areas;
  if(process.env.TEST_CHICKEN_UNITS==='1'){
@@ -46,6 +47,13 @@ const token=payload+'.'+crypto.createHmac('sha256',process.env.INVENTORY_SESSION
  const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json'};
  const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');req.query=Object.fromEntries(url.searchParams);res.status=s=>{res.statusCode=s;return res;};res.json=d=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(d));};
+  if(process.env.TEST_PROTEIN_DASHBOARD==='1'&&url.pathname==='/demo-telegram'){
+   const sql=(parts,...values)=>q(parts.reduce((s,p,i)=>s+(i?'$'+i:'')+p,''),values);
+   const telegram=require('../lib/supervision/telegram');
+   const snapshot=telegram.report([],telegram.CUTS[2],'2026-09-26','DEMOSTRACIÓN · DATOS FICTICIOS','2026-09-26T20:00:00Z');
+   snapshot.proteins=await require('../lib/protein-summary').snapshot(sql,'2026-09-26');
+   res.setHeader('Content-Type','text/plain; charset=utf-8');return res.end('VISTA PREVIA · DATOS FICTICIOS · NO ENVIADO\n\n'+telegram.proteinCaption(snapshot));
+  }
   if(['/api/protein-inventory','/api/rastro'].includes(url.pathname)){
    let raw='';for await(const chunk of req)raw+=chunk;try{req.body=raw?JSON.parse(raw):{};}catch{return res.status(400).json({error:'JSON'});}return (url.pathname==='/api/rastro'?rastro:handler)(req,res);
   }
