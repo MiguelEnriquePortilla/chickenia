@@ -1,8 +1,8 @@
 # Mapa local de ChickenIA
 
-## Último cierre — 25 septiembre 2026
+## Último cierre — 26 septiembre 2026
 
-Publicado `ba40898`, confirmado por Miguel. [Reporte vigente](REPORTE_SESION_2026-09-25.md) · [Handoff de ajustes](HANDOFF_AJUSTES_2026-09-25.md). Reinicio de Proteínas ya ejecutado: no repetir. Los estados inferiores son históricos.
+Publicado `52dae97`, confirmado por Miguel. [Reporte vigente](REPORTE_SESION_2026-09-26.md) · [Handoff de Sucursal y Chicanito Móvil](HANDOFF_PROTEINAS_MOVIL_2026-09-26.md). Sucursal conserva Rostizado y Crujiente; Móvil tiene solo Rostizado con registros independientes. Sin tareas automáticas pendientes. Reinicio del 25/09 ya ejecutado: no repetir. Los estados inferiores son históricos.
 
 ## Regla vigente: TODO pollo en pollos, 22/09/2026
 
@@ -24,7 +24,9 @@ Las fechas y pendientes anteriores quedan como contexto histórico.
 | Necesidad | Archivo |
 |---|---|
 | Retomar la sesión | [00_INICIAR_AQUI.md](00_INICIAR_AQUI.md) |
-| Lo publicado y continuidad | [REPORTE_SESION_2026-09-25.md](REPORTE_SESION_2026-09-25.md) |
+| Lo publicado y continuidad | [REPORTE_SESION_2026-09-26.md](REPORTE_SESION_2026-09-26.md) |
+| Dos inventarios de proteínas: Sucursal y Móvil | [HANDOFF_PROTEINAS_MOVIL_2026-09-26.md](HANDOFF_PROTEINAS_MOVIL_2026-09-26.md) |
+| Ajustes operativos y antecedente del reinicio real | [HANDOFF_AJUSTES_2026-09-25.md](HANDOFF_AJUSTES_2026-09-25.md) |
 | Acuerdos de captura | [HANDOFF_CAPTURA_DIARIA.md](HANDOFF_CAPTURA_DIARIA.md) |
 | Funcionamiento de los informes | [INFORMES_DIGITALES.md](INFORMES_DIGITALES.md) |
 | Telegram existente | [TELEGRAM_SUPERVISION.md](TELEGRAM_SUPERVISION.md) |

@@ -1,5 +1,7 @@
 # Entrega: captura de Proteinas como Rastro - 24/09/2026
 
+> Continuidad al 26/09: [handoff vigente](HANDOFF_PROTEINAS_MOVIL_2026-09-26.md) y [reporte de cierre](REPORTE_SESION_2026-09-26.md). Este mecanismo se conserva en Sucursal y se reutiliza, solo con Rostizado y registros independientes, en Chicanito Móvil. Publicado y confirmado; no ejecutar pendientes históricos.
+
 Miguel autorizo el ajuste, commit y push. La captura cotidiana muestra fichas fijas
 para Rostizado y Crujiente: habia, registrado hoy, llega del proveedor, se marino,
 sale a Sucursal y queda en CEDIS, separado en sin marinar y marinados.

@@ -1,6 +1,6 @@
-# Sesión cerrada — 25 septiembre 2026
+# Sesión cerrada — 26 septiembre 2026
 
-**Publicado y confirmado por Miguel:** `ba40898`. Leer [reporte de cierre](REPORTE_SESION_2026-09-25.md) y [handoff vigente](HANDOFF_AJUSTES_2026-09-25.md). Reinicio real de Proteínas ya realizado y verificado (revisión 157): **no repetirlo**. El saldo puede haber cambiado después por operación real. Sin tareas automáticas pendientes; esperar la siguiente solicitud. Contraseña y autorización del piloto sin cambios.
+**Publicado y confirmado por Miguel:** `52dae97`. Leer [reporte de cierre](REPORTE_SESION_2026-09-26.md) y [handoff vigente](HANDOFF_PROTEINAS_MOVIL_2026-09-26.md). Dos inventarios independientes: **Sucursal**, el anterior con Rostizado y Crujiente, y **Chicanito Móvil**, nuevo y solo Rostizado. Saldos e historial de Sucursal conservados. Móvil se entregó sin capturas; no asumir su estado actual. Sin tareas automáticas pendientes; esperar la siguiente solicitud. No repetir el reinicio real del 25/09. Contraseña y autorización del piloto sin cambios. Las secciones fechadas inferiores son antecedentes.
 
 # ChickenIA — retomar la siguiente sesión
 

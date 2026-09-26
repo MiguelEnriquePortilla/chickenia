@@ -1,4 +1,4 @@
-> Vigente al cerrar el 25/09/2026: [reporte de cierre](REPORTE_SESION_2026-09-25.md) y [handoff actual](HANDOFF_AJUSTES_2026-09-25.md). Publicado y confirmado; reinicio de Proteínas ya realizado. Este archivo conserva antecedentes, no una lista de tareas por ejecutar.
+> Vigente al cerrar el 26/09/2026: [reporte de cierre](REPORTE_SESION_2026-09-26.md) y [handoff actual](HANDOFF_PROTEINAS_MOVIL_2026-09-26.md). `52dae97` publicado y confirmado: Sucursal y Chicanito Móvil tienen inventarios independientes; Móvil solo Rostizado. Reinicio del 25/09 ya realizado, no repetir. Este archivo conserva antecedentes, no una lista de tareas por ejecutar.
 
 > Último cierre 11 sep 2026: empezar por [00_INICIAR_AQUI.md](00_INICIAR_AQUI.md) y el [handoff vigente — áreas restantes y recetario](HANDOFF_2026-09-11_CONTROL_OPERATIVO_RECETARIO.md). Este documento conserva el historial del 8 de septiembre.
 

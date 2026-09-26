@@ -1,5 +1,9 @@
 # Dos inventarios de proteínas — 26/09/2026
 
+## Estado al cerrar
+
+**Publicado en `main` y Vercel: `52dae97`. Confirmado por Miguel.** Leer [reporte de cierre](REPORTE_SESION_2026-09-26.md). La entrega quedó terminada; esperar una nueva solicitud. La separación real sustituye el cambio de etiquetas previo de `7ed7eca`.
+
 ## Acuerdo de Miguel
 
 - **Inventario de proteínas Sucursal**: es el inventario existente, con Rostizado y Crujiente. Conservar sus saldos, historial, recepciones y mecanismo de operación.

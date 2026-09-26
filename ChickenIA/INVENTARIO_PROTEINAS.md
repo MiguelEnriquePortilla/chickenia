@@ -1,3 +1,7 @@
+# Estado vigente — 26/09/2026
+
+Publicado y confirmado: `52dae97`. El inventario descrito aquí permanece como **Sucursal**, con Rostizado y Crujiente. **Chicanito Móvil** tiene un apartado e inventario independientes, solo Rostizado. Leer [handoff vigente](HANDOFF_PROTEINAS_MOVIL_2026-09-26.md) y [cierre confirmado](REPORTE_SESION_2026-09-26.md). Lo siguiente conserva el mecanismo y los antecedentes del inventario original.
+
 # Actualizacion 24/09/2026
 
 La captura cotidiana usa fichas fijas como Rastro y un guardado atomico para ambas
