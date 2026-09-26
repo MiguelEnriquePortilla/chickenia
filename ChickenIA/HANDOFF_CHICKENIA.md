@@ -1,3 +1,9 @@
+# Estado vigente — dashboard de proteínas, 26 septiembre 2026
+
+**Implementación `d501467` enviada a `main`; dashboard confirmado en producción por Miguel con capturas del dominio real.** Sucursal y Móvil aparecen juntos con filtros, resumen compacto y dos gráficos interactivos. Telegram incorpora ambos inventarios en el reporte de Supervisión; falta confirmar la recepción del primer corte con este formato.
+
+Leer [handoff y validación de la entrega](DASHBOARD_PROTEINAS_2026-09-26.md) y [reporte de sesión](REPORTE_SESION_2026-09-26.md). Mínimos de inventario pendientes de definir, sin bloqueo para operar. No se hicieron movimientos reales ni envíos de prueba. No repetir el reinicio del 25/09. Las secciones inferiores son antecedentes; no convertirlas en tareas automáticas.
+
 > Vigente al cerrar el 26/09/2026: [reporte de cierre](REPORTE_SESION_2026-09-26.md) y [handoff actual](HANDOFF_PROTEINAS_MOVIL_2026-09-26.md). `52dae97` publicado y confirmado: Sucursal y Chicanito Móvil tienen inventarios independientes; Móvil solo Rostizado. Reinicio del 25/09 ya realizado, no repetir. Este archivo conserva antecedentes, no una lista de tareas por ejecutar.
 
 > Último cierre 11 sep 2026: empezar por [00_INICIAR_AQUI.md](00_INICIAR_AQUI.md) y el [handoff vigente — áreas restantes y recetario](HANDOFF_2026-09-11_CONTROL_OPERATIVO_RECETARIO.md). Este documento conserva el historial del 8 de septiembre.

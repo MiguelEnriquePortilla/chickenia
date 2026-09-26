@@ -18,7 +18,7 @@ La API selecciona `inventory=sucursal|movil`; omitirlo mantiene Sucursal para co
 
 Móvil inicia sin capturas ni historial copiado. La primera captura de gerencia establece sus cantidades iniciales. No confundir «Sin captura» con un arqueo realizado. No se ejecutó ninguna apertura, rectificación ni reinicio en producción durante esta implementación.
 
-El Dashboard existente continúa mostrando el inventario original. El resumen semanal y el historial de Móvil están en su propio apartado.
+Desde `d501467`, el dashboard muestra ambos inventarios con filtros, tabla compacta y gráficos; Miguel lo confirmó en producción. El resumen semanal y el historial operativo de Móvil siguen en su propio apartado. Ver [handoff de dashboard y Telegram](DASHBOARD_PROTEINAS_2026-09-26.md).
 
 ## Validación
 

@@ -1,3 +1,15 @@
+# Actualización vigente — 26 septiembre 2026
+
+Implementación `d501467` enviada a `main`. El reporte integrado de Supervisión incluye proteínas de Sucursal (Rostizado y Crujiente) y Móvil (Rostizado): existencias en CEDIS sin marinar/marinadas, enviados del día, pendientes de confirmar incluidos días anteriores y avisos de diferencias o falta de captura.
+
+El texto de la foto reserva espacio a ambos inventarios, incluso cuando el detalle de Supervisión es extenso. La imagen también los incluye antes de las áreas. Se conserva un solo envío, el botón al dashboard, los cinco horarios existentes y la deduplicación. No se añadieron mínimos ni alertas de inventario bajo.
+
+Validado localmente con transporte simulado; **recepción real del primer corte con este formato todavía sin confirmar**. No se envió una prueba al grupo ni se cambiaron configuración o miembros. El dashboard sí fue confirmado por Miguel con capturas de producción. Ver [entrega y validación](DASHBOARD_PROTEINAS_2026-09-26.md).
+
+Los apartados inferiores describen antecedentes. Para la leyenda de proteínas prevalece esta actualización sobre la regla antigua de recortar texto al exceder 1024 caracteres.
+
+---
+
 ﻿# Supervisión por Telegram — guía vigente
 
 Actualizada el 16 de septiembre de 2026 por la noche. Implementación publicada: `84a3a6c`. Ver [reporte de sesión](REPORTE_SESION_2026-09-16.md).

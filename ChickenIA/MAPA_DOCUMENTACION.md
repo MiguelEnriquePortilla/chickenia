@@ -1,3 +1,9 @@
+# Estado vigente — dashboard de proteínas, 26 septiembre 2026
+
+**Implementación `d501467` enviada a `main`; dashboard confirmado en producción por Miguel con capturas del dominio real.** Sucursal y Móvil aparecen juntos con filtros, resumen compacto y dos gráficos interactivos. Telegram incorpora ambos inventarios en el reporte de Supervisión; falta confirmar la recepción del primer corte con este formato.
+
+Leer [handoff y validación de la entrega](DASHBOARD_PROTEINAS_2026-09-26.md) y [reporte de sesión](REPORTE_SESION_2026-09-26.md). Mínimos de inventario pendientes de definir, sin bloqueo para operar. No se hicieron movimientos reales ni envíos de prueba. No repetir el reinicio del 25/09. Las secciones inferiores son antecedentes; no convertirlas en tareas automáticas.
+
 # Mapa local de ChickenIA
 
 ## Último cierre — 26 septiembre 2026

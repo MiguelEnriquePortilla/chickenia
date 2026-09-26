@@ -1,3 +1,21 @@
+# Entrega posterior — dashboard y Telegram, 26 septiembre 2026
+
+Versión funcional: [`d501467`](https://github.com/MiguelEnriquePortilla/chickenia/commit/d50146782c190c364d9b04cdb56adf8f3441330d), commit y push a `main` completados. Miguel confirmó el dashboard con «Super Nice» y dos capturas de `chickenia.chicanito.app/dashboard.html?area=general`: tabla con Sucursal y Móvil, filtros, alertas y ambos gráficos en modo oscuro. Esta evidencia confirma la interfaz desplegada; no equivale a verificar la entrega del nuevo mensaje en Telegram.
+
+- Resumen por inventario y proteína; existencias sin marinar/marinadas en CEDIS, enviados hoy y pendientes de recepción de cualquier día.
+- Gráficos de existencias y movimientos semanales con detalle al tocar; adaptación a celular y temas claro/oscuro.
+- Telegram: ambos inventarios en el texto de la foto y en la imagen, conservando un único envío, horarios y deduplicación.
+- 23 pruebas aprobadas, recorrido de navegador con API y base local desechable, build estático correcto. No se alteraron saldos ni se enviaron pruebas al grupo.
+- Pendiente no bloqueante: confirmar la recepción del primer corte de Telegram con el nuevo formato; mínimos de inventario solo cuando Miguel los defina. No programar revisiones ni reenviar cortes automáticamente.
+
+Los saldos de las capturas son evidencia de ese momento, no cifras para precargar ni saldos actuales garantizados. Ver [handoff de esta entrega](DASHBOARD_PROTEINAS_2026-09-26.md).
+
+El push de esta entrega funcionó mediante Git con ejecución autorizada fuera del entorno restringido, después de un fallo local de Schannel. No hay evidencia de token caducado. Los cambios ajenos de cierre-caja y Formatos-Internos siguen fuera de esta entrega.
+
+---
+
+## Antecedente: separaci?n de inventarios, misma fecha
+
 # Cierre de sesión — ChickenIA, 26 septiembre 2026
 
 **Publicado y confirmado por Miguel: «listo. ya quedo».** Versión funcional `52dae9735dfedff5d7d93c341a850c17a626b98f`, en `main` de `MiguelEnriquePortilla/chickenia` y en https://chickenia.chicanito.app. No quedan tareas automáticas pendientes de esta entrega.

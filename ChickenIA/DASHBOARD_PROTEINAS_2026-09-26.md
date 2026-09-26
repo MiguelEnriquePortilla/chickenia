@@ -1,6 +1,6 @@
-# Dashboard y Telegram de proteínas — vista previa lista
+# Dashboard y Telegram de proteínas — entrega publicada
 
-Estado: implementado y validado localmente el 26/09/2026. Miguel revisó la propuesta y autorizó **«Adelante. Commit and Push.»** Sin envíos de prueba a Telegram ni movimientos en producción. Los mínimos quedan para después.
+Estado: **`d501467` commiteado y enviado a `main` el 26/09/2026.** Miguel confirmó el dashboard en producción mediante dos capturas del dominio real y pidió actualizar README, handoff y GitHub. La tabla, filtros, alertas y los dos gráficos están visibles en modo oscuro. La recepción del primer corte de Telegram con el nuevo formato todavía no se confirmó. Sin envíos de prueba al grupo ni movimientos reales de inventario. Los mínimos quedan para después.
 
 ## Resultado
 
@@ -26,4 +26,4 @@ Generación: `node scripts/preview-protein-dashboard.js`. El script crea una bas
 
 ## Continuación
 
-Commit y push autorizados. Confirmar el resultado del push y distinguirlo del estado del despliegue. No enviar pruebas al grupo ni reiniciar inventarios. Preservar los cambios preexistentes de `plugins/foodia-local/skills/cierre-caja/` y `../Formatos-Internos/`.
+Entrega de código publicada y dashboard confirmado por Miguel. Próximo paso cuando el usuario lo solicite: confirmar recepción y legibilidad del nuevo reporte en Telegram y definir mínimos si los necesita. No enviar pruebas al grupo ni reiniciar inventarios. Preservar los cambios preexistentes de `plugins/foodia-local/skills/cierre-caja/` y `../Formatos-Internos/`.
