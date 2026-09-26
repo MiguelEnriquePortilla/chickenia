@@ -265,7 +265,7 @@ async function loadChecklist() {
 }
 
 function render() {
-  document.querySelectorAll('[data-report]').forEach(a=>{const mode=a.dataset.report;a.href=(mode==='proteins'?'/proteinas.html?':mode==='rastro'?'/rastro.html?':'/captura.html?format=digital&mode='+mode+'&')+'date='+state.date;});
+  document.querySelectorAll('[data-report]').forEach(a=>{const mode=a.dataset.report;a.href=(mode==='proteins'?'/proteinas.html?':mode==='proteins-mobile'?'/proteinas-movil.html?':mode==='rastro'?'/rastro.html?':'/captura.html?format=digital&mode='+mode+'&')+'date='+state.date;});
   const html = state.areas
     .map((area) => {
       const isOpen = state.openAreas ? state.openAreas.has(area.code) : false;

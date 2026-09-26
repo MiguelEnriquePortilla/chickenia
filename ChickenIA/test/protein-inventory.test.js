@@ -8,6 +8,44 @@ CREATE TABLE inventory_items(id serial PRIMARY KEY,sku text UNIQUE,name text,cat
 INSERT INTO inventory_items(sku,name,category,unit) VALUES('VER-001','Jitomate','verdura','kg');
 CREATE TABLE inventory_movements(id serial PRIMARY KEY,item_id int REFERENCES inventory_items(id),location_id int REFERENCES locations(id),movement_type text,quantity numeric,movement_date date,notes text,recorded_by text,recorded_at timestamptz DEFAULT now());`;
 const manager={id:'miguel',name:'Miguel',role:'manager'},processor={id:'eliseo',name:'Eliseo',role:'processor'},kitchen={id:'nancy',name:'Nancy',role:'kitchen'};
+test('mobile Rostizado has an independent ledger, revisions, receipts, corrections and reset',async()=>{
+ const f=await fixture(),mobile=domain.forInventory('movil');
+ const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City'}).format(new Date());
+ const read=()=>mobile.read(f.query,day);
+ let revision=0;
+ const save=async(action,extra={},user=manager)=>{
+  const body={date:day,revision,action,...(!['movements','reset'].includes(action)?{protein:'rosti'}:{}),...extra};
+  const result=await f.db.transaction(tx=>mobile.save(async(s,p)=>(await tx.query(s,p)).rows,body,user));
+  revision=result.revision;return result;
+ };
+ try{
+  let branch=await f.save({date:day,revision:0,protein:'rosti',action:'initial',raw:100,marinated:50});
+  branch=await f.save({date:day,revision:branch.revision,protein:'cruji',action:'initial',raw:20,marinated:30});
+  branch=await f.save({date:day,revision:branch.revision,protein:'rosti',action:'send',amount:5,slot:'morning'});
+  const originalRows=await f.query('SELECT * FROM inventory_movements ORDER BY id');
+  const empty=await read();assert.equal(empty.inventory,'movil');assert.equal(empty.rows.length,1);assert.equal(empty.rows[0].total,null);assert.equal(empty.revision,0);assert.equal(empty.history.length,0);
+  await assert.rejects(save('initial',{protein:'cruji',raw:1,marinated:1}));
+  await assert.rejects(save('initial',{raw:1,marinated:1},processor),e=>e.status===403);
+  let d=await save('initial',{raw:10.125,marinated:2.5});
+  await assert.rejects(save('movements',{lines:[{protein:'rosti',entry:2},{protein:'cruji',entry:1}],slot:'morning',deliveredBy:'',receivedBy:''}));
+  assert.equal((await read()).revision,d.revision);
+  d=await save('movements',{lines:[{protein:'rosti',entry:.875,marinate:4,send:3}],slot:'morning',deliveredBy:'Test',receivedBy:'Test'});
+  assert.equal(d.rows[0].raw.current,7);assert.equal(d.rows[0].marinated.current,3.5);
+  await assert.rejects(save('receive',{shipment:branch.shipments[0].id,amount:5}),/no existe/);
+  await assert.rejects(f.save({date:day,revision:branch.revision,protein:'rosti',action:'receive',shipment:d.shipments[0].id,amount:3}),/no existe/);
+  d=await save('receive',{shipment:d.shipments[0].id,amount:3},kitchen);assert.equal(d.rows[0].total,10.5);assert.equal(d.pending,0);
+  d=await save('waste',{state:'raw',amount:.5,notes:'Merma de prueba'});
+  d=await save('count',{raw:6.5,marinated:3.5});assert.equal(d.rows[0].raw.count.difference,0);
+  d=await save('rectify',{raw:6,marinated:3,notes:'Arqueo de prueba'});assert.equal(d.rows[0].total,9);
+  const beforeFailed=await read();await assert.rejects(save('send',{amount:100,slot:'other'}),/supera/);assert.deepEqual(await read(),beforeFailed);
+  await assert.rejects(save('reset',{notes:'Prueba',confirm:true},kitchen),e=>e.status===403);
+  d=await save('reset',{notes:'Prueba aislada',confirm:true});assert.equal(d.rows.length,1);assert.equal(d.rows[0].total,0);assert.equal(d.history.length,2);assert.equal(d.pending,0);
+  assert.deepEqual(await f.read(day),branch);
+  assert.deepEqual(await f.query('SELECT * FROM inventory_movements WHERE id<=$1 ORDER BY id',[originalRows.at(-1).id]),originalRows);
+  assert.ok(d.week.filter(w=>w.rows).every(w=>w.rows.length===1));
+  assert.throws(()=>domain.forInventory('unknown'),e=>e.status===400);
+ }finally{await f.db.close();}
+});
 async function fixture(){
  const db=new PGlite();await db.exec(schema);const query=async(s,p)=>(await db.query(s,p)).rows;
  return {db,query,read:(date='2026-09-14')=>domain.read(query,date),save:(body,user=manager)=>db.transaction(async tx=>domain.save(async(s,p)=>(await tx.query(s,p)).rows,body,user))};
@@ -72,6 +110,14 @@ test('API session, admin summary, origin, persisted transaction and duplicate re
   assert.equal((await call('POST',body)).status,409);
   assert.equal((await call('POST',{...body,revision:saved.data.revision,action:'send',amount:2,slot:'morning',raw:undefined,marinated:undefined})).status,400);
   assert.equal((await call()).data.rows[0].total,1.5);
+  const mobileQuery={inventory:'movil'};
+  const emptyMobile=await call('GET',null,{},mobileQuery);
+  assert.equal(emptyMobile.status,200);assert.equal(emptyMobile.data.inventory,'movil');assert.equal(emptyMobile.data.rows.length,1);assert.equal(emptyMobile.data.rows[0].total,null);
+  assert.equal((await call('POST',{...body,protein:'cruji'},{},mobileQuery)).status,400);
+  const mobileSaved=await call('POST',{...body,raw:10,marinated:3},{},mobileQuery);
+  assert.equal(mobileSaved.status,200);assert.equal(mobileSaved.data.rows[0].total,13);
+  assert.equal((await call()).data.rows[0].total,1.5);
+  assert.equal((await call('GET',null,{}, {inventory:'typo'})).status,400);
  }finally{auth.authenticate=original;await f.db.close();}
 });
 test('rectification fixes actual stock, preserves original records and separates corrections from shipments',async()=>{

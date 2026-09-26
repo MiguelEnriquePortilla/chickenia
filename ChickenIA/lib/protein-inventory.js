@@ -3,14 +3,16 @@ const {z}=require('zod');
 const {randomUUID}=require('node:crypto');
 const date=z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(v=>Number.isFinite(Date.parse(v))&&new Date(v).toISOString().slice(0,10)===v);
 const qty=z.number().finite().min(0).max(1000000).multipleOf(.001);
+function createInventory(inventory){
+const mobile=inventory==='movil';
 const catalog=[
   {sku:'PRO-ROSTI-RAW',protein:'rosti',state:'raw',name:'Rostizado · Pollo por preparar'},
   {sku:'PRO-ROSTI-MAR',protein:'rosti',state:'marinated',name:'Rostizado · Pollos Marinados'},
   {sku:'PRO-CRUJI-RAW',protein:'cruji',state:'raw',name:'Crujiente · Pollo por preparar'},
   {sku:'PRO-CRUJI-MAR',protein:'cruji',state:'marinated',name:'Crujiente · Pollos Marinados'},
-];
-const names={rosti:'Rostizado',cruji:'Crujiente'};
-const base={date,revision:z.number().int().nonnegative(),protein:z.enum(['rosti','cruji']),notes:z.string().trim().max(1000).default('')};
+].filter(item=>!mobile||item.protein==='rosti').map(item=>mobile?{...item,sku:item.sku.replace('PRO-','PRO-MOVIL-'),name:item.name+' · Chicanito Móvil'}:item);
+const names=mobile?{rosti:'Rostizado'}:{rosti:'Rostizado',cruji:'Crujiente'};
+const base={date,revision:z.number().int().nonnegative(),protein:mobile?z.literal('rosti'):z.enum(['rosti','cruji']),notes:z.string().trim().max(1000).default('')};
 const singleRequest=z.discriminatedUnion('action',[
  z.object({...base,action:z.literal('initial'),raw:qty,marinated:qty}).strict(),
  ...['entry','marinate'].map(action=>z.object({...base,action:z.literal(action),amount:qty.positive()}).strict()),
@@ -92,7 +94,7 @@ function report(data,day){
   return {id:e.id,protein:e.protein,date:e.day,slot:e.meta.slot,sent:Number(e.quantity),actor:e.recorded_by,at:e.recorded_at,notes:e.meta.notes,
    receipt:receipt?{amount:Number(receipt.quantity),difference:decimal(units(receipt.quantity)-units(e.quantity)),actor:receipt.recorded_by,at:receipt.recorded_at,date:receipt.day,notes:receipt.meta.notes}:null};
  });
- return {date:day,revision,unit:'pollos',reset:restart?{date:restart.day,actor:restart.recorded_by,at:restart.recorded_at,notes:restart.meta.notes}:null,rows:summarize(events,day),week,shipments,
+ return {inventory,date:day,revision,unit:'pollos',reset:restart?{date:restart.day,actor:restart.recorded_by,at:restart.recorded_at,notes:restart.meta.notes}:null,rows:summarize(events,day),week,shipments,
   pending:shipments.filter(s=>!s.receipt).length,
   history:events.filter(e=>e.day<=day&&e.day>=week[0].date).map(e=>({id:e.id,date:e.day,protein:e.protein,state:e.state,quantity:Number(e.quantity),kind:e.movement_type,...e.meta,actor:e.recorded_by,at:e.recorded_at})).reverse()};
 }
@@ -194,4 +196,11 @@ async function save(query,body,user){
  }
  return report(next,d.date);
 }
-module.exports={catalog,request,read,save,report,summarize};
+return {catalog,request,read,save,report,summarize};
+}
+// Separate SKU sets keep the original ledger intact; no historical rows are moved.
+const inventories={sucursal:createInventory('sucursal'),movil:createInventory('movil')};
+module.exports={...inventories.sucursal,forInventory(value='sucursal'){
+ if(!Object.hasOwn(inventories,value))throw Object.assign(Error('Inventario de proteínas no válido.'),{status:400});
+ return inventories[value];
+}};
