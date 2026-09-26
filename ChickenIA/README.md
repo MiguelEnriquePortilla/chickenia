@@ -1,6 +1,6 @@
-# Estado vigente — 25 septiembre 2026
+# Sesión cerrada — 25 septiembre 2026
 
-Leer [ajustes de actividades, porcentajes y reinicio de Proteínas](HANDOFF_AJUSTES_2026-09-25.md). Sustituye las actividades anteriores afectadas. Reinicio real solicitado por Miguel para hoy: comprobar su recibo antes de cualquier nueva ejecución. No repetirlo al retomar.
+**Publicado y confirmado por Miguel:** `ba40898`. Leer [reporte de cierre](REPORTE_SESION_2026-09-25.md) y [handoff vigente](HANDOFF_AJUSTES_2026-09-25.md). Reinicio real de Proteínas ya realizado y verificado (revisión 157): **no repetirlo**. El saldo puede haber cambiado después por operación real. Sin tareas automáticas pendientes; esperar la siguiente solicitud. Contraseña y autorización del piloto sin cambios.
 
 # Estado vigente: Proteinas como Rastro - 24/09/2026
 

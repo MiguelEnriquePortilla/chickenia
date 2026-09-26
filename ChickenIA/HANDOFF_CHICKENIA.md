@@ -1,3 +1,5 @@
+> Vigente al cerrar el 25/09/2026: [reporte de cierre](REPORTE_SESION_2026-09-25.md) y [handoff actual](HANDOFF_AJUSTES_2026-09-25.md). Publicado y confirmado; reinicio de Proteínas ya realizado. Este archivo conserva antecedentes, no una lista de tareas por ejecutar.
+
 > Último cierre 11 sep 2026: empezar por [00_INICIAR_AQUI.md](00_INICIAR_AQUI.md) y el [handoff vigente — áreas restantes y recetario](HANDOFF_2026-09-11_CONTROL_OPERATIVO_RECETARIO.md). Este documento conserva el historial del 8 de septiembre.
 
 # HANDOFF — ChickenIA (8 sep 2026)

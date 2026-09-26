@@ -1,5 +1,9 @@
 # Mapa local de ChickenIA
 
+## Último cierre — 25 septiembre 2026
+
+Publicado `ba40898`, confirmado por Miguel. [Reporte vigente](REPORTE_SESION_2026-09-25.md) · [Handoff de ajustes](HANDOFF_AJUSTES_2026-09-25.md). Reinicio de Proteínas ya ejecutado: no repetir. Los estados inferiores son históricos.
+
 ## Regla vigente: TODO pollo en pollos, 22/09/2026
 
 Leer [unidades de pollo y compatibilidad histórica](UNIDADES_POLLO.md).
@@ -20,7 +24,7 @@ Las fechas y pendientes anteriores quedan como contexto histórico.
 | Necesidad | Archivo |
 |---|---|
 | Retomar la sesión | [00_INICIAR_AQUI.md](00_INICIAR_AQUI.md) |
-| Lo publicado y pendientes precisos | [REPORTE_SESION_2026-09-19.md](REPORTE_SESION_2026-09-19.md) |
+| Lo publicado y continuidad | [REPORTE_SESION_2026-09-25.md](REPORTE_SESION_2026-09-25.md) |
 | Acuerdos de captura | [HANDOFF_CAPTURA_DIARIA.md](HANDOFF_CAPTURA_DIARIA.md) |
 | Funcionamiento de los informes | [INFORMES_DIGITALES.md](INFORMES_DIGITALES.md) |
 | Telegram existente | [TELEGRAM_SUPERVISION.md](TELEGRAM_SUPERVISION.md) |
@@ -31,7 +35,7 @@ Las fechas y pendientes anteriores quedan como contexto histórico.
 - `api/`, `lib/`, `js/`, `css/`: aplicación y lógica; conservar sus rutas de ejecución.
 - `test/`: pruebas; `scripts/`: compilación y herramientas de desarrollo.
 - `public/`: salida generada del build, ignorada por Git; editar las fuentes.
-- `.local/`: bases y pruebas locales, ignoradas por Git; no son datos de producción.
+- `.local/`: bases de prueba y herramientas locales, ignoradas por Git. Los recibos `protein-reset-2026-09-25-*.json` sí documentan una operación real; no confundirlos con fixtures ni publicarlos.
 - `plugins/`: fuentes del plugin local; no confundir con los formularios publicados.
 - [Neon](../../12-CHICKENIA.NEON/README.md): exportación del esquema y acuerdos de base.
 - [PDF y formatos de referencia](../../10-CHATGPT-PROYECTOS/04-FORMATOS-PRODUCCION-Y-CIERRE/README.md).
