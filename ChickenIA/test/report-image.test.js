@@ -9,7 +9,7 @@ const snapshot = () => report([
   {area_name:'Caja',name:'Hoja de cierre <cobros & tarjetas>',weight:10,done:false,criticality:'critica',routine_block:'cierre'},
   {area_name:'Cocina',name:'Verificar cocina',weight:10,done:true,routine_block:'operacion'},
   {area_name:'Supervisión',name:'7:30pm — Envío del reporte',weight:10,done:false,criticality:'critica',routine_block:'cierre'},
-],CUTS[4],'2026-09-17','Jojutla Mercado','2026-09-18T01:00:28Z');
+],CUTS[3],'2026-09-17','Jojutla Mercado','2026-09-18T01:00:28Z');
 
 test('area explanations distinguish complete, due, unknown and later tasks',()=>{
   const s=snapshot();

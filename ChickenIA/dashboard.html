@@ -65,7 +65,7 @@
   </label>
   <div id="critical-pending" class="crit-chip" style="display:none;"></div>
   <div class="overall-score-box">
-    <span class="overall-score-label">Cumplimiento del día</span>
+    <span class="overall-score-label">Avance del checklist</span>
     <span id="overall-score" class="overall-score-value">—</span>
   </div>
 </div>
@@ -73,12 +73,14 @@
 <div id="area-status-bar" class="area-status-bar" style="display:none;"></div>
 
 <main class="dashboard-grid">
+  <section id="kpi-panel" aria-label="Controles e indicadores del día"><p>Cargando indicadores…</p></section>
+  <link rel="stylesheet" href="/css/kpis.css">
   <section id="protein-overview" aria-label="Inventario de Proteínas" hidden></section>
   <section id="daily-captures" aria-label="Caja y producción"></section>
     <section id="rastro-overview" aria-label="Histórico de Inventario de Rastro" hidden></section>
     <section class="card" id="areas-card">
     <button type="button" id="areas-toggle" class="movements-toggle" aria-expanded="false">
-      <h2>Desempeño por área — detalle</h2>
+      <h2>Actividades verificadas por área</h2>
       <span class="acc-chevron">▸</span>
     </button>
     <div id="areas" inert></div>
@@ -88,6 +90,7 @@
 </div>
 
 <script src="/js/dashboard.js"></script>
+<script src="/js/kpis.js"></script>
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
 </body>
 </html>

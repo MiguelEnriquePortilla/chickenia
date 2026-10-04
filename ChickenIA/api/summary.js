@@ -4,6 +4,7 @@ const { ensureTables } = require('../lib/supervision/db');
 const { CUTS, report } = require('../lib/supervision/telegram');
 
 module.exports = async (req, res) => {
+  if (req.query?.kpi === '1') return require('../lib/supervision/kpi-handler')(req,res);
   if (req.query?.telegram === '1') return require('../lib/supervision/telegram-handler')(req, res);
   try {
     const sql = await ensureTables();
@@ -80,7 +81,7 @@ module.exports = async (req, res) => {
       if (table.name) savedCuts = await sql`SELECT checkpoint, snapshot, status FROM supervision_telegram_deliveries WHERE location_id=${location_id} AND report_date=${date}::date`;
     }
     const rows = activities.map(a => ({ ...a, ...checkByActivity[a.id], done: !!checkByActivity[a.id]?.done }));
-    const checkpoints = locationType === 'tienda' ? CUTS.map(cut => {
+    const checkpoints = locationType === 'tienda' ? require('../lib/supervision/telegram').cutsForDate(date).map(cut => {
       const saved = savedCuts.find(r => r.checkpoint === cut.id);
       // Financial capture is available only through the authenticated daily API.
       const publicSnapshot=saved?.snapshot?{...saved.snapshot}:null;

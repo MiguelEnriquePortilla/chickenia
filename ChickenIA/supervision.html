@@ -47,14 +47,16 @@
   </label>
   <div id="critical-pending" class="crit-chip" style="display:none;"></div>
   <div class="overall-score-box">
-    <span class="overall-score-label">Cumplimiento del día</span>
+    <span class="overall-score-label">Avance del checklist</span>
     <span id="overall-score" class="overall-score-value">—</span>
   </div>
 </div>
 
 <div id="area-status-bar" class="area-status-bar" style="display:none;"></div>
+<section id="kpi-panel" aria-label="Controles e indicadores del día"><p>Cargando indicadores…</p></section>
+<link rel="stylesheet" href="/css/kpis.css">
 <details id="daily-checkpoints" class="checkpoints-panel">
-  <summary id="checkpoints-title">Puntos de control del día</summary>
+  <summary id="checkpoints-title">Avance del checklist y reportes guardados</summary>
   <p id="checkpoints-status" role="status">Cargando puntos de control…</p>
   <div id="checkpoints-grid" class="checkpoints-grid"></div>
 </details>
@@ -91,6 +93,7 @@
 </nav>
 
 <script src="/js/supervision.js"></script>
+<script src="/js/kpis.js"></script>
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
 </body>
 </html>

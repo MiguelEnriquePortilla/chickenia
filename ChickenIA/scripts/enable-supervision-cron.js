@@ -1,5 +1,5 @@
 'use strict';
-// Five daily jobs also work on Hobby; user accepts its timing delay.
+// Four daily controls, America/Mexico_City (UTC-6).
 // Keep SUPERVISION_NOTIFY_ENABLED=false until credentials and preview are verified.
 const fs=require('node:fs');
 const path=require('node:path');
@@ -11,7 +11,7 @@ if (!process.argv.includes('--pro-confirmed') && !process.argv.includes('--allow
   const config=JSON.parse(fs.readFileSync(file,'utf8'));
   const endpoint='/api/supervision-telegram?action=cron';
   config.crons=[...(config.crons||[]).filter(c=>!c.path.startsWith(endpoint)),
-    ...[['apertura','30 15 * * *'],['comida','0 18 * * *'],['produccion','0 20 * * *'],['precierre','0 23 * * *'],['cierre','0 1 * * *']].map(([cut,schedule])=>({path:endpoint+'&cut='+cut,schedule}))];
+    ...[['apertura','30 15 * * *'],['comida','0 18 * * *'],['ajuste','0 22 * * *'],['cierre','0 1 * * *']].map(([cut,schedule])=>({path:endpoint+'&cut='+cut,schedule}))];
   fs.writeFileSync(file,JSON.stringify(config,null,2)+'\n');
-  console.log('Cinco horarios preparados en vercel.json. Configura CRON_SECRET, activa los avisos y publica el cambio.');
+  console.log('Cuatro horarios preparados en vercel.json: 09:30, 12:00, 16:00 y 19:00 CDMX.');
 }

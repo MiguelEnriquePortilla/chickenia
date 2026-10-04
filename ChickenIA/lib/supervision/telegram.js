@@ -1,13 +1,16 @@
 'use strict';
 const { timingSafeEqual } = require('node:crypto');
 const ZONE = 'America/Mexico_City';
-const CUTS = [
+const LEGACY_CUTS = [
   { id: 'apertura', time: '09:30', block: 'apertura', label: 'Apertura', focus: 'Verificar las rutinas de apertura y resolver pendientes.' },
   { id: 'comida', time: '12:00', block: 'operacion', label: 'Preparación para la comida', focus: 'Revisar inventario disponible y preparación de producción para la comida.' },
   { id: 'produccion', time: '14:00', block: 'operacion', label: 'Producción y actividades', focus: 'Verificar producción disponible, reposiciones y avance de actividades durante la venta de comida.' },
   { id: 'precierre', time: '17:00', block: 'operacion', label: 'Antes del cierre', focus: 'Revisar pendientes antes de comenzar las rutinas de cierre.' },
   { id: 'cierre', time: '19:00', block: 'cierre', label: 'Revisión del cierre', focus: 'Revisar avance de cierre e incidencias de todas las áreas.' },
 ];
+const {CUTS}=require('./kpi-catalog');
+const cutsForDate=date=>date<'2026-10-05'?LEGACY_CUTS:CUTS;
+const cutLabel=snapshot=>snapshot.cut_label||[...CUTS,...LEGACY_CUTS].find(c=>c.id===snapshot.cut)?.label||snapshot.cut;
 function authorized(header, secret) {
   if (!secret || secret.length < 32 || typeof header !== 'string') return false;
   const a = Buffer.from(header), b = Buffer.from(`Bearer ${secret}`);
@@ -30,7 +33,7 @@ function report(rows, cut, date, location, capturedAt) {
   for (const row of rows) { if (!groups.has(row.area_name)) groups.set(row.area_name, []); groups.get(row.area_name).push(row); }
   const areas = [...groups].map(([name, items]) => ({ name, day: score(items), block: score(items.filter(r => r.routine_block === cut.block)), critical_pending: items.filter(r => !r.done && r.criticality === 'critica' && r.routine_block === cut.block).length, unclassified: items.filter(r => !r.routine_block).length }));
   for (const area of areas) Object.assign(area, areaSummary(groups.get(area.name), cut));
-  return { date, cut: cut.id, scheduled_time: cut.time, captured_at: capturedAt, location, areas, overall_score: score(rows), instruction: guidance(rows, cut) };
+  return { date, cut: cut.id, cut_label:cut.label, scheduled_time: cut.time, captured_at: capturedAt, location, areas, overall_score: score(rows), instruction: guidance(rows, cut) };
 }
 function message(snapshot) {
   const cut = CUTS.find(c => c.id === snapshot.cut);
@@ -38,7 +41,8 @@ function message(snapshot) {
   const lines = [
     '🐔 CHICKENIA · SUPERVISIÓN',
     `${snapshot.location} · ${snapshot.date} · Captura ${captured} CDMX`,
-    cut.label,
+    cutLabel(snapshot),
+    ...(snapshot.kpi?[`Controles en tiempo y forma: ${snapshot.kpi.due?`${snapshot.kpi.met}/${snapshot.kpi.due} · ${snapshot.kpi.score}%`:'Sin cortes exigibles'}`,`Este control: ${snapshot.kpi.status}`]:[]),
     '',
     snapshot.overall_score == null ? 'Avance del día: sin datos' : `Avance del día: ${snapshot.overall_score}% verificado`,
     ...(snapshot.proteins?.lines?.length?['',...snapshot.proteins.lines,'']:[]),
@@ -62,7 +66,8 @@ function dashboardUrl(snapshot) {
 
 function proteinCaption(snapshot){
   const time=new Date(snapshot.captured_at).toLocaleTimeString('es-MX',{timeZone:ZONE,hour12:false});
-  return ['🐔 CHICKENIA · SUPERVISIÓN',`${String(snapshot.location).slice(0,60)} · ${snapshot.date}`,`${CUTS.find(c=>c.id===snapshot.cut).label} · Captura ${time} CDMX`,
+  return ['🐔 CHICKENIA · SUPERVISIÓN',`${String(snapshot.location).slice(0,60)} · ${snapshot.date}`,`${cutLabel(snapshot)} · Captura ${time} CDMX`,
+    ...(snapshot.kpi?[`Controles: ${snapshot.kpi.met}/${snapshot.kpi.due} · ${snapshot.kpi.status}`]:[]),
     `Avance: ${snapshot.overall_score==null?'sin datos':snapshot.overall_score+'% verificado'}`,
     '',...snapshot.proteins.lines,'','Detalle de supervisión y caja en la imagen.','Abrir dashboard para revisar pendientes.'].join('\n');
 }
@@ -73,7 +78,7 @@ async function sendReport(snapshot, png, env = process.env, fetchImpl = fetch) {
   // A photo caption is limited to 1024 characters; the image retains every area.
   const caption = snapshot.proteins ? proteinCaption(snapshot) : full.length <= 1024 ? full : [
     '🐔 CHICKENIA · SUPERVISIÓN', `${snapshot.location} · ${snapshot.date}`,
-    `${CUTS.find(c => c.id === snapshot.cut).label} · Captura ${new Date(snapshot.captured_at).toLocaleTimeString('es-MX',{timeZone:ZONE,hour12:false})} CDMX`,
+    `${cutLabel(snapshot)} · Captura ${new Date(snapshot.captured_at).toLocaleTimeString('es-MX',{timeZone:ZONE,hour12:false})} CDMX`,
     `Avance del día: ${snapshot.overall_score == null ? 'sin datos' : snapshot.overall_score+'% verificado'}`,
     '', snapshot.instruction,
     '', 'Detalle por área en la imagen. El dashboard muestra los registros actualizados.',
@@ -101,4 +106,4 @@ async function sendTelegram(text, env = process.env, fetchImpl = fetch) {
     return data.result.message_id;
   } catch { throw new Error('No se pudo confirmar el envío a Telegram. Revisar el grupo antes de reintentar.'); }
 }
-module.exports = { CUTS, ZONE, authorized, currentCut, score, report, message, sendTelegram, sendReport, dashboardUrl, proteinCaption };
+module.exports = { CUTS, LEGACY_CUTS, cutsForDate,cutLabel, ZONE, authorized, currentCut, score, report, message, sendTelegram, sendReport, dashboardUrl, proteinCaption };

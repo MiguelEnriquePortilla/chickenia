@@ -10,21 +10,21 @@ test('precierre carries opening criticals forward and excludes later closing cri
     { area_name:'Caja', area_code:'caja', name:'Cambio', routine_block:'apertura', weight:10, criticality:'critica', done:false },
     { area_name:'Supervisión', area_code:'supervision', name:'7:30pm — Envío de reporte de cierre (ventas, incidencias, inventario)', routine_block:'operacion', weight:10, criticality:'critica', done:false },
   ];
-  const snapshot=report(rows,CUTS[3],'2026-09-16','Jojutla','2026-09-16T23:00:00Z');
+  const snapshot=report(rows,CUTS[2],'2026-09-16','Jojutla','2026-09-16T23:00:00Z');
   assert.match(snapshot.instruction,/Hay 1 actividad crítica pendiente de verificar en Caja/);
   assert.doesNotMatch(snapshot.instruction,/en Caja, Supervisión/);
   assert.equal(snapshot.areas[1].critical_pending,0);
-  assert.match(report(rows,CUTS[4],'2026-09-16','Jojutla','2026-09-17T01:00:00Z').instruction,/Hay 1 actividad/);
-  assert.match(report(rows,{...CUTS[4],time:'19:30'},'2026-09-16','Jojutla','2026-09-17T01:30:00Z').instruction,/Hay 2 actividades/);
+  assert.match(report(rows,CUTS[3],'2026-09-16','Jojutla','2026-09-17T01:00:00Z').instruction,/Hay 1 actividad/);
+  assert.match(report(rows,{...CUTS[3],time:'19:30'},'2026-09-16','Jojutla','2026-09-17T01:30:00Z').instruction,/Hay 2 actividades/);
 });
 
 test('empty catalog and rounded 100 percent do not claim completion', () => {
-  const empty=report([],CUTS[3],'2026-09-16','Jojutla','2026-09-16T23:00:00Z');
+  const empty=report([],CUTS[2],'2026-09-16','Jojutla','2026-09-16T23:00:00Z');
   assert.match(message(empty),/sin datos/);
   const snapshot=report([
     {area_name:'Caja',weight:1000,done:true,routine_block:'operacion'},
     {area_name:'Caja',weight:1,done:false,routine_block:'operacion'},
-  ],CUTS[3],'2026-09-16','Jojutla','2026-09-16T23:00:00Z');
+  ],CUTS[2],'2026-09-16','Jojutla','2026-09-16T23:00:00Z');
   assert.equal(snapshot.overall_score,100);
   assert.match(snapshot.instruction,/Quedan actividades/);
 });

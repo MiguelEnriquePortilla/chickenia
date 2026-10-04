@@ -9,8 +9,8 @@ test('authentication fails closed', () => {
   assert.equal(authorized(`Bearer ${secret}`, secret), true);
   assert.equal(authorized(`Bearer ${'b'.repeat(32)}`, secret), false);
 });
-test('five Mexico City checkpoints tolerate Hobby delay without early sends or backfill', () => {
-  for (const [i,iso] of ['2026-09-16T15:30:00Z','2026-09-16T18:00:00Z','2026-09-16T20:00:00Z','2026-09-16T23:00:00Z','2026-09-17T01:00:00Z'].entries()) {
+test('four Mexico City checkpoints tolerate delivery delay without early sends or backfill', () => {
+  for (const [i,iso] of ['2026-09-16T15:30:00Z','2026-09-16T18:00:00Z','2026-09-16T22:00:00Z','2026-09-17T01:00:00Z'].entries()) {
     const result=currentCut(new Date(iso));
     assert.equal(result.date,'2026-09-16');
     assert.equal(result.cut.id,CUTS[i].id);

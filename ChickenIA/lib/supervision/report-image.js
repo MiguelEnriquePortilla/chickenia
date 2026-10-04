@@ -17,7 +17,11 @@ async function renderReport(snapshot) {
   y += await text('CHICKENIA / SUPERVISIÓN',44,y,32,'#ffffff',872,true) + 18;
   y += await text(`${snapshot.location} · ${snapshot.date}`,44,y,24,'#c6c9d0',872) + 12;
   const time = new Date(snapshot.captured_at).toLocaleTimeString('es-MX',{timeZone:ZONE,hour12:false});
-  y += await text(`${CUTS.find(c=>c.id===snapshot.cut).label} · ${time} CDMX`,44,y,22,'#c6c9d0',872) + 36;
+  y += await text(`${require('./telegram').cutLabel(snapshot)} · ${time} CDMX`,44,y,22,'#c6c9d0',872) + 36;
+  if(snapshot.kpi){
+    y+=await text(`CONTROLES EN TIEMPO Y FORMA: ${snapshot.kpi.met}/${snapshot.kpi.due}`,44,y,28,'#ff8094',872,true)+14;
+    y+=await text(`Este control: ${snapshot.kpi.status}`,44,y,23,'#ffffff',872)+24;
+  }
   y += await text('AVANCE DEL DÍA',44,y,22,'#c6c9d0',872) + 12;
   y += await text(snapshot.overall_score == null ? 'Sin datos' : `${snapshot.overall_score}%`,44,y,66,'#ff8094',872,true) + 12;
   y += await text('Según verificaciones registradas al momento del corte',44,y,20,'#c6c9d0',872) + 34;

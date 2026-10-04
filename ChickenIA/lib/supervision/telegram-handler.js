@@ -46,6 +46,16 @@ module.exports = async (req, res) => {
         AND (a.valid_until IS NULL OR a.valid_until > ${date}::date)
       ORDER BY ar.order_index, a.order_index`;
     const snapshot = report(rows, cut, date, location.name, now.toISOString());
+    const [kpiTable]=await sql`SELECT to_regclass('public.supervision_kpi_config') AS name`;
+    if(kpiTable.name){
+      const [configuration]=await sql`SELECT start_date::text FROM supervision_kpi_config WHERE version='controles-v1'`;
+      if(configuration){
+        const records=await sql`SELECT date::text,cut,revision,evaluation,created_at FROM supervision_kpi_events WHERE location_id=${locationId} AND date=${date}::date ORDER BY revision`;
+        const result=require('./kpi').summarize(date,records,configuration.start_date,now);
+        const labels={not_evaluated:'Aún sin evaluación',upcoming:'Dentro de plazo',on_time:'Cumplido a tiempo',late:'Completo fuera de plazo',incomplete:'Con pendientes',missing:'Sin verificación'};
+        snapshot.kpi={met:result.met,due:result.due,score:result.score,status:labels[result.cuts.find(c=>c.id===cut.id)?.status]||'Sin evaluación'};
+      }
+    }
     if(locationId===1){
       snapshot.daily=await require('../daily-summary').snapshot(sql,date);
       snapshot.proteins=await require('../protein-summary').snapshot(sql,date);
