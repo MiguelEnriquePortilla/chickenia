@@ -1,3 +1,7 @@
+# Sesión cerrada — 4 octubre 2026
+
+KPIs publicados en `573753f`, con autorización expresa de Miguel. Hoja imprimible de indicadores aprobada y entregada en una página carta horizontal. Leer [reporte de cierre y punto de continuidad](REPORTE_SESION_2026-10-04.md). No hay tareas automáticas nuevas pendientes; esperar la siguiente instrucción. Falta observar el primer uso real y el siguiente reporte; no reenviarlos como prueba.
+
 # Controles e indicadores iniciales — 4 octubre 2026
 
 Implementación de los controles 09:30, 12:00, 16:00 y 19:00 en Supervisión y Dashboard, con revisión por área/producto, historial y cumplimiento en plazo. Leer [funcionamiento y validación](KPIS_IMPLEMENTACION_2026-10-04.md) y [guion breve para el equipo](GUION_REUNION_KPIS.md). La fecha inicial de evaluación aparece en pantalla; no se califican días anteriores. Móvil conserva indicadores propuestos sin puntuación hasta definir horarios. Las secciones inferiores son antecedentes.
