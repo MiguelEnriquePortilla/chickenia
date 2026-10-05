@@ -1,3 +1,9 @@
+# Supervisión simplificada — 5 octubre 2026
+
+Miguel autorizó implementar, commit y push: una sola lista en Supervisión. Dashboard muestra barras por área y cortes de **10:00, 12:00, 16:00 y 19:00**, calculados automáticamente desde el checklist y su historial. Se retiró la captura adicional de controles/productos. Hoy es transición; la nueva calificación comienza el **6 de octubre**. Promedios diarios, de 7 y 30 días, y exclusión auditada de días sin operación. Leer [entrega, reglas y validación](REPORTE_SESION_2026-10-05.md).
+
+34 pruebas y recorrido de navegador móvil/escritorio aprobados. Próximo paso: observar el uso real con Miguel; sin capturas de prueba, reinicios ni envíos adicionales. Las secciones siguientes son antecedentes y no sustituyen este flujo.
+
 # Sesión cerrada — 4 octubre 2026
 
 KPIs publicados en `573753f`, con autorización expresa de Miguel. Hoja imprimible de indicadores aprobada y entregada en una página carta horizontal. Leer [reporte de cierre y punto de continuidad](REPORTE_SESION_2026-10-04.md). No hay tareas automáticas nuevas pendientes; esperar la siguiente instrucción. Falta observar el primer uso real y el siguiente reporte; no reenviarlos como prueba.

@@ -10,9 +10,9 @@ test('authentication fails closed', () => {
   assert.equal(authorized(`Bearer ${'b'.repeat(32)}`, secret), false);
 });
 test('four Mexico City checkpoints tolerate delivery delay without early sends or backfill', () => {
-  for (const [i,iso] of ['2026-09-16T15:30:00Z','2026-09-16T18:00:00Z','2026-09-16T22:00:00Z','2026-09-17T01:00:00Z'].entries()) {
+  for (const [i,iso] of ['2026-10-06T16:00:00Z','2026-10-06T18:00:00Z','2026-10-06T22:00:00Z','2026-10-07T01:00:00Z'].entries()) {
     const result=currentCut(new Date(iso));
-    assert.equal(result.date,'2026-09-16');
+    assert.equal(result.date,'2026-10-06');
     assert.equal(result.cut.id,CUTS[i].id);
     assert.equal(currentCut(new Date(Date.parse(iso)-1000)).cut,undefined);
     assert.equal(currentCut(new Date(Date.parse(iso)+59*60000),CUTS[i].id).cut.id,CUTS[i].id);
@@ -64,6 +64,8 @@ test('endpoint persists a single immutable snapshot under concurrent dispatch an
     INSERT INTO activity_checks VALUES(1,1,'2026-09-16',true);
     CREATE TABLE kitchen_plans(activity_id int,plan_date date);`);
   await db.exec('ALTER TABLE activities ADD COLUMN measurement text; ALTER TABLE activity_checks ADD COLUMN quality_score int');
+  await db.exec("ALTER TABLE activity_checks ADD COLUMN checked_by text DEFAULT 'Nancy'");
+  await require('../lib/supervision/checklist-timeline-store').migrate(sql);
   const dbModule=require('../lib/supervision/db'),telegram=require('../lib/supervision/telegram');
   const originalEnsure=dbModule.ensureTables,originalCut=telegram.currentCut,originalFetch=global.fetch;
   const keys=['SUPERVISION_NOTIFY_SECRET','SUPERVISION_LOCATION_ID','SUPERVISION_NOTIFY_ENABLED','TELEGRAM_CHAT_ID','TELEGRAM_BOT_TOKEN','CRON_SECRET','SUPERVISION_NOTIFY_START_AT'];

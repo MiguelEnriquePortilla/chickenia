@@ -53,15 +53,9 @@
 </div>
 
 <div id="area-status-bar" class="area-status-bar" style="display:none;"></div>
-<section id="kpi-panel" aria-label="Controles e indicadores del día"><p>Cargando indicadores…</p></section>
-<link rel="stylesheet" href="/css/kpis.css">
-<details id="daily-checkpoints" class="checkpoints-panel">
-  <summary id="checkpoints-title">Avance del checklist y reportes guardados</summary>
-  <p id="checkpoints-status" role="status">Cargando puntos de control…</p>
-  <div id="checkpoints-grid" class="checkpoints-grid"></div>
-</details>
-<link rel="stylesheet" href="/css/checkpoints.css">
-<script src="/js/checkpoints.js"></script>
+<section id="checklist-timeline" data-view="supervision" aria-label="Horarios de verificación"><p>10:00 · 12:00 · 16:00 · 19:00. Palomea al verificar; los cortes se guardan automáticamente.</p></section>
+<link rel="stylesheet" href="/css/checklist-timeline.css">
+<script src="/js/checklist-timeline.js"></script>
 
 <link rel="stylesheet" href="/css/reports.css">
 <div class="attendance-wrap">
@@ -93,7 +87,7 @@
 </nav>
 
 <script src="/js/supervision.js"></script>
-<script src="/js/kpis.js"></script>
+
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
 </body>
 </html>

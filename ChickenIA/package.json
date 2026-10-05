@@ -25,6 +25,7 @@
     "setup:inventory": "node scripts/create-inventory-users.js",
     "test:foodia": "node --test test/foodia.test.js test/foodia-mcp.test.js test/foodia-local.test.js",
     "foodia:local": "node scripts/foodia-local.js",
-    "test:kpi": "node --test test/kpi.test.js"
+    "test:kpi": "node --test test/kpi.test.js",
+    "test:timeline": "node --test test/checklist-timeline.test.js test/checklist-timeline-catalog.test.js"
   }
 }

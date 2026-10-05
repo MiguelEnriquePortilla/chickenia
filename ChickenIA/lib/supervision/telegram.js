@@ -8,8 +8,9 @@ const LEGACY_CUTS = [
   { id: 'precierre', time: '17:00', block: 'operacion', label: 'Antes del cierre', focus: 'Revisar pendientes antes de comenzar las rutinas de cierre.' },
   { id: 'cierre', time: '19:00', block: 'cierre', label: 'Revisión del cierre', focus: 'Revisar avance de cierre e incidencias de todas las áreas.' },
 ];
-const {CUTS}=require('./kpi-catalog');
-const cutsForDate=date=>date<'2026-10-05'?LEGACY_CUTS:CUTS;
+const PREVIOUS_CUTS=require('./kpi-catalog').CUTS;
+const {CUTS}=require('./checklist-timeline');
+const cutsForDate=date=>date<'2026-10-05'?LEGACY_CUTS:date<'2026-10-06'?PREVIOUS_CUTS:CUTS;
 const cutLabel=snapshot=>snapshot.cut_label||[...CUTS,...LEGACY_CUTS].find(c=>c.id===snapshot.cut)?.label||snapshot.cut;
 function authorized(header, secret) {
   if (!secret || secret.length < 32 || typeof header !== 'string') return false;
@@ -42,7 +43,7 @@ function message(snapshot) {
     '🐔 CHICKENIA · SUPERVISIÓN',
     `${snapshot.location} · ${snapshot.date} · Captura ${captured} CDMX`,
     cutLabel(snapshot),
-    ...(snapshot.kpi?[`Controles en tiempo y forma: ${snapshot.kpi.due?`${snapshot.kpi.met}/${snapshot.kpi.due} · ${snapshot.kpi.score}%`:'Sin cortes exigibles'}`,`Este control: ${snapshot.kpi.status}`]:[]),
+    ...(snapshot.kpi?[`${snapshot.kpi.kind==='areas'?'Áreas al 100% al corte':'Controles en tiempo y forma'}: ${snapshot.kpi.due?`${snapshot.kpi.met}/${snapshot.kpi.due} · ${snapshot.kpi.score}%`:'Sin cortes exigibles'}`,`Este control: ${snapshot.kpi.status}`]:[]),
     '',
     snapshot.overall_score == null ? 'Avance del día: sin datos' : `Avance del día: ${snapshot.overall_score}% verificado`,
     ...(snapshot.proteins?.lines?.length?['',...snapshot.proteins.lines,'']:[]),
@@ -67,7 +68,7 @@ function dashboardUrl(snapshot) {
 function proteinCaption(snapshot){
   const time=new Date(snapshot.captured_at).toLocaleTimeString('es-MX',{timeZone:ZONE,hour12:false});
   return ['🐔 CHICKENIA · SUPERVISIÓN',`${String(snapshot.location).slice(0,60)} · ${snapshot.date}`,`${cutLabel(snapshot)} · Captura ${time} CDMX`,
-    ...(snapshot.kpi?[`Controles: ${snapshot.kpi.met}/${snapshot.kpi.due} · ${snapshot.kpi.status}`]:[]),
+    ...(snapshot.kpi?[`${snapshot.kpi.kind==='areas'?'Áreas al 100%':'Controles'}: ${snapshot.kpi.met}/${snapshot.kpi.due} · ${snapshot.kpi.status}`]:[]),
     `Avance: ${snapshot.overall_score==null?'sin datos':snapshot.overall_score+'% verificado'}`,
     '',...snapshot.proteins.lines,'','Detalle de supervisión y caja en la imagen.','Abrir dashboard para revisar pendientes.'].join('\n');
 }

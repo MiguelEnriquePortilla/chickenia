@@ -349,10 +349,11 @@ function renderActivity(act) {
     <div class="activity-row ${doneClass}" data-activity-id="${act.id}">
       <label class="check-label">
         <input type="checkbox" class="chk" ${c.done ? 'checked' : ''} />
-        <span>${act.name}${act.routine_block && act.target ? `<small class="activity-criterion">${act.target}</small>` : ''}</span>
+        <span>${act.name}${act.cut_schedule ? `<small class="cut-hint">${act.cut_schedule.label}</small>` : ''}${act.routine_block && act.target ? `<small class="activity-criterion">${act.target}</small>` : ''}</span>
       </label>
       <div class="activity-extra">
         ${qtyField}${percentField}${closeField}
+        ${act.cut_schedule?.repeat ? `<button type="button" class="reverify-check" hidden>Verificar de nuevo para las 16:00</button>` : ''}
         <input type="text" class="notes" placeholder="${act.measurement==='promotion'?'¿Cuál es la promo del día? (obligatorio)':'observaciones'}" value="${escapeAttr(c.notes ?? '')}" />
         ${savedTag}
       </div>
@@ -380,12 +381,13 @@ function attachHandlers(act) {
     return;
   }
   row.querySelector('.quality-score')?.addEventListener('change',()=>saveCheck(act,row));
-  chk.addEventListener('change', () => saveCheck(act, row));
+  chk.addEventListener('change', () => saveCheck(act, row, true));
+  row.querySelector('.reverify-check')?.addEventListener('click',()=>saveCheck(act,row,true));
   notes.addEventListener('change', () => saveCheck(act, row));
   qty?.addEventListener('change', () => saveCheck(act, row));
 }
 
-async function saveCheck(act, row) {
+async function saveCheck(act, row, verify = false) {
   if (!state.supervisor) {
     alert('Escribe tu nombre en "Supervisor" antes de registrar.');
     $('#supervisor-input').focus();
@@ -400,6 +402,7 @@ async function saveCheck(act, row) {
     location_id: state.location.id,
     check_date: state.date,
     done: chk.checked,
+    verify,
     quantity: qty && qty.value !== '' ? Number(qty.value) : null,
     quantity_unit: act.unit,
     quality_score: row.querySelector('.quality-score')?.value ? Number(row.querySelector('.quality-score').value) : null,
@@ -416,6 +419,7 @@ async function saveCheck(act, row) {
     });
     ChickenFeedback.saved('Actividad guardada ✓');
     state.checksByActivity[act.id] = saved;
+    refreshCutHints();
     if(saved.closure){row.querySelector('.closure-receipt').textContent='Autorizó: '+saved.closure.authorized_name+' · '+new Date(saved.closure.authorized_at).toLocaleString('es-MX');row.querySelector('.authorize-closure').checked=false;}
     row.classList.toggle('done', saved.done);
     row.classList.remove('just-saved');
@@ -519,7 +523,8 @@ async function refreshSummary() {
   try {
     const summary = await api(`summary?location_id=${state.location.id}&date=${state.date}`);
     if (summary.date !== state.date) return;
-    window.ChickenCheckpoints?.render(summary);
+    window.ChickenTimeline?.refresh(summary);
+    refreshCutHints();
     ChickenFeedback.summary(summary);
     $('#overall-score').textContent = summary.overall_score + '%';
     summary.areas.forEach((a) => {
@@ -540,3 +545,11 @@ async function refreshSummary() {
 
 init();
 setInterval(() => { if (!document.hidden) refreshSummary(); }, 60000);
+
+function refreshCutHints() {
+  const now=Date.now(),noon=new Date(state.date+'T12:00:00-06:00').getTime();
+  for(const button of document.querySelectorAll('.reverify-check')){
+    const id=button.closest('[data-activity-id]').dataset.activityId,c=state.checksByActivity[id];
+    button.hidden=!(c?.done&&now>noon&&now<=new Date(state.date+'T19:00:00-06:00').getTime()&&!(new Date(c.verified_at).getTime()>noon));
+  }
+}

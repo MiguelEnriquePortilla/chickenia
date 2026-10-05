@@ -73,8 +73,8 @@
 <div id="area-status-bar" class="area-status-bar" style="display:none;"></div>
 
 <main class="dashboard-grid">
-  <section id="kpi-panel" aria-label="Controles e indicadores del día"><p>Cargando indicadores…</p></section>
-  <link rel="stylesheet" href="/css/kpis.css">
+  <section id="checklist-timeline" data-view="dashboard" aria-label="Gráfico de cortes por área"><p>Cargando cortes del checklist…</p></section>
+  <link rel="stylesheet" href="/css/checklist-timeline.css">
   <section id="protein-overview" aria-label="Inventario de Proteínas" hidden></section>
   <section id="daily-captures" aria-label="Caja y producción"></section>
     <section id="rastro-overview" aria-label="Histórico de Inventario de Rastro" hidden></section>
@@ -90,7 +90,7 @@
 </div>
 
 <script src="/js/dashboard.js"></script>
-<script src="/js/kpis.js"></script>
+<script src="/js/checklist-timeline.js"></script>
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
 </body>
 </html>

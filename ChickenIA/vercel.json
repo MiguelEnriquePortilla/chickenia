@@ -50,7 +50,7 @@
   "crons": [
     {
       "path": "/api/supervision-telegram?action=cron&cut=apertura",
-      "schedule": "30 15 * * *"
+      "schedule": "0 16 * * *"
     },
     {
       "path": "/api/supervision-telegram?action=cron&cut=comida",

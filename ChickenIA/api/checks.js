@@ -11,8 +11,9 @@ module.exports = async (req, res) => {
       if (!location_id || !date) {
         return res.status(400).json({ error: 'location_id y date son requeridos' });
       }
+      await require('../lib/supervision/checklist-timeline-store').ensureDay(sql,location_id,date);
       const rows = await sql`
-        SELECT activity_id, done, quantity, quality_score, notes, checked_by, checked_at,closure,a.name,a.unit
+        SELECT activity_id, done, quantity, quality_score, notes, checked_by, checked_at,verified_at,closure,a.name,a.unit
         FROM activity_checks JOIN activities a ON a.id=activity_id
         WHERE location_id = ${location_id} AND check_date = ${date}
       `;
@@ -46,13 +47,15 @@ module.exports = async (req, res) => {
         else if(done&&valid[0].requires_quantity)return res.status(400).json({error:'Captura cuántos pollos hay antes de marcar la actividad.'});
       }
       if(['cocina','freidoras'].includes(valid[0].area_code)&&valid[0].requires_quantity&&done&&(typeof quantity!=='number'||!Number.isFinite(quantity)||quantity<0))return res.status(400).json({error:'Captura los kg obtenidos antes de marcar la preparación.'});
+      await require('../lib/supervision/checklist-timeline-store').ensureDay(sql,location_id,check_date);
       const rows = await sql`
-        INSERT INTO activity_checks (activity_id, location_id, check_date, done, quantity, quality_score, notes, checked_by, checked_at, closure)
-        VALUES (${activity_id}, ${location_id}, ${check_date}, ${!!done}, ${storedQuantity ?? null}, ${quality_score ?? null}, ${notes ?? null}, ${checked_by}, now(), ${closure?JSON.stringify(closure):null}::jsonb)
+        INSERT INTO activity_checks (activity_id, location_id, check_date, done, quantity, quality_score, notes, checked_by, checked_at, closure, verified_at)
+        VALUES (${activity_id}, ${location_id}, ${check_date}, ${!!done}, ${storedQuantity ?? null}, ${quality_score ?? null}, ${notes ?? null}, ${checked_by}, clock_timestamp(), ${closure?JSON.stringify(closure):null}::jsonb, CASE WHEN ${!!done} THEN clock_timestamp() ELSE NULL END)
         ON CONFLICT (activity_id, location_id, check_date)
         DO UPDATE SET done = EXCLUDED.done, quantity = EXCLUDED.quantity, quality_score = EXCLUDED.quality_score,
-          notes = EXCLUDED.notes, checked_by = EXCLUDED.checked_by, checked_at = now(), closure=EXCLUDED.closure
-        RETURNING activity_id, done, quantity, quality_score, notes, checked_by, checked_at, closure
+          notes = EXCLUDED.notes, checked_by = EXCLUDED.checked_by, checked_at = clock_timestamp(), closure=EXCLUDED.closure,
+          verified_at=CASE WHEN NOT EXCLUDED.done THEN NULL WHEN NOT activity_checks.done OR ${req.body.verify===true} THEN clock_timestamp() ELSE activity_checks.verified_at END
+        RETURNING activity_id, done, quantity, quality_score, notes, checked_by, checked_at, closure, verified_at
       `;
       return res.status(200).json(chicken.check(rows[0],valid[0]));
     }

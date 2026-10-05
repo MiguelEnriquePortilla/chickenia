@@ -141,6 +141,7 @@ async function load() {
     const proteins=loadProteinOverview(),rastro=loadRastroOverview();
   try {
     const summary = await api(`summary?location_id=${state.location.id}&date=${state.date}`);
+    window.ChickenTimeline?.refresh(summary);
     renderStatusBar(summary);
     renderSummary(summary);
       await Promise.all([loadDailyCaptures(),proteins,rastro]);

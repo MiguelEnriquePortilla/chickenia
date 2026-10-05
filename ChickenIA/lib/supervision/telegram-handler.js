@@ -28,8 +28,6 @@ module.exports = async (req, res) => {
     const { date, cut: due } = currentCut(now, req.query?.cut);
     const cut = action === 'preview' ? CUTS.find(c => c.id === req.query?.cut) || due || CUTS[0] : due;
     if (!cut) return res.status(200).json({ skipped: 'Fuera de la ventana de 65 minutos del corte; no se reconstruyen cortes pasados' });
-    if (action === 'dispatch' && process.env.SUPERVISION_NOTIFY_ENABLED !== 'true') return res.status(503).json({ error: 'Avisos desactivados' });
-    if (action === 'dispatch' && (!process.env.TELEGRAM_BOT_TOKEN || !/^-\d+$/.test(process.env.TELEGRAM_CHAT_ID || ''))) return res.status(503).json({ error: 'Telegram sin configurar' });
     const locationId = Number(process.env.SUPERVISION_LOCATION_ID);
     if (!Number.isSafeInteger(locationId) || locationId < 1) return res.status(503).json({ error: 'Falta configurar la sucursal' });
     const sql = await ensureTables();
@@ -46,16 +44,15 @@ module.exports = async (req, res) => {
         AND (a.valid_until IS NULL OR a.valid_until > ${date}::date)
       ORDER BY ar.order_index, a.order_index`;
     const snapshot = report(rows, cut, date, location.name, now.toISOString());
-    const [kpiTable]=await sql`SELECT to_regclass('public.supervision_kpi_config') AS name`;
-    if(kpiTable.name){
-      const [configuration]=await sql`SELECT start_date::text FROM supervision_kpi_config WHERE version='controles-v1'`;
-      if(configuration){
-        const records=await sql`SELECT date::text,cut,revision,evaluation,created_at FROM supervision_kpi_events WHERE location_id=${locationId} AND date=${date}::date ORDER BY revision`;
-        const result=require('./kpi').summarize(date,records,configuration.start_date,now);
-        const labels={not_evaluated:'Aún sin evaluación',upcoming:'Dentro de plazo',on_time:'Cumplido a tiempo',late:'Completo fuera de plazo',incomplete:'Con pendientes',missing:'Sin verificación'};
-        snapshot.kpi={met:result.met,due:result.due,score:result.score,status:labels[result.cuts.find(c=>c.id===cut.id)?.status]||'Sin evaluación'};
-      }
+    const progress=await require('./checklist-timeline-store').get(sql,locationId,date,now);
+    const savedCut=progress.cuts.find(c=>c.id===cut.id);
+    if(savedCut && progress.active){
+      snapshot.kpi={kind:'areas',met:savedCut.complete,due:savedCut.total,score:savedCut.total?Math.round(savedCut.complete*100/savedCut.total):0,status:'Áreas al 100% según el checklist al corte'};
+      snapshot.areas=savedCut.areas.map(a=>({name:a.name,day:a.score,block:a.score,status:a.complete?'complete':a.score===null?'later':'pending',summary:a.score===null?'Sin actividades exigibles':a.complete?'Todo lo exigible verificado':`${a.pending.length} actividades pendientes al corte`}));
+      snapshot.instruction='Palomea las actividades en Supervisión al verificarlas. Los cortes conservan el avance registrado a las 10:00, 12:00, 16:00 y 19:00.';
     }
+    if (action === 'dispatch' && process.env.SUPERVISION_NOTIFY_ENABLED !== 'true') return res.status(503).json({ error: 'Avisos desactivados' });
+    if (action === 'dispatch' && (!process.env.TELEGRAM_BOT_TOKEN || !/^-\d+$/.test(process.env.TELEGRAM_CHAT_ID || ''))) return res.status(503).json({ error: 'Telegram sin configurar' });
     if(locationId===1){
       snapshot.daily=await require('../daily-summary').snapshot(sql,date);
       snapshot.proteins=await require('../protein-summary').snapshot(sql,date);

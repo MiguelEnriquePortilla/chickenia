@@ -88,7 +88,9 @@ test('digital cash source requires explicit reconciliation, including card total
 });
 test('cron configuration matches the four controls and archived schedules remain readable',()=>{
  const config=require('../vercel.json'),telegram=require('../lib/supervision/telegram');
- assert.deepEqual(config.crons.map(r=>r.schedule),['30 15 * * *','0 18 * * *','0 22 * * *','0 1 * * *']);
+ assert.deepEqual(config.crons.map(r=>r.schedule),['0 16 * * *','0 18 * * *','0 22 * * *','0 1 * * *']);
+ assert.equal(telegram.cutsForDate('2026-10-06')[0].time,'10:00');
+ assert.equal(telegram.cutsForDate('2026-10-05')[0].time,'09:30');
  assert.equal(telegram.cutsForDate('2026-09-26').length,5);
  assert.equal(telegram.cutsForDate('2026-10-05').length,4);
  assert.equal(telegram.cutLabel({cut:'precierre'}),'Antes del cierre');

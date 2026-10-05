@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
     const byArea = {};
     for (const act of activities) {
       if (!byArea[act.area_id]) byArea[act.area_id] = [];
-      byArea[act.area_id].push(require('../lib/chicken-units').activity(act));
+      byArea[act.area_id].push({...require('../lib/chicken-units').activity(act),cut_schedule:locationType==='tienda'?require('../lib/supervision/checklist-timeline').schedule({...act,area_code:areas.find(a=>a.id===act.area_id)?.code}):null});
     }
     const result = areas.map((a) => ({ ...a, activities: byArea[a.id] || [] }));
     res.status(200).json(result);

@@ -28,6 +28,7 @@ test('targeted catalogue migration preserves history, transfers carrots once and
   assert.ok(live.find(a=>a.name==='Organizar barras para arranque').target.includes('Consumibles'));
   assert.deepEqual((await sql`SELECT activity_id,notes FROM activity_checks`),before.map(({activity_id,notes})=>({activity_id,notes})));
   assert.equal((await sql`SELECT count(*)::int n FROM checklist_catalog_versions`)[0].n,1);
+  await require('../lib/supervision/checklist-timeline-store').migrate(sql);
   dbModule.ensureTables=async()=>sql;
   const checks=require('../api/checks'),summary=require('../api/summary');
   const today=(await sql`SELECT effective_date::text AS day FROM checklist_catalog_versions`)[0].day;
