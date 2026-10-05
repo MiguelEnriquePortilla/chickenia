@@ -1,3 +1,11 @@
+# Sesión cerrada — 5 octubre 2026
+
+Miguel respondió «excelente» y pidió cerrar la sesión y dejar la información lista para continuar mañana. Entrega aceptada; no quedan cambios funcionales en curso. Implementación publicada `32e1e80`; verificación de publicación documentada en `2d2f435`. Este cierre es documental.
+
+**Para retomar el 6 de octubre:** leer este reporte y escuchar primero las observaciones de Miguel sobre el uso real. Revisar si Nancy pudo usar su checklist sin capturas duplicadas, si cada área tiene actividades exigibles en el horario correcto y si el gráfico conserva los resultados de los cortes. Confirmar el primer día de calificación y, si Miguel lo plantea, la recepción del reporte programado; todavía no hay confirmación de ese uso real ni del primer reporte del nuevo día. No suponer resultados futuros ni cambiar metas sin sus indicaciones.
+
+No ejecutar tareas automáticamente al abrir la siguiente sesión. No reenviar reportes, reiniciar inventarios ni crear capturas de prueba. No hay servidores temporales de esta entrega pendientes. Los cambios previos ajenos en habilidades de cierre de caja y `Formatos-Internos` permanecen fuera de los commits de esta sesión.
+
 # Supervisión simplificada — 5 octubre 2026
 
 Miguel pidió mantener su checklist habitual, quitar la captura duplicada introducida el 4 de octubre y mostrar el seguimiento por área y hora en Dashboard. Autorizó implementar, hacer commit y push. Revisará el uso mañana; no se programó un seguimiento adicional.

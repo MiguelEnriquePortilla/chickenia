@@ -1,3 +1,9 @@
+# Retomar ChickenIA — sesión cerrada el 5 de octubre de 2026
+
+**Entrada vigente: [reporte de cierre del 5 de octubre](REPORTE_SESION_2026-10-05.md).** Miguel aceptó la simplificación de Supervisión y volverá mañana con observaciones. Implementación `32e1e80` publicada; documentación de verificación `2d2f435`.
+
+Una sola lista en Supervisión; gráfico por área y hora en Dashboard, con cortes automáticos a las 10:00, 12:00, 16:00 y 19:00. Historial y promedios desde el 6 de octubre. Esperar las indicaciones de Miguel; no retomar automáticamente pendientes antiguos ni hacer capturas, reinicios o envíos de prueba. El contenido inferior es antecedente.
+
 # Estado vigente — dashboard de proteínas, 26 septiembre 2026
 
 **Implementación `d501467` enviada a `main`; dashboard confirmado en producción por Miguel con capturas del dominio real.** Sucursal y Móvil aparecen juntos con filtros, resumen compacto y dos gráficos interactivos. Telegram incorpora ambos inventarios en el reporte de Supervisión; falta confirmar la recepción del primer corte con este formato.

@@ -1,3 +1,11 @@
+# Handoff vigente — sesión cerrada el 5 de octubre de 2026
+
+**Leer primero [REPORTE_SESION_2026-10-05.md](REPORTE_SESION_2026-10-05.md).** Miguel aceptó la entrega y pidió retomar mañana con los ajustes que surjan del uso real.
+
+Publicado y verificado: `32e1e80`, con documentación en `2d2f435`. Se conserva un solo checklist en Supervisión; se retiró el formulario adicional del 4 de octubre. Dashboard muestra una barra por área con cortes 10:00, 12:00, 16:00 y 19:00; historial automático de palomitas y promedios de notas diarias de 7/30 días. La evaluación comienza el 6 de octubre; el 5 fue transición. 34 pruebas y navegador móvil/escritorio aprobados.
+
+Mañana escuchar a Miguel y revisar facilidad de captura, asignación de actividades a horarios, resultados al corte y primer reporte programado si corresponde. No afirmar que ya se verificó el primer día real. No reintroducir listas duplicadas. No ejecutar reinicios, capturas, envíos ni cambios al retomar sin nueva instrucción. Los apartados inferiores son históricos.
+
 # Estado vigente — dashboard de proteínas, 26 septiembre 2026
 
 **Implementación `d501467` enviada a `main`; dashboard confirmado en producción por Miguel con capturas del dominio real.** Sucursal y Móvil aparecen juntos con filtros, resumen compacto y dos gráficos interactivos. Telegram incorpora ambos inventarios en el reporte de Supervisión; falta confirmar la recepción del primer corte con este formato.
