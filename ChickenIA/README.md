@@ -1,5 +1,7 @@
 # Supervisión simplificada — 5 octubre 2026
 
+**Publicado y verificado en producción: `32e1e80`**, con push a `main` completado. Archivos de interfaz cotejados y API real del historial funcionando con nueve áreas.
+
 Miguel autorizó implementar, commit y push: una sola lista en Supervisión. Dashboard muestra barras por área y cortes de **10:00, 12:00, 16:00 y 19:00**, calculados automáticamente desde el checklist y su historial. Se retiró la captura adicional de controles/productos. Hoy es transición; la nueva calificación comienza el **6 de octubre**. Promedios diarios, de 7 y 30 días, y exclusión auditada de días sin operación. Leer [entrega, reglas y validación](REPORTE_SESION_2026-10-05.md).
 
 34 pruebas y recorrido de navegador móvil/escritorio aprobados. Próximo paso: observar el uso real con Miguel; sin capturas de prueba, reinicios ni envíos adicionales. Las secciones siguientes son antecedentes y no sustituyen este flujo.

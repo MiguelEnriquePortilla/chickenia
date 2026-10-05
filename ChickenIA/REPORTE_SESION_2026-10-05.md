@@ -2,6 +2,8 @@
 
 Miguel pidió mantener su checklist habitual, quitar la captura duplicada introducida el 4 de octubre y mostrar el seguimiento por área y hora en Dashboard. Autorizó implementar, hacer commit y push. Revisará el uso mañana; no se programó un seguimiento adicional.
 
+**Publicado y verificado:** implementación `32e1e80`, commit y push a `main` completados. En `chickenia.chicanito.app` se cotejaron contra los archivos locales Supervisión, Dashboard, JS/CSS del gráfico y JS de Supervisión: todos coinciden. La API real de historial respondió 200 con nueve áreas, los cuatro horarios nuevos y evaluación desde `2026-10-06`; el 5 de octubre permanece sin calificación. Esta comprobación solo consultó el sistema e inicializó sus estructuras automáticas, sin crear palomitas ni movimientos operativos.
+
 ## Funcionamiento vigente
 
 - Una sola captura: el checklist de Supervisión, con las cantidades y observaciones que ya tenía. Se retiraron de Supervisión y Dashboard el formulario independiente de controles, la lista adicional de áreas/productos y las tarjetas antiguas de cortes.
