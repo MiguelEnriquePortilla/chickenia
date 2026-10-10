@@ -1,3 +1,9 @@
+﻿# Supervisión móvil por horarios — publicada 10 octubre 2026
+
+Miguel aprobó publicar la versión minimalista. Implementación `fb07aa4` enviada a `main` y cotejada en producción: Supervisión y Dashboard, JS/CSS de puntos. Cuatro horarios con bloqueo estricto y reloj CDMX; solo el horario actual admite palomitas. Dashboard muestra barras por área/hora e historial, con meta de bono de 85% en semana calendario y mes calendario. Primer día de uso: práctica; evaluación desde el día siguiente. No se registraron palomitas ni mensajes de prueba en producción.
+
+Leer [reglas, pruebas y continuidad](SUPERVISION_SIMPLE_2026-10-10.md). Producción digital y Telegram conservan su funcionamiento previo; esta entrega cambia Supervisión y su seguimiento. Los formatos en papel siguen en prueba. Los estados siguientes son históricos.
+
 # Sesión cerrada — 5 octubre 2026
 
 Miguel aceptó la entrega con «excelente» y pidió cerrar. Retomar mañana desde el [reporte vigente y punto de continuidad](REPORTE_SESION_2026-10-05.md). Implementación `32e1e80` publicada y verificada; `2d2f435` documentó la publicación. Esperar sus observaciones del primer uso real del 6 de octubre para ajustar. Sin tareas automáticas nuevas ni cambios funcionales pendientes.
@@ -211,3 +217,4 @@ repo completo siempre va junto; no hay forma de mandar "la mitad" de un push.
 - Roles/login: por ahora no hay autenticación — Nancy usa `/supervision.html` y
   Miguel/Lilian `/dashboard.html`, mismo criterio que el resto de las apps de Chicanito
   (sin cuentas, acceso por URL).
+

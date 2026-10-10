@@ -1,6 +1,6 @@
 ﻿# Supervisión simple y barras por horario — 10 octubre 2026
 
-Estado: implementación local preparada y probada. No publicada; sin capturas ni mensajes en producción.
+Estado: publicada con autorización de Miguel («go ahead... looks good»), implementación fb07aa4 enviada a main. Supervisión, Dashboard, JS y CSS nuevos cotejados contra el dominio real: coinciden. Sin capturas ni mensajes de prueba en producción.
 
 ## Acuerdos de Miguel
 
@@ -27,6 +27,7 @@ Dashboard: barras de cuatro tramos por área, color por avance, porcentaje diari
 
 Recorrido de navegador con API real y base aislada: palomear, recargar, cuatro horarios, ausencia de tabla/grid en Dashboard, historial antiguo en barras, Asistencia plegada, ancho sin desbordamiento en 320/390/1280 y modos claro/oscuro. Build aprobado. Capturas: `test/results/points-*.png`.
 
-No se tocaron los cambios ajenos que estaban presentes en skills y Formatos-Internos. No hubo commit, push ni despliegue.
+No se tocaron los cambios ajenos que estaban presentes en skills y Formatos-Internos. Commit y push de implementación fb07aa4 completados.
+
 
 
