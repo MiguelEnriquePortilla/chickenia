@@ -19,6 +19,7 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
    if(url.pathname.startsWith('/api/')){
     let raw='';for await(const c of req)raw+=c;req.body=raw?JSON.parse(raw):{};
     if(url.pathname==='/api/summary'&&req.query.timeline==='1')return timeline(req,res);
+    if(url.pathname==='/api/summary'&&req.query.points==='1')return require('../lib/supervision/control-points-handler').createHandler({clock:()=>new Date(today+'T09:30:00-06:00')})(req,res);
     if(url.pathname==='/api/summary')return require('../api/summary')(req,res);
     if(url.pathname==='/api/checks')return require('../api/checks')(req,res);
     if(url.pathname==='/api/areas')return require('../api/areas')(req,res);

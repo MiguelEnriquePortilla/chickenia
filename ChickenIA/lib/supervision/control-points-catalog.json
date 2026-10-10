@@ -1,0 +1,746 @@
+[
+  {
+    "time": "10:00",
+    "label": "Apertura",
+    "areas": [
+      {
+        "code": "cocina",
+        "name": "Cocina",
+        "points": [
+          {
+            "id": "cocina-0",
+            "text": "Revisar la orden del día y lo que sobró de ayer para saber cuánto producir."
+          },
+          {
+            "id": "cocina-1",
+            "text": "Revisar la producción: pesar, anotar cantidades y comprobar la calidad de cada producto."
+          },
+          {
+            "id": "cocina-2",
+            "text": "A las 10:00: toda la lista de la orden completa, revisada y pesada; pesos anotados."
+          }
+        ]
+      },
+      {
+        "code": "sucursal_apertura",
+        "name": "Sucursal / local",
+        "points": [
+          {
+            "id": "sucursal_apertura-0",
+            "text": "Local abierto; cortina, lonas, mesas, pelotero y trastes listos."
+          },
+          {
+            "id": "sucursal_apertura-1",
+            "text": "Entrega revisada con solicitud; productos guardados tras recepción verificada."
+          },
+          {
+            "id": "sucursal_apertura-2",
+            "text": "Basura retirada; espacio de recepción y atención limpio y despejado."
+          }
+        ]
+      },
+      {
+        "code": "caja",
+        "name": "Caja",
+        "points": [
+          {
+            "id": "caja-0",
+            "text": "Caja abierta a las 9:00; fondo y cambio revisados. Rollos y material listos entre 9:00 y 10:00."
+          },
+          {
+            "id": "caja-1",
+            "text": "Barra caliente abastecida; lonas, luz, anuncios y promoción del día visibles."
+          },
+          {
+            "id": "caja-2",
+            "text": "Caja, pisos, cubiertas y vidrios limpios; material ordenado y trapos en su lugar por color."
+          }
+        ]
+      },
+      {
+        "code": "ventas_barras",
+        "name": "Ventas / Barras",
+        "points": [
+          {
+            "id": "ventas_barras-0",
+            "text": "Barras abastecidas: salsas, adobos, arroces y demás productos pesados y listos para vender."
+          },
+          {
+            "id": "ventas_barras-1",
+            "text": "Productos bien presentados y visibles; revisar calidad. Desechables abastecidos y ordenados."
+          },
+          {
+            "id": "ventas_barras-2",
+            "text": "Pisos, cubiertas y vidrios limpios; trapos en su lugar y con el color de cada área."
+          }
+        ]
+      },
+      {
+        "code": "rosticero",
+        "name": "Rosticero",
+        "points": [
+          {
+            "id": "rosticero-0",
+            "text": "Antes de las 10:00: 30 pollos en el rosticero; revisar avance de hornos, pollos y papas."
+          },
+          {
+            "id": "rosticero-1",
+            "text": "A las 10:00: pollos, papas y adobos contados, bien presentados y listos para vender."
+          },
+          {
+            "id": "rosticero-2",
+            "text": "Barra y vidrios limpios; banqueta limpia y seca; promociones y publicidad visibles."
+          }
+        ]
+      },
+      {
+        "code": "freidoras",
+        "name": "Freidoras",
+        "points": [
+          {
+            "id": "freidoras-0",
+            "text": "Antes de encender: base de freidora limpia, sin residuos de ayer; aceite bien filtrado."
+          },
+          {
+            "id": "freidoras-1",
+            "text": "Producir según la orden; antes de las 10:00, 3 pollos (24 piezas) terminados."
+          },
+          {
+            "id": "freidoras-2",
+            "text": "Papas gajo, campesina, codo y salsa listos según orden; revisar calidad y anotar cantidades."
+          }
+        ]
+      },
+      {
+        "code": "rastro",
+        "name": "Rastro",
+        "points": [
+          {
+            "id": "rastro-0",
+            "text": "Revisar llegada y solicitud; carga y traslado a Sucursal realizados."
+          },
+          {
+            "id": "rastro-1",
+            "text": "Proteínas, vegetales y cantidades revisados contra orden de Rastro y traslado de inventario."
+          },
+          {
+            "id": "rastro-2",
+            "text": "Producto enhielado; cámara encendida y área en orden. Volver a revisar al mediodía."
+          }
+        ]
+      },
+      {
+        "code": "almacen",
+        "name": "Almacén",
+        "points": [
+          {
+            "id": "almacen-0",
+            "text": "Secos, vegetales e insumos de limpieza solicitados entregados y recibidos en plazo."
+          },
+          {
+            "id": "almacen-1",
+            "text": "Cantidades y condición de cada renglón revisadas; diferencias anotadas."
+          },
+          {
+            "id": "almacen-2",
+            "text": "Secos, vegetales y limpieza en sus espacios; almacenamiento ordenado."
+          }
+        ]
+      },
+      {
+        "code": "trastes",
+        "name": "Lavado de Trastes",
+        "points": [
+          {
+            "id": "trastes-0",
+            "text": "Material, utensilios y productos para lavar trastes abastecidos y en buenas condiciones."
+          },
+          {
+            "id": "trastes-1",
+            "text": "Tarja, espacio de trabajo y piso limpios; área abastecida y ordenada desde la mañana."
+          },
+          {
+            "id": "trastes-2",
+            "text": "A las 10:00: lavado de trastes en marcha; trastes necesarios disponibles para las áreas."
+          }
+        ]
+      },
+      {
+        "code": "supervision",
+        "name": "Supervisión",
+        "points": [
+          {
+            "id": "supervision-0",
+            "text": "Revisar asistencia, llegada a tiempo y buena presentación del equipo."
+          },
+          {
+            "id": "supervision-1",
+            "text": "Revisar todas las áreas; anotar producción, venta esperada y pendientes con responsable."
+          },
+          {
+            "id": "supervision-2",
+            "text": "Antes de las 10:00: hoja de apertura completa, firmada y fotografiada; cantidades anotadas."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "time": "12:00",
+    "label": "Mediodía",
+    "areas": [
+      {
+        "code": "cocina",
+        "name": "Cocina",
+        "points": [
+          {
+            "id": "cocina-0",
+            "text": "Producción para comida completa; disponible por producto revisado con orden."
+          },
+          {
+            "id": "cocina-1",
+            "text": "Calidad aprobada; etiquetas conservan fecha original; cómo está guardado verificado."
+          },
+          {
+            "id": "cocina-2",
+            "text": "Mesas y barras sin residuos; materiales acomodados e inventario ordenado."
+          }
+        ]
+      },
+      {
+        "code": "sucursal_apertura",
+        "name": "Sucursal / local",
+        "points": [
+          {
+            "id": "sucursal_apertura-0",
+            "text": "Acceso, mesas y lonas en condiciones para el servicio."
+          },
+          {
+            "id": "sucursal_apertura-1",
+            "text": "Espacio de atención limpio, ordenado y sin basura acumulada."
+          },
+          {
+            "id": "sucursal_apertura-2",
+            "text": "Productos recibidos guardados en su lugar; faltantes de operación reportados."
+          }
+        ]
+      },
+      {
+        "code": "caja",
+        "name": "Caja",
+        "points": [
+          {
+            "id": "caja-0",
+            "text": "Atención amable y ofrecimiento de productos verificados."
+          },
+          {
+            "id": "caja-1",
+            "text": "Promoción del día ofrecida; anotar cuál en la hoja o evidencia del corte."
+          },
+          {
+            "id": "caja-2",
+            "text": "Barra abastecida e hidratada; estación limpia y ventiladores funcionando."
+          }
+        ]
+      },
+      {
+        "code": "ventas_barras",
+        "name": "Ventas / Barras",
+        "points": [
+          {
+            "id": "ventas_barras-0",
+            "text": "Productos disponibles; revisar abastecimiento de la barra."
+          },
+          {
+            "id": "ventas_barras-1",
+            "text": "Hidratación y presentación aprobadas, incluidas ensaladas."
+          },
+          {
+            "id": "ventas_barras-2",
+            "text": "Barra y vidrios limpios; insertos y utensilios ordenados."
+          }
+        ]
+      },
+      {
+        "code": "rosticero",
+        "name": "Rosticero",
+        "points": [
+          {
+            "id": "rosticero-0",
+            "text": "Pollos y guarniciones disponibles según orden; cargas terminadas registradas."
+          },
+          {
+            "id": "rosticero-1",
+            "text": "Producto aprobado; pollos en Cambro y jugo separado para adobos."
+          },
+          {
+            "id": "rosticero-2",
+            "text": "Barras, mesas y adobos sin residuos; trastes sucios retirados."
+          }
+        ]
+      },
+      {
+        "code": "freidoras",
+        "name": "Freidoras",
+        "points": [
+          {
+            "id": "freidoras-0",
+            "text": "Crujiente y complementos disponibles para comida; cantidades revisadas con barras."
+          },
+          {
+            "id": "freidoras-1",
+            "text": "Producto aprobado y vegetales guardados en su lugar; latas de jalapeño utilizadas en orden."
+          },
+          {
+            "id": "freidoras-2",
+            "text": "Mesa sin residuos; utensilios e insumos acomodados."
+          }
+        ]
+      },
+      {
+        "code": "rastro",
+        "name": "Rastro",
+        "points": [
+          {
+            "id": "rastro-0",
+            "text": "Producción y entregas que corresponden según orden completas; cantidades registradas."
+          },
+          {
+            "id": "rastro-1",
+            "text": "Hielo y cámara revisados; vegetales en buen estado y guardados en su lugar."
+          },
+          {
+            "id": "rastro-2",
+            "text": "Piso limpio y seco; recipientes, escobas y cuchillos en condición y lugar correctos."
+          }
+        ]
+      },
+      {
+        "code": "almacen",
+        "name": "Almacén",
+        "points": [
+          {
+            "id": "almacen-0",
+            "text": "Solicitudes vencidas al corte completas y recibidas; cantidades por renglón revisadas."
+          },
+          {
+            "id": "almacen-1",
+            "text": "Condición de secos y vegetales revisada; diferencias o deterioro documentados."
+          },
+          {
+            "id": "almacen-2",
+            "text": "Artículos en sus espacios de almacenamiento; orden conservado."
+          }
+        ]
+      },
+      {
+        "code": "trastes",
+        "name": "Lavado de Trastes",
+        "points": [
+          {
+            "id": "trastes-0",
+            "text": "Utensilios necesarios disponibles; pendientes sin bloquear el servicio."
+          },
+          {
+            "id": "trastes-1",
+            "text": "Trastes revisados; jabón y cloro suficientes para continuar."
+          },
+          {
+            "id": "trastes-2",
+            "text": "Tarja y pisos limpios; trastes lavados acomodados."
+          }
+        ]
+      },
+      {
+        "code": "supervision",
+        "name": "Supervisión",
+        "points": [
+          {
+            "id": "supervision-0",
+            "text": "Corte completo a tiempo; pendientes asignados y servicio revisado."
+          },
+          {
+            "id": "supervision-1",
+            "text": "Calidad y cantidad por producto revisadas; fallas y acciones documentadas."
+          },
+          {
+            "id": "supervision-2",
+            "text": "Limpieza y organización verificadas nuevamente; firma, hora y foto completas."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "time": "16:00",
+    "label": "Tarde",
+    "areas": [
+      {
+        "code": "cocina",
+        "name": "Cocina",
+        "points": [
+          {
+            "id": "cocina-0",
+            "text": "Disponible, en proceso y venta restante revisados; decisión por producto anotada.*"
+          },
+          {
+            "id": "cocina-1",
+            "text": "Producto aprobado; etiquetas con fecha original y cómo está guardado correcto."
+          },
+          {
+            "id": "cocina-2",
+            "text": "Mesas y barras sin residuos; inventario ordenado; orden de mañana y compras listas."
+          }
+        ]
+      },
+      {
+        "code": "sucursal_apertura",
+        "name": "Sucursal / local",
+        "points": [
+          {
+            "id": "sucursal_apertura-0",
+            "text": "Mesas y acceso disponibles para terminar el servicio."
+          },
+          {
+            "id": "sucursal_apertura-1",
+            "text": "Productos guardados en su lugar; necesidades restantes atendidas."
+          },
+          {
+            "id": "sucursal_apertura-2",
+            "text": "Local limpio y despejado; basura retirada y mobiliario ordenado."
+          }
+        ]
+      },
+      {
+        "code": "caja",
+        "name": "Caja",
+        "points": [
+          {
+            "id": "caja-0",
+            "text": "Atención y venta revisadas; control de caja intermedio revisado."
+          },
+          {
+            "id": "caja-1",
+            "text": "Producto disponible y barra hidratada; ventiladores funcionando."
+          },
+          {
+            "id": "caja-2",
+            "text": "Caja, acrílico y teléfono limpios; materiales ordenados y bote atendido."
+          }
+        ]
+      },
+      {
+        "code": "ventas_barras",
+        "name": "Ventas / Barras",
+        "points": [
+          {
+            "id": "ventas_barras-0",
+            "text": "Disponible revisado por producto; necesidades comunicadas para decisión de producción.*"
+          },
+          {
+            "id": "ventas_barras-1",
+            "text": "Calidad, hidratación y presentación aprobadas nuevamente."
+          },
+          {
+            "id": "ventas_barras-2",
+            "text": "Vidrios y barra limpios; insertos, utensilios y consumibles ordenados."
+          }
+        ]
+      },
+      {
+        "code": "rosticero",
+        "name": "Rosticero",
+        "points": [
+          {
+            "id": "rosticero-0",
+            "text": "Disponible, en proceso y venta restante revisados; decisión por producto anotada.*"
+          },
+          {
+            "id": "rosticero-1",
+            "text": "Calidad aprobada; Cambro y cómo está guardado revisados nuevamente."
+          },
+          {
+            "id": "rosticero-2",
+            "text": "Mesas, barras y adobos sin residuos; trastes retirados y utensilios acomodados."
+          }
+        ]
+      },
+      {
+        "code": "freidoras",
+        "name": "Freidoras",
+        "points": [
+          {
+            "id": "freidoras-0",
+            "text": "Disponible, en proceso y venta restante revisados; decisión por producto anotada.*"
+          },
+          {
+            "id": "freidoras-1",
+            "text": "Producto y vegetales aprobados y guardados en su lugar; diferencias de conteo documentadas."
+          },
+          {
+            "id": "freidoras-2",
+            "text": "Mesa sin residuos; utensilios e insumos en su lugar."
+          }
+        ]
+      },
+      {
+        "code": "rastro",
+        "name": "Rastro",
+        "points": [
+          {
+            "id": "rastro-0",
+            "text": "Orden terminada; movimientos y próxima orden disponibles para revisión de salida."
+          },
+          {
+            "id": "rastro-1",
+            "text": "Hielo, cámara, vegetales y marinado ROSTI para mañana verificados."
+          },
+          {
+            "id": "rastro-2",
+            "text": "Piso limpio y seco; recipientes en su lugar; escobas limpias y cuchillos acomodados."
+          }
+        ]
+      },
+      {
+        "code": "almacen",
+        "name": "Almacén",
+        "points": [
+          {
+            "id": "almacen-0",
+            "text": "Solicitudes que corresponden atendidas; necesidades de mañana integradas al abasto."
+          },
+          {
+            "id": "almacen-1",
+            "text": "Cantidades y condición revisadas; faltantes documentados."
+          },
+          {
+            "id": "almacen-2",
+            "text": "Almacenamiento ordenado; cada grupo de insumos en su espacio."
+          }
+        ]
+      },
+      {
+        "code": "trastes",
+        "name": "Lavado de Trastes",
+        "points": [
+          {
+            "id": "trastes-0",
+            "text": "Trastes necesarios disponibles; lavado al corriente."
+          },
+          {
+            "id": "trastes-1",
+            "text": "Trastes revisados; jabón y cloro suficientes para terminar."
+          },
+          {
+            "id": "trastes-2",
+            "text": "Tarja y pisos limpios; trastes acomodados; refrigeradores según programación."
+          }
+        ]
+      },
+      {
+        "code": "supervision",
+        "name": "Supervisión",
+        "points": [
+          {
+            "id": "supervision-0",
+            "text": "Caja y existencias revisadas; decisiones de continuar/reducir/detener documentadas.*"
+          },
+          {
+            "id": "supervision-1",
+            "text": "Calidad y cantidades revisadas; orden de mañana y salidas de áreas validadas."
+          },
+          {
+            "id": "supervision-2",
+            "text": "Limpieza y orden revisados; pendientes con responsable, firma y foto."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "time": "19:00",
+    "label": "Cierre",
+    "areas": [
+      {
+        "code": "cocina",
+        "name": "Cocina",
+        "points": [
+          {
+            "id": "cocina-0",
+            "text": "Todas las existencias registradas; todo lo que sobró identificado."
+          },
+          {
+            "id": "cocina-1",
+            "text": "Orden de producción del siguiente día lista y firmada; sobrantes guardados en su lugar."
+          },
+          {
+            "id": "cocina-2",
+            "text": "Cocina limpia y ordenada; pase de salida de Nancy listo."
+          }
+        ]
+      },
+      {
+        "code": "sucursal_apertura",
+        "name": "Sucursal / local",
+        "points": [
+          {
+            "id": "sucursal_apertura-0",
+            "text": "Cierre del local en marcha; barras organizadas y productos guardados."
+          },
+          {
+            "id": "sucursal_apertura-1",
+            "text": "Productos bien guardados y organizados en refrigeradores y espacios correspondientes."
+          },
+          {
+            "id": "sucursal_apertura-2",
+            "text": "Limpieza y orden del local revisados; dejar todo listo para el siguiente día."
+          }
+        ]
+      },
+      {
+        "code": "caja",
+        "name": "Caja",
+        "points": [
+          {
+            "id": "caja-0",
+            "text": "Cierre diario completo: cobros, tarjetas, diferencias y conteo de proteínas registrados."
+          },
+          {
+            "id": "caja-1",
+            "text": "Hoja final, incidencias y evidencias completas; entrega revisada y documentada."
+          },
+          {
+            "id": "caja-2",
+            "text": "Área de caja, superficies y equipo limpios y ordenados; apoyo al cierre realizado."
+          }
+        ]
+      },
+      {
+        "code": "ventas_barras",
+        "name": "Ventas / Barras",
+        "points": [
+          {
+            "id": "ventas_barras-0",
+            "text": "Todo lo que sobró contado y registrado en las hojas de control."
+          },
+          {
+            "id": "ventas_barras-1",
+            "text": "Todo el producto guardado, refrigerado y acomodado en su espacio; revisión completa."
+          },
+          {
+            "id": "ventas_barras-2",
+            "text": "Barras cerradas, limpias y ordenadas; trastes entregados y utensilios acomodados."
+          }
+        ]
+      },
+      {
+        "code": "rosticero",
+        "name": "Rosticero",
+        "points": [
+          {
+            "id": "rosticero-0",
+            "text": "Todo lo que sobró contado y registrado; rosticero cerrado."
+          },
+          {
+            "id": "rosticero-1",
+            "text": "Todos los sobrantes identificados y refrigerados; pollos guardados en su lugar."
+          },
+          {
+            "id": "rosticero-2",
+            "text": "Rosticero y barras limpios; trastes entregados, superficies limpias y utensilios organizados."
+          }
+        ]
+      },
+      {
+        "code": "freidoras",
+        "name": "Freidoras",
+        "points": [
+          {
+            "id": "freidoras-0",
+            "text": "Todo lo que sobró de pollo, vegetales, codo y demás productos registrado; diferencias anotadas."
+          },
+          {
+            "id": "freidoras-1",
+            "text": "Sobrantes identificados y guardados en su lugar; producción cerrada."
+          },
+          {
+            "id": "freidoras-2",
+            "text": "Freidoras y área limpias y organizadas; aceite filtrado al terminar."
+          }
+        ]
+      },
+      {
+        "code": "rastro",
+        "name": "Rastro",
+        "points": [
+          {
+            "id": "rastro-0",
+            "text": "Rastro ya salió: saldos revisados y toda la proteína anotada en movimientos de inventario."
+          },
+          {
+            "id": "rastro-1",
+            "text": "Proteína y condiciones para guardar el producto revisadas antes de salir."
+          },
+          {
+            "id": "rastro-2",
+            "text": "Pase de salida y cierre revisados; video de Rastro disponible como evidencia."
+          }
+        ]
+      },
+      {
+        "code": "almacen",
+        "name": "Almacén",
+        "points": [
+          {
+            "id": "almacen-0",
+            "text": "Entregas y recepciones del día registradas; necesidades siguientes documentadas."
+          },
+          {
+            "id": "almacen-1",
+            "text": "Diferencias atendidas; secos y vegetales en condiciones de cómo está guardado."
+          },
+          {
+            "id": "almacen-2",
+            "text": "Artículos acomodados en sus espacios; orden final verificado."
+          }
+        ]
+      },
+      {
+        "code": "trastes",
+        "name": "Lavado de Trastes",
+        "points": [
+          {
+            "id": "trastes-0",
+            "text": "Recibir y lavar los últimos trastes y utensilios de toda la sucursal."
+          },
+          {
+            "id": "trastes-1",
+            "text": "Material y productos de lavado abastecidos y en buenas condiciones; sin faltantes."
+          },
+          {
+            "id": "trastes-2",
+            "text": "Última área en cerrar: trastes acomodados, tarja y pisos limpios; área organizada."
+          }
+        ]
+      },
+      {
+        "code": "supervision",
+        "name": "Supervisión",
+        "points": [
+          {
+            "id": "supervision-0",
+            "text": "Reportes y formatos de caja, inventario y cierres de todas las áreas completos y revisados."
+          },
+          {
+            "id": "supervision-1",
+            "text": "Inspección final registrada en video; áreas limpias y organizadas. Video en grupo de Supervisión."
+          },
+          {
+            "id": "supervision-2",
+            "text": "Foto de esta hoja completa y videos de evidencia del cierre compartidos en el grupo."
+          }
+        ]
+      }
+    ]
+  }
+]

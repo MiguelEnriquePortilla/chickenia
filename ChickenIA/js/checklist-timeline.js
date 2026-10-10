@@ -8,9 +8,23 @@
   context=summary;if(summary.location?.type==='moto'){host.hidden=true;return;}host.hidden=false;
   const token=++request;
   try{
+   if(dashboard&&window.ChickenPoints){
+    const points=await window.ChickenPoints.request(window.ChickenPoints.url(summary.location.id,summary.date));
+    if(token!==request)return;
+    document.body.classList.add('points-active');
+    if(!points.missing){window.ChickenPoints.dashboard(host,points);return;}
+   }
    const response=await fetch(`/api/summary?timeline=1&location_id=${encodeURIComponent(summary.location.id)}&date=${encodeURIComponent(summary.date)}`,{cache:'no-store'});
    const data=await response.json();if(token!==request)return;if(!response.ok)throw Error(data.error);
-   view=data;render();
+   view=data;
+   if(dashboard&&window.ChickenPoints&&!view.missing){
+    document.body.classList.add('points-active');
+    const cuts=view.cuts.map(c=>({...c,areas:c.areas.map(a=>({...a,done:(a.score??0)/100*3,total:3}))}));
+    const records=view.history.map(d=>({...d,areas:d.areas.map(a=>({code:a.code,name:a.name,score:a.score}))}));
+    const periods=view.periods.map(p=>({id:p.span===7?'last7':'last30',start:view.start,areas:view.areas.map(a=>({code:a.code,name:a.name,score:p.areas[a.code]?.score??null,days:p.areas[a.code]?.days||0,bonus:false}))}));
+    window.ChickenPoints.dashboard(host,{date:view.date,cuts,records,periods,legacy:true});return;
+   }
+   render();
   }catch(e){if(token===request)host.innerHTML=`<p role="alert">${esc(e.message||'No se pudieron cargar los cortes.')}</p><button type="button" data-retry>Reintentar</button>`;}
  }
  function render(){
