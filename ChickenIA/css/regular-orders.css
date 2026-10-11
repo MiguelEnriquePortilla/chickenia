@@ -2,4 +2,4 @@
 [data-theme=dark] .orders-row input,[data-theme=dark] .orders-main textarea{color-scheme:dark}
 .orders-row input::placeholder,.orders-main textarea::placeholder{color:var(--gray,#666870);opacity:1}
 
-@media(max-width:480px){#suppliers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}#suppliers button{min-width:0;padding:10px 4px;font-size:12px;line-height:1.4;white-space:nowrap;overflow-wrap:normal}}
+@media(max-width:480px){#suppliers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}#suppliers button{min-width:0;padding:10px 2px;font-size:11px;line-height:1.4;white-space:nowrap;overflow-wrap:normal}}
