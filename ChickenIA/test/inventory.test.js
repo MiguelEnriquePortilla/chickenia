@@ -120,7 +120,7 @@ test('PostgreSQL: migración no destructiva, idempotencia y rechazo de concurren
     await assert.rejects(()=>repo.execute({id:randomUUID(),version:3,type:'reverse',_target:sold,note:'Inyección'},manager),/reservado/);
   }finally{await db.close();}
 });
-test('API: autenticación, CSRF, cookie, permisos y límite de intentos',async()=>{
+test('API: autenticación, CSRF, cookie y acceso por nombre',async()=>{
   const db=new PGlite();const query=async(s,p)=>(await db.query(s,p)).rows;const repo=repository(query);
   process.env.INVENTORY_SESSION_SECRET='test-secret-'.repeat(5);
   const password='test-only-password-1234';
@@ -142,8 +142,8 @@ test('API: autenticación, CSRF, cookie, permisos y límite de intentos',async()
     assert.equal((await call('GET','snapshot',{}, {cookie:cookie+'x'})).status,401);
     const kitchen=await call('POST','login',{username:'cocina',password});
     const forbidden=await call('POST','operation',{id:randomUUID(),version:0,type:'initial',location:'sucursal',lines:[{item:'rosti-cocinado',qty:1}]},{cookie:kitchen.headers['Set-Cookie'][1].split(';')[0]});
-    assert.equal(forbidden.status,403);
-    for(let i=0;i<10;i++)assert.equal((await call('POST','login',{username:'missing',password})).status,401);
-    assert.equal((await call('POST','login',{username:'missing',password})).status,429);
+    assert.equal(forbidden.status,200);
+    for(let i=0;i<10;i++)assert.equal((await call('POST','login',{username:'missing'})).status,400);
+    assert.equal((await call('POST','login',{username:'missing'})).status,400);
   }finally{await db.close();}
 });

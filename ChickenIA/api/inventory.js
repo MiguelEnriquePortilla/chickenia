@@ -6,6 +6,7 @@ const { roles, OPENING_TASKS, today, InventoryError } = require('../lib/inventor
 function createHandler(getRepository = production, queryOverride) {
   let migrated;
   return async (req, res) => {
+    if(String(req.query?.action||'').startsWith('paper-'))return require('../lib/production-paper-handler')(req,res,queryOverride);
     if(String(req.query?.action||'').startsWith('daily-'))return require('../lib/daily-handler')(req,res,queryOverride);
     const chicken=require('../lib/chicken-units'),pollos=req.query?.chickenUnit==='pollos';
     const view=value=>pollos?chicken.display(value):value;
@@ -25,6 +26,7 @@ function createHandler(getRepository = production, queryOverride) {
       const action = req.query?.action || 'snapshot';
       if (req.method === 'POST' && action === 'logout') { res.setHeader('Set-Cookie',auth.cookie('',req,true)); return res.status(200).json({ok:true}); }
       // Missing credentials fails closed; anonymous requests cannot create tables or read stock.
+      if(req.method==='GET'&&action==='people')return res.status(200).json({people:auth.people(auth.settings().users)});
       auth.settings();
       const user = action === 'login' && req.method === 'POST' ? null : auth.authenticate(req);
       if(req.method==='GET'&&action==='session')return res.status(200).json({user});

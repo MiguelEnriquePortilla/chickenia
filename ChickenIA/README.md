@@ -1,3 +1,7 @@
+# Actualización 11 octubre 2026 — Producción Diaria y acceso sin contraseña
+
+Miguel autorizó el apartado independiente **Producción Diaria**, basado en la hoja impresa de cuatro áreas y cuatro cantidades; también retirar contraseñas y entrar por selección de nombre. Se mantiene diseño minimalista y tipografía Poppins. Leer [entrega, validación y continuidad](PRODUCCION_Y_ACCESO_2026-10-11.md). La hoja nueva conserva sus datos separados de la captura anterior de caja/producción. Evaluación de Supervisión desde el lunes 12; hoy sigue siendo práctica.
+
 # Chicken ChicanIA ? sesión cerrada, 10 octubre 2026
 
 Nombre y diseño final aprobados por Miguel; versión visual `e5ff6ec` enviada a `main`. Domingo 11: práctica sin bonos. Evaluación desde el lunes 12 de octubre de 2026. Cuatro cortes estrictos: 10:00, 12:00, 16:00 y 19:00, con reloj CDMX, captura solo en el horario vigente y dashboard de barras e historial. Meta de bono: 85% en semana y mes calendario.

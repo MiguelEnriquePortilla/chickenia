@@ -14,8 +14,8 @@
   <header class="app-header"><a href="/" class="chat-brand">Chicken <span>ChicanIA</span></a><span>JOJUTLA · CONSULTAS</span><button id="theme" type="button">Cambiar tema</button></header>
   <main class="chat-main">
     <section id="login-panel" class="chat-login" hidden>
-      <span class="chat-kicker">ACCESO AL PILOTO</span><h1>Pregúntale a Chicken ChicanIA</h1><p>Ingresa con tu nombre y la clave compartida del periodo de prueba.</p>
-      <form id="login-form"><label>Tu nombre<input name="username" autocomplete="username" required></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label><button class="chat-primary">Entrar</button></form>
+      <span class="chat-kicker">ACCESO AL PILOTO</span><h1>Pregúntale a Chicken ChicanIA</h1><p>Selecciona tu nombre para continuar.</p>
+      <form id="login-form"><label>¿Quién está capturando?<select name="username" required><option value="">Selecciona tu nombre</option></select></label><button class="chat-primary">Entrar</button></form>
       <p id="login-error" role="alert"></p>
     </section>
     <section id="workspace" hidden>
@@ -36,4 +36,4 @@
   </main>
 </div>
 <script src="/js/area-navigation.js"></script><script src="/js/chicken-chat.js"></script>
-</body></html>
+<script src="/js/name-access.js" defer></script></body></html>

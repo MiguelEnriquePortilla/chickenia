@@ -1,7 +1,7 @@
 /* Chicanito workspace: quiet surfaces, consistent controls and readable themes. */
 :root{--navy:#1A213E;--cream:#FFF6EB;--bg:#fff;--surface:#faf9f6;--text:#292a30;--gray:#666870;--border-soft:#e7e6e2;--sidebar-bg:#f7f5ee;--hover:#eeece6;--selected:#eee9df;--accent-text:#914510;color-scheme:light}
 :root[data-theme="dark"]{--bg:#202126;--surface:#292b32;--text:#eeeef0;--gray:#b4b5bd;--border-soft:#3b3d45;--sidebar-bg:#191b21;--hover:#33353e;--selected:#3b3631;--accent-text:#edc98c;color-scheme:dark}
-body{font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;background:var(--bg);color:var(--text)}
+body{font-family:Poppins,Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;background:var(--bg);color:var(--text)}
 h1,h2,h3,.area-context h1,.inv-heading h1,.inv-panel h2,.inv-panel h3{font-family:inherit;letter-spacing:-.025em;line-height:1.3;font-weight:600;color:var(--text)}
 h1,.inv-heading h1{font-size:26px}h2,.inv-panel h2{font-size:19px}h3,.inv-panel h3{font-size:17px}
 button,input,select,textarea{font-family:inherit;color:var(--text)}
@@ -60,5 +60,5 @@ input,select,textarea,.inv-body input,.inv-body select,.inv-body textarea{border
 .wordmark .w-ia{font-size:1em;color:var(--red)}
 .landing h1.wordmark-lg{font-size:clamp(28px,7.4vw,44px);letter-spacing:.3px}
 
-.landing h1.wordmark-lg{font-family:Arial,Helvetica,sans-serif;font-weight:600;font-size:clamp(24px,6vw,36px);letter-spacing:-.025em}
+.landing h1.wordmark-lg{font-family:Poppins,Arial,Helvetica,sans-serif;font-weight:600;font-size:clamp(24px,6vw,36px);letter-spacing:-.025em}
 .landing h1.wordmark-lg span{font:inherit;letter-spacing:inherit}
