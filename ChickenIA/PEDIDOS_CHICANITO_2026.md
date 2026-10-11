@@ -1,3 +1,11 @@
+# Actualización vigente — Peregrina y unidades, 11 octubre 2026
+
+Miguel aceptó los ajustes y pidió actualizar la documentación. Publicado y verificado en ChickenIA: `1608cc1` agrega **Limón Pimienta** y **Chile Chipotle** a Peregrina; `c5d3ce0` completa sus unidades **Kg** y la unidad **Bolsas** de Ajos en SAMS. Peregrina queda con **25 renglones** (19 productos regulares y 6 de harina especial). Cantidades inicialmente vacías; formato restante sin cambios.
+
+Borradores previos conservados mediante una migración única: las cantidades de los seis renglones de harina se desplazan a sus índices nuevos, sin asignarse a los artículos agregados. Build, sintaxis, conteo y migración comprobados para `1608cc1`; los dos archivos públicos cotejados con los locales. Para `c5d3ce0`, diff limitado a tres unidades y consulta pública confirmó Kg, Kg y Bolsas. No se enviaron pedidos ni se registraron compras o movimientos de inventario.
+
+Sin ajustes funcionales pendientes de esta solicitud. Esperar nuevas indicaciones; los apartados inferiores son antecedentes.
+
 # Actualización 11 octubre 2026 — Central de Abastos y listas limpias
 
 Autorizado por Miguel: implementar y publicar. Central de Abastos: 27 artículos legibles de la foto, incluidos los manuscritos; cantidades y unidades recortadas no inferidas. SAMS agrega Ajos (20 artículos). Plásticos agrega Fibras verdes, Fibras, Rollos para computadoras, Rollos para impresora y Encendedores (20 artículos). Peregrina conserva 23 renglones.
