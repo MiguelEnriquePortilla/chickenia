@@ -325,8 +325,8 @@ const SEED_EMPLOYEES = [
   'Nohemí Barrera',
   'Julissa Mendoza',
   'Mauricio Salgado',
-  'Herman Melo',
-  'Rocío Mata',
+  'Diana',
+  'Silvia Najera',
   'Eliseo Barreto',
   'Nancy Rentería',
   'Yerely Leyva Díaz',
@@ -541,6 +541,8 @@ async function ensureTables() {
   // Correct spelling in place to preserve employee IDs and attendance history.
   await sql`UPDATE employees SET name = 'Ana Lima' WHERE name = 'Ana Lira' AND NOT EXISTS (SELECT 1 FROM employees WHERE name = 'Ana Lima')`;
   await sql`UPDATE employees SET name = 'Petra Estrada' WHERE name = 'Perla Estrada' AND NOT EXISTS (SELECT 1 FROM employees WHERE name = 'Petra Estrada')`;
+
+  await require('./attendance-roster').migrate(sql);
 
   await require('./routine-migration')(sql, CRITICALITY_WEIGHT);
   await require('./rastro-sucursal-migration')(sql, CRITICALITY_WEIGHT, SEED_ACTIVITIES);
