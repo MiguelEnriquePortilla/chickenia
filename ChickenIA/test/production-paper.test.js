@@ -4,10 +4,14 @@ const paper=require('../lib/production-paper'),auth=require('../lib/inventory-au
 test('name selection creates signed session without password; invalid name and forged cookie rejected',async()=>{
  const old=process.env.INVENTORY_SESSION_SECRET;process.env.INVENTORY_SESSION_SECRET='local-test-secret-at-least-thirty-two-characters';
  try{
+  assert.deepEqual(auth.people([{id:'other',name:'Otro'}]).map(p=>p.name),['NANCY','LILIAN','MIGUEL']);
   const result=await auth.login({body:{username:'Nancy'}},()=>{throw Error('No password query expected');});
-  assert.equal(result.user.name,'Nancy');
-  assert.equal(auth.authenticate({headers:{cookie:'chickenia_inventory='+result.token}}).name,'Nancy');
+  assert.equal(result.user.name,'NANCY');
+  assert.equal(auth.authenticate({headers:{cookie:'chickenia_inventory='+result.token}}).name,'NANCY');
   await assert.rejects(()=>auth.login({body:{username:'not-a-team-member'}}),/Selecciona/);
+  const payload=Buffer.from(JSON.stringify({sub:'otro',name:'Otro',pilot:true,exp:Math.floor(Date.now()/1000)+3600})).toString('base64url');
+  const signature=require('node:crypto').createHmac('sha256',process.env.INVENTORY_SESSION_SECRET).update(payload).digest('base64url');
+  assert.throws(()=>auth.authenticate({headers:{cookie:'chickenia_inventory='+payload+'.'+signature}}),e=>e.status===401);
   assert.throws(()=>auth.authenticate({headers:{cookie:'chickenia_inventory='+result.token+'x'}}));
  }finally{if(old===undefined)delete process.env.INVENTORY_SESSION_SECRET;else process.env.INVENTORY_SESSION_SECRET=old;}
 });

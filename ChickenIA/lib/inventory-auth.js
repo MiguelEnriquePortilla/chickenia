@@ -9,10 +9,8 @@ function settings() {
   if(!secret||secret.length<32)throw new InventoryError('Falta configurar la sesi\u00f3n.',503);
   return {users:Array.isArray(users)?users.filter(u=>u&&typeof u.id==='string'&&typeof u.name==='string'):[],secret};
 }
-function people(users){
-  const names=['Nancy','Lilian','Miguel',...users.map(u=>u.name).filter(Boolean)];
-  return [...new Map(names.map(name=>pilot.user(name,users)).filter(Boolean).map(u=>[u.id,{id:u.id,name:u.name}])).values()];
-}
+function people(){return ['NANCY','LILIAN','MIGUEL'].map(name=>({id:name.toLowerCase(),name}));}
+function allowedName(name){return typeof name==='string'&&people().some(p=>p.name===name.trim().toUpperCase());}
 function safeEqual(a, b) { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
 function passwordHash(password) {
   if (typeof password !== 'string' || password.length < 12 || password.length > 128) throw new Error('La contraseña debe tener entre 12 y 128 caracteres.');
@@ -39,16 +37,16 @@ function authenticate(req) {
   const [payload, signature, extra] = raw.split('.');
   if (extra || !signature || !safeEqual(sign(payload, secret), signature)) throw new InventoryError('Sesión inválida.', 401);
   let data; try { data = JSON.parse(Buffer.from(payload,'base64url').toString()); } catch { throw new InventoryError('Sesión inválida.',401); }
-  const user = data.pilot?pilot.user(data.name,users):users.find(u => u.id === data.sub);
+  const user = data.pilot&&allowedName(data.name)?pilot.user(data.name.trim().toUpperCase(),[]):!data.pilot?users.find(u => u.id === data.sub&&allowedName(u.name)):null;
   if (!user || user.id!==data.sub || data.v !== userVersion(user) || !Number.isFinite(data.exp) || data.exp < Date.now()/1000) throw new InventoryError('Selecciona tu nombre para continuar.',401);
-  return { id: user.id, name: user.name, role: user.role, ...(user.pilot?{pilot:true}:{}) };
+  return { id: user.id, name: user.name.toUpperCase(), role: user.role, ...(user.pilot?{pilot:true}:{}) };
 }
 async function login(req, query) {
   const { users, secret } = settings();
   const {username}=req.body||{};
-  const selected=people(users).find(u=>u.id===username||u.name===username);
+  const selected=people(users).find(u=>typeof username==='string'&&(u.id===username.trim().toLowerCase()||u.name===username.trim().toUpperCase()));
   if(!selected)throw new InventoryError('Selecciona tu nombre.',400);
-  const user=pilot.user(selected.name,users);
+  const user=pilot.user(selected.name,[]);
   return {user:{id:user.id,name:user.name,role:user.role,pilot:true},token:session(user,secret)};
 }
 

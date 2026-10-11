@@ -9,7 +9,7 @@ const {repository}=require('../lib/inventory-store');
 const {roles,applyOperation,freshState}=require('../lib/inventory-domain');
 test('shared pilot login, signed identity, all modules and rollback with actual database',async()=>{
   process.env.INVENTORY_SESSION_SECRET='pilot-tests-only-secret-'.repeat(3);
-  process.env.INVENTORY_USERS_JSON=JSON.stringify([{id:'nancy',name:'Nancy',role:'manager',hash:auth.passwordHash('old-individual-password')},{id:'prueba-cocina',name:'Prueba Cocina',role:'manager'}]);
+  process.env.INVENTORY_USERS_JSON=JSON.stringify([{id:'nancy',name:'Nancy',role:'manager',hash:auth.passwordHash('old-individual-password')},{id:'prueba-cocina',name:'LILIAN',role:'manager'}]);
   const db=new PGlite(),query=async(s,p)=>(await db.query(s,p)).rows,repo=repository(query);
   const inventory=require('../api/inventory').createHandler(()=>repo,query);
   const chicken=require('../api/chicken-ia').createHandler(query);
@@ -20,8 +20,8 @@ test('shared pilot login, signed identity, all modules and rollback with actual 
   try{
     assert.equal((await call(inventory,'GET','session')).code,401);
     assert.equal((await call(inventory,'POST','login',{username:'No existe'})).code,400);
-    const login=await call(inventory,'POST','login',{username:'Prueba Cocina',password:'CHICKENIA2026'});
-    assert.equal(login.code,200);assert.equal(login.data.user.name,'Prueba Cocina');assert.equal(login.data.user.pilot,true);
+    const login=await call(inventory,'POST','login',{username:'LILIAN',password:'CHICKENIA2026'});
+    assert.equal(login.code,200);assert.equal(login.data.user.name,'LILIAN');assert.equal(login.data.user.pilot,true);
     const cookie=login.headers['Set-Cookie'].find(c=>c.includes('Path=/api;')).split(';')[0];
     const snap=await call(inventory,'GET','snapshot',{},cookie);
     assert.deepEqual(snap.data.permissions.sort(),Object.keys(roles).sort());
@@ -31,7 +31,7 @@ test('shared pilot login, signed identity, all modules and rollback with actual 
     let state=freshState();
     const request=applyOperation(state,{id:randomUUID(),type:'purchaseRequest',supplier:'Proveedor de prueba',supplierType:'local',due:'2026-09-11',location:'sucursal',urgent:false,lines:[{item:'leche-litros',qty:1}]},actor,'2026-09-11T18:00:00Z');
     const approved=applyOperation(request.state,{id:randomUUID(),type:'approvePurchase',request:request.event.id},actor,'2026-09-11T18:01:00Z');
-    assert.equal(approved.event.actor.name,'Prueba Cocina');
+    assert.equal(approved.event.actor.name,'LILIAN');
     const nancy=await call(inventory,'POST','login',{username:'Nancy'});
     assert.equal(nancy.data.user.id,'nancy');
     const tampered=cookie.slice(0,-1)+(cookie.at(-1)==='a'?'b':'a');
@@ -40,6 +40,6 @@ test('shared pilot login, signed identity, all modules and rollback with actual 
     process.env.CHICKENIA_PILOT_ACCESS='0';
     assert.equal((await call(inventory,'GET','session',{},cookie)).code,200);
     assert.equal((await call(inventory,'POST','login',{username:'Nancy'})).code,200);
-    assert.equal((await call(inventory,'POST','login',{username:'nancy',password:'old-individual-password'})).code,200);
+    assert.equal((await call(inventory,'POST','login',{username:'nancy'})).code,200);
   }finally{process.env.CHICKENIA_PILOT_ACCESS='1';await db.close();}
 });

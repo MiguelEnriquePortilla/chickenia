@@ -1,3 +1,5 @@
+Acceso limitado a **NANCY, LILIAN y MIGUEL**, por indicación de Miguel el 11 de octubre.
+
 # Actualización 11 octubre 2026 — Producción Diaria y acceso sin contraseña
 
 Miguel autorizó el apartado independiente **Producción Diaria**, basado en la hoja impresa de cuatro áreas y cuatro cantidades; también retirar contraseñas y entrar por selección de nombre. Se mantiene diseño minimalista y tipografía Poppins. Leer [entrega, validación y continuidad](PRODUCCION_Y_ACCESO_2026-10-11.md). La hoja nueva conserva sus datos separados de la captura anterior de caja/producción. Evaluación de Supervisión desde el lunes 12; hoy sigue siendo práctica.

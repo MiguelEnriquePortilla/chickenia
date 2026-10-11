@@ -140,7 +140,7 @@ test('API: autenticación, CSRF, cookie y acceso por nombre',async()=>{
     const cookie=logged.headers['Set-Cookie'][1].split(';')[0];
     assert.equal((await call('GET','snapshot',{}, {cookie})).status,200);
     assert.equal((await call('GET','snapshot',{}, {cookie:cookie+'x'})).status,401);
-    const kitchen=await call('POST','login',{username:'cocina',password});
+    const kitchen=await call('POST','login',{username:'lilian'});
     const forbidden=await call('POST','operation',{id:randomUUID(),version:0,type:'initial',location:'sucursal',lines:[{item:'rosti-cocinado',qty:1}]},{cookie:kitchen.headers['Set-Cookie'][1].split(';')[0]});
     assert.equal(forbidden.status,200);
     for(let i=0;i<10;i++)assert.equal((await call('POST','login',{username:'missing'})).status,400);

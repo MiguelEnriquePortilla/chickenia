@@ -14,7 +14,7 @@ Miguel pidió recuperar la lista del PDF `entregables/supervision-diaria-borrado
 
 ## Acceso
 
-Inventario y consultas muestran selector de nombre, sin contraseña. Opciones iniciales: Nancy, Lilian y Miguel, más nombres de cuentas configuradas. La sesión firmada existente continúa compartida entre módulos; se conservan cookie HttpOnly y comprobaciones de origen. La clave del piloto y hashes de contraseña dejan de validarse al entrar. La selección identifica el nombre declarado; no verifica identidad personal. El acceso operativo por nombre conserva el permiso amplio de captura que ya tenía el piloto. La sesión sigue requiriendo el secreto interno del servidor, que no es una contraseña para el equipo.
+Inventario y consultas muestran selector de nombre, sin contraseña. Únicas opciones: NANCY, LILIAN y MIGUEL. No se agregan nombres desde cuentas configuradas y se rechazan sesiones de otros nombres. La sesión firmada existente continúa compartida entre módulos; se conservan cookie HttpOnly y comprobaciones de origen. La clave del piloto y hashes de contraseña dejan de validarse al entrar. La selección identifica el nombre declarado; no verifica identidad personal. El acceso operativo por nombre conserva el permiso amplio de captura que ya tenía el piloto. La sesión sigue requiriendo el secreto interno del servidor, que no es una contraseña para el equipo.
 
 ## Diseño
 
