@@ -6,6 +6,8 @@ Borradores previos conservados mediante una migración única: las cantidades de
 
 Sin ajustes funcionales pendientes de esta solicitud. Esperar nuevas indicaciones; los apartados inferiores son antecedentes.
 
+## Antecedentes — versiones anteriores, sustituidas por el estado vigente de arriba
+
 # Actualización 11 octubre 2026 — Central de Abastos y listas limpias
 
 Autorizado por Miguel: implementar y publicar. Central de Abastos: 27 artículos legibles de la foto, incluidos los manuscritos; cantidades y unidades recortadas no inferidas. SAMS agrega Ajos (20 artículos). Plásticos agrega Fibras verdes, Fibras, Rollos para computadoras, Rollos para impresora y Encendedores (20 artículos). Peregrina conserva 23 renglones.

@@ -6,6 +6,8 @@ Borradores previos conservados mediante una migración única: las cantidades de
 
 Sin ajustes funcionales pendientes de esta solicitud. Esperar nuevas indicaciones; los apartados inferiores son antecedentes.
 
+## Antecedentes — versiones anteriores, sustituidas por el estado vigente de arriba
+
 # Sesión cerrada — Pedidos Chicanito, 11 octubre 2026
 
 Miguel aceptó la entrega y pidió actualizar README y cerrar sesión. Publicado y verificado en producción: `ea3110c` (incluye `f224f5e` y `fb9cc5b`). Central de Abastos: 27 artículos de la foto, incluidos manuscritos; no se infirieron cantidades ni unidades recortadas. SAMS: 20 artículos, agrega Ajos. Plásticos: 20 artículos, agrega Fibras verdes, Fibras, Rollos para computadoras, Rollos para impresora y Encendedores. Peregrina: 23 renglones.
