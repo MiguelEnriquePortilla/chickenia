@@ -15,3 +15,6 @@ body.welcome-active{overflow:hidden}
 @keyframes welcome-progress{to{transform:scaleX(1)}}
 @media(max-height:500px){.chicken-welcome{gap:8px;padding:12px}.chicken-welcome__mascot{height:46svh}.chicken-welcome__brand{font-size:23px}.chicken-welcome__message{font-size:13px}}
 @media(prefers-reduced-motion:reduce){.chicken-welcome[data-ready] .chicken-welcome__fill{animation:none;transform:scaleX(1)}}
+
+.chicken-welcome__brand .w-chican{font-size:.78em;color:#fff}
+.chicken-welcome__brand .w-ia{font-size:1.08em;color:#f4c866}
