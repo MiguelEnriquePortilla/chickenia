@@ -15,19 +15,20 @@ try:
   context.add_init_script("Object.defineProperty(navigator,'clipboard',{value:{writeText:async t=>window.copied=t}}); Object.defineProperty(navigator,'share',{value:async d=>window.shared=d}); window.open=(url)=>window.opened=url;")
   page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
   page.goto('http://127.0.0.1:8952/pedidos.html')
-  expect(page.locator('.orders-row')).to_have_count(19)
+  expect(page.locator('.orders-row')).to_have_count(20)
   expect(page.locator('#copy')).to_be_disabled()
   inputs=page.locator('.orders-row input');inputs.nth(0).fill('2.5');inputs.nth(1).fill('0');inputs.nth(18).fill('13')
   page.locator('#note').fill('Entregar el lunes')
   page.locator('#copy').click();copied=page.evaluate('window.copied')
-  assert '*Pedidos Chicanito 2026*' in copied and '*SAMS*' in copied and '*2.5 garrafas*' in copied and '_Member' in copied and 'Sabroseador' in copied and 'Salsa de soya' not in copied and 'Entregar el lunes' in copied
+  assert '*Pedidos Chicanito 2026*' in copied and '*SAMS*' in copied and '*2.5 garrafas*' in copied and 'Member' not in copied and 'Habitual' not in copied and 'Sabroseador' in copied and 'Salsa de soya' not in copied and 'Entregar el lunes' in copied
   page.locator('#share').click();assert page.evaluate('window.shared.text')==copied
   page.locator('#whatsapp').click();assert page.evaluate('window.opened').startswith('https://wa.me/?text=')
   page.reload();expect(page.locator('.orders-row input').first).to_have_value('2.5')
   page.get_by_role('button',name='PEREGRINA',exact=True).click();expect(page.locator('.orders-row')).to_have_count(23)
   expect(page.locator('.orders-row input').first).to_have_value('')
   page.locator('.orders-row input').first.fill('1')
-  page.get_by_role('button',name='PLÁSTICOS',exact=True).click();expect(page.locator('.orders-row')).to_have_count(15)
+  page.get_by_role('button',name='PLÁSTICOS',exact=True).click();expect(page.locator('.orders-row')).to_have_count(20)
+  page.get_by_role('button',name='CENTRAL DE ABASTOS',exact=True).click();expect(page.locator('.orders-row')).to_have_count(27)
   page.locator('.orders-row input').first.fill('4');page.locator('#preview').click()
   expect(page.locator('#capture')).to_be_visible();expect(page.locator('#products')).to_be_hidden()
   assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')

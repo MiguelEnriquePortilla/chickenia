@@ -114,6 +114,12 @@ window.RegularOrdersData = {
         "botes",
         "13",
         "Solo cuando se requiera hacer harina para crujiente"
+      ],
+      [
+        "Ajos",
+        "",
+        "",
+        ""
       ]
     ],
     "PEREGRINA": [
@@ -288,19 +294,19 @@ window.RegularOrdersData = {
         ""
       ],
       [
-        "Rollo 30 × 40 cm · bolsa para pollo",
+        "Rollo 30 × 40 cm",
         "rollos",
         "3",
         ""
       ],
       [
-        "Rollo 35 × 45 · entrega de pollo",
+        "Rollo 35 × 45",
         "rollos",
         "1",
         ""
       ],
       [
-        "Rollo 40 × 60 · jumbo",
+        "Rollo 40 × 60",
         "rollos",
         "1",
         ""
@@ -309,6 +315,200 @@ window.RegularOrdersData = {
         "Rollo para rastro 25 × 35 cm",
         "rollos",
         "2",
+        ""
+      ],
+      [
+        "Fibras verdes",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Fibras",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Rollos para computadoras",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Rollos para impresora",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Encendedores",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "CENTRAL DE ABASTOS": [
+      [
+        "Cebolla mediana",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Papa Alfa",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Papa cambray",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Cebolla cambray",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Brócoli",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Zanahoria",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Coliflor",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Perejil",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Apio",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Ejote",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Haba",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Limones",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Jitomates",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Chiles jalapeños / chiles serranos",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Chiles morrones",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Tomate manzano",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Nopales",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Hierbas de olor para Chicanito",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Hierbas de olor para marinado",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Ajos para guisados",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Ajos para marinado",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Coles",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Mangos",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Chiles serranos",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Chile habanero",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Cebollas para rosticero",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Chiles jalapeños para rosticero",
+        "",
+        "",
         ""
       ]
     ]

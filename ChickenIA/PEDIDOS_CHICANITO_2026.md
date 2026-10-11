@@ -1,3 +1,11 @@
+# Actualización 11 octubre 2026 — Central de Abastos y listas limpias
+
+Autorizado por Miguel: implementar y publicar. Central de Abastos: 27 artículos legibles de la foto, incluidos los manuscritos; cantidades y unidades recortadas no inferidas. SAMS agrega Ajos (20 artículos). Plásticos agrega Fibras verdes, Fibras, Rollos para computadoras, Rollos para impresora y Encendedores (20 artículos). Peregrina conserva 23 renglones.
+
+Todas las listas muestran únicamente artículo y unidad disponible. Copiar, compartir, WhatsApp y captura omiten marcas, descripciones y habituales. Medidas de plásticos y usos distintivos conservados. Borradores previos compatibles: nuevos artículos añadidos al final, sin reordenar los existentes. Cuatro pestañas en dos columnas en móvil. Sin mensajes ni compras registradas. Build y recorrido aislado de navegador aprobados.
+
+Los detalles de abajo son antecedentes; esta actualización reemplaza el formato con descripciones.
+
 # Pedidos Chicanito 2026
 
 Implementacion: 01f9657, enviada a main el 11 de octubre de 2026 por solicitud de Miguel.
