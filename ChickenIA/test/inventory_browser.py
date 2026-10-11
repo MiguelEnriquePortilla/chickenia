@@ -1,5 +1,4 @@
 """Real UI + HTTP API + PostgreSQL; disposable local database, no production writes."""
-import json
 import os
 from pathlib import Path
 import subprocess
@@ -29,15 +28,14 @@ try:
             time.sleep(.1)
     else:
         raise RuntimeError('Local server did not start')
-    credentials = json.loads((ROOT/'.local'/instance/'dev-credentials.json').read_text())
     with sync_playwright() as p:
         browser = p.chromium.launch(channel=os.environ.get('PLAYWRIGHT_CHANNEL', 'msedge' if os.name == 'nt' else None))
         page = browser.new_page(viewport={'width':1100,'height':900})
         errors=[]
         page.on('pageerror',lambda e:errors.append(str(e)))
         page.goto(BASE+'/inventario.html')
-        page.locator('[name=username]').fill(credentials['username'])
-        page.locator('[name=password]').fill(credentials['password'])
+        expect(page.locator('[name=password]')).to_have_count(0)
+        page.locator('[name=username]').select_option('miguel')
         page.locator('#login-form button').click()
         expect(page.locator('#workspace')).to_be_visible()
         def nav_click(selector):
@@ -136,11 +134,13 @@ try:
         command('send',request=req['event']['id'],lines=[{'item':'rosti-marinado','qty':1}])
         nav_click('#logout')
         expect(page.locator('#login-panel')).to_be_visible()
-        page.locator('[name=username]').fill('nancy')
-        page.locator('[name=password]').fill(credentials['password'])
+        page.locator('[name=username]').select_option('nancy')
         page.locator('#login-form button').click()
+        expect(page.locator('#workspace')).to_be_visible()
+        nav_click('[data-tab=home]')
         expect(page.locator('#page-title')).to_have_text('Control Operativo')
-        assert page.locator('#nav [data-tab]').count()==7
+        assert page.locator('#nav [data-tab]').count()==16
+        expect(page.locator('#nav [data-tab=catalog]')).to_be_attached()
         nav_click('[data-tab=incoming]')
         form=page.locator('[data-basic-shipment]').last
         form.locator('[name="q:rosti-marinado"]').fill('1')
@@ -194,10 +194,10 @@ try:
         page.locator('#weekly-request [name="q:leche-litros"]').fill('2')
         page.locator('#weekly-request button').click()
         expect(page.locator('#view')).to_contain_text('Pendiente de autorización')
-        assert page.locator('[data-approve-purchase]').count()==0
+        expect(page.locator('[data-approve-purchase]').last).to_be_visible()
+        assert 'approvePurchase' in snap()['permissions']
         nav_click('#logout')
-        page.locator('[name=username]').fill('miguel')
-        page.locator('[name=password]').fill(credentials['password'])
+        page.locator('[name=username]').select_option('miguel')
         page.locator('#login-form button').click()
         expect(page.locator('#workspace')).to_be_visible()
         nav_click('[data-tab=weeklyPurchases]')
