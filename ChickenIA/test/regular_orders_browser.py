@@ -20,7 +20,7 @@ try:
   inputs=page.locator('.orders-row input');inputs.nth(0).fill('2.5');inputs.nth(1).fill('0');inputs.nth(18).fill('13')
   page.locator('#note').fill('Entregar el lunes')
   page.locator('#copy').click();copied=page.evaluate('window.copied')
-  assert '2.5 garrafas' in copied and 'Sabroseador' in copied and 'Salsa de soya' not in copied and 'Entregar el lunes' in copied
+  assert '*Pedidos Chicanito 2026*' in copied and '*SAMS*' in copied and '*2.5 garrafas*' in copied and '_Member' in copied and 'Sabroseador' in copied and 'Salsa de soya' not in copied and 'Entregar el lunes' in copied
   page.locator('#share').click();assert page.evaluate('window.shared.text')==copied
   page.locator('#whatsapp').click();assert page.evaluate('window.opened').startswith('https://wa.me/?text=')
   page.reload();expect(page.locator('.orders-row input').first).to_have_value('2.5')
@@ -38,7 +38,6 @@ try:
   page.set_viewport_size({'width':1280,'height':900});page.screenshot(path=str(ROOT/'test/results/pedidos-desktop.png'),full_page=True)
   page.evaluate("document.documentElement.dataset.theme='dark'");assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
   page.on('dialog',lambda dialog:dialog.accept());page.locator('#clear').click();expect(page.locator('#copy')).to_be_disabled()
-  page.evaluate("Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{throw Error('blocked')}},configurable:true})") if False else None
   assert not errors,errors
   browser.close()
  print('PASS: catalogs, decimals, zero exclusion, supplier separation, persistence, copy/share/WhatsApp, capture, clear, mobile/desktop.')
