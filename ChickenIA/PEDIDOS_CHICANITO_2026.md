@@ -13,3 +13,5 @@ Validacion: compilacion, 12 pruebas existentes de inventario/acceso/rutinas y re
 Archivos: pedidos.html, js/regular-orders-data.js, js/regular-orders.js, css/regular-orders.css, test/regular_orders_browser.py; integracion en index.html, js/area-navigation.js y scripts/build-static.js.
 
 Texto WhatsApp: emojis de encabezado, titulo/proveedor/cantidades en negritas con asteriscos, detalles en cursiva con guiones bajos, productos en lista. Igual para copiar, compartir y enlace WhatsApp.
+
+Cierre aprobado por Miguel el 11/oct: version final 0e6e7f8 publicada y CSS cotejado. Menu entre Caja y Dashboard; contraste oscuro corregido; pestanas en una fila y acciones compactas en movil. Ver REPORTE_SESION_2026-10-11_PEDIDOS.md.
