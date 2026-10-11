@@ -55,7 +55,7 @@ input,select,textarea,.inv-body input,.inv-body select,.inv-body textarea{border
 .bar-close-fields{width:100%;display:grid;gap:12px}.bar-count-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px}.bar-count-grid label{display:grid;gap:5px}.bar-count-grid input,.quality-score{max-width:100%;width:100%;box-sizing:border-box}.activity-extra:has(.bar-close-fields){flex-wrap:wrap}.activity-extra .quality-score{width:105px}
 
 /* Separate the name from its IA accent. */
-.wordmark .w-chican{font-size:.78em;color:var(--text)}
+.wordmark .w-chican{font-size:1em;color:var(--text)}
 .wordmark.on-dark .w-chican{color:var(--white)}
-.wordmark .w-ia{font-size:1.08em;color:var(--red)}
-.landing h1.wordmark-lg{font-size:clamp(30px,7.8vw,46px)}
+.wordmark .w-ia{font-size:1em;color:var(--red)}
+.landing h1.wordmark-lg{font-size:clamp(28px,7.4vw,44px);letter-spacing:.3px}
