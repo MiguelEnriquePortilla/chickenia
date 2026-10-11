@@ -14,9 +14,9 @@ try:
   assert page.locator('input[type=password]').count()==0
   page.locator('#login-form select').select_option('nancy');page.locator('#login-form button').click()
   expect(page.locator('#person')).to_have_text('NANCY');expect(page.locator('#areas details')).to_have_count(4)
-  page.locator('summary').first.click();field=page.locator('.product input').first
+  page.locator('#areas summary').first.click();field=page.locator('.product input').first
   field.fill('2');field.press('Tab');expect(page.locator('#status')).to_have_text('Guardado')
-  page.reload(wait_until='domcontentloaded');expect(page.locator('#areas details')).to_have_count(4);page.locator('summary').first.click();expect(page.locator('.product input').first).to_have_value('2')
+  page.reload(wait_until='domcontentloaded');expect(page.locator('#areas details')).to_have_count(4);page.locator('#areas summary').first.click();expect(page.locator('.product input').first).to_have_value('2')
   for width in [320,390,1280]:
    page.set_viewport_size({'width':width,'height':844})
    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')

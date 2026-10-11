@@ -27,3 +27,11 @@ Revisados manual original, extensión 2026, handoff, logos, ROSTI/CRUJI y tarjet
 Pruebas aisladas de selección sin contraseña, sesión firmada, cookie alterada, nombre inválido, reglas de cantidades y límite de Rosticero. PostgreSQL aislado: guardado, historial de responsables, conflicto y conservación de producción anterior. Pruebas de inventario/acceso actualizadas al nuevo acuerdo. Navegador: selección de Nancy sin contraseña, retorno a Producción, guardado y recuperación; 320/390/1280 sin desbordamiento. Recorrido previo de Supervisión y Dashboard también aprobado. No se capturaron operaciones de prueba en producción.
 
 Para retomar: observar facilidad de captura con Nancy y Lilian. La hoja nueva aún no alimenta gráficos de producción ni el cierre de caja; eso requiere un ajuste posterior explícito. Mantener cambios locales ajenos de skills/Formatos-Internos sin descartarlos ni publicarlos como parte de esta entrega.
+
+
+## Navegación unificada (11 de octubre)
+- El mismo menú lateral se comparte entre Supervisión, Producción Diaria, Dashboard, consulta, inventarios de proteínas Sucursal/Móvil, Rastro y Caja.
+- Cada enlace abre directamente el apartado; resalta el destino actual. Inicio omite la bienvenida al navegar dentro de la plataforma y durante la misma sesión de pestaña.
+- En celular el menú empieza contraído y se abre con el icono lateral. Se conserva la estructura de los formularios y sus datos.
+- Estilos de navegación compartidos en css/shared-shell.css; montaje de páginas independientes en js/shared-shell.js. Los módulos con selección de área conservan sus propios callbacks.
+- Validación: navegación y ausencia de splash repetido, anchos 320/390/1280; captura/recarga real de producción, supervisión por cortes y movimientos de proteínas en bases aisladas.

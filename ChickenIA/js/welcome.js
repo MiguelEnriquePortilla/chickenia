@@ -2,6 +2,10 @@
 (()=>{
  const screen=document.getElementById('chicken-welcome'),home=document.getElementById('chicken-home');
  if(!screen||!home)return;
+ let entered=false;
+ try{entered=sessionStorage.getItem('chickenia_entered')==='1';sessionStorage.setItem('chickenia_entered','1');}catch{}
+ const internal=document.referrer&&new URL(document.referrer).origin===location.origin;
+ if(entered||internal){screen.hidden=true;home.inert=false;home.removeAttribute('aria-hidden');document.body.classList.remove('welcome-active');return;}
  const mascot=screen.querySelector('img'),skip=screen.querySelector('button');
  let finished=false,started=false,displayTimer;
  function finish(){

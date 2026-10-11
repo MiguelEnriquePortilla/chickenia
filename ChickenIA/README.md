@@ -1,3 +1,5 @@
+Actualización 11/oct: menú lateral unificado en todos los apartados operativos, accesos directos e Inicio sin repetir splash. Detalles y validación en PRODUCCION_Y_ACCESO_2026-10-11.md.
+
 Acceso limitado a **NANCY, LILIAN y MIGUEL**, por indicación de Miguel el 11 de octubre.
 
 # Actualización 11 octubre 2026 — Producción Diaria y acceso sin contraseña

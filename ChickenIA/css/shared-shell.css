@@ -1,0 +1,18 @@
+/* Common sidebar, independent of each form's typography and layout. */
+.area-shell{--surface:#faf9f6;--text:#292a30;--gray:#666870;--border-soft:#e7e6e2;--sidebar-bg:#f7f5ee;--hover:#eeece6;--selected:#eee9df;--red:#e30613}
+[data-theme=dark] .area-shell{--surface:#292b32;--text:#eeeef0;--gray:#b4b5bd;--border-soft:#3b3d45;--sidebar-bg:#191b21;--hover:#33353e;--selected:#3b3631}
+.area-shell{--sidebar-width:260px;min-height:100vh}.area-shell.sidebar-compact{--sidebar-width:60px}
+.area-sidebar{background:var(--sidebar-bg);border-right:1px solid var(--border-soft);padding:0 10px}
+.sidebar-top{padding:18px 6px;min-height:72px}.sidebar-brand{font:600 19px Arial,sans-serif}.sidebar-brand span{color:var(--gray);font-weight:400}
+.sidebar-toggle{border:0!important;background:transparent!important;padding:8px!important;min-width:36px;min-height:36px!important}.sidebar-toggle svg{width:20px;height:20px}
+.area-sidebar nav{padding:0;gap:3px}.area-sidebar .primary-navigation{display:block}
+.area-sidebar nav a,.area-sidebar nav button,.area-sidebar summary{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;min-height:40px;border:0;border-radius:8px;color:var(--text);background:transparent;text-decoration:none;font:400 14px/1.4 Arial,sans-serif;cursor:pointer;text-align:left;box-shadow:none}
+.area-sidebar nav a:hover,.area-sidebar nav button:hover,.area-sidebar summary:hover{background:var(--hover)}
+.area-sidebar nav [aria-current="page"],.inv-body .area-sidebar #nav button[aria-current="page"]{background:var(--selected);color:var(--text);box-shadow:none;border:0;font-weight:600}
+.area-sidebar svg{width:18px;height:18px;flex-shrink:0}.nav-group>summary{list-style:none}.nav-group>summary::-webkit-details-marker{display:none}.nav-group>summary:after{content:'\203a';margin-left:auto;color:var(--gray);transition:transform .15s}.nav-group[open]>summary:after{transform:rotate(90deg)}
+.nav-group>div{margin:3px 0 8px 20px;border-left:1px solid var(--border-soft);padding-left:8px}.area-sidebar .nav-group>div button,.area-sidebar .nav-group>div a{font-size:14px;padding:8px 10px}
+.inv-body #nav{display:block;margin:0}.sidebar-areas{margin-top:26px}.sidebar-areas>summary{color:var(--gray);font-size:13px}.sidebar-footer{letter-spacing:0;font-size:13px;color:var(--gray);opacity:1;padding:24px 12px;margin-top:auto}
+.sidebar-compact .area-sidebar{padding:0 10px}.sidebar-compact .sidebar-top{padding:18px 0}.sidebar-compact .area-sidebar>nav,.sidebar-compact .sidebar-areas{display:none}
+.area-sidebar *{box-sizing:border-box}.area-sidebar details{border:0}.area-sidebar .sidebar-brand{font-family:Poppins,Arial,sans-serif;font-size:17px}.area-sidebar .sidebar-toggle{width:36px;flex-shrink:0}
+@media(max-width:760px){.area-shell:not(.sidebar-compact){--sidebar-width:260px;padding-left:60px}.area-shell:not(.sidebar-compact) .area-sidebar{box-shadow:0 0 0 100vmax #0003}}
+.area-shell main{min-width:0}.area-shell main button{max-width:100%;white-space:normal;overflow-wrap:anywhere}.area-shell .daily-header{flex-wrap:wrap}.area-shell .protein-page{min-width:0}
