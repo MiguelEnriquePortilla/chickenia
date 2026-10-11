@@ -11,7 +11,7 @@ function createHandler({clock=()=>new Date(),authenticate=req=>require('../inven
   res.setHeader('Cache-Control','no-store');
   try{
    if(!['GET','POST'].includes(req.method))return res.status(405).json({error:'Método no permitido.'});
-   const user=authenticate(req),now=clock();
+   const user=authenticate(req);let now=clock();
    const {date,location_id}=req.query||{};
    if(!require('./kpi').validDate(date)||!/^\d+$/.test(String(location_id)))return res.status(400).json({error:'Fecha o ubicación inválida.'});
    if(req.method==='POST'){
@@ -27,9 +27,16 @@ function createHandler({clock=()=>new Date(),authenticate=req=>require('../inven
    await sql`INSERT INTO supervision_point_settings(location_id,start_date) VALUES(${loc.id},${core.START}::date) ON CONFLICT DO NOTHING`;
    await sql`UPDATE supervision_point_settings SET start_date=${core.START}::date WHERE location_id=${loc.id} AND start_date<${core.START}::date`;
    const [settings]=await sql`SELECT start_date::text FROM supervision_point_settings WHERE location_id=${loc.id}`;
-   if(date===core.day(now))await sql`INSERT INTO supervision_point_days(location_id,date,catalog) VALUES(${loc.id},${date}::date,${JSON.stringify(core.catalog)}::jsonb) ON CONFLICT DO NOTHING`;
+   if(date===core.day(now))await sql`INSERT INTO supervision_point_days(location_id,date,catalog) VALUES(${loc.id},${date}::date,${JSON.stringify(core.catalogForDate(date))}::jsonb) ON CONFLICT DO NOTHING`;
    let [row]=await sql`SELECT catalog,revision FROM supervision_point_days WHERE location_id=${loc.id} AND date=${date}::date`;
    if(!row)return res.status(200).json({missing:true,date});
+   if(date===core.day(now)){
+    const upgraded=core.upgradeCatalog(date,row.catalog,now);
+    if(JSON.stringify(upgraded)!==JSON.stringify(row.catalog)){
+     await sql`UPDATE supervision_point_days SET catalog=${JSON.stringify(upgraded)}::jsonb,revision=revision+1 WHERE location_id=${loc.id} AND date=${date}::date AND revision=${row.revision}`;
+     [row]=await sql`SELECT catalog,revision FROM supervision_point_days WHERE location_id=${loc.id} AND date=${date}::date`;
+    }
+   }
    if(req.method==='POST'){
     const b=req.body||{};core.validate(b,date,row.catalog,clock());
     const changed=await sql`WITH updated AS (UPDATE supervision_point_days SET revision=revision+1 WHERE location_id=${loc.id} AND date=${date}::date AND revision=${b.revision} RETURNING revision)
@@ -38,6 +45,7 @@ function createHandler({clock=()=>new Date(),authenticate=req=>require('../inven
     if(!changed.length)return res.status(409).json({error:'La revisión cambió. Se actualizó la lista; vuelve a palomear.'});
     [row]=await sql`SELECT catalog,revision FROM supervision_point_days WHERE location_id=${loc.id} AND date=${date}::date`;
    }
+   now=clock();
    const events=await sql`SELECT id,date::text,cut_index,point_id,done,actor,recorded_at FROM supervision_point_events WHERE location_id=${loc.id} AND date BETWEEN ${date}::date-40 AND ${date}::date ORDER BY id`;
    const days=await sql`SELECT p.date::text,p.catalog,COALESCE(t.closed,false) AS closed FROM supervision_point_days p LEFT JOIN checklist_timeline_days t ON t.location_id=p.location_id AND t.date=p.date WHERE p.location_id=${loc.id} AND p.date BETWEEN ${date}::date-40 AND ${date}::date ORDER BY p.date`;
    return res.status(200).json({date,serverTime:new Date(now).toISOString(),activeCut:core.activeCut(date,row.catalog,now),start:settings.start_date,active:date>=settings.start_date,location:loc,revision:row.revision,actor:user.name,canWrite:user.role==='manager'&&date===core.day(now),cuts:core.evaluate(date,row.catalog,events.filter(e=>e.date===date),now),...core.history(days.map(d=>({...d,active:d.date>=settings.start_date})),events,date,now)});

@@ -7,6 +7,8 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
  const store=require('../lib/supervision/checklist-timeline-store'),core=require('../lib/supervision/checklist-timeline');
  const today=core.day();await store.ensureDay(sql,1,today);
  const [day]=await sql`SELECT catalog FROM checklist_timeline_days WHERE location_id=1 AND date=${today}::date`;
+ await require('../lib/supervision/control-points-handler').migrate(sql);
+ await db.exec(`ALTER TABLE supervision_point_events ALTER COLUMN recorded_at SET DEFAULT '${today}T09:30:00-06:00'::timestamptz`);
  const sample='2026-10-06';
  await sql`INSERT INTO checklist_timeline_days(location_id,date,catalog) VALUES(1,${sample}::date,${JSON.stringify(day.catalog)}::jsonb) ON CONFLICT DO NOTHING`;
  for(const [id,time,quality] of [[1,'09:50',null],[3,'11:45',75],[4,'11:00',null],[3,'15:15',100]])await sql`INSERT INTO checklist_check_events(activity_id,location_id,check_date,done,quality_score,checked_by,verified_at,recorded_at) VALUES(${id},1,${sample}::date,true,${quality},'Prueba local',${sample+'T'+time+':00-06:00'}::timestamptz,${sample+'T'+time+':00-06:00'}::timestamptz)`;
