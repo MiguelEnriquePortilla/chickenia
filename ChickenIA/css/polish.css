@@ -1,0 +1,13 @@
+/* Small finishing details; existing grids and capture fields stay in place. */
+.landing-links .btn{border-color:#d9a44188;box-shadow:inset 0 0 0 1px #d9a4410b;transition:border-color .15s,background .15s}
+.landing-links .btn:hover{border-color:#d9a441;background:var(--surface,#faf9f6)}
+.landing-links .menu-icon{color:#a87927}
+.nav-return{display:inline-flex;align-items:center;gap:8px;border:1px solid #d9a44188;border-radius:9px;padding:8px 12px;min-height:40px;text-decoration:none!important;font-size:13px;font-weight:500;color:inherit}
+.nav-return svg{width:16px;height:16px;flex:none;stroke:#a87927}
+.nav-return:hover{border-color:#d9a441;background:#d9a4410b}
+.protein-page :is(#reload,#rectify-shortcut,#reset-shortcut){border-color:#d9a44188}
+.landing:before{right:auto;left:50%;top:50%;transform:translate(-50%,-50%);width:min(82vw,720px);height:min(66vw,540px);opacity:.035;background-position:center;background-size:contain}
+.landing .mascot-badge{display:flex;align-items:center;justify-content:center;flex:none;margin-inline:auto;width:128px;height:82px;background:transparent;border-radius:0}
+.landing .mascot-badge img{display:block;width:100%;height:100%;object-fit:contain;object-position:center;border-radius:0}
+:root[data-theme=dark] .landing:before{opacity:.04}
+@media(max-width:760px){.landing:before{right:auto;width:92vw;height:70vw}}

@@ -62,7 +62,7 @@ try:
    expect(page.locator('[data-protein="'+protein+'"] [data-result]')).to_contain_text('0 pollos')
   expect(page.locator('#shipments')).to_contain_text('0 envíos pendientes')
   page.reload()
-  expect(page.locator('#reset-info')).to_contain_text('Ciclo reiniciado')
+  expect(page.locator('#reset-info')).to_be_empty()
   page.locator('#rectify-shortcut').click()
   page.locator('#raw').fill('12.125');page.locator('#marinated').fill('0');page.locator('#notes').fill('Arqueo físico después del reinicio')
   page.locator('#save').click()

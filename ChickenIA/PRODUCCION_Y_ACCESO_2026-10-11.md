@@ -18,6 +18,8 @@ Inventario y consultas muestran selector de nombre, sin contraseña. Únicas opc
 
 ## Diseño
 
+Ajuste posterior pedido por Miguel: botones de Inicio con filo dorado discreto e iconos dorados; Inicio y regreso con botón e icono consistente. Se conserva el orden y la distribución de los apartados y de los campos de inventario. Logo superior de Inicio desde el PNG oficial local, completo y centrado, sin recorte circular; marca de agua centrada, completa y más tenue. Inventarios: textos repetidos retirados y etiquetas breves («Al abrir», «Hay ahora», «Llegó del proveedor», «Se marinó», «Sale a…»). Se conservan datos, diferencias, historial, validaciones y confirmaciones; la nota de reinicio antigua deja de mostrarse en la captura, sin borrar su registro. Recorrido de proteínas en PostgreSQL aislado aprobado: movimientos, recepción, conteo y corrección, móvil/escritorio y ambos temas. Producción: guardado y recuperación aprobados.
+
 Revisados manual original, extensión 2026, handoff, logos, ROSTI/CRUJI y tarjetas en `01-MARCA`. Poppins como tipografía funcional, blanco, navy y rojo de marca, espacios amplios y pocos controles. Producción usa cantidades en dos columnas en móvil, sin tabla horizontal. No se recrearon ni modernizaron logos en esta entrega.
 
 ## Validación

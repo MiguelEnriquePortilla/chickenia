@@ -47,9 +47,9 @@
  }
  function movementCards(){
   return snapshot.rows.map(r=>`<section class="protein-card" data-protein="${r.protein}"><h2>${r.name} · pollos</h2>
-   <p>Había al iniciar el día: <strong>${view.fmt(r.raw.previous)} sin marinar + ${view.fmt(r.marinated.previous)} marinados</strong></p>
-   <p>Registrado hoy: llegó ${view.fmt(r.entries)} · se marinó ${view.fmt(r.prepared)} · salió ${view.fmt(r.sent)} · merma ${view.fmt(r.waste)}${r.adjustment?' · rectificación '+view.fmt(r.adjustment):''}</p>
-   ${r.total===null?'<p>Sin captura. Registra la apertura en Otras operaciones.</p>':`<p>Antes de este movimiento: ${view.fmt(r.raw.current)} sin marinar + ${view.fmt(r.marinated.current)} marinados.</p><div class="rastro-fields">${[['entry','Lo que llega ahora del proveedor (+)'],['marinate','Lo que se marinó ahora'],['send',`Lo que sale ahora a ${destination} (−)`]].map(([key,label])=>`<label>${label} (pollos)<input data-key="${key}" type="number" min="0" max="1000000" step="0.001" inputmode="decimal" placeholder="Sin captura" autocomplete="off"></label>`).join('')}</div><p class="protein-hint">Se marinó: pasa de sin marinar a marinados; sigue en CEDIS.</p>`}
+   <p>Al abrir: <strong>${view.fmt(r.raw.previous)} sin marinar + ${view.fmt(r.marinated.previous)} marinados</strong></p>
+   <p>Hoy: llegó ${view.fmt(r.entries)} · se marinó ${view.fmt(r.prepared)} · salió ${view.fmt(r.sent)} · merma ${view.fmt(r.waste)}${r.adjustment?' · rectificación '+view.fmt(r.adjustment):''}</p>
+   ${r.total===null?'<p>Sin captura. Registra la apertura en Otras operaciones.</p>':`<p>Hay ahora: ${view.fmt(r.raw.current)} sin marinar + ${view.fmt(r.marinated.current)} marinados.</p><div class="rastro-fields">${[['entry','Llegó del proveedor'],['marinate','Se marinó'],['send',`Sale a ${destination}`]].map(([key,label])=>`<label>${label} (pollos)<input data-key="${key}" type="number" min="0" max="1000000" step="0.001" inputmode="decimal" placeholder="Sin captura" autocomplete="off"></label>`).join('')}</div>`}
    <p data-result aria-live="polite">${balanceText(r,r.raw.current,r.marinated.current)}</p>
    ${r.correction?`<p class="protein-verification">Inventario rectificado: ${view.esc(r.correction.notes)} · ${view.esc(r.correction.actor)}</p>`:''}
    ${view.verification?view.verification(r):''}</section>`).join('');
@@ -73,7 +73,7 @@
   lock(true);$('#error').textContent='';try{snapshot=await api(body,loadedDate);dirty=false;render();$('#status').textContent='Movimientos guardados correctamente · '+snapshot.date;}catch(error){$('#error').textContent=error.message;}finally{lock(false);}
  };
  function render(){
-  $('#reset-info').textContent=snapshot.reset?'Ciclo reiniciado el '+snapshot.reset.date+' por '+snapshot.reset.actor+'. '+snapshot.reset.notes:'';
+  $('#reset-info').textContent='';
   $('#back').href='/supervision.html?area=supervision&date='+snapshot.date;
   $('#balances').innerHTML=movementCards();$('#shipments').innerHTML=view.shipments(snapshot);$('#week').innerHTML=view.week(snapshot);$('#history').innerHTML=view.history(snapshot);
   $('#movements-form').reset();form();$('#status').textContent='Datos al '+snapshot.date+' · '+new Date().toLocaleTimeString('es-MX');

@@ -4,7 +4,7 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),
 const {PGlite}=require('@electric-sql/pglite'),auth=require('../lib/inventory-auth');
 const root=path.resolve(__dirname,'../public');
 process.env.CHICKENIA_PILOT_ACCESS='0';process.env.INVENTORY_SESSION_SECRET=crypto.randomBytes(48).toString('hex');
-const user={id:'test-manager',name:'Administrador de prueba',role:'manager',hash:auth.passwordHash(crypto.randomBytes(20).toString('hex'))};
+const user={id:'test-manager',name:'Nancy',role:'manager',hash:auth.passwordHash(crypto.randomBytes(20).toString('hex'))};
 process.env.INVENTORY_USERS_JSON=JSON.stringify([user]);
 const payload=Buffer.from(JSON.stringify({sub:user.id,exp:Math.floor(Date.now()/1000)+3600,v:crypto.createHash('sha256').update(user.hash+user.role).digest('hex')})).toString('base64url');
 const token=payload+'.'+crypto.createHmac('sha256',process.env.INVENTORY_SESSION_SECRET).update(payload).digest('base64url');
