@@ -1,3 +1,11 @@
+# Sesión cerrada — Pedidos Chicanito, 11 octubre 2026
+
+Miguel aceptó la entrega y pidió actualizar README y cerrar sesión. Publicado y verificado en producción: `ea3110c` (incluye `f224f5e` y `fb9cc5b`). Central de Abastos: 27 artículos de la foto, incluidos manuscritos; no se infirieron cantidades ni unidades recortadas. SAMS: 20 artículos, agrega Ajos. Plásticos: 20 artículos, agrega Fibras verdes, Fibras, Rollos para computadoras, Rollos para impresora y Encendedores. Peregrina: 23 renglones.
+
+Todas las listas muestran artículo y unidad disponible, sin marcas, descripciones ni cantidades habituales. Copiar, Compartir, WhatsApp y vista de captura incluyen artículo, cantidad y unidad disponible. Emojis conservados; fecha «📅 11 de Octubre», sin número extra ni año. Borradores previos compatibles; cuatro pestañas en dos columnas en móvil. Build y recorrido aislado de navegador aprobados. Vercel confirmó éxito y HTML, JS/datos y CSS públicos fueron cotejados con la versión local normalizando saltos de línea. No se enviaron mensajes ni se registraron compras o movimientos de inventario.
+
+Sesión cerrada: esperar nuevas indicaciones. Sin tareas pendientes ni seguimientos nuevos; no enviar pedidos ni capturar operaciones automáticamente. Los apartados inferiores son antecedentes.
+
 # Cierre de sesion - 11 octubre 2026: Pedidos Chicanito 2026
 
 Miguel aprobo la entrega y pidio actualizar README y cerrar por ahora. Sin tareas nuevas, seguimientos programados ni pedidos enviados.
