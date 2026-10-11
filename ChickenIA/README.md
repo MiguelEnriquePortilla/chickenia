@@ -1,3 +1,11 @@
+# Sesión cerrada — Pedidos Chicanito, 11 octubre 2026
+
+Miguel aceptó la entrega y pidió actualizar README y cerrar sesión. Publicado y verificado en producción: `ea3110c` (incluye `f224f5e` y `fb9cc5b`). Central de Abastos: 27 artículos de la foto, incluidos manuscritos; no se infirieron cantidades ni unidades recortadas. SAMS: 20 artículos, agrega Ajos. Plásticos: 20 artículos, agrega Fibras verdes, Fibras, Rollos para computadoras, Rollos para impresora y Encendedores. Peregrina: 23 renglones.
+
+Todas las listas muestran artículo y unidad disponible, sin marcas, descripciones ni cantidades habituales. Copiar, Compartir, WhatsApp y vista de captura incluyen artículo, cantidad y unidad disponible. Emojis conservados; fecha «📅 11 de Octubre», sin número extra ni año. Borradores previos compatibles; cuatro pestañas en dos columnas en móvil. Build y recorrido aislado de navegador aprobados. Vercel confirmó éxito y HTML, JS/datos y CSS públicos fueron cotejados con la versión local normalizando saltos de línea. No se enviaron mensajes ni se registraron compras o movimientos de inventario.
+
+Sesión cerrada: esperar nuevas indicaciones. Sin tareas pendientes ni seguimientos nuevos; no enviar pedidos ni capturar operaciones automáticamente. Los apartados inferiores son antecedentes.
+
 # Sesion cerrada - Pedidos Chicanito 2026, 11 octubre 2026
 
 Miguel aprobo el apartado y sus ajustes; pidio actualizar el README y cerrar la sesion. Ultima implementacion publicada y cotejada en produccion: `0e6e7f8`. Leer [cierre de pedidos](REPORTE_SESION_2026-10-11_PEDIDOS.md) y esperar nuevas indicaciones. No continuar tareas ni enviar pedidos automaticamente.
@@ -5,6 +13,20 @@ Miguel aprobo el apartado y sus ajustes; pidio actualizar el README y cerrar la 
 Pedidos Chicanito 2026: pestanas SAMS, PEREGRINA y PLASTICOS, cantidades editables delante de cada producto, referencias habituales y borradores por proveedor en este dispositivo. Copiar/Compartir/Abrir WhatsApp producen texto con negritas, cursivas, emojis y lista; el usuario elige destinatario y confirma envio. Vista para captura. Menu debajo de Caja y arriba de Dashboard. Contraste oscuro corregido, pestanas en una fila y botones inferiores compactos para movil. No registra compras ni modifica inventarios.
 
 Los estados inferiores son antecedentes. Este cierre agrega Pedidos sin modificar los acuerdos vigentes de supervision, asistencia ni la configuracion pendiente de WhatsApp Business.
+
+# Sesión cerrada — 11 octubre 2026
+
+Miguel pidió actualizar y cerrar después de aceptar la corrección de los correos de GitHub. Al retomar, leer este reporte y escuchar nuevas indicaciones. No continuar tareas, capturar operaciones, reiniciar inventarios ni enviar mensajes de prueba automáticamente.
+
+Leer primero [reporte vigente](REPORTE_SESION_2026-10-11_AJUSTES.md).
+
+# Supervisión — horarios y check de video, 11 octubre 2026
+
+Publicado `9008acd`, Vercel aprobado y archivos públicos cotejados: cortes 10:30, 13:30, 16:30 y 19:30 CDMX; video obligatorio en todas las áreas y cortes. Se entrega en el grupo de Supervisión y la plataforma registra el check con responsable y hora del servidor. Sin check a tiempo: 0% para el reporte del área. Historial previo conservado. Evaluación desde el 12/oct. [Entrega y validación](SUPERVISION_VIDEO_CORTES_2026-10-11.md). Telegram sigue desactivado; WhatsApp pendiente. Los horarios anteriores quedan sustituidos.
+
+# Estado vigente — cierre del 11 octubre 2026
+
+Leer primero [continuidad de WhatsApp y revisión de datos](REPORTE_SESION_2026-10-11_WHATSAPP.md). Diseño aceptado: no hacer cambios visuales. Historiales comprobados en Neon; ver [auditoría](REVISION_DATOS_HISTORIALES_2026-10-11.md). Telegram desactivado en Vercel; WhatsApp aún sin configurar. Miguel conseguirá un número exclusivo y regresará para dar de alta Chicken Chican’IA. No usar fudi_GPT ni su WhatsApp personal. Los apartados inferiores son antecedentes; prevalece este cierre.
 
 Encabezado unificado 11/oct (criterio final autorizado): marca Chicken ChicanIA y SVG existente, control de tema; sin enlaces superiores de Inicio/Volver/Supervisión/Dashboard. Navegación exclusivamente por menú lateral; título propio bajo el encabezado. Misma paleta y márgenes entre apartados. Caja: inicialización digital no cuenta como edición; navegación interna guarda antes de salir y permanece si falla; advertencia al cerrar con cambios pendientes se conserva. Importación de foto conserva estado pendiente. Build mantiene data-environment=production aunque body tenga otros atributos. Pruebas aisladas: encabezado único, menú, arranque, 320/390/1280; API real de Caja (vacío sin aviso, guardar al navegar y recargar), Producción, Supervisión y Proteínas.
 

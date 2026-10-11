@@ -1,3 +1,17 @@
+# Sesión cerrada — 11 octubre 2026
+
+Miguel pidió actualizar y cerrar después de aceptar la corrección de los correos de GitHub. Al retomar, leer este reporte y escuchar nuevas indicaciones. No continuar tareas, capturar operaciones, reiniciar inventarios ni enviar mensajes de prueba automáticamente.
+
+Leer primero [reporte vigente](REPORTE_SESION_2026-10-11_AJUSTES.md).
+
+# Supervisión — horarios y check de video, 11 octubre 2026
+
+Publicado `9008acd`, Vercel aprobado y archivos públicos cotejados: cortes 10:30, 13:30, 16:30 y 19:30 CDMX; video obligatorio en todas las áreas y cortes. Se entrega en el grupo de Supervisión y la plataforma registra el check con responsable y hora del servidor. Sin check a tiempo: 0% para el reporte del área. Historial previo conservado. Evaluación desde el 12/oct. [Entrega y validación](SUPERVISION_VIDEO_CORTES_2026-10-11.md). Telegram sigue desactivado; WhatsApp pendiente. Los horarios anteriores quedan sustituidos.
+
+# Retomar — cierre del 11 octubre 2026
+
+Leer primero [reporte vigente](REPORTE_SESION_2026-10-11_WHATSAPP.md). Esperar a Miguel con el número nuevo exclusivo para ChickenIA. Destinatario: 5518208240; remitente nuevo pendiente. Su 8672823207 permanece intacto. Telegram desactivado mediante Cron Jobs de Vercel; WhatsApp no conectado. MCP Meta no habilitado para su cuenta. No usar/modificar fudi_GPT. Pendientes: alta Chicken Chican’IA, conexión de servidor y programación de WhatsApp; aparte, prueba antigua de Actions y respaldo. No cambiar diseño ni datos reales. Este estado sustituye instrucciones de continuidad anteriores.
+
 Encabezado unificado 11/oct (criterio final autorizado): marca Chicken ChicanIA y SVG existente, control de tema; sin enlaces superiores de Inicio/Volver/Supervisión/Dashboard. Navegación exclusivamente por menú lateral; título propio bajo el encabezado. Misma paleta y márgenes entre apartados. Caja: inicialización digital no cuenta como edición; navegación interna guarda antes de salir y permanece si falla; advertencia al cerrar con cambios pendientes se conserva. Importación de foto conserva estado pendiente. Build mantiene data-environment=production aunque body tenga otros atributos. Pruebas aisladas: encabezado único, menú, arranque, 320/390/1280; API real de Caja (vacío sin aviso, guardar al navegar y recargar), Producción, Supervisión y Proteínas.
 
 Corrección de navegación 11/oct: al abrir desde fuera, bienvenida y después Inicio (manifest start_url=/). Inicio desde un enlace interno omite la bienvenida mediante una marca de un solo uso de 15 segundos; ninguna marca persistente omite el arranque. Menú: Inicio, Supervisión, Producción Diaria, Rastro, Proteínas Sucursal, Proteínas Móvil, Caja, Dashboard. Pregúntale retirado del menú y de Inicio. Dashboard incluye botón Inicio visible. CSS de resumen de Caja limitado a .layout>aside para no afectar la barra lateral. Pruebas: apertura nueva, navegación interna, reapertura de pestaña, orden exacto, anchos 320/390/1280, producción y supervisión con API aislada.
