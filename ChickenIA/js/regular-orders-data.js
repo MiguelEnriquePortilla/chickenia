@@ -117,7 +117,7 @@ window.RegularOrdersData = {
       ],
       [
         "Ajos",
-        "",
+        "Bolsas",
         "",
         ""
       ]
@@ -227,13 +227,13 @@ window.RegularOrdersData = {
       ],
       [
         "Limón Pimienta",
-        "",
+        "Kg",
         "",
         ""
       ],
       [
         "Chile Chipotle",
-        "",
+        "Kg",
         "",
         ""
       ]
