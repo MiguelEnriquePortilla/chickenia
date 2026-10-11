@@ -1,3 +1,9 @@
+# Chicken ChicanIA ? sesión cerrada, 10 octubre 2026
+
+Nombre y diseño final aprobados por Miguel; versión visual `e5ff6ec` enviada a `main`. Domingo 11: práctica sin bonos. Evaluación desde el lunes 12 de octubre de 2026. Cuatro cortes estrictos: 10:00, 12:00, 16:00 y 19:00, con reloj CDMX, captura solo en el horario vigente y dashboard de barras e historial. Meta de bono: 85% en semana y mes calendario.
+
+**Leer primero [reporte de cierre y continuidad](REPORTE_SESION_2026-10-10.md).** Esperar comentarios del uso real. No hay tareas automáticas nuevas ni ajustes pendientes autorizados. Los estados inferiores son históricos y sus fechas de evaluación anteriores quedan sustituidas por el lunes 12.
+
 # Handoff vigente — sesión cerrada el 5 de octubre de 2026
 
 **Leer primero [REPORTE_SESION_2026-10-05.md](REPORTE_SESION_2026-10-05.md).** Miguel aceptó la entrega y pidió retomar mañana con los ajustes que surjan del uso real.
