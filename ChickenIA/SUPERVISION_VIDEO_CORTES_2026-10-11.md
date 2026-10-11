@@ -1,5 +1,7 @@
 # Supervisión: cortes y evidencia de video — 11 octubre 2026
 
+Publicado: implementación `9008acd`, push a `main` completado. Estado Vercel success; JS/CSS de Supervisión servidos por chickenia.chicanito.app cotejados con la versión probada normalizando saltos de línea. No se registraron checks reales para verificar en producción: guardado, hora, actor y evaluación comprobados con API y base aisladas.
+
 Miguel autorizó probar esta semana los cortes **10:30, 13:30, 16:30 y 19:30**, hora de Ciudad de México. Permanecen hasta nueva instrucción; no se programa una reversión automática. Evaluación desde el lunes 12 de octubre; el domingo 11 continúa como práctica.
 
 En cada área y cada corte hay dos entregables: checklist y video de evidencia. El video se comparte en el **grupo de Supervisión**; Chicken ChicanIA registra únicamente el check «Video de evidencia entregado en el grupo de Supervisión». Cada marca o desmarca queda en el historial existente con responsable de sesión y hora del servidor. La plataforma registra la declaración de entrega; no inspecciona el grupo ni el contenido del video.
