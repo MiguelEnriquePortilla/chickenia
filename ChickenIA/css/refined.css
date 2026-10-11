@@ -59,3 +59,6 @@ input,select,textarea,.inv-body input,.inv-body select,.inv-body textarea{border
 .wordmark.on-dark .w-chican{color:var(--white)}
 .wordmark .w-ia{font-size:1em;color:var(--red)}
 .landing h1.wordmark-lg{font-size:clamp(28px,7.4vw,44px);letter-spacing:.3px}
+
+.landing h1.wordmark-lg{font-family:Arial,Helvetica,sans-serif;font-weight:600;font-size:clamp(24px,6vw,36px);letter-spacing:-.025em}
+.landing h1.wordmark-lg span{font:inherit;letter-spacing:inherit}
