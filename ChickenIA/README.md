@@ -1,6 +1,6 @@
 ﻿# Supervisión móvil por horarios — publicada 10 octubre 2026
 
-Miguel aprobó publicar la versión minimalista. Implementación `fb07aa4` enviada a `main` y cotejada en producción: Supervisión y Dashboard, JS/CSS de puntos. Cuatro horarios con bloqueo estricto y reloj CDMX; solo el horario actual admite palomitas. Dashboard muestra barras por área/hora e historial, con meta de bono de 85% en semana calendario y mes calendario. Primer día de uso: práctica; evaluación desde el día siguiente. No se registraron palomitas ni mensajes de prueba en producción.
+Miguel aprobó publicar la versión minimalista. Implementación `fb07aa4` enviada a `main` y cotejada en producción: Supervisión y Dashboard, JS/CSS de puntos. Cuatro horarios con bloqueo estricto y reloj CDMX; solo el horario actual admite palomitas. Dashboard muestra barras por área/hora e historial, con meta de bono de 85% en semana calendario y mes calendario. Fecha acordada: domingo 11 de octubre de 2026 para práctica; evaluación desde el lunes 12 de octubre de 2026. La práctica no cuenta para bonos. No se registraron palomitas ni mensajes de prueba en producción.
 
 Leer [reglas, pruebas y continuidad](SUPERVISION_SIMPLE_2026-10-10.md). Producción digital y Telegram conservan su funcionamiento previo; esta entrega cambia Supervisión y su seguimiento. Los formatos en papel siguen en prueba. Los estados siguientes son históricos.
 

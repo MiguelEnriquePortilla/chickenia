@@ -1,5 +1,6 @@
 'use strict';
 const catalog=require('./control-points-catalog.json');
+const START='2026-10-12';
 const day=now=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));
 const at=(date,time)=>new Date(`${date}T${time}:00-06:00`).getTime();
 const activeCut=(date,cuts,now)=>date===day(now)?cuts.findIndex(c=>new Date(now).getTime()<at(date,c.time)):-1;
@@ -50,4 +51,4 @@ function history(days,events,end,now){
  });
  return {records,periods};
 }
-module.exports={catalog,day,at,activeCut,evaluate,validate,history};
+module.exports={START,catalog,day,at,activeCut,evaluate,validate,history};

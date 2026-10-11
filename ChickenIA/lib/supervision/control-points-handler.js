@@ -24,8 +24,8 @@ function createHandler({clock=()=>new Date(),authenticate=req=>require('../inven
    const [loc]=await sql`SELECT id,name,type FROM locations WHERE id=${location_id}`;
    if(loc?.type!=='tienda')return res.status(400).json({error:'Disponible para Sucursal.'});
    await migrate(sql);
-   const tomorrow=new Date(`${core.day(now)}T12:00:00Z`);tomorrow.setUTCDate(tomorrow.getUTCDate()+1);
-   await sql`INSERT INTO supervision_point_settings(location_id,start_date) VALUES(${loc.id},${tomorrow.toISOString().slice(0,10)}::date) ON CONFLICT DO NOTHING`;
+   await sql`INSERT INTO supervision_point_settings(location_id,start_date) VALUES(${loc.id},${core.START}::date) ON CONFLICT DO NOTHING`;
+   await sql`UPDATE supervision_point_settings SET start_date=${core.START}::date WHERE location_id=${loc.id} AND start_date<${core.START}::date`;
    const [settings]=await sql`SELECT start_date::text FROM supervision_point_settings WHERE location_id=${loc.id}`;
    if(date===core.day(now))await sql`INSERT INTO supervision_point_days(location_id,date,catalog) VALUES(${loc.id},${date}::date,${JSON.stringify(core.catalog)}::jsonb) ON CONFLICT DO NOTHING`;
    let [row]=await sql`SELECT catalog,revision FROM supervision_point_days WHERE location_id=${loc.id} AND date=${date}::date`;

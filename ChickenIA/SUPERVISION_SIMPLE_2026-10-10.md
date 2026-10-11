@@ -18,7 +18,7 @@ Dashboard: barras de cuatro tramos por área, color por avance, porcentaje diari
 - Nota diaria: promedio de los cuatro cortes; en curso, solo los vencidos. Semana calendario lunes–domingo y mes calendario: promedio de notas de días completos registrados, excluyendo fechas sin historia nueva y días sin operación declarados en el calendario existente. Se muestran días incluidos. Umbral de bono con el porcentaje exacto, sin redondear para alcanzar 85%.
 - Historial anterior: conserva las ponderaciones originales y sus promedios de 7/30 días, presentado como barras; no se mezcla con las nuevas notas ni se recalifica para bono.
 - No se añadieron nuevos controles de N/A ni subida de archivos. Los puntos de evidencia verifican las fotos/videos que el equipo comparte en su grupo; esta implementación no envía archivos o mensajes. El manejo de evidencia permanece operativo.
-- El primer día de uso es práctica; el inicio de evaluación se guarda una sola vez para el día siguiente. No recalifica fechas pasadas ni incluye el día de práctica en bonos.
+- Fecha acordada con Miguel: práctica el domingo 11 de octubre de 2026; evaluación desde el lunes 12 de octubre de 2026, independientemente de cuándo se abra la plataforma. Los días anteriores no cuentan para bonos. La configuración inicial anterior se corrige al 12 si tenía una fecha más temprana.
 - Telegram conserva el cálculo del checklist anterior; no se modificó su programación o envío. Si se quiere que también use estos puntos, coordinar esa actualización antes de activar los nuevos reportes en el grupo.
 
 ## Verificación

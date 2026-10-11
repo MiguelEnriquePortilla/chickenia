@@ -56,10 +56,17 @@ test('real isolated database saves audit events, rejects stale revisions and pre
  async function call(body){const req={method:body?'POST':'GET',query:{date:today,location_id:'1'},headers:{origin:'http://localhost',host:'localhost','content-type':'application/json'},body};let value,status;
   await handler(req,{setHeader(){},status(s){status=s;return this;},json(d){value=d;}});return {status,value};}
  try{
-  const initial=await call();assert.equal(initial.status,200);assert.equal(initial.value.revision,0);
+  const initial=await call();assert.equal(initial.status,200);assert.equal(initial.value.revision,0);assert.equal(initial.value.start,'2026-10-12');
   const save=await call({cut:0,point:'cocina-0',done:true,revision:0});assert.equal(save.status,200);assert.equal(save.value.revision,1);
   assert.equal((await call({cut:0,point:'cocina-1',done:true,revision:0})).status,409);
   assert.equal((await db.query('SELECT actor FROM supervision_point_events')).rows[0].actor,'Nancy');
   assert.equal((await db.query('SELECT * FROM activity_checks')).rows.length,1);
  }finally{await db.close();}
+});
+test('Sunday is practice and Monday is the first day eligible for bonus averages',()=>{
+ assert.equal(core.START,'2026-10-12');
+ const days=['2026-10-11','2026-10-12'].map(date=>({date,catalog:core.catalog,active:date>=core.START}));
+ const h=core.history(days,[],'2026-10-12',new Date('2026-10-13T02:00:00Z'));
+ assert.equal(h.records[0].active,false);assert.equal(h.records[1].active,true);
+ assert.equal(h.periods[0].areas[0].days,1);assert.equal(h.periods[1].areas[0].days,1);
 });
