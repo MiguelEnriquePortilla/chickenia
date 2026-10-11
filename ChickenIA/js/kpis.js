@@ -12,7 +12,7 @@
  async function load(){
   const token=++request;host.setAttribute('aria-busy','true');
   try{const data=await api();if(token!==request)return;state=data;dirty=false;render();}
-  catch(e){if(token===request)host.innerHTML=`<h2>Controles del día</h2><p role="alert">${esc(e.message)}</p><a href="/inventario.html?next=${encodeURIComponent(location.pathname+location.search)}">Entrar a ChickenIA</a> <button type="button" data-reload>Reintentar</button>`;}
+  catch(e){if(token===request)host.innerHTML=`<h2>Controles del día</h2><p role="alert">${esc(e.message)}</p><a href="/inventario.html?next=${encodeURIComponent(location.pathname+location.search)}">Entrar a Chicken ChicanIA</a> <button type="button" data-reload>Reintentar</button>`;}
   finally{if(token===request)host.removeAttribute('aria-busy');}
  }
  function render(){

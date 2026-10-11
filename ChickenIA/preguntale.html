@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pregúntale a Chicken-IA</title><link rel="icon" href="/icons/icon-32.png">
+<title>Pregúntale a Chicken ChicanIA</title><link rel="icon" href="/icons/icon-32.png">
 <script>try{if(localStorage.getItem('chickenia_theme')==='dark')document.documentElement.dataset.theme='dark';}catch(e){}</script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/area-navigation.css"><link rel="stylesheet" href="/css/chicken-chat.css">
@@ -11,15 +11,15 @@
 </head>
 <body>
 <div id="chat-shell">
-  <header class="app-header"><a href="/" class="chat-brand">CHICKEN<span>·</span>IA</a><span>JOJUTLA · CONSULTAS</span><button id="theme" type="button">Cambiar tema</button></header>
+  <header class="app-header"><a href="/" class="chat-brand">Chicken <span>ChicanIA</span></a><span>JOJUTLA · CONSULTAS</span><button id="theme" type="button">Cambiar tema</button></header>
   <main class="chat-main">
     <section id="login-panel" class="chat-login" hidden>
-      <span class="chat-kicker">ACCESO AL PILOTO</span><h1>Pregúntale a Chicken-IA</h1><p>Ingresa con tu nombre y la clave compartida del periodo de prueba.</p>
+      <span class="chat-kicker">ACCESO AL PILOTO</span><h1>Pregúntale a Chicken ChicanIA</h1><p>Ingresa con tu nombre y la clave compartida del periodo de prueba.</p>
       <form id="login-form"><label>Tu nombre<input name="username" autocomplete="username" required></label><label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label><button class="chat-primary">Entrar</button></form>
       <p id="login-error" role="alert"></p>
     </section>
     <section id="workspace" hidden>
-      <div class="chat-heading"><div><span class="chat-kicker">TU OPERACIÓN, A UN TOQUE</span><h1>Pregúntale a Chicken-IA</h1><p>Actividades, inventarios y compras con evidencia.</p></div><button id="new-chat" type="button">Nueva consulta</button></div>
+      <div class="chat-heading"><div><span class="chat-kicker">TU OPERACIÓN, A UN TOQUE</span><h1>Pregúntale a Chicken ChicanIA</h1><p>Actividades, inventarios y compras con evidencia.</p></div><button id="new-chat" type="button">Nueva consulta</button></div>
       <div class="chat-filters"><label>Periodo<select id="period"><option value="today">Hoy</option><option value="yesterday">Ayer</option><option value="custom">Elegir fecha</option></select></label><label id="date-label" hidden>Fecha<input id="date" type="date"></label><label>Área<select id="area"></select></label><span class="chat-readonly">Solo lectura</span><button id="logout" type="button">Salir</button></div>
       <section id="welcome"><h2>¿Qué necesitas saber?</h2><div class="chat-shortcuts">
         <button data-question="Resumen del día"><span class="shortcut-number">01</span><strong>Resumen del día</strong><span>Cómo va la operación</span></button>
