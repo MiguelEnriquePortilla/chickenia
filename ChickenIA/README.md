@@ -1,3 +1,5 @@
+Corrección de navegación 11/oct: al abrir desde fuera, bienvenida y después Inicio (manifest start_url=/). Inicio desde un enlace interno omite la bienvenida mediante una marca de un solo uso de 15 segundos; ninguna marca persistente omite el arranque. Menú: Inicio, Supervisión, Producción Diaria, Rastro, Proteínas Sucursal, Proteínas Móvil, Caja, Dashboard. Pregúntale retirado del menú y de Inicio. Dashboard incluye botón Inicio visible. CSS de resumen de Caja limitado a .layout>aside para no afectar la barra lateral. Pruebas: apertura nueva, navegación interna, reapertura de pestaña, orden exacto, anchos 320/390/1280, producción y supervisión con API aislada.
+
 Actualización 11/oct: menú lateral unificado en todos los apartados operativos, accesos directos e Inicio sin repetir splash. Detalles y validación en PRODUCCION_Y_ACCESO_2026-10-11.md.
 
 Acceso limitado a **NANCY, LILIAN y MIGUEL**, por indicación de Miguel el 11 de octubre.

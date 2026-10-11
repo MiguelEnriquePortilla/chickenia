@@ -14,6 +14,11 @@
     ['supervision','Supervisión','M6 5h12v16H6z M9 3h6v4H9z M9 12l2 2 4-4'],
   ];
 
+  document.addEventListener('click',e=>{
+    const link=e.target.closest('a[href]');if(!link)return;
+    const url=new URL(link.href,location.origin);
+    if(url.origin===location.origin&&['/','/index.html'].includes(url.pathname))try{sessionStorage.setItem('chickenia_internal_home',String(Date.now()));}catch{}
+  });
   const params=new URLSearchParams(location.search);
   let selected=params.get('area')||'general', callback, mounted=false;
   if(!definitions.some(a=>a[0]===selected))selected='general';
@@ -41,9 +46,10 @@
     callback=onSelect;if(mounted){select(selected);return;}mounted=true;
     container.classList.add('area-shell');
     const aside=document.createElement('aside');aside.className='area-sidebar';aside.setAttribute('aria-label','Navegación principal');
-    aside.innerHTML=`<div class="sidebar-top"><a href="/" class="sidebar-brand">Chicken <span>ChicanIA</span></a><button type="button" class="sidebar-toggle" aria-label="Contraer menú" aria-expanded="true">${icon('M3 4h18v16H3z M9 4v16')}</button></div><nav class="primary-navigation" aria-label="Apartados"><a href="/">${icon('M3 10l9-7 9 7 M5 9v12h14V9')}<span>Inicio</span></a><div id="sidebar-inventory"></div><a data-module-path="/supervision.html" ${location.pathname.includes('supervision')?'aria-current="page"':''}>${icon('M6 5h12v16H6z M9 3h6v4H9z M9 12l2 2 4-4')}<span>Supervisión y asistencia</span></a><a data-module-path="/produccion-diaria.html">${icon('M4 4h16v16H4z M8 8h8 M8 12h8 M8 16h8')}<span>Producción Diaria</span></a><a data-module-path="/dashboard.html" ${location.pathname.includes('dashboard')?'aria-current="page"':''}>${icon('M4 20V10 M12 20V4 M20 20v-7')}<span>Dashboard</span></a><a data-module-path="/preguntale.html" ${location.pathname.includes('preguntale')?'aria-current="page"':''}>${icon('M4 4h16v12H9l-5 4z')}<span>Pregúntale a Chicken ChicanIA</span></a>${[['/proteinas.html','Proteínas Sucursal'],['/proteinas-movil.html','Proteínas Móvil'],['/rastro.html','Rastro'],['/captura.html?mode=close&format=digital','Caja']].map(([href,label])=>`<a data-module-path="${href}">${icon('M4 4h16v16H4z M8 8h8 M8 12h8 M8 16h8')}<span>${label}</span></a>`).join('')}</nav><details class="sidebar-areas"><summary>Áreas de trabajo</summary><nav aria-label="Áreas">${definitions.map(([code,name,path])=>`<button type="button" data-nav-area="${code}" title="${name}">${icon(path)}<span>${name}</span></button>`).join('')}</nav></details><div class="sidebar-footer"><span>Chicken Chicanito</span></div>`;
+    const destinations=[['/','Inicio','M3 10l9-7 9 7 M5 9v12h14V9'],['/supervision.html','Supervisión y asistencia','M6 5h12v16H6z M9 3h6v4H9z M9 12l2 2 4-4'],['/produccion-diaria.html','Producción Diaria','M4 4h16v16H4z M8 8h8 M8 12h8 M8 16h8'],['/rastro.html','Rastro','M4 5h16v15H4z M8 2v6 M16 2v6'],['/proteinas.html','Proteínas Sucursal','M3 8l9-5 9 5v12H3z'],['/proteinas-movil.html','Proteínas Móvil','M3 6h12v12H3z M15 10h4l2 4v4h-6 M6 21a2 2 0 100-4 2 2 0 000 4 M18 21a2 2 0 100-4 2 2 0 000 4'],['/captura.html?mode=close&format=digital','Caja','M4 10h16v10H4z M7 10V4h10v6'],['/dashboard.html','Dashboard','M4 20V10 M12 20V4 M20 20v-7']];
+    aside.innerHTML=`<div class="sidebar-top"><a href="/" class="sidebar-brand">Chicken <span>ChicanIA</span></a><button type="button" class="sidebar-toggle" aria-label="Contraer menú" aria-expanded="true">${icon('M3 4h18v16H3z M9 4v16')}</button></div><nav class="primary-navigation" aria-label="Apartados">${destinations.map(([href,label,path])=>`<a data-module-path="${href}">${icon(path)}<span>${label}</span></a>`).join('')}</nav><div id="sidebar-inventory"></div><details class="sidebar-areas"><summary>Áreas de trabajo</summary><nav aria-label="Áreas">${definitions.map(([code,name,path])=>`<button type="button" data-nav-area="${code}" title="${name}">${icon(path)}<span>${name}</span></button>`).join('')}</nav></details><div class="sidebar-footer"><span>Chicken Chicanito</span></div>`;
     container.prepend(aside);
-    try{sessionStorage.setItem('chickenia_entered','1');}catch{}
+
     aside.querySelectorAll('a[data-module-path]').forEach(a=>{
       const active=new URL(a.dataset.modulePath,location.origin).pathname===location.pathname;
       if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');

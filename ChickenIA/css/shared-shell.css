@@ -16,3 +16,9 @@
 .area-sidebar *{box-sizing:border-box}.area-sidebar details{border:0}.area-sidebar .sidebar-brand{font-family:Poppins,Arial,sans-serif;font-size:17px}.area-sidebar .sidebar-toggle{width:36px;flex-shrink:0}
 @media(max-width:760px){.area-shell:not(.sidebar-compact){--sidebar-width:260px;padding-left:60px}.area-shell:not(.sidebar-compact) .area-sidebar{box-shadow:0 0 0 100vmax #0003}}
 .area-shell main{min-width:0}.area-shell main button{max-width:100%;white-space:normal;overflow-wrap:anywhere}.area-shell .daily-header{flex-wrap:wrap}.area-shell .protein-page{min-width:0}
+
+/* Cash summary styles must never affect the navigation sidebar. */
+.daily-capture .area-sidebar{position:fixed;inset:0 auto 0 0;top:0;align-self:auto;border-left:0;border-top:0;padding:0 10px;height:100dvh}
+@media(min-width:761px) and (max-width:1200px){.daily-capture .area-shell{--sidebar-width:210px}.daily-capture .area-shell.sidebar-compact{--sidebar-width:60px}.daily-capture .area-shell main{padding:24px 18px}.daily-capture .layout{grid-template-columns:minmax(0,1fr) 240px;gap:20px}}
+@media(max-width:1000px){.daily-capture .layout{grid-template-columns:1fr}.daily-capture .layout>aside{position:static;border-left:0;border-top:1px solid var(--border-soft);padding:24px 0}}
+.dashboard-home{display:inline-flex!important;gap:8px;align-items:center;flex-shrink:0}

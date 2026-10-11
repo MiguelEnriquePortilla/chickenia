@@ -2,10 +2,9 @@
 (()=>{
  const screen=document.getElementById('chicken-welcome'),home=document.getElementById('chicken-home');
  if(!screen||!home)return;
- let entered=false;
- try{entered=sessionStorage.getItem('chickenia_entered')==='1';sessionStorage.setItem('chickenia_entered','1');}catch{}
- const internal=document.referrer&&new URL(document.referrer).origin===location.origin;
- if(entered||internal){screen.hidden=true;home.inert=false;home.removeAttribute('aria-hidden');document.body.classList.remove('welcome-active');return;}
+ let internal=false;
+ try{const stamp=Number(sessionStorage.getItem('chickenia_internal_home'));sessionStorage.removeItem('chickenia_internal_home');internal=stamp>0&&Date.now()-stamp<15000;}catch{}
+ if(internal){screen.hidden=true;home.inert=false;home.removeAttribute('aria-hidden');document.body.classList.remove('welcome-active');return;}
  const mascot=screen.querySelector('img'),skip=screen.querySelector('button');
  let finished=false,started=false,displayTimer;
  function finish(){
