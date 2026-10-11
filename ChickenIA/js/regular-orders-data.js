@@ -224,6 +224,18 @@ window.RegularOrdersData = {
         "garrafas",
         "1 a 2",
         ""
+      ],
+      [
+        "Limón Pimienta",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Chile Chipotle",
+        "",
+        "",
+        ""
       ]
     ],
     "PLÁSTICOS": [

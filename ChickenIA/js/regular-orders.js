@@ -3,6 +3,12 @@
  const $=id=>document.getElementById(id),data=window.RegularOrdersData,key='chickenia_orders_2026_v1';
  let supplier='SAMS',draft={},preview=false;
  try{const saved=JSON.parse(localStorage.getItem(key)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))draft=saved;}catch{}
+ if(!draft.peregrinaExpanded20261011){
+  const previous=draft.PEREGRINA;
+  if(previous&&typeof previous==='object')for(let i=22;i>=17;i--){if(Object.prototype.hasOwnProperty.call(previous,i))previous[i+2]=previous[i];else delete previous[i+2];delete previous[i];}
+  draft.peregrinaExpanded20261011=true;
+  try{localStorage.setItem(key,JSON.stringify(draft));}catch{}
+ }
  const rows=()=>[...data.suppliers[supplier],...(supplier==='PEREGRINA'?data.flour:[])];
  const current=()=>{if(!draft[supplier]||typeof draft[supplier]!=='object')draft[supplier]={};return draft[supplier];};
  const status=text=>$('orders-status').textContent=text;
