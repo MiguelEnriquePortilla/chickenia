@@ -10,6 +10,9 @@ try:
   for route in ['produccion-diaria.html','supervision.html','proteinas.html','proteinas-movil.html','rastro.html','captura.html','preguntale.html']:
    page.goto('http://127.0.0.1:8769/'+route,wait_until='networkidle')
    expect(page.locator('.area-sidebar')).to_have_count(1)
+   expect(page.locator('.unified-header')).to_have_count(1)
+   assert page.locator('.unified-header a').count()==0
+   assert page.locator('main .nav-return:visible').count()==0
    if route=='captura.html':
     assert page.locator('.area-sidebar').evaluate('(el)=>getComputedStyle(el).position')=='fixed'
     page.screenshot(path=str(root/'public/cash-navigation-review.png'))

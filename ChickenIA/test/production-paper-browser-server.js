@@ -10,7 +10,7 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
   res.status=n=>{res.statusCode=n;return res;};res.json=d=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(d));};
   try{
    if(url.pathname==='/api/inventory'){let raw='';for await(const c of req)raw+=c;req.body=raw?JSON.parse(raw):{};return handler(req,res);}
-   const relative=url.pathname.slice(1)||'index.html';if(!/^(?:[a-z-]+\.html|manifest\.json|sw\.js|(?:css|js|icons)\/[a-z0-9_.-]+)$/.test(relative))return res.status(404).end();
+   const relative=url.pathname.slice(1)||'index.html';if(!/^(?:[a-z-]+\.html|manifest\.json|sw\.js|(?:css|js|icons|daily)\/[a-z0-9_.-]+)$/.test(relative))return res.status(404).end();
    const file=path.join(root,relative);if(!fs.existsSync(file))return res.status(404).end();
    res.setHeader('Content-Type',({'.html':'text/html; charset=utf-8','.css':'text/css','.js':'application/javascript','.json':'application/json'})[path.extname(file)]||'image/png');res.end(fs.readFileSync(file));
   }catch(e){res.status(500).json({error:e.message});}
