@@ -1,6 +1,6 @@
 # Existencias en pedidos — 12 de octubre de 2026
 
-Implementación local, pendiente de publicación.
+Publicado con autorización de Miguel mediante `a49961a`, enviado a main el 12 de octubre de 2026. Verificación pública: pedidos.html, js/regular-orders.js y css/regular-orders.css respondieron correctamente y coincidieron con los archivos locales, normalizando saltos de línea.
 
 Los cuatro proveedores (SAMS, Peregrina, Plásticos y Central de Abastos) incorporan Existencia junto a A pedir. Ambos campos usan la unidad del producto. Existencia admite cero y decimales; vacío significa sin conteo. Los borradores previos se conservan. Limpiar el pedido elimina cantidades solicitadas y nota, conservando las existencias.
 
