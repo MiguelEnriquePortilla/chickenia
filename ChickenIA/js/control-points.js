@@ -41,7 +41,21 @@
   const opened=new Set([...host.querySelectorAll('details[open]')].map(d=>d.dataset.area));
   tabs.innerHTML=view.cuts.map((c,i)=>`<button type="button" data-cut="${i}" role="tab" aria-selected="${i===selected}" ${busy||!c.begun?'disabled':''}>${c.time}</button>`).join('');
   const cut=view.cuts[selected];
-  host.innerHTML=cut.areas.map(area=>`<details class="points-area" data-area="${area.code}" ${opened.has(area.code)?'open':''}><summary>${esc(area.name)}<span>${area.done}/${area.total} · ${score(areaScore(area))}</span></summary>${cut.videoRequired?`<div class="points-video"><label class="points-check"><input type="checkbox" data-video="${esc(area.code)}" ${area.video.done?'checked':''} ${!view.canWrite||!cut.begun||busy?'disabled':''}><span><strong>Video de evidencia entregado en el grupo de Supervisión</strong></span></label><p>${area.video.recordedAt?`${area.video.done?'Entrega marcada':'Entrega desmarcada'} por ${esc(area.video.actor)} · <time>${esc(stamp(area.video.recordedAt))}</time>`:'Entrega pendiente · Sin video al corte, este reporte obtiene 0%.'}</p>${cut.passed?`<p>${area.video.atCut?'Video marcado a tiempo.':'Sin entrega marcada al corte: 0%. Una marca tardía no cambia esta nota.'}</p>`:''}${area.video.history.length?`<details><summary>Historial de evidencia</summary>${area.video.history.map(v=>`<p>${v.done?'Entregado':'Desmarcado'} · ${esc(v.actor)} · ${esc(stamp(v.recordedAt))}</p>`).join('')}</details>`:''}</div>`:''}${area.points.map(point=>`<label class="points-check"><input type="checkbox" data-point="${point.id}" ${point.done?'checked':''} ${!view.canWrite||selected!==currentSlot||currentSlot<0||busy?'disabled':''}><span>${esc(point.text)}</span></label>`).join('')}</details>`).join('');
+  const weekday=new Date(`${date}T12:00:00-06:00`).getUTCDay();
+  const reminder=area=>{
+   if(date<'2026-10-12')return '';
+   const notes=[];
+   if(area.code==='supervision'){
+    if([0,2,5].includes(weekday))notes.push('Pedidos · Contar las proteínas y dejar establecido el pedido del día siguiente.');
+    if(selected===2)notes.push('16:30 · Definir el rol, el área y el horario de entrada de mañana; comunicar antes de las 17:00.');
+   }
+   if(area.code==='sucursal_apertura'&&selected===0){
+    notes.push('Limpiar peloteros todos los días.');
+    if([1,3,5].includes(weekday))notes.push('Hoy: lavar la banqueta.');
+   }
+   return notes.length?`<aside class="points-reminder" aria-label="Recordatorios de ${esc(area.name)}">${notes.map(note=>`<p>${esc(note)}</p>`).join('')}</aside>`:'';
+  };
+  host.innerHTML=cut.areas.map(area=>`<details class="points-area" data-area="${area.code}" ${opened.has(area.code)?'open':''}><summary>${esc(area.name)}<span>${area.done}/${area.total} · ${score(areaScore(area))}</span></summary>${reminder(area)}${cut.videoRequired?`<div class="points-video"><label class="points-check"><input type="checkbox" data-video="${esc(area.code)}" ${area.video.done?'checked':''} ${!view.canWrite||!cut.begun||busy?'disabled':''}><span><strong>Video de evidencia entregado en el grupo de Supervisión</strong></span></label><p>${area.video.recordedAt?`${area.video.done?'Entrega marcada':'Entrega desmarcada'} por ${esc(area.video.actor)} · <time>${esc(stamp(area.video.recordedAt))}</time>`:'Entrega pendiente · Sin video al corte, este reporte obtiene 0%.'}</p>${cut.passed?`<p>${area.video.atCut?'Video marcado a tiempo.':'Sin entrega marcada al corte: 0%. Una marca tardía no cambia esta nota.'}</p>`:''}${area.video.history.length?`<details><summary>Historial de evidencia</summary>${area.video.history.map(v=>`<p>${v.done?'Entregado':'Desmarcado'} · ${esc(v.actor)} · ${esc(stamp(v.recordedAt))}</p>`).join('')}</details>`:''}</div>`:''}${area.points.map(point=>`<label class="points-check"><input type="checkbox" data-point="${point.id}" ${point.done?'checked':''} ${!view.canWrite||selected!==currentSlot||currentSlot<0||busy?'disabled':''}><span>${esc(point.text)}</span></label>`).join('')}</details>`).join('');
  }
  tabs.addEventListener('click',e=>{const b=e.target.closest('[data-cut]');if(!b||b.disabled||busy)return;selected=Number(b.dataset.cut);render();});
  host.addEventListener('change',async e=>{

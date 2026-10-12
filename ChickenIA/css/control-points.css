@@ -7,3 +7,4 @@ body.points-active #areas-card,body.points-active #critical-pending,body.points-
 .points-tabs button:disabled{opacity:.35;cursor:default}.points-check input:disabled{opacity:.5}
 
 .points-video{background:var(--point-soft);border:1px solid var(--point-line);border-radius:8px;padding:12px;margin:8px 0 16px}.points-video p,.points-evidence-history p{font-size:12px;color:var(--point-muted);overflow-wrap:anywhere}.points-video .points-check{padding:0;font-size:14px}.points-video details summary{padding:8px 0;font-size:12px;font-weight:400}.points-evidence-history{margin-top:20px}.points-evidence-history summary{cursor:pointer}
+.points-reminder{margin:12px 0;padding:10px 14px;border-left:4px solid #d9a441;border-radius:8px;background:#fff3d4;color:#5f4700;font-size:13px;line-height:1.5}.points-reminder p{margin:4px 0}[data-theme=dark] .points-reminder{background:#332a16;color:#ffe4a3}

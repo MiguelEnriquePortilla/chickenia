@@ -4,10 +4,23 @@ const CHANGE_DATE='2026-10-11';
 const TIMES=['10:30','13:30','16:30','19:30'];
 // Keep the original catalog for historical days; daily snapshots remain authoritative.
 const catalog=previousCatalog.map((cut,i)=>({...cut,time:TIMES[i],videoRequired:true,areas:cut.areas.map(area=>({...area,points:area.points.map(point=>({...point,text:point.text.replace(/(A las |[Aa]ntes de las )10:00:/g,(_,prefix)=>prefix+'10:30:')}))}))}));
-const catalogForDate=date=>date>=CHANGE_DATE?catalog:previousCatalog;
+const AGREEMENTS_DATE='2026-10-12';
+function withMeetingAgreements(cut,index){
+ if(index>1)return cut;
+ return {...cut,areas:cut.areas.map(area=>area.code!=='ventas_barras'?area:{...area,points:area.points.map((point,i)=>i!==0?point:{
+  ...point,id:`ventas_barras-tanda-${index+1}`,
+  text:index===0?'Primera tanda en barra: 25% de la producción desde las 9:30; verificar abastecimiento a las 10:30.':'Segunda tanda en barra: abastecer el 75% restante a las 13:30; verificar cantidad, temperatura, hidratación y presentación.'
+ })})};
+}
+const meetingCatalog=catalog.map(withMeetingAgreements);
+const catalogForDate=date=>date>=AGREEMENTS_DATE?meetingCatalog:date>=CHANGE_DATE?catalog:previousCatalog;
 function upgradeCatalog(date,cuts,now){
  if(date<CHANGE_DATE)return cuts;
- return cuts.map((cut,i)=>new Date(now).getTime()<at(date,cut.time)?{...cut,time:TIMES[i],videoRequired:true}:cut);
+ return cuts.map((cut,i)=>{
+  if(new Date(now).getTime()>=at(date,cut.time))return cut;
+  const updated={...cut,time:TIMES[i],videoRequired:true};
+  return date>=AGREEMENTS_DATE?withMeetingAgreements(updated,i):updated;
+ });
 }
 const START='2026-10-12';
 const day=now=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));
@@ -75,4 +88,4 @@ function history(days,events,end,now){
  });
  return {records,periods};
 }
-module.exports={START,CHANGE_DATE,TIMES,catalog,previousCatalog,catalogForDate,upgradeCatalog,videoPoint,day,at,activeCut,evaluate,validate,history};
+module.exports={START,CHANGE_DATE,AGREEMENTS_DATE,TIMES,catalog,meetingCatalog,previousCatalog,catalogForDate,upgradeCatalog,videoPoint,day,at,activeCut,evaluate,validate,history};

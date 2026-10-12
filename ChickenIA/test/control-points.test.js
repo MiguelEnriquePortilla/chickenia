@@ -2,6 +2,20 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const core=require('../lib/supervision/control-points');
 const date='2026-10-10',clock=new Date('2026-10-11T02:00:00Z');
+test('meeting agreements apply to Barra without rewriting closed cuts or old dates',()=>{
+ const d='2026-10-12',cuts=core.catalogForDate(d);
+ assert.deepEqual(core.catalogForDate('2026-10-11'),core.catalog);
+ const first=cuts[0].areas.find(a=>a.code==='ventas_barras').points[0];
+ const second=cuts[1].areas.find(a=>a.code==='ventas_barras').points[0];
+ assert.match(first.text,/25%.*9:30.*10:30/);assert.match(second.text,/75%.*13:30/);
+ assert.notEqual(first.id,core.catalog[0].areas.find(a=>a.code==='ventas_barras').points[0].id);
+ assert.equal(cuts[0].areas.flatMap(a=>a.points).length,30);
+ const upgraded=core.upgradeCatalog(d,core.catalog,new Date(d+'T11:00:00-06:00'));
+ assert.deepEqual(upgraded[0],core.catalog[0]);assert.deepEqual(upgraded[1],cuts[1]);
+ assert.deepEqual(core.upgradeCatalog(d,upgraded,new Date(d+'T11:00:00-06:00')),upgraded);
+ assert.throws(()=>core.validate({cut:1,point:'ventas_barras-0',done:true,revision:0},d,cuts,new Date(d+'T11:00:00-06:00')));
+ assert.doesNotThrow(()=>core.validate({cut:1,point:second.id,done:true,revision:0},d,cuts,new Date(d+'T11:00:00-06:00')));
+});
 test('paper catalog contains 30 equally weighted points in each of four cuts',()=>{
  assert.deepEqual(core.catalog.map(c=>c.time),['10:30','13:30','16:30','19:30']);
  assert.deepEqual(core.previousCatalog.map(c=>c.time),['10:00','12:00','16:00','19:00']);
