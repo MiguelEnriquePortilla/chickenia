@@ -7,3 +7,5 @@
 @media(max-width:480px){.orders-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.orders-actions button{min-width:0;font-size:12px;padding:10px 4px;line-height:1.4;overflow-wrap:normal;word-break:normal}.orders-tools button{font-size:13px;padding:10px 12px}}
 
 @media(max-width:480px){#suppliers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.orders-row{grid-template-columns:90px minmax(0,1fr) 100px}.orders-field{display:block}.orders-field>span{display:block;text-align:center;font-size:12px;margin-bottom:5px}.orders-product{overflow-wrap:anywhere}@media(max-width:480px){.orders-row{grid-template-columns:66px minmax(0,1fr) 76px;gap:8px}.orders-field>span{font-size:11px}.orders-row strong{font-size:14px}}
