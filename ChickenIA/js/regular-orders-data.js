@@ -380,12 +380,6 @@ window.RegularOrdersData = {
         ""
       ],
       [
-        "Cebolla cambray",
-        "",
-        "",
-        ""
-      ],
-      [
         "Brócoli",
         "",
         "",

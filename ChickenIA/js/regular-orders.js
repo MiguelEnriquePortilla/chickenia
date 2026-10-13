@@ -23,6 +23,20 @@
   draft.centralReduced20261013=true;
   try{localStorage.setItem(key,JSON.stringify(draft));}catch{}
  }
+ if(!draft.centralCambrayRemoved20261013){
+  const previous=draft['CENTRAL DE ABASTOS'];
+  if(previous&&typeof previous==='object'){
+   const retained={...previous,stock:{}};
+   for(let i=0;i<17;i++)delete retained[i];
+   [0,1,2,4,5,6,7,8,9,10,11,12,13,14,15,16].forEach((oldIndex,newIndex)=>{
+    if(Object.prototype.hasOwnProperty.call(previous,oldIndex))retained[newIndex]=previous[oldIndex];
+    if(previous.stock&&Object.prototype.hasOwnProperty.call(previous.stock,oldIndex))retained.stock[newIndex]=previous.stock[oldIndex];
+   });
+   draft['CENTRAL DE ABASTOS']=retained;
+  }
+  draft.centralCambrayRemoved20261013=true;
+  try{localStorage.setItem(key,JSON.stringify(draft));}catch{}
+ }
  const rows=()=>[...data.suppliers[supplier],...(supplier==='PEREGRINA'?data.flour:[])];
  const current=()=>{if(!draft[supplier]||typeof draft[supplier]!=='object')draft[supplier]={};return draft[supplier];};
  const stock=()=>{if(!current().stock||typeof current().stock!=='object')current().stock={};return current().stock;};
