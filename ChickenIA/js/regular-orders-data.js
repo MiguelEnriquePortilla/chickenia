@@ -398,31 +398,7 @@ window.RegularOrdersData = {
         ""
       ],
       [
-        "Coliflor",
-        "",
-        "",
-        ""
-      ],
-      [
         "Perejil",
-        "",
-        "",
-        ""
-      ],
-      [
-        "Apio",
-        "",
-        "",
-        ""
-      ],
-      [
-        "Ejote",
-        "",
-        "",
-        ""
-      ],
-      [
-        "Haba",
         "",
         "",
         ""
@@ -483,42 +459,6 @@ window.RegularOrdersData = {
       ],
       [
         "Ajos para marinado",
-        "",
-        "",
-        ""
-      ],
-      [
-        "Coles",
-        "",
-        "",
-        ""
-      ],
-      [
-        "Mangos",
-        "",
-        "",
-        ""
-      ],
-      [
-        "Chiles serranos",
-        "",
-        "",
-        ""
-      ],
-      [
-        "Chile habanero",
-        "",
-        "",
-        ""
-      ],
-      [
-        "Cebollas para rosticero",
-        "",
-        "",
-        ""
-      ],
-      [
-        "Chiles jalapeños para rosticero",
         "",
         "",
         ""
