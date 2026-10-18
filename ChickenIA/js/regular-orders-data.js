@@ -120,6 +120,12 @@ window.RegularOrdersData = {
         "Bolsas",
         "",
         ""
+      ],
+      [
+        "Condimento de espagueti",
+        "",
+        "",
+        ""
       ]
     ],
     "PEREGRINA": [
