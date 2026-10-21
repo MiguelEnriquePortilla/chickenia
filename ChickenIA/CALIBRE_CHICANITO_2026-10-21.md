@@ -50,4 +50,6 @@ Tablas nuevas e independientes: `calibre_settings`, `calibre_days`, `calibre_eve
 
 Pruebas de dominio, API autenticada y PostgreSQL aislado: `test/calibre.test.js`. Navegador con API real/base aislada: `test/calibre_browser.py`; guardar, recargar, conflicto de muestra, reporte/histórico, móvil, modo oscuro y error de red. Sin operaciones ni mensajes reales de prueba.
 
-Estado de publicación se registra al terminar la verificación en producción; este documento por sí solo no acredita despliegue.
+Publicado en producción: commit `5ebe6c1`, push a `origin/main`. Vercel confirmó despliegue `dpl_37FWNLVaySxgVjLsZ1EFPzWVccC4`, estado READY, destino production. Verificación autenticada en `https://chickenia.chicanito.app/supervision.html?area=general`: ocho áreas, puntos de ficha, KPI, extra, cierres, histórico y asistencia visibles; datos iniciales sin revisiones ficticias. Miguel revisó la pantalla y respondió «Se ve super bien».
+
+Validación completada: 25 pruebas automatizadas y dos recorridos de navegador con PostgreSQL aislado; incluye obtener 120%, cerrar y recargar el resultado, reporte final sin marca provisional, nueva vista del Dashboard y regresión de proteínas/tablas semanales. En producción se verificó lectura y presentación; no se capturaron operaciones reales ni se enviaron mensajes de prueba.
