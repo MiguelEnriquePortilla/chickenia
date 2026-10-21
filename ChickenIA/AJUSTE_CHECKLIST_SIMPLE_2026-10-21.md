@@ -22,4 +22,6 @@ Pruebas nuevas en `test/equipo-checklist.test.js`: semana lunes–domingo, sin r
 
 Navegador con API real y PostgreSQL aislado: `test/equipo_checklist_browser.py`. Comprueba casillas y nota persistidas, error/reintento, ausencia de formularios por actividad, menú lateral, 8×7 tarjetas, enlace exacto a ficha/fecha, histórico de solo lectura, móvil y modo oscuro. Se repite regresión de tarjetas/tabla semanal de proteínas. No se usan capturas operativas ni mensajes reales para probar.
 
-La verificación de publicación se añadirá al completar la entrega. No volver a introducir formularios adicionales sin indicación de Miguel.
+Publicado: commit funcional `45c3431` enviado a `origin/main`. Vercel confirmó despliegue `dpl_BL9zWd6d6vPLE4rFh55j1vw5c7uB`, READY, production. Lectura autenticada del checklist publicado comprobó las marcas existentes de Rastro (15/15) sin cambiarlas, casillas/notas y menú lateral con acceso a Evaluación Equipo Chicanito. Dashboard publicado verificado: menú lateral, ocho áreas × siete días, porcentajes de marcas existentes (incluido Rastro 100%), «Sin revisión» para fechas sin captura y enlaces con área/fecha; tarjetas/tablas de proteínas conservadas.
+
+Validación: 23 pruebas automatizadas y dos recorridos de navegador aprobados (checklist/semana y regresión de proteínas). No se hicieron capturas operativas ni envíos de prueba en producción. No volver a introducir formularios adicionales sin indicación de Miguel.
