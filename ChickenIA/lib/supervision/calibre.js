@@ -7,12 +7,16 @@ const dateOK=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&Number.isFin
 function checklistScore(spec,data){
  const points=data.checklistPoints||data.points||{},reviewed=Object.keys(points).some(id=>spec.points.some(p=>p.id===id));
  const done=spec.points.filter(p=>points[p.id]?.status==='done').length,total=spec.points.length;
- return {done,total,score:reviewed&&total?done*100/total:null};
+ const extraPoints=simpleExtras(data),extras=Object.values(extraPoints).filter(p=>p.done).length;
+ const base=reviewed&&total?done*100/total:null,bonus=base===100&&extras>0?20:0;
+ return {done,total,base,extras,bonus,score:base===null?null:base+bonus};
 }
+function simpleExtras(data){if(data.simpleExtras)return data.simpleExtras;return data.extra?.verifiedAt&&data.extra.achieved?{[data.extra.choice]:{done:true,note:data.extra.result||'',actor:data.extra.verifiedBy,at:data.extra.verifiedAt}}:{};}
 function weekDates(date){const d=new Date(date+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return Array.from({length:7},(_,i)=>new Date(d.getTime()+i*86400000).toISOString().slice(0,10));}
 const text=z.string().trim().min(3).max(1200),short=z.string().trim().min(2).max(160);
 const command=z.discriminatedUnion('action',[
  z.object({action:z.literal('simple-point'),point:z.string(),done:z.boolean(),note:z.string().trim().max(1200).default('')}),
+ z.object({action:z.literal('simple-extra'),choice:z.number().int().min(0).max(2),done:z.boolean(),note:z.string().trim().max(1200).default('')}),
  z.object({action:z.literal('point'),point:z.string(),status:z.enum(['done','issue','na','pending']),note:z.string().trim().max(1200).default('')}),
  z.object({action:z.literal('sample'),product:short,slot:z.enum(['arranque','comida','precierre']),total:z.number().int().min(1).max(100),passed:z.number().int().min(0),note:z.string().trim().max(1200).default('')}),
  z.object({action:z.literal('no-cases'),reason:text}),
@@ -43,6 +47,12 @@ function summary(spec,data,now=new Date(),date=day(now)){
 }
 function apply(spec,source,raw,user,now=new Date(),date=day(now)){
  const c=command.parse(raw),data=structuredClone(source),stamp=now.toISOString();
+ if(c.action==='simple-extra'){
+  if(!spec.extras[c.choice])fail('Actividad de 120% desconocida.');
+  if(spec.code==='supervision'&&!['MIGUEL','LILIAN'].includes(user.name))fail('Lilian o Miguel verifican el 120% de Supervisión.',403);
+  data.simpleExtras??=structuredClone(simpleExtras(data));
+  data.simpleExtras[c.choice]={done:c.done,note:c.note,actor:user.name,at:stamp};return data;
+ }
  if(c.action==='simple-point'){
   if(!spec.points.some(p=>p.id===c.point))fail('Actividad desconocida.');
   if(spec.code==='caja'&&c.point==='3.5'&&c.done&&user.name!=='LILIAN')fail('Liliana confirma el cierre general en el sistema.',403);
@@ -118,4 +128,7 @@ function report(rows,date,kind,now=new Date()){
   return `\n${r.spec.name.toUpperCase()}\n✅ Mi ficha: ${pct(s.ficha)}\n🎯 ${r.spec.kpi}: ${pct(s.kpi)} (${s.passed}/${s.total})\n⭐ Actividad de 120%: ${r.data.extra?.verifiedAt?(r.data.extra.achieved?'Lograda y verificada':'Revisada · resultado por mejorar'):r.data.extra?'En marcha':'Por acordar'}${r.data.extra?.verifiedAt&&r.data.extra.achieved?'\n🙌 Hoy destacamos: '+r.spec.extras[r.data.extra.choice].title:''}\n${s.critical?'🚩':'🏆'} ${pct(s.score)} · ${s.level}${s.provisional?' · Provisional':''}\n➡️ ${s.critical?'Resolver y verificar atención prioritaria':s.kpi===null?'Completar medición del indicador':s.score===120?'¡A mantener el Calibre Chicanito!':'Completar la base y verificar nuestra actividad de 120%'}`;
  }).join('\n')+'\n\n¡Haz de tu día, un día Very Sabrosito!';
 }
-module.exports={AREAS,VERSION,day,dateOK,blank,summary,apply,report,fail,checklistScore,weekDates};
+function simpleReport(rows,date){
+ return `🐔 ¡ASÍ VAMOS, EQUIPO CHICANITO!\n📅 ${date}\n`+rows.map(r=>{const s=checklistScore(r.spec,r.data),extras=simpleExtras(r.data);return `\n${r.spec.name.toUpperCase()}\n✅ Ficha: ${s.done}/${s.total} actividades\n🎯 Avance: ${s.score===null?'Sin revisión':Math.floor(s.score*10)/10+'%'}${s.score===120?' · ¡Calibre Chicanito!':''}\n⭐ Actividades para llegar al 120%:\n${r.spec.extras.map((e,i)=>`${extras[i]?.done?'☑':'☐'} ${e.title}`).join('\n')}${s.extras&&s.base!==100?'\n➡️ Completemos la ficha para sumar los 20 puntos extra.':''}`;}).join('\n')+'\n\n¡Haz de tu día, un día Very Sabrosito!';
+}
+module.exports={AREAS,VERSION,day,dateOK,blank,summary,apply,report,fail,checklistScore,weekDates,simpleExtras,simpleReport};

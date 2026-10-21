@@ -45,10 +45,10 @@ function store(query){
   return get(location,date,now);
  }
  async function saveReport(location,date,scope,kind,user,now){
-  if(!['avance','cierre'].includes(kind))core.fail('Tipo de reporte inválido.');
+  if(!['avance','cierre','simple'].includes(kind))core.fail('Tipo de reporte inválido.');
   const view=await get(location,date,now),rows=view.areas.filter(r=>scope==='general'||r.spec.code===scope);
   if(!rows.length||rows.every(r=>!r.revision))core.fail('Primero registra el avance del área.');
-  const message=core.report(rows,date,kind,now);
+  const message=kind==='simple'?core.simpleReport(rows,date):core.report(rows,date,kind,now);
   const [report]=await query('INSERT INTO calibre_reports(location_id,date,scope,kind,message,snapshot,actor,created_at) VALUES($1,$2,$3,$4,$5,$6::jsonb,$7,$8) RETURNING id,created_at',[location,date,scope,kind,message,JSON.stringify(rows),user.name,now.toISOString()]);
   return {...report,message};
  }

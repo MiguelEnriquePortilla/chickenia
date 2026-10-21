@@ -2,6 +2,17 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),{PGlite}=require('@electric-sql/pglite');
 const core=require('../lib/supervision/calibre'),{store}=require('../lib/supervision/calibre-store');
 const spec=core.AREAS.find(a=>a.code==='cocina'),now=new Date('2026-10-21T18:00:00Z'),user={name:'MIGUEL'};
+test('simple 120% keeps checklist simple, caps bonus at 20 and preserves original extra evaluation',()=>{
+ let d=core.blank();d.extra={choice:1,verifiedAt:now.toISOString(),achieved:true,result:'Anterior'};
+ assert.equal(core.simpleExtras(d)[1].done,true);
+ d=core.apply(spec,d,{action:'simple-extra',choice:0,done:true,note:'Privado'},user,now);
+ assert.equal(core.checklistScore(spec,d).bonus,0);assert.equal(d.extra.result,'Anterior');
+ for(const p of spec.points)d=core.apply(spec,d,{action:'simple-point',point:p.id,done:true,note:''},user,now);
+ assert.equal(core.checklistScore(spec,d).score,120);
+ d=core.apply(spec,d,{action:'simple-extra',choice:2,done:true,note:''},user,now);assert.equal(core.checklistScore(spec,d).score,120);
+ const message=core.simpleReport([{spec,data:d}],'2026-10-21');assert.match(message,/120%/);assert.match(message,/Calibre Chicanito/);assert.doesNotMatch(message,/Privado|Anterior/);
+ assert.throws(()=>core.apply(core.AREAS.find(a=>a.code==='supervision'),core.blank(),{action:'simple-extra',choice:0,done:true,note:''},{name:'NANCY'},now),/Miguel/);
+});
 test('weekly scores are checklist-only, explicit zero differs from no review, week is Monday–Sunday',()=>{
  assert.deepEqual(core.weekDates('2026-10-21'),['2026-10-19','2026-10-20','2026-10-21','2026-10-22','2026-10-23','2026-10-24','2026-10-25']);
  assert.equal(core.checklistScore(spec,core.blank()).score,null);

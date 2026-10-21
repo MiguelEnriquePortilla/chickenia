@@ -1,5 +1,13 @@
 # Evaluación Equipo Chicanito — checklist sencillo y semana en Dashboard
 
+## Ajuste posterior autorizado: conservar 120% y compartir
+
+Miguel aclaró que deben mantenerse las actividades adicionales y el botón de compartir, sin volver a los formularios complejos. Se recuperan las tres propuestas por área al pie de la ficha: casilla + comentario opcional, guardado automático. Ficha completa (100%) y al menos una actividad extra verificada suman 20 puntos; máximo 120% aunque se marquen varias. Con la base incompleta se conserva la actividad extra, pero no suma el bono. Lilian o Miguel verifican extras de Supervisión.
+
+«Compartir esta área» y «Compartir todo el equipo» preparan una vista previa de WhatsApp con ficha, avance y lista de extras. El Dashboard también tiene «Compartir avance» general. Los comentarios internos no se incluyen. Se guarda el mensaje y snapshot en el histórico; abrir WhatsApp no acredita envío. No hay envío automático.
+
+Las capturas anteriores, incluidas las actividades extra verificadas de la primera versión, se conservan. Las nuevas casillas extra se guardan en `simpleExtras`, sin sobreescribir su evaluación original. La tabla semanal y los reportes usan el mismo cálculo sencillo hasta 120%. Los apartados inferiores documentan la entrega anterior antes de esta aclaración.
+
 **Entrega aceptada y sesión cerrada por Miguel.** Leer [cierre vigente](CIERRE_CHECKLIST_SIMPLE_2026-10-21.md). Esperar nuevas indicaciones; sin cambios ni capturas automáticas pendientes.
 
 Pedido posterior de Miguel, 21 octubre 2026: la evaluación se sobrecomplicó. Sustituir su pantalla por la misma lista de la ficha, con casilla y nota opcional. Separar captura y visualización; conservar menú lateral y registros anteriores. Autorizó implementar y publicar.
