@@ -1,3 +1,13 @@
+## Sesion cerrada - Calibre Chicanito, 21 octubre 2026
+
+Entrega publicada y aceptada por Miguel. Fichas homologadas con lenguaje CHICANITO, KPI por area, base 50% ficha / 50% KPI, niveles 85/100/120 y actividad adicional verificada. Reportes por area o generales para compartir manualmente en WhatsApp, historico y cierres conservados.
+
+Leer primero [cierre vigente](CIERRE_CALIBRE_CHICANITO_2026-10-21.md) y [acuerdos e implementacion](CALIBRE_CHICANITO_2026-10-21.md). Codigo publicado `5ebe6c1`; 25 pruebas y dos recorridos de navegador aprobados, lectura autenticada en produccion verificada. Sin capturas operativas ni mensajes reales de prueba.
+
+Sesion cerrada: esperar nuevas indicaciones. Esta entrega sustituye el pendiente anterior de actualizar las fichas. Los apartados inferiores son antecedentes y conservan su alcance.
+
+---
+
 # Actualización vigente — Central de Abastos, 13 octubre 2026
 
 Miguel aceptó la entrega publicada y pidió actualizar README. Publicado y verificado en ChickenIA: `b25b261` (incluye `2cb07d9`). Central de Abastos queda con **16 productos**, retirando los **11 que ya no se compran en Central**: Cebolla cambray, Coliflor, Apio, Ejote, Haba, Coles, Mangos, Chiles serranos, Chile habanero, Cebollas para rosticero y Chiles jalapeños para rosticero. Se conserva el renglón combinado «Chiles jalapeños / chiles serranos».

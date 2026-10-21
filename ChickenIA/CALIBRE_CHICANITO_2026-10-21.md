@@ -1,5 +1,7 @@
 # Calibre Chicanito — fichas, indicadores y reportes
 
+**Sesión cerrada y entrega aceptada por Miguel.** Leer [cierre del 21 de octubre](CIERRE_CALIBRE_CHICANITO_2026-10-21.md). Esperar nuevas indicaciones; no ejecutar capturas ni envíos automáticos.
+
 Implementación autorizada por Miguel el 21 de octubre de 2026, después de revisar las seis fichas aprobadas y acordar las reglas una por una.
 
 ## Entrada

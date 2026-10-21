@@ -1,3 +1,13 @@
+## Sesion cerrada - Calibre Chicanito, 21 octubre 2026
+
+Entrega publicada y aceptada por Miguel. Fichas homologadas con lenguaje CHICANITO, KPI por area, base 50% ficha / 50% KPI, niveles 85/100/120 y actividad adicional verificada. Reportes por area o generales para compartir manualmente en WhatsApp, historico y cierres conservados.
+
+Leer primero [cierre vigente](CIERRE_CALIBRE_CHICANITO_2026-10-21.md) y [acuerdos e implementacion](CALIBRE_CHICANITO_2026-10-21.md). Codigo publicado `5ebe6c1`; 25 pruebas y dos recorridos de navegador aprobados, lectura autenticada en produccion verificada. Sin capturas operativas ni mensajes reales de prueba.
+
+Sesion cerrada: esperar nuevas indicaciones. Esta entrega sustituye el pendiente anterior de actualizar las fichas. Los apartados inferiores son antecedentes y conservan su alcance.
+
+---
+
 # Retomar ChickenIA — sesión cerrada el 5 de octubre de 2026
 
 **Entrada vigente: [reporte de cierre del 5 de octubre](REPORTE_SESION_2026-10-05.md).** Miguel aceptó la simplificación de Supervisión y volverá mañana con observaciones. Implementación `32e1e80` publicada; documentación de verificación `2d2f435`.

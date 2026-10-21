@@ -1,3 +1,13 @@
+## Sesion cerrada - Calibre Chicanito, 21 octubre 2026
+
+Entrega publicada y aceptada por Miguel. Fichas homologadas con lenguaje CHICANITO, KPI por area, base 50% ficha / 50% KPI, niveles 85/100/120 y actividad adicional verificada. Reportes por area o generales para compartir manualmente en WhatsApp, historico y cierres conservados.
+
+Leer primero [cierre vigente](CIERRE_CALIBRE_CHICANITO_2026-10-21.md) y [acuerdos e implementacion](CALIBRE_CHICANITO_2026-10-21.md). Codigo publicado `5ebe6c1`; 25 pruebas y dos recorridos de navegador aprobados, lectura autenticada en produccion verificada. Sin capturas operativas ni mensajes reales de prueba.
+
+Sesion cerrada: esperar nuevas indicaciones. Esta entrega sustituye el pendiente anterior de actualizar las fichas. Los apartados inferiores son antecedentes y conservan su alcance.
+
+---
+
 # Sesión cerrada — Pedidos Chicanito, 11 octubre 2026
 
 Entrega aceptada por Miguel. Publicado y cotejado `ea3110c`: Central de Abastos, ampliación SAMS/Plásticos, listas limpias y fecha con emojis. Leer [cierre actualizado](REPORTE_SESION_2026-10-11_PEDIDOS.md) y esperar nuevas indicaciones. Sin tareas pendientes ni envíos u operaciones reales.
