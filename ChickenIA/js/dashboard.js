@@ -140,6 +140,12 @@ async function load() {
   if (!state.location) return;
     const proteins=loadProteinOverview(),rastro=loadRastroOverview();
   try {
+    const calibre = await api(`summary?calibre=1&date=${state.date}`);
+    const isCalibre=state.date>=calibre.start;
+    document.getElementById('calibre-app').hidden=!isCalibre;
+    for(const id of ['checklist-timeline','areas-card','area-status-bar'])document.getElementById(id).hidden=isCalibre;
+    document.querySelector('.overall-score-box').hidden=isCalibre;
+    if(isCalibre){await Promise.all([loadDailyCaptures(),proteins,rastro]);return;}
     const summary = await api(`summary?location_id=${state.location.id}&date=${state.date}`);
     window.ChickenTimeline?.refresh(summary);
     renderStatusBar(summary);

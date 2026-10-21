@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&amp;display=swap" rel="stylesheet"><title>Chicken ChicanIA · Supervisión</title>
+<link rel="manifest" href="/manifest.json"><link rel="icon" href="/icons/icon-32.png">
+<meta name="theme-color" content="#ffffff">
+<script>try{if(localStorage.getItem('chickenia_theme')==='dark')document.documentElement.dataset.theme='dark';}catch{}</script>
+<link rel="stylesheet" href="/css/control-points.css"><link rel="stylesheet" href="/css/polish.css"><script defer src="/js/nav-polish.js"></script><link rel="stylesheet" href="/css/area-navigation.css"><link rel="stylesheet" href="/css/shared-shell.css"><script defer src="/js/area-navigation.js"></script><script defer src="/js/shared-shell.js"></script></head>
+<body data-shared-standalone="true" class="points-page"><main class="points-shell">
+<header class="points-header"><h1>Supervisión</h1><a href="/dashboard.html">Dashboard</a></header>
+<div class="points-header"><input class="points-date" id="point-date" type="date" aria-label="Fecha de revisión"><span class="points-state" id="point-person"></span></div>
+<p class="points-state"><time id="point-clock" aria-label="Hora de Ciudad de México"></time><span id="point-window"></span></p>
+<nav class="points-tabs" id="point-tabs" role="tablist" aria-label="Horario de revisión"></nav>
+<p class="points-state" id="point-status" role="status" aria-live="polite"></p>
+<section id="points-list" aria-label="Puntos por área"></section>
+<details class="points-attendance" id="point-attendance"><summary>Asistencia <span aria-hidden="true">+</span></summary><div id="point-attendance-list"></div></details>
+<footer class="points-header" style="margin-top:30px"><a href="/produccion-diaria.html">Producción Diaria</a><a href="/captura.html?mode=close&amp;format=digital">Caja</a><a href="/index.html">Inicio</a></footer>
+</main><script src="/js/control-points.js"></script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});</script>
+</body></html>

@@ -4,6 +4,7 @@ const { ensureTables } = require('../lib/supervision/db');
 const { CUTS, report } = require('../lib/supervision/telegram');
 
 module.exports = async (req, res) => {
+  if (req.query?.calibre === '1') return require('../lib/supervision/calibre-handler')(req,res);
   if (req.query?.points === '1') return require('../lib/supervision/control-points-handler')(req,res);
   if (req.query?.timeline === '1') return require('../lib/supervision/checklist-timeline-handler')(req,res);
   if (req.query?.kpi === '1') {

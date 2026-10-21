@@ -67,6 +67,7 @@ const token=payload+'.'+crypto.createHmac('sha256',process.env.INVENTORY_SESSION
   if(checks&&url.pathname==='/api/checks'){let raw='';for await(const chunk of req)raw+=chunk;req.body=raw?JSON.parse(raw):{};return checks(req,res);}
   if(areas&&url.pathname==='/api/areas')return areas(req,res);
   if(url.pathname==='/api/locations')return res.json([{id:1,code:'jojutla',name:'Jojutla',type:'tienda'}]);
+  if(url.pathname==='/api/summary'&&req.query.calibre==='1')return res.json({date:req.query.date,start:'9999-12-31',actor:'NANCY',location:{id:1,name:'Jojutla'},areas:[],days:[],history:[],canWrite:false});
   if(url.pathname==='/api/summary')return res.json({date:req.query.date,location:{id:1},overall_score:0,areas:[],critical_pending:[],cross_check:null});
   if(url.pathname.startsWith('/api/'))return res.json([]);
   const file=path.resolve(root,'.'+decodeURIComponent(url.pathname==='/'?'/proteinas.html':url.pathname));
