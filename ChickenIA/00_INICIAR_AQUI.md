@@ -1,10 +1,10 @@
-## Sesion cerrada - Checklist sencillo y Dashboard semanal, 21 octubre 2026
+## Sesion cerrada - Evaluacion sencilla con 120% y compartir, 21 octubre 2026
 
-Miguel reviso las dos pantallas publicadas y confirmo que ya quedaron. La version vigente es Evaluacion Equipo Chicanito: misma lista de la ficha por area, casilla y nota opcional, guardado automatico. Dashboard con tabla semanal de areas/dias y tarjetas del porcentaje del checklist; ambos con menu lateral compartido. Sin formularios de KPI, muestras, incidencias o extras en esta vista.
+Version final publicada y aceptada por Miguel: checklist por area con casilla y nota opcional, actividades de 120% con casilla/comentario y botones para compartir area o todo el equipo por WhatsApp. Dashboard con tabla semanal hasta 120%, enlaces a ficha/fecha y menu lateral compartido. Capturas e historicos conservados.
 
-Leer primero [cierre vigente](CIERRE_CHECKLIST_SIMPLE_2026-10-21.md) y [detalle del ajuste](AJUSTE_CHECKLIST_SIMPLE_2026-10-21.md). Publicado `45c3431`, documentado `587aa0f`; 23 pruebas y dos recorridos de navegador aprobados, lectura autenticada en produccion verificada. Capturas e historicos conservados. Sin operaciones ni mensajes reales de prueba.
+Leer primero [cierre final vigente](CIERRE_EVALUACION_120_COMPARTIR_2026-10-21.md) y [detalle del ajuste](AJUSTE_CHECKLIST_SIMPLE_2026-10-21.md). Ficha completa mas al menos un extra verificado suma 20 puntos, maximo 120%; sin KPI 50/50 ni formularios complejos. Compartir conserva vista previa e historico; el usuario envia desde WhatsApp, sin comentarios internos ni envio automatico.
 
-Entrega aceptada y sesion cerrada: esperar nuevas indicaciones. Este estado sustituye la interfaz anterior de Calibre Chicanito/120%; no reintroducir formularios adicionales. Los apartados inferiores se conservan como antecedentes.
+Publicado `bf27589`, produccion READY y lectura autenticada verificada. Ultima validacion: 14 pruebas y navegador aislado, incluyendo 120% en ficha/tabla/mensaje. Entrega aceptada; sesion cerrada, sin pendientes de ejecucion. Esperar nuevas indicaciones. Las notas inferiores son antecedentes; las que retiraban extras/compartir quedan sustituidas.
 
 ---
 

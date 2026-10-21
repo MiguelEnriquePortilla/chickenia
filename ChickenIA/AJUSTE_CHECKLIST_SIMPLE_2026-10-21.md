@@ -1,5 +1,7 @@
 # Evaluación Equipo Chicanito — checklist sencillo y semana en Dashboard
 
+**Estado final aceptado y sesión cerrada:** [cierre vigente con 120% y compartir](CIERRE_EVALUACION_120_COMPARTIR_2026-10-21.md). Código publicado `bf27589`. Esperar nuevas indicaciones.
+
 ## Ajuste posterior autorizado: conservar 120% y compartir
 
 Miguel aclaró que deben mantenerse las actividades adicionales y el botón de compartir, sin volver a los formularios complejos. Se recuperan las tres propuestas por área al pie de la ficha: casilla + comentario opcional, guardado automático. Ficha completa (100%) y al menos una actividad extra verificada suman 20 puntos; máximo 120% aunque se marquen varias. Con la base incompleta se conserva la actividad extra, pero no suma el bono. Lilian o Miguel verifican extras de Supervisión.
@@ -15,9 +17,9 @@ Pedido posterior de Miguel, 21 octubre 2026: la evaluación se sobrecomplicó. S
 ## Comportamiento vigente
 
 - Captura en `/evaluacion-equipo.html`; `/supervision.html` redirige conservando fecha y área. Entrada del menú compartido: «Evaluación Equipo Chicanito». Asistencia sigue disponible al pie.
-- Una ficha visible por área. Números, títulos, instrucciones y bloques de las fichas aprobadas. Casilla + nota opcional, guardado automático. Sin desplegables por actividad, botones repetidos, formularios de KPI, muestras, incidencias o extras.
+- Una ficha visible por área. Números, títulos, instrucciones y bloques de las fichas aprobadas. Casilla + nota opcional, guardado automático. Actividades de 120% también con casilla y comentario. Sin desplegables por actividad, botones repetidos ni formularios de KPI, muestras o incidencias.
 - Dashboard: navegación lateral restaurada independientemente de que la consulta de resumen tenga éxito. Retirados los formularios completos. Tabla de ocho áreas por siete días, lunes a domingo, con tarjetas de porcentaje del checklist y enlace a área/fecha. Sin captura muestra «Sin revisión», distinto de un 0% registrado.
-- Porcentaje = actividades palomeadas / actividades de la ficha × 100; sin KPI, extra, ponderaciones ni 120% en esta vista. El día seleccionado lleva contorno; 100% dorado, avance marino y sin revisión neutro. En móvil la tabla se desplaza horizontalmente dentro de su contenedor.
+- Base = actividades palomeadas / actividades de la ficha × 100; sin KPI ni ponderaciones. Con base completa y al menos un extra verificado se agregan 20 puntos, máximo 120%. El día seleccionado lleva contorno; 100%/120% dorado, avance marino y sin revisión neutro. En móvil la tabla se desplaza horizontalmente dentro de su contenedor.
 - Los cortes/evaluaciones anteriores se conservan para fechas previas a la activación; no se mezclan con el nuevo porcentaje.
 
 ## Conservación y guardado
