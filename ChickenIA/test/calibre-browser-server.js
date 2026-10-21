@@ -15,6 +15,7 @@ const token=p+'.'+crypto.createHmac('sha256',process.env.INVENTORY_SESSION_SECRE
   if(url.pathname==='/api/summary'&&req.query.calibre==='1'){let raw='';for await(const c of req)raw+=c;req.body=raw?JSON.parse(raw):{};return handler(req,res);}
   if(url.pathname==='/api/inventory')return res.json({user:{id:user.id,name:user.name,role:user.role},cash:null,production:{revision:0}});
   if(url.pathname==='/api/locations')return res.json([{id:1,code:'jojutla',name:'Jojutla',type:'tienda'}]);
+  if(url.pathname==='/api/summary'&&!req.query.points&&!req.query.timeline)return res.json({date:req.query.date,location:{id:1,type:'tienda'},overall_score:0,areas:[],critical_pending:[],cross_check:null});
   if(url.pathname.startsWith('/api/'))return res.json([]);
   const file=path.resolve(root,'.'+url.pathname);if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile())return res.status(404).end();
   res.setHeader('Set-Cookie',auth.cookie(token,req));res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json'})[path.extname(file)]+'; charset=utf-8');fs.createReadStream(file).pipe(res);

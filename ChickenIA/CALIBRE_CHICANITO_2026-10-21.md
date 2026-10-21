@@ -1,5 +1,7 @@
 # Calibre Chicanito — fichas, indicadores y reportes
 
+**Actualización posterior: formato simplificado.** Miguel pidió retirar los formularios de KPI, muestras y extras de la pantalla. La entrada vigente es [Evaluación Equipo Chicanito](https://chickenia.chicanito.app/evaluacion-equipo.html): checklist con casilla y nota opcional; el Dashboard muestra una tabla semanal del porcentaje de actividades verificadas. Leer [ajuste vigente](AJUSTE_CHECKLIST_SIMPLE_2026-10-21.md). Los apartados siguientes documentan la versión anterior, conservada como antecedente; no reiniciar sus capturas ni volver a mostrar sus formularios.
+
 **Sesión cerrada y entrega aceptada por Miguel.** Leer [cierre del 21 de octubre](CIERRE_CALIBRE_CHICANITO_2026-10-21.md). Esperar nuevas indicaciones; no ejecutar capturas ni envíos automáticos.
 
 Implementación autorizada por Miguel el 21 de octubre de 2026, después de revisar las seis fichas aprobadas y acordar las reglas una por una.

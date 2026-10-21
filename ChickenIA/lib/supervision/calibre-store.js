@@ -25,7 +25,10 @@ function store(query){
   const areas=core.AREAS.map(spec=>{const r=rows.find(r=>r.area===spec.code),saved=r?.spec||spec,data=withIncidents({spec:saved,data:r?.data||core.blank()},all);return {spec:saved,data,revision:r?.revision||0,summary:data.final?data.finalSummary:core.summary(saved,data,now,date)};});
   const history=await query('SELECT id,date::text,scope,kind,message,actor,created_at FROM calibre_reports WHERE location_id=$1 AND date BETWEEN ($2::date-29) AND $2::date ORDER BY id DESC LIMIT 100',[location,date]);
   const days=await query('SELECT date::text,area,revision,data->\'finalSummary\' AS summary FROM calibre_days WHERE location_id=$1 AND date BETWEEN ($2::date-29) AND $2::date AND data->>\'final\'=\'true\' ORDER BY date DESC,area',[location,date]);
-  return {date,start:settings.start_date,version:core.VERSION,areas,history,days,canWrite:date===core.day(now),serverTime:now.toISOString()};
+  const checklistHistory=await query('SELECT date::text,area,spec,data->\'checklistPoints\' AS points,data->\'points\' AS original_points FROM calibre_days WHERE location_id=$1 AND date BETWEEN ($2::date-29) AND $2::date ORDER BY date DESC,area',[location,date]);
+  const week=core.weekDates(date),weekRows=await query('SELECT date::text,area,spec,data FROM calibre_days WHERE location_id=$1 AND date BETWEEN $2::date AND $3::date',[location,week[0],week[6]]);
+  const weekly={dates:week,areas:core.AREAS.map(spec=>({code:spec.code,name:spec.name,days:week.map(date=>{const r=weekRows.find(r=>r.date===date&&r.area===spec.code);return {date,...(r?core.checklistScore(r.spec,r.data):{done:0,total:spec.points.length,score:null})};})}))};
+  return {date,start:settings.start_date,version:core.VERSION,areas,history,days,checklistHistory,weekly,canWrite:date===core.day(now),serverTime:now.toISOString()};
  }
  async function save(location,date,body,user,now){
   if(date!==core.day(now))core.fail('El histórico se conserva. Solo puedes registrar el día actual.',409);

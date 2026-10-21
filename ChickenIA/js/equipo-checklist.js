@@ -1,0 +1,33 @@
+(()=>{
+'use strict';
+const root=document.getElementById('calibre-app');if(!root)return;
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+let date=new URLSearchParams(location.search).get('date')||today(),view,selected='rastro',pending=new Map(),saving=false,failed=false,timer,loadSequence=0;
+root.innerHTML=`<h1>Evaluación Equipo Chicanito</h1><div class="equipo-controls"><label>Fecha<input id="calibre-date" type="date" value="${esc(date)}"></label><label>Área<select id="equipo-area"></select></label></div><p id="equipo-status" role="status" aria-live="polite">Cargando…</p><button id="equipo-retry" type="button" hidden>Reintentar guardado</button><section id="equipo-sheet"></section><details class="equipo-history"><summary>Histórico</summary><div id="equipo-history"></div></details>`;
+const sheet=root.querySelector('#equipo-sheet'),status=root.querySelector('#equipo-status'),dateInput=root.querySelector('#calibre-date'),areaInput=root.querySelector('#equipo-area'),retry=root.querySelector('#equipo-retry');
+async function request(body){const r=await fetch(`/api/summary?calibre=1&date=${encodeURIComponent(date)}`,{cache:'no-store',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,...body})}:{})});const d=await r.json();if(!r.ok){if(r.status===401)location.replace('/inventario.html?next='+encodeURIComponent(location.pathname+location.search));throw Object.assign(Error(d.error||'No se pudo guardar.'),{status:r.status});}return d;}
+const points=row=>row.data.checklistPoints||row.data.points;
+function tally(row){const all=points(row),done=row.spec.points.filter(p=>all[p.id]?.status==='done').length;return `${done} de ${row.spec.points.length} actividades verificadas`;}
+function render(){
+ const row=view.areas.find(r=>r.spec.code===selected)||view.areas[0];selected=row.spec.code;areaInput.value=selected;let last='';
+ sheet.innerHTML=`<header class="equipo-sheet-head"><h2>${esc(row.spec.name)}</h2><p>${esc(view.actor)} · ${esc(view.date)}</p><p id="equipo-progress">${tally(row)}</p></header>${row.spec.points.map(p=>{const section=p.id.split('.')[0],heading=last!==section?`<h3>${esc(row.spec.blocks[Number(section)-1])}</h3>`:'';last=section;const saved=points(row)[p.id]||{};return `${heading}<div class="equipo-point" data-point="${p.id}"><label class="equipo-task"><input type="checkbox" ${saved.status==='done'?'checked':''} ${view.canWrite?'':'disabled'}><span><strong>${esc(p.id)} · ${esc(p.title)}</strong><span>${esc(p.text)}</span></span></label><label class="equipo-note">Nota opcional<input type="text" maxlength="1200" value="${esc(saved.note||'')}" ${view.canWrite?'':'readonly'}></label></div>`;}).join('')}`;
+ root.querySelector('#equipo-history').innerHTML=(view.checklistHistory||[]).filter(h=>h.area===selected).map(h=>{const ps=h.points||h.original_points||{},done=h.spec.points.filter(p=>ps[p.id]?.status==='done').length;return `<p><a href="?date=${esc(h.date)}&area=${selected}">${esc(h.date)}</a> · ${done}/${h.spec.points.length} verificadas</p>`;}).join('')||'<p>Todavía no hay revisiones guardadas para esta área.</p>';
+ status.textContent=view.canWrite?'Palomea al verificar. Se guarda automáticamente.':'Consulta del histórico · Las capturas se conservan.';
+}
+async function load(){const token=++loadSequence;status.textContent='Cargando…';sheet.innerHTML='';areaInput.disabled=true;try{const response=await request();if(token!==loadSequence)return;view=response;areaInput.innerHTML=view.areas.map(r=>`<option value="${r.spec.code}">${esc(r.spec.name)}</option>`).join('');areaInput.disabled=false;render();}catch(e){if(token===loadSequence)status.textContent=e.message;}}
+function enqueue(el){const item=el.closest('[data-point]');if(!item)return;const row=view.areas.find(r=>r.spec.code===selected),command={action:'simple-point',point:item.dataset.point,done:item.querySelector('[type=checkbox]').checked,note:item.querySelector('[type=text]').value};pending.set(`${selected}:${command.point}`,{area:selected,command});row.data.checklistPoints??=structuredClone(row.data.points);row.data.checklistPoints[command.point]={status:command.done?'done':'pending',note:command.note};root.querySelector('#equipo-progress').textContent=tally(row);status.textContent='Guardando…';}
+async function flush(){if(saving||failed||!pending.size)return;saving=true;dateInput.disabled=true;areaInput.disabled=true;
+ try{while(pending.size){const [key,item]=pending.entries().next().value,row=view.areas.find(r=>r.spec.code===item.area),sent=JSON.stringify(item.command);const response=await request({area:item.area,revision:row.revision,command:item.command});row.revision=response.areas.find(r=>r.spec.code===item.area).revision;view.checklistHistory=response.checklistHistory;if(JSON.stringify(pending.get(key)?.command)===sent)pending.delete(key);}status.textContent='¡Guardado!';retry.hidden=true;}
+ catch(e){failed=true;status.textContent=e.message+' Tu selección sigue aquí.';retry.hidden=false;if(e.status===409){try{const latest=await request();for(const row of view.areas)row.revision=latest.areas.find(r=>r.spec.code===row.spec.code).revision;status.textContent='Otra persona actualizó esta área. Revisa tu selección y pulsa Reintentar guardado.';}catch{}}}
+ finally{saving=false;dateInput.disabled=!!pending.size;areaInput.disabled=!!pending.size;}
+}
+sheet.addEventListener('input',e=>{if(e.target.matches('[type=text]')){enqueue(e.target);dateInput.disabled=true;areaInput.disabled=true;clearTimeout(timer);timer=setTimeout(flush,700);}});
+sheet.addEventListener('change',e=>{enqueue(e.target);flush();});
+retry.addEventListener('click',()=>{failed=false;flush();});
+dateInput.addEventListener('change',()=>{date=dateInput.value;load();});areaInput.addEventListener('change',()=>{selected=areaInput.value;render();});
+window.addEventListener('beforeunload',e=>{if(pending.size){e.preventDefault();e.returnValue='';}});
+const requested=new URLSearchParams(location.search).get('area');if(requested&&requested!=='general')selected=requested==='sucursal_apertura'?'rastro':requested;
+document.addEventListener('DOMContentLoaded',()=>window.AreaNavigation?.mount(document.body,code=>{if(pending.size)return;const next=code==='sucursal_apertura'?'rastro':code;if(view?.areas.some(r=>r.spec.code===next)){selected=next;render();}}));
+load();
+})();

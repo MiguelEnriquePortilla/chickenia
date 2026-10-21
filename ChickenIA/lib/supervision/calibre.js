@@ -4,8 +4,15 @@ const {AREAS,VERSION}=require('./calibre-catalog');
 const fail=(message,status=400)=>{throw Object.assign(Error(message),{status});};
 const day=(now=new Date())=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
 const dateOK=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&Number.isFinite(Date.parse(s))&&new Date(s).toISOString().slice(0,10)===s;
+function checklistScore(spec,data){
+ const points=data.checklistPoints||data.points||{},reviewed=Object.keys(points).some(id=>spec.points.some(p=>p.id===id));
+ const done=spec.points.filter(p=>points[p.id]?.status==='done').length,total=spec.points.length;
+ return {done,total,score:reviewed&&total?done*100/total:null};
+}
+function weekDates(date){const d=new Date(date+'T12:00:00Z');d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return Array.from({length:7},(_,i)=>new Date(d.getTime()+i*86400000).toISOString().slice(0,10));}
 const text=z.string().trim().min(3).max(1200),short=z.string().trim().min(2).max(160);
 const command=z.discriminatedUnion('action',[
+ z.object({action:z.literal('simple-point'),point:z.string(),done:z.boolean(),note:z.string().trim().max(1200).default('')}),
  z.object({action:z.literal('point'),point:z.string(),status:z.enum(['done','issue','na','pending']),note:z.string().trim().max(1200).default('')}),
  z.object({action:z.literal('sample'),product:short,slot:z.enum(['arranque','comida','precierre']),total:z.number().int().min(1).max(100),passed:z.number().int().min(0),note:z.string().trim().max(1200).default('')}),
  z.object({action:z.literal('no-cases'),reason:text}),
@@ -36,6 +43,14 @@ function summary(spec,data,now=new Date(),date=day(now)){
 }
 function apply(spec,source,raw,user,now=new Date(),date=day(now)){
  const c=command.parse(raw),data=structuredClone(source),stamp=now.toISOString();
+ if(c.action==='simple-point'){
+  if(!spec.points.some(p=>p.id===c.point))fail('Actividad desconocida.');
+  if(spec.code==='caja'&&c.point==='3.5'&&c.done&&user.name!=='LILIAN')fail('Liliana confirma el cierre general en el sistema.',403);
+  // Separate checklist overlay: existing KPI, final evaluations and report snapshots stay unchanged.
+  data.checklistPoints??=structuredClone(data.points);
+  data.checklistPoints[c.point]={status:c.done?'done':'pending',note:c.note,actor:user.name,at:stamp};
+  return data;
+ }
  if(data.final&&c.action!=='reopen')fail('Así cerramos: este resultado ya está cerrado. Miguel o Lilian pueden reabrir con motivo.',409);
  if(c.action==='reopen'){
   if(!['MIGUEL','LILIAN'].includes(user.name))fail('Miguel o Lilian deben reabrir el resultado.',403);
@@ -103,4 +118,4 @@ function report(rows,date,kind,now=new Date()){
   return `\n${r.spec.name.toUpperCase()}\n✅ Mi ficha: ${pct(s.ficha)}\n🎯 ${r.spec.kpi}: ${pct(s.kpi)} (${s.passed}/${s.total})\n⭐ Actividad de 120%: ${r.data.extra?.verifiedAt?(r.data.extra.achieved?'Lograda y verificada':'Revisada · resultado por mejorar'):r.data.extra?'En marcha':'Por acordar'}${r.data.extra?.verifiedAt&&r.data.extra.achieved?'\n🙌 Hoy destacamos: '+r.spec.extras[r.data.extra.choice].title:''}\n${s.critical?'🚩':'🏆'} ${pct(s.score)} · ${s.level}${s.provisional?' · Provisional':''}\n➡️ ${s.critical?'Resolver y verificar atención prioritaria':s.kpi===null?'Completar medición del indicador':s.score===120?'¡A mantener el Calibre Chicanito!':'Completar la base y verificar nuestra actividad de 120%'}`;
  }).join('\n')+'\n\n¡Haz de tu día, un día Very Sabrosito!';
 }
-module.exports={AREAS,VERSION,day,dateOK,blank,summary,apply,report,fail};
+module.exports={AREAS,VERSION,day,dateOK,blank,summary,apply,report,fail,checklistScore,weekDates};
