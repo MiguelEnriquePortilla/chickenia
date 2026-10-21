@@ -163,7 +163,7 @@ async function load() {
   if(!state.isManager){host.hidden=true;return;}
   host.hidden=false;
   try{
-    const d=await Promise.all(['sucursal','movil'].map(async inventory=>{
+    const d=await Promise.all(['sucursal'].map(async inventory=>{
       try{return await api('protein-inventory?view=admin&inventory='+inventory+'&date='+encodeURIComponent(day));}
       catch{return {inventory,unavailable:true};}
     }));
