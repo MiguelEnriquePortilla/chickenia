@@ -1,5 +1,7 @@
 # Evaluación Equipo Chicanito — checklist sencillo y semana en Dashboard
 
+**Entrega aceptada y sesión cerrada por Miguel.** Leer [cierre vigente](CIERRE_CHECKLIST_SIMPLE_2026-10-21.md). Esperar nuevas indicaciones; sin cambios ni capturas automáticas pendientes.
+
 Pedido posterior de Miguel, 21 octubre 2026: la evaluación se sobrecomplicó. Sustituir su pantalla por la misma lista de la ficha, con casilla y nota opcional. Separar captura y visualización; conservar menú lateral y registros anteriores. Autorizó implementar y publicar.
 
 ## Comportamiento vigente

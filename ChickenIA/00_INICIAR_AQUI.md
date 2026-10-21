@@ -1,3 +1,13 @@
+## Sesion cerrada - Checklist sencillo y Dashboard semanal, 21 octubre 2026
+
+Miguel reviso las dos pantallas publicadas y confirmo que ya quedaron. La version vigente es Evaluacion Equipo Chicanito: misma lista de la ficha por area, casilla y nota opcional, guardado automatico. Dashboard con tabla semanal de areas/dias y tarjetas del porcentaje del checklist; ambos con menu lateral compartido. Sin formularios de KPI, muestras, incidencias o extras en esta vista.
+
+Leer primero [cierre vigente](CIERRE_CHECKLIST_SIMPLE_2026-10-21.md) y [detalle del ajuste](AJUSTE_CHECKLIST_SIMPLE_2026-10-21.md). Publicado `45c3431`, documentado `587aa0f`; 23 pruebas y dos recorridos de navegador aprobados, lectura autenticada en produccion verificada. Capturas e historicos conservados. Sin operaciones ni mensajes reales de prueba.
+
+Entrega aceptada y sesion cerrada: esperar nuevas indicaciones. Este estado sustituye la interfaz anterior de Calibre Chicanito/120%; no reintroducir formularios adicionales. Los apartados inferiores se conservan como antecedentes.
+
+---
+
 ## Sesion cerrada - Calibre Chicanito, 21 octubre 2026
 
 Entrega publicada y aceptada por Miguel. Fichas homologadas con lenguaje CHICANITO, KPI por area, base 50% ficha / 50% KPI, niveles 85/100/120 y actividad adicional verificada. Reportes por area o generales para compartir manualmente en WhatsApp, historico y cierres conservados.
