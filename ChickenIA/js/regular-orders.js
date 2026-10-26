@@ -44,9 +44,9 @@
  const status=text=>$('orders-status').textContent=text;
  const save=()=>{try{localStorage.setItem(key,JSON.stringify(draft));}catch{status('No se pudo guardar el borrador en este dispositivo. Puedes copiarlo antes de salir.');}};
  const quantity=v=>{const n=Number(String(v??'').replace(',','.'));return Number.isFinite(n)&&n>0&&n<=1000000?n:null;};
- const selected=()=>rows().map((row,i)=>({row,qty:quantity(current()[i])})).filter(x=>x.qty!==null);
+ const selected=()=>rows().map((row,i)=>({row,qty:quantity(current()[i]),existing:stockQuantity(stock()[i])})).filter(x=>x.qty!==null);
  const date=()=>new Date().toLocaleDateString('es-MX',{timeZone:'America/Mexico_City',day:'numeric',month:'long'}).replace(/de (\p{L})/u,(_,letter)=>'de '+letter.toUpperCase());
- function text(){return ['🛒 *LISTA DE PEDIDOS*','📦 *'+supplier+'*','📅 '+date(),'',...selected().map(({row,qty})=>`• *${qty}${row[1]?" "+row[1]:""}* - ${row[0]}`),...(current().note?['','📝 *Nota:* '+current().note]:[])].join('\n');}
+ function text(){return ['🛒 *LISTA DE PEDIDOS*','📦 *'+supplier+'*','📅 '+date(),'',...selected().map(({row,qty,existing})=>`• *${qty}${row[1]?" "+row[1]:""}* - ${row[0]}\n  Existencia: ${existing===null?"sin conteo":existing+(row[1]?" "+row[1]:"")}`),...(current().note?['','📝 *Nota:* '+current().note]:[])].join('\n');}
  function update(){const count=selected().length;for(const id of ['copy','share','whatsapp'])$(id).disabled=!count;$('capture-title').textContent='LISTA DE PEDIDOS · '+supplier;$('capture-date').textContent=date();$('capture-lines').replaceChildren();for(const {row,qty} of selected()){const p=document.createElement('p');p.textContent=`${qty}${row[1]?" "+row[1]:""} · ${row[0]}`;$('capture-lines').append(p);}if(!count)$('capture-lines').textContent='Escribe cantidades para preparar el pedido.';$('capture-note').textContent=current().note?'Nota: '+current().note:'';}
  function render(){
   $('suppliers').replaceChildren();for(const name of Object.keys(data.suppliers)){const b=document.createElement('button');b.type='button';b.textContent=name;if(name===supplier)b.setAttribute('aria-current','page');b.onclick=()=>{supplier=name;status('');$('manual-copy').hidden=true;render();};$('suppliers').append(b);}

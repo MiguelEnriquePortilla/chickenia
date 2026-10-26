@@ -17,23 +17,27 @@ try:
   page.goto('http://127.0.0.1:8952/pedidos.html')
   page.evaluate("localStorage.setItem('chickenia_orders_2026_v1',JSON.stringify({'CENTRAL DE ABASTOS':{6:'999',7:'5',11:'4',20:'15',stock:{7:'2',11:'3'},note:'Conservar'},peregrinaExpanded20261011:true}))")
   page.reload()
-  expect(page.locator('.orders-row')).to_have_count(20)
+  expect(page.locator('.orders-row')).to_have_count(21)
   expect(page.locator('#copy')).to_be_disabled()
   inputs=page.locator('.orders-row .order-quantity');inputs.nth(0).fill('2.5');inputs.nth(1).fill('0');inputs.nth(18).fill('13')
   stock_inputs=page.locator('.order-stock');stock_inputs.nth(0).fill('0');stock_inputs.nth(1).fill('7.5')
   page.locator('#note').fill('Entregar el lunes')
   page.locator('#copy').click();copied=page.evaluate('window.copied')
-  assert '*Pedidos Chicanito 2026*' in copied and '*SAMS*' in copied and '*2.5 garrafas*' in copied and 'Member' not in copied and 'Habitual' not in copied and 'Sabroseador' in copied and 'Salsa de soya' not in copied and 'Entregar el lunes' in copied
+  assert '*LISTA DE PEDIDOS*' in copied and '*SAMS*' in copied and '*2.5 garrafas*' in copied and 'Member' not in copied and 'Habitual' not in copied and 'Sabroseador' in copied and 'Salsa de soya' not in copied and 'Entregar el lunes' in copied
+  stock_inputs.nth(0).fill('1.5');page.locator('#copy').click();assert 'Existencia: 1.5 garrafas' in page.evaluate('window.copied')
+  stock_inputs.nth(0).fill('0');page.locator('#copy').click()
   page.locator('#share').click();assert page.evaluate('window.shared.text')==copied
   page.locator('#whatsapp').click();assert page.evaluate('window.opened').startswith('https://wa.me/?text=')
-  assert 'Existencia' not in copied
+  assert 'Existencia: 0 garrafas' in copied and 'Existencia: sin conteo' in copied
+  from urllib.parse import urlparse, parse_qs
+  assert parse_qs(urlparse(page.evaluate('window.opened')).query)['text'][0]==copied
   page.reload();expect(page.locator('.order-stock').nth(0)).to_have_value('0');expect(page.locator('.order-stock').nth(1)).to_have_value('7.5');expect(page.locator('.orders-row .order-quantity').first).to_have_value('2.5')
   page.get_by_role('button',name='PEREGRINA',exact=True).click();expect(page.locator('.orders-row')).to_have_count(25)
   expect(page.locator('.orders-row .order-quantity').first).to_have_value('')
   page.locator('.orders-row .order-quantity').first.fill('1')
   page.get_by_role('button',name='PLÁSTICOS',exact=True).click();expect(page.locator('.orders-row')).to_have_count(20)
   page.get_by_role('button',name='CENTRAL DE ABASTOS',exact=True).click();expect(page.locator('.orders-row')).to_have_count(16)
-  expect(page.locator('.orders-row .order-quantity').nth(5)).to_have_value('5');expect(page.locator('.order-stock').nth(5)).to_have_value('2');expect(page.locator('.orders-row .order-quantity').nth(6)).to_have_value('4');expect(page.locator('.order-stock').nth(6)).to_have_value('3');expect(page.locator('.orders-row .order-quantity').nth(15)).to_have_value('15');page.reload();expect(page.locator('.orders-row')).to_have_count(20);page.get_by_role('button',name='CENTRAL DE ABASTOS',exact=True).click();expect(page.locator('.orders-row .order-quantity').nth(5)).to_have_value('5');page.locator('.orders-row .order-quantity').first.fill('4');page.locator('#preview').click()
+  expect(page.locator('.orders-row .order-quantity').nth(5)).to_have_value('5');expect(page.locator('.order-stock').nth(5)).to_have_value('2');expect(page.locator('.orders-row .order-quantity').nth(6)).to_have_value('4');expect(page.locator('.order-stock').nth(6)).to_have_value('3');expect(page.locator('.orders-row .order-quantity').nth(15)).to_have_value('15');page.reload();expect(page.locator('.orders-row')).to_have_count(21);page.get_by_role('button',name='CENTRAL DE ABASTOS',exact=True).click();expect(page.locator('.orders-row .order-quantity').nth(5)).to_have_value('5');page.locator('.orders-row .order-quantity').first.fill('4');page.locator('#copy').click();central=page.evaluate('window.copied');assert 'Existencia: 2' in central and 'Existencia: 3' in central and 'Existencia: sin conteo' in central;page.locator('#preview').click()
   expect(page.locator('#capture')).to_be_visible();expect(page.locator('#products')).to_be_hidden()
   assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
   Path(ROOT/'test/results').mkdir(exist_ok=True)
