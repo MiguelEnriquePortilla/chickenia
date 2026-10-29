@@ -37,3 +37,8 @@ body.welcome-active{overflow:hidden}
 @keyframes welcome-phrase{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(max-height:500px){.chicken-welcome__stage{width:min(32svh,160px);margin:0}.chicken-welcome__speech{font-size:24px}}
 @media(prefers-reduced-motion:reduce){.chicken-welcome[data-ready] .chicken-welcome__speech,.chicken-welcome[data-ready] .chicken-welcome__speech strong{animation:none;opacity:1;transform:none}}
+
+/* Keep the full phrase on one line, even on compact phones. */
+.chicken-welcome__speech{font-size:clamp(12px,3.65vw,21px);white-space:nowrap;letter-spacing:-.025em}
+.chicken-welcome__speech span,.chicken-welcome__speech strong{display:inline}
+@media(max-height:500px){.chicken-welcome__speech{font-size:clamp(12px,3.65vw,21px)}}

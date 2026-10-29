@@ -28,7 +28,9 @@ try:
     assert page.locator('.chicken-welcome__pulse--one').evaluate('(el)=>getComputedStyle(el).transform')!=ring_before
     expect(page.locator('.chicken-welcome__speech')).to_contain_text('VERY SABROSITO')
     phrase=page.locator('.chicken-welcome__speech');brand=page.locator('.chicken-welcome__brand')
-    expect(phrase).to_have_css('font-size',brand.evaluate('(el)=>getComputedStyle(el).fontSize'))
+    expect(phrase).to_have_css('white-space','nowrap')
+    assert phrase.bounding_box()['height']<30
+    assert phrase.evaluate('(el)=>el.scrollWidth')<=width-40
     assert phrase.evaluate('(el)=>getComputedStyle(el).backgroundColor')=='rgba(0, 0, 0, 0)'
     assert page.locator('.chicken-welcome__stage').bounding_box()['y']<phrase.bounding_box()['y']<brand.bounding_box()['y']
     page.screenshot(path=str(out/'speech-390.png'))
