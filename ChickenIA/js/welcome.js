@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 (()=>{
  const screen=document.getElementById('chicken-welcome'),home=document.getElementById('chicken-home');
  if(!screen||!home)return;
@@ -17,12 +17,12 @@
  }
  function exit(){if(finished||screen.hasAttribute('data-exiting'))return;screen.dataset.exiting='true';exitTimer=setTimeout(finish,180);}
  // Slow or unavailable artwork must never block the operational home.
- const failsafe=setTimeout(finish,1800);
+ const failsafe=setTimeout(finish,5000);
  async function ready(){
   if(started||finished)return;started=true;
   try{if(mascot.decode)await mascot.decode();}catch{return finish();}
   if(finished)return;
-  screen.dataset.ready='true';displayTimer=setTimeout(exit,1050);
+  screen.dataset.ready='true';displayTimer=setTimeout(exit,3500);
  }
  screen.hidden=false;home.inert=true;home.setAttribute('aria-hidden','true');document.body.classList.add('welcome-active');
  skip.addEventListener('click',finish);
