@@ -29,7 +29,7 @@ try:
     expect(page.locator('#app-content')).to_have_css('padding-left','0px')
     page.locator('.sidebar-toggle').click();expect(page.locator('.primary-navigation')).to_be_visible();page.locator('.sidebar-toggle').click()
    out=ROOT/'.local/dashboard-feed';out.mkdir(parents=True,exist_ok=True)
-   page.screenshot(path=str(out/f'feed-{width}.png'))
+   page.evaluate('window.scrollTo(0,0)');page.screenshot(path=str(out/f'feed-{width}.png'))
   page.locator('#date-input').fill('2026-09-20');page.locator('#date-input').press('Tab');expect(host).to_contain_text('Sin captura')
   page.evaluate("document.documentElement.dataset.theme='dark'");page.screenshot(path=str(out/'feed-dark.png'))
   assert not errors,errors
