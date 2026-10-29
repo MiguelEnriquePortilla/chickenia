@@ -9,7 +9,7 @@
   let text='';
   if(type==='evaluation'){
    const areas=data.weekly?.areas||[],days=areas.map(a=>a.days.find(d=>d.date===day)),reviewed=days.filter(d=>d?.score!=null),pending=reviewed.reduce((n,d)=>n+Math.max(0,d.total-d.done),0);
-   text=`${reviewed.length} de ${areas.length} \u00e1reas revisadas \u00b7 ${pending} actividades pendientes${reviewed.length<areas.length?' \u00b7 '+(areas.length-reviewed.length)+' sin revisi\u00f3n':''}`;
+   text=`${reviewed.length} de ${areas.length} \u00e1reas revisadas \u00b7 ${pending} ${pending===1?'actividad pendiente':'actividades pendientes'}${reviewed.length<areas.length?' \u00b7 '+(areas.length-reviewed.length)+' sin revisi\u00f3n':''}`;
   }else if(type==='proteins'){
    const available=data.filter(r=>!r.unavailable),rows=available.flatMap(r=>r.rows||[]),captured=rows.filter(r=>r.total!=null).length;
    text=`${captured} de ${rows.length} registros con captura${data.length>available.length?' \u00b7 '+(data.length-available.length)+' destinos no disponibles':''}`;
