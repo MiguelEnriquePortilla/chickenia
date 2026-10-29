@@ -63,9 +63,12 @@
     if(header){const context=document.createElement('div');context.className='area-context';context.innerHTML='<span class="context-eyebrow">Área</span><span id="selected-area-title"></span>';header.after(context);}
     let compact=matchMedia('(max-width:760px)').matches;
     try{const saved=localStorage.getItem('chickenia_sidebar_v2');if(saved!==null)compact=saved==='compact';}catch{}
-    if(document.body.classList.contains('dashboard-feed')&&matchMedia('(max-width:760px)').matches)compact=true;
-    const toggle=aside.querySelector('.sidebar-toggle');
-    const apply=()=>{container.classList.toggle('sidebar-compact',compact);toggle.setAttribute('aria-expanded',String(!compact));toggle.setAttribute('aria-label',compact?'Expandir menú':'Contraer menú');aside.querySelectorAll('nav,.sidebar-areas,.sidebar-footer').forEach(el=>el.inert=compact);};
+    if(matchMedia('(max-width:760px)').matches)compact=true;
+    const toggle=aside.querySelector('.sidebar-toggle');toggle.innerHTML='<span>Menú</span>';
+    const backdrop=document.createElement('button');backdrop.type='button';backdrop.className='sidebar-backdrop';backdrop.setAttribute('aria-label','Cerrar menú');backdrop.hidden=true;backdrop.tabIndex=-1;container.append(backdrop);
+    const apply=()=>{const overlay=!compact&&matchMedia('(max-width:760px)').matches;container.classList.toggle('sidebar-compact',compact);toggle.setAttribute('aria-expanded',String(!compact));toggle.setAttribute('aria-label',compact?'Expandir menú':'Contraer menú');toggle.querySelector('span').textContent=compact?'Menú':'Cerrar';backdrop.hidden=!overlay;aside.querySelectorAll('nav,.sidebar-areas,.sidebar-footer').forEach(el=>el.inert=compact);[...container.children].filter(el=>el!==aside&&el!==backdrop&&!['SCRIPT','LINK','STYLE'].includes(el.tagName)).forEach(el=>el.inert=overlay);};
+    backdrop.addEventListener('click',()=>{compact=true;apply();toggle.focus();});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!compact){compact=true;apply();toggle.focus();}});
+    aside.addEventListener('keydown',e=>{if(e.key!=='Tab'||compact||!matchMedia('(max-width:760px)').matches)return;const items=[...aside.querySelectorAll('a[href],button:not([disabled]),summary')].filter(el=>el.checkVisibility()&&!el.closest('[inert]')&&![...aside.querySelectorAll('details:not([open])')].some(d=>d.contains(el)&&el!==d.querySelector(':scope>summary')));const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
     toggle.addEventListener('click',()=>{compact=!compact;apply();try{localStorage.setItem('chickenia_sidebar_v2',compact?'compact':'expanded');}catch{}});
     matchMedia('(max-width:760px)').addEventListener('change',e=>{compact=e.matches;apply();});apply();
     aside.addEventListener('click',e=>{const button=e.target.closest('[data-nav-area]');if(button)select(button.dataset.navArea);if(e.target.closest('[data-tab],[data-nav-area],a')&&matchMedia('(max-width:760px)').matches){compact=true;apply();}});

@@ -14,6 +14,7 @@ try:
   page.goto(base+'/rastro.html?date=2026-09-14');expect(page.locator('#save')).to_be_enabled()
   card=page.locator('[data-id="1"]');card.locator('[data-key="initial"]').fill('10');card.locator('[data-key="entry"]').fill('5');card.locator('[data-key="exit"]').fill('3')
   page.locator('#save').click();expect(card.locator('[data-balance]')).to_have_text('12 kg')
+  page.locator('.inventory-corrections').evaluate('(el)=>el.open=true')
   page.locator('#rectify').click();page.locator('#correct-item').select_option('1');page.locator('#correct-quantity').fill('9.5');page.locator('#correct-notes').fill('Salida capturada como entrada')
   expect(page.locator('#correct-preview')).to_contain_text('9.5 kg')
   accept['yes']=False;page.locator('#correction-form button[type=submit]').click();expect(page.locator('#correct-quantity')).to_have_value('9.5')
@@ -21,14 +22,18 @@ try:
   page.screenshot(path=str(out/'correction-mobile.png'),full_page=True)
   page.locator('#correction-form button[type=submit]').click();expect(page.locator('#status')).to_contain_text('rectificado correctamente');expect(card.locator('[data-balance]')).to_have_text('9.5 kg')
   page.reload();expect(card.locator('[data-balance]')).to_have_text('9.5 kg')
+  page.locator('.inventory-corrections').evaluate('(el)=>el.open=true')
   page.locator('#rectify').click();page.locator('#correct-item').select_option('1');page.locator('#correct-quantity').fill('9.5');page.locator('#correct-notes').fill('Misma cantidad');page.locator('#correction-form button[type=submit]').click()
   expect(page.locator('#correct-error')).to_contain_text('igual');expect(page.locator('#correct-quantity')).to_have_value('9.5');page.locator('#correct-cancel').click()
   for date,key,quantity,balance in [('2026-09-15','entry','2','11.5 kg'),('2026-09-16','exit','1','10.5 kg')]:
    page.locator('#date').fill(date);page.locator('#date').dispatch_event('change');expect(page.locator('#status')).to_contain_text(date)
    card.locator('[data-key="'+key+'"]').fill(quantity);page.locator('#save').click();expect(card.locator('[data-balance]')).to_have_text(balance)
   page.goto(base+'/dashboard.html?date=2026-09-16');host=page.locator('#rastro-overview');expect(host).to_contain_text('10.5 kg')
-  expect(host.locator('thead th')).to_have_count(4);expect(host).to_contain_text('9.5 kg');expect(host).to_contain_text('11.5 kg');expect(host).to_contain_text('Salida capturada como entrada')
-  for width in [390,1280]:
+  expect(host.locator('.cedis-product')).to_have_count(2)
+  host.evaluate('(el)=>{for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==="DETAILS")p.open=true}')
+  host.locator('details').evaluate_all('(els)=>els.forEach(el=>el.open=true)')
+  expect(host).to_contain_text('9.5 kg');expect(host).to_contain_text('11.5 kg');expect(host).to_contain_text('Salida capturada como entrada')
+  for width in [320,390,1440]:
    page.set_viewport_size({'width':width,'height':950})
    for theme in ['light','dark']:
     page.evaluate('(t)=>document.documentElement.dataset.theme=t',theme)

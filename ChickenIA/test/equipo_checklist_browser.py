@@ -19,6 +19,7 @@ try:
   expect(page.locator('script[src*=calibre-attendance]')).to_have_count(0)
   expect(page.locator('#equipo-sheet select')).to_have_count(0)
   expect(page.locator('#equipo-sheet button')).to_have_count(0)
+  assert page.evaluate("!!(document.querySelector('#equipo-sheet').compareDocumentPosition(document.querySelector('.equipo-share-tools')) & Node.DOCUMENT_POSITION_FOLLOWING)")
   first=page.locator('[data-point]').first
   first.locator('[type=checkbox]').check();expect(page.locator('#equipo-status')).to_have_text('\u00a1Guardado!')
   first.locator('[type=text]').fill('Nota conservada');expect(page.locator('#equipo-status')).to_have_text('\u00a1Guardado!')
@@ -57,6 +58,7 @@ try:
   for width in [320,390]:
    page.set_viewport_size({'width':width,'height':844});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
   cell.click();expect(page.locator('#equipo-area')).to_have_value('cocina');expect(page.locator('#calibre-date')).to_have_value('2026-10-21');expect(page.locator('[data-point]').first.locator('[type=checkbox]')).to_be_checked()
+  page.locator('.sidebar-toggle').click()
   page.locator('.evaluation-tree [data-nav-area=trastes]').click()
   expect(page.locator('#equipo-area')).to_have_value('trastes')
   expect(page.locator('.evaluation-tree [data-nav-area=trastes]')).to_have_attribute('aria-current','page')

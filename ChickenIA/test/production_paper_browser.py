@@ -17,6 +17,24 @@ try:
   page.locator('#areas summary').first.click();field=page.locator('.product input').first
   field.fill('2');field.press('Tab');expect(page.locator('#status')).to_have_text('Guardado')
   page.reload(wait_until='domcontentloaded');expect(page.locator('#areas details')).to_have_count(4);page.locator('#areas summary').first.click();expect(page.locator('.product input').first).to_have_value('2')
+  page.goto(base+'/produccion-diaria.html?date=2026-10-20&area=cocina',wait_until='domcontentloaded')
+  expect(page.locator('#date')).to_have_value('2026-10-20')
+  expect(page.locator('#areas details')).to_have_count(4)
+  assert page.locator('.product input').first.input_value() != '2'
+  page.locator('#areas summary').first.click()
+  page.route('**/api/inventory?action=paper-save',lambda r:r.fulfill(status=503,content_type='application/json',body='{"error":"Guardado temporalmente no disponible"}'))
+  failed_field=page.locator('.product input').first
+  failed_field.fill('7');failed_field.press('Tab')
+  expect(page.get_by_role('button',name='Reintentar',exact=True)).to_be_visible()
+  saved_url=page.url
+  page.locator('#date').fill('2026-10-19');page.locator('#date').press('Tab')
+  expect(page.locator('#date')).to_have_value('2026-10-20')
+  assert page.url==saved_url and 'area=cocina' in page.url
+  expect(page.get_by_role('button',name='Reintentar',exact=True)).to_be_visible()
+  expect(failed_field).to_have_value('7')
+  page.unroute('**/api/inventory?action=paper-save')
+  page.get_by_role('button',name='Reintentar',exact=True).click()
+  expect(page.locator('#status')).to_have_text('Guardado')
   for width in [320,390,1280]:
    page.set_viewport_size({'width':width,'height':844})
    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')

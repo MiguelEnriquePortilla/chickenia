@@ -1,13 +1,14 @@
 /* A single header; destinations belong only to the shared sidebar. */
 (()=>{
  function header(){
+  if(!document.getElementById('platform-styles')){const styles=document.createElement('link');styles.id='platform-styles';styles.rel='stylesheet';styles.href='/css/platform.css';document.head.append(styles);}
   const shell=document.querySelector('.area-shell');if(!shell||shell.querySelector('.unified-header'))return;
   const old=shell.querySelector('.app-header,.inv-header,.daily-header');
   const bar=document.createElement('header');bar.className='unified-header';
   bar.innerHTML='<div class="unified-brand"><img src="/icons/brand-watermark.svg" alt="" width="48" height="36"><span>Chicken Chican<span class="brand-ia">IA</span></span></div>';
   if(old){const tools=old.querySelector('.header-tools');if(tools)bar.append(tools);old.hidden=true;old.classList.add('legacy-header');}
   shell.querySelector('.area-sidebar').after(bar);
-  shell.querySelectorAll('main>header:not(.points-header),main>a[href],.points-header>a,.points-shell>footer a').forEach(el=>{if(el.matches('main>a')&&!['/','/index.html','/supervision.html'].includes(new URL(el.href).pathname))return;el.hidden=true;});
+  shell.querySelectorAll('main>header:not(.points-header),main>a[href],.points-header>a,.points-shell>footer a').forEach(el=>{if(el.matches('header')&&el.querySelector('h1'))return;if(el.matches('main>a')&&!['/','/index.html','/supervision.html'].includes(new URL(el.href).pathname))return;el.hidden=true;});
   if(location.pathname==='/dashboard.html'){const title=document.createElement('h1');title.className='unified-page-title';title.textContent='Resumen del día';bar.after(title);}
   if(!bar.querySelector('.header-tools')){
    const tools=document.createElement('div');tools.className='header-tools';

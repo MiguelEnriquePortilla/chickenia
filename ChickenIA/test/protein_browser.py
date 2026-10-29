@@ -46,6 +46,7 @@ try:
   expect(page.locator('#shipments')).not_to_contain_text('Pendiente')
   expect(page.locator('[data-protein="rosti"] [data-result]')).to_contain_text('110 pollos')
   auxiliary('count',{'raw':90,'marinated':20})
+  page.locator('#other-operations').evaluate('(el)=>el.open=true')
   page.locator('#rectify-shortcut').click()
   page.locator('#raw').fill('89.5');page.locator('#marinated').fill('20');page.locator('#notes').fill('Conteo revisado')
   page.locator('#save').click()
@@ -64,6 +65,7 @@ try:
   expect(page.locator('#shipments')).to_contain_text('Sin salidas registradas.')
   page.reload()
   expect(page.locator('#reset-info')).to_be_empty()
+  page.locator('#other-operations').evaluate('(el)=>el.open=true')
   page.locator('#rectify-shortcut').click()
   page.locator('#raw').fill('12.125');page.locator('#marinated').fill('0');page.locator('#notes').fill('Arqueo físico después del reinicio')
   page.locator('#save').click()
@@ -71,11 +73,16 @@ try:
   except Exception:
    print('Errors:',errors,'API:',page.locator('#error').inner_text());raise
   expect(page.locator('[data-protein="rosti"] [data-result]')).to_contain_text('12.125 pollos')
-  for width in [390,1280]:
+  for width in [320,390,1440]:
    page.set_viewport_size({'width':width,'height':900})
    for theme in ['light','dark']:
     page.evaluate('(theme)=>document.documentElement.dataset.theme=theme',theme)
     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(width,theme)
+  out=ROOT/'test/results/inventory-mobile';out.mkdir(parents=True,exist_ok=True)
+  page.set_viewport_size({'width':390,'height':844})
+  page.locator('#other-operations').evaluate('(el)=>el.open=false')
+  page.evaluate('scrollTo(0,0)')
+  page.screenshot(path=str(out/'protein-mobile.png'),full_page=True)
   assert not errors,errors
   browser.close()
  print('PASS: fixed form, atomic failure, decimals, reload, receipt, count, correction, mobile and desktop')

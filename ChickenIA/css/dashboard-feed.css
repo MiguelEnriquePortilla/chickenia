@@ -8,8 +8,6 @@
 .summary-section-tools button:disabled,.dashboard-feed .feed-actions button:disabled{opacity:.5;cursor:wait}
 .dashboard-feed .cedis-product{padding:0 14px;margin:0!important;border:1px solid var(--border-soft)!important}
 .dashboard-feed .cedis-product>summary{display:flex;justify-content:space-between;gap:12px;align-items:center;min-height:62px;padding:12px 0;font-size:15px}
-.dashboard-feed .cedis-product>summary:before{content:'›';color:var(--gray)}
-.dashboard-feed .cedis-product[open]>summary:before{content:'⌄'}
 .dashboard-feed .cedis-product>summary>span{flex:1}
 .dashboard-feed .cedis-product>summary strong{font-variant-numeric:tabular-nums;white-space:normal;text-align:right}
 .dashboard-feed .cedis-product-body{padding:0 0 16px}
@@ -65,3 +63,21 @@
  .dashboard-feed .feed-ledger dd{font-size:17px}
  .dashboard-feed .feed-number{font-size:36px}
 }
+/* Closed sections retain the date's factual capture state. */
+.dashboard-feed .summary-section>summary{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;list-style:none}
+.dashboard-feed summary::-webkit-details-marker{display:none}
+.dashboard-feed summary::marker{content:''}
+.dashboard-feed .section-state{flex-basis:100%;font-size:14px;font-weight:400;line-height:1.5;color:var(--text)}
+.dashboard-feed .feed-card summary{display:flex;list-style:none}
+.dashboard-feed .evaluation-order{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;cursor:pointer}
+.dashboard-feed .evaluation-order input{width:20px;height:20px;accent-color:var(--text)}
+.dashboard-feed #equipo-weekly>header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.dashboard-feed .feed-card{border:0;border-radius:0;padding:18px 0;border-bottom:1px solid var(--border-soft)}
+.dashboard-feed .feed-list{gap:0;margin-top:6px}
+.dashboard-feed .feed-number{font-size:28px;letter-spacing:-.02em}
+.dashboard-feed .feed-result{margin:10px 0;gap:14px}
+.dashboard-feed .feed-actions{margin-top:10px;border-top:0;padding-top:0}
+.dashboard-feed .summary-section{padding:0 18px}
+.dashboard-feed .section-toggle-label{font-size:14px;font-weight:400}
+.dashboard-feed .cedis-product>summary>span{flex:1}
+@media(max-width:760px){.dashboard-feed .summary-section{padding:0 14px}.dashboard-feed .feed-number{font-size:28px}.dashboard-feed .feed-ledger{grid-template-columns:repeat(3,minmax(0,1fr))}}

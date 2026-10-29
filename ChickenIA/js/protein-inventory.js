@@ -42,14 +42,14 @@
   $('#fields').innerHTML=html;$('#preview').textContent='';
   if(action==='rectify'){
    const r=snapshot.rows.find(r=>r.protein===protein);
-   $('#preview').textContent=`Ahora dice: sin marinar ${view.fmt(r.raw.current)} + marinados ${view.fmt(r.marinated.current)} = ${view.fmt(r.total)} pollos en CEDIS. Escribe arriba lo que hay realmente.`;
+   $('#preview').textContent=`Antes: sin marinar ${view.fmt(r.raw.current)} + marinados ${view.fmt(r.marinated.current)} = ${view.fmt(r.total)} pollos en CEDIS. Escribe arriba lo que hay realmente.`;
   }
  }
  function movementCards(){
   return snapshot.rows.map(r=>`<section class="protein-card" data-protein="${r.protein}"><h2>${r.name} · pollos</h2>
-   <p>Al abrir: <strong>${view.fmt(r.raw.previous)} sin marinar + ${view.fmt(r.marinated.previous)} marinados</strong></p>
+   <p class="protein-hint">Al abrir en CEDIS: <strong>${view.fmt(r.raw.previous)} sin marinar + ${view.fmt(r.marinated.previous)} marinados</strong></p>
    <p>Hoy: llegó ${view.fmt(r.entries)} · se marinó ${view.fmt(r.prepared)} · salió ${view.fmt(r.sent)} · merma ${view.fmt(r.waste)}${r.adjustment?' · rectificación '+view.fmt(r.adjustment):''}</p>
-   ${r.total===null?'<p>Sin captura. Registra la apertura en Otras operaciones.</p>':`<p>Hay ahora: ${view.fmt(r.raw.current)} sin marinar + ${view.fmt(r.marinated.current)} marinados.</p><div class="rastro-fields">${[['entry','Llegó del proveedor'],['marinate','Se marinó'],['send',`Sale a ${destination}`]].map(([key,label])=>`<label>${label} (pollos)<input data-key="${key}" type="number" min="0" max="1000000" step="0.001" inputmode="decimal" placeholder="Sin captura" autocomplete="off"></label>`).join('')}</div>`}
+   ${r.total===null?'<p>Sin captura. Registra la apertura en Otras operaciones.</p>':`<p>En CEDIS ahora: ${view.fmt(r.raw.current)} sin marinar + ${view.fmt(r.marinated.current)} marinados.</p><div class="rastro-fields">${[['entry','Llega a CEDIS'],['marinate','Se marina en CEDIS'],['send',`Sale a ${destination}`]].map(([key,label])=>`<label>${label} (pollos)<input data-key="${key}" type="number" min="0" max="1000000" step="0.001" inputmode="decimal" placeholder="Sin captura" autocomplete="off"></label>`).join('')}</div>`}
    <p data-result aria-live="polite">${balanceText(r,r.raw.current,r.marinated.current)}</p>
    ${r.correction?`<p class="protein-verification">Inventario rectificado: ${view.esc(r.correction.notes)} · ${view.esc(r.correction.actor)}</p>`:''}
    ${view.verification?view.verification(r):''}</section>`).join('');
@@ -89,7 +89,7 @@
   if(['initial','count','rectify'].includes(action)){
    const raw=$('#raw'),mar=$('#marinated');if([raw,mar].some(i=>i.value===''||!i.validity.valid)){$('#preview').textContent='Completa ambas cantidades para ver cómo quedará el inventario.';return;}
    const total=Math.round((Number(raw.value)+Number(mar.value))*1000)/1000;
-   $('#preview').textContent=(action==='rectify'?`Ahora dice ${view.fmt(r.total)}. Quedará: `:action==='count'?'Contaste: ':'Se guardará: ')+`${view.fmt(Number(raw.value))} sin marinar + ${view.fmt(Number(mar.value))} marinados = ${view.fmt(total)} pollos en CEDIS.`;return;
+   $('#preview').textContent=(action==='rectify'?`Antes: ${view.fmt(r.total)}. Ahora: `:action==='count'?'Contaste: ':'Se guardará: ')+`${view.fmt(Number(raw.value))} sin marinar + ${view.fmt(Number(mar.value))} marinados = ${view.fmt(total)} pollos en CEDIS.`;return;
   }
   if(!amount||amount.value===''||!amount.validity.valid){$('#preview').textContent='';return;}
   const n=Number(amount.value),round=v=>Math.round(v*1000)/1000;
@@ -116,7 +116,7 @@
   if(action==='send')body.slot=$('#slot').value;if(action==='waste')body.state=$('#stock-state').value;
   if(action==='rectify'){
    const r=snapshot.rows.find(r=>r.protein===body.protein);
-   if(!confirm(`${view.names[body.protein]} · ${loadedDate}\nSin marinar: ${view.fmt(r.raw.current)} → ${view.fmt(body.raw)}\nPollos Marinados: ${view.fmt(r.marinated.current)} → ${view.fmt(body.marinated)}\nMotivo: ${body.notes}\n\n¿Guardar estas cantidades como lo que realmente hay en CEDIS? La corrección quedará registrada con tu nombre.`))return;
+   if(!confirm(`${view.names[body.protein]} · ${loadedDate}\nSin marinar / Antes: ${view.fmt(r.raw.current)} / Ahora: ${view.fmt(body.raw)}\nPollos Marinados / Antes: ${view.fmt(r.marinated.current)} / Ahora: ${view.fmt(body.marinated)}\nMotivo: ${body.notes}\n\n¿Guardar estas cantidades como lo que realmente hay en CEDIS? La corrección quedará registrada con tu nombre.`))return;
   }
   lock(true);$('#error').textContent='';try{snapshot=await api(body,loadedDate);dirty=false;render();$('#status').textContent=(action==='rectify'?'Inventario rectificado correctamente':'Movimiento guardado correctamente')+' · '+snapshot.date;}catch(error){$('#error').textContent=error.message;}finally{lock(false);}
  };
@@ -125,7 +125,7 @@
   if(dirty&&!confirm('Hay una captura sin guardar. ¿Descartarla para reiniciar Proteínas?'))return;
   const notes=prompt('Motivo del reinicio de Proteínas:');if(notes===null)return;
   if(notes.trim().length<3){$('#error').textContent='Escribe el motivo del reinicio.';return;}
-  const balances=snapshot.rows.map(r=>r.name+': '+view.fmt(r.raw.current)+' sin marinar + '+view.fmt(r.marinated.current)+' marinados → 0').join('\n');
+  const balances=snapshot.rows.map(r=>r.name+': '+view.fmt(r.raw.current)+' sin marinar + '+view.fmt(r.marinated.current)+' marinados / Ahora: 0').join('\n');
   if(!confirm((mobile?'Chicanito Móvil':'Sucursal')+'\n'+balances+'\n\nSe cerrará el ciclo anterior: saldos y acumulados empezarán en cero hoy. La bitácora anterior queda conservada.\nMotivo: '+notes+'\n\n¿Reiniciar las proteínas de este apartado con tu autorización actual?'))return;
   lock(true);$('#error').textContent='';
   try{snapshot=await api({action:'reset',date:loadedDate,revision:snapshot.revision,notes:notes.trim(),confirm:true},loadedDate);dirty=false;render();$('#status').textContent='Proteínas reiniciadas en cero. Ya puedes rectificar con el inventario físico de hoy.';}

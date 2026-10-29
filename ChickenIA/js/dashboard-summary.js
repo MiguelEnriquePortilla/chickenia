@@ -2,7 +2,25 @@
  'use strict';
  const names={evaluation:'Evaluaciones',proteins:'Proteínas',production:'Producción',cedis:'Inventario CEDIS'},records=new Map();
  const date=()=>document.getElementById('date-input').value||new URLSearchParams(location.search).get('date')||new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
- window.DashboardReports={set(type,data,day){if(day!==date())return;records.set(type,{data,date:day});document.querySelectorAll(`[data-summary-report="${type}"]`).forEach(b=>b.disabled=false);}};
+ window.DashboardReports={set(type,data,day){if(day!==date())return;records.set(type,{data,date:day});updateSectionSummary(type,data,day);document.querySelectorAll(`[data-summary-report="${type}"]`).forEach(b=>b.disabled=false);}};
+
+ function updateSectionSummary(type,data,day){
+  const summary=document.querySelector(`#resumen-${type==='evaluation'?'evaluation':type==='proteins'?'proteins':type==='production'?'production':'cedis'}>summary`);if(!summary)return;
+  let text='';
+  if(type==='evaluation'){
+   const areas=data.weekly?.areas||[],days=areas.map(a=>a.days.find(d=>d.date===day)),reviewed=days.filter(d=>d?.score!=null),pending=reviewed.reduce((n,d)=>n+Math.max(0,d.total-d.done),0);
+   text=`${reviewed.length} de ${areas.length} \u00e1reas revisadas \u00b7 ${pending} actividades pendientes${reviewed.length<areas.length?' \u00b7 '+(areas.length-reviewed.length)+' sin revisi\u00f3n':''}`;
+  }else if(type==='proteins'){
+   const available=data.filter(r=>!r.unavailable),rows=available.flatMap(r=>r.rows||[]),captured=rows.filter(r=>r.total!=null).length;
+   text=`${captured} de ${rows.length} registros con captura${data.length>available.length?' \u00b7 '+(data.length-available.length)+' destinos no disponibles':''}`;
+  }else if(type==='cedis'){
+   const lines=data.days?.find(d=>d.date===day)?.lines||data.lines||[];
+   text=`${lines.filter(r=>r.final!=null).length} de ${lines.length} productos con captura`;
+  }else{
+   const p=data.production;text=!p?.revision?'Sin captura':`${p.finalized?'Finalizado':'Borrador'} \u00b7 ${p.totals.active} productos \u00b7 ${p.totals.pendingBatches} tandas pendientes`;
+  }
+  let label=summary.querySelector('.section-state');if(!label){label=document.createElement('span');label.className='section-state';summary.append(label);}label.textContent=text;
+ }
  const dialog=document.createElement('dialog');dialog.className='summary-share-dialog';dialog.setAttribute('aria-label','Vista previa del informe');document.body.append(dialog);
  let message='',imageUrl='',blob,previousFocus;
  function clearImage(){if(imageUrl)URL.revokeObjectURL(imageUrl);imageUrl='';blob=null;}
@@ -36,5 +54,5 @@
  window.addEventListener('hashchange',openTarget);openTarget();
  window.addEventListener('chickenia:shell',openTarget);
  document.addEventListener('click',e=>{const link=e.target.closest('.summary-tree a');if(!link)return;const url=new URL(link.href);if(url.pathname===location.pathname){url.searchParams.set('date',date());link.href=url.href;const section=document.getElementById(url.hash.slice(1));if(section)section.open=true;}});
- document.getElementById('date-input').addEventListener('change',()=>{records.clear();document.querySelectorAll('[data-summary-report]').forEach(b=>b.disabled=true);if(dialog.open)close();});
+ document.getElementById('date-input').addEventListener('change',()=>{records.clear();document.querySelectorAll('.section-state').forEach(el=>el.textContent='Consultando fecha...');document.querySelectorAll('[data-summary-report]').forEach(b=>b.disabled=true);if(dialog.open)close();});
 })();

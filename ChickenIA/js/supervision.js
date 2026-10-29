@@ -272,7 +272,7 @@ function render() {
       return `
     <section class="area-block" data-area-code="${area.code}">
       <button type="button" class="accordion-header" aria-expanded="${isOpen}">
-        <span class="acc-title"><span class="acc-chevron">▸</span><span class="acc-name">${area.name}</span></span>
+        <span class="acc-title"><span class="acc-chevron"></span><span class="acc-name">${area.name}</span></span>
         <span class="acc-meta" id="area-score-${area.code}"></span>
       </button>
       <div class="accordion-body" ${isOpen ? '' : 'inert'}>

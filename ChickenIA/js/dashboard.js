@@ -36,6 +36,7 @@ function setCollapsible(toggleId, bodyId, open) {
   const body = document.getElementById(bodyId);
   if (!toggle || !body) return;
   toggle.setAttribute('aria-expanded', String(open));
+  const label=toggle.querySelector('.section-toggle-label');if(label)label.textContent=open?'Ocultar':'Mostrar';
   body.inert = !open;
 }
 
@@ -186,7 +187,7 @@ async function loadDailyCaptures(){
     const p=d.production;
     const status=r=>!r?.revision?'Sin captura':r.finalized?'Finalizado':'Borrador · Provisional';
     host.innerHTML=`<h2>Producción</h2><div class="feed-list"><article class="feed-card"><div class="daily-columns">
-      <section><p>${status(p)}</p>${p.revision?`<p>${p.totals.active} productos del día · ${p.totals.pendingBatches} tandas pendientes</p><p>${p.totals.missing.length} datos o revisiones pendientes</p><p>Pollo producido: ${p.totals.chickenTotal??"Pendiente"} pollos · Costilla: ${p.totals.costillaKg??"Pendiente"} kg</p>`:''}</section></div><div class="feed-actions"><a href="/produccion-diaria.html?date=${encodeURIComponent(date)}">Ver producción →</a></div></article></div>`;
+      <section><p>${status(p)}</p>${p.revision?`<p>${p.totals.active} productos del día · ${p.totals.pendingBatches} tandas pendientes</p><p>${p.totals.missing.length} datos o revisiones pendientes</p><p>Pollo producido: ${p.totals.chickenTotal??"Pendiente"} pollos · Costilla: ${p.totals.costillaKg??"Pendiente"} kg</p>`:''}</section></div><div class="feed-actions"><a href="/produccion-diaria.html?date=${encodeURIComponent(date)}">Ver producción</a></div></article></div>`;
   }catch(e){if(state.date===date)host.innerHTML='<h2>Producción</h2><p>'+esc(e.message)+'</p>';}
 }
 const prevAreaStatus = {};

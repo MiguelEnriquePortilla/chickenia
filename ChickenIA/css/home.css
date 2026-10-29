@@ -34,4 +34,4 @@
 .home-header .theme-control svg{width:18px;height:18px}
 @media(hover:hover) and (pointer:fine){.home-screen a:hover{filter:brightness(.96)}}
 @media(min-width:761px){.home-screen{margin:40px auto;min-height:0;border:1px solid var(--home-line);border-radius:18px;overflow:hidden}}
-@media(max-width:360px){.home-header.daily-header{padding:18px 16px}.home-brand small{font-size:9px}.home-brand span{font-size:15px}.home-brand img{width:30px;height:32px}.home-content{padding:23px 16px 18px}}
+@media(max-width:360px){.home-header.daily-header{padding:18px 16px}.home-brand small{font-size:10px}.home-brand span{font-size:15px}.home-brand img{width:30px;height:32px}.home-content{padding:23px 16px 18px}}

@@ -23,7 +23,7 @@
       if(data.rows.length>3){const details=element('details');details.append(element('summary',`Ver detalle · ${data.rows.length} registros`),wrap);card.append(details);}else card.append(wrap);
     }
     data.warnings.forEach(line=>card.append(element('p',line,'chat-warning')));
-    for(const source of data.sources){const a=element('a',source.label+' →');a.href=source.href;card.append(a);}
+    for(const source of data.sources){const a=element('a',source.label+'  / ');a.href=source.href;card.append(a);}
     card.append(element('div',`Último registro: ${timestamp(data.updatedAt)} · Consultado: ${timestamp(data.consultedAt)} (CDMX)`,'chat-meta'));
     const follow=element('div',null,'chat-followups');
     for(const q of (data.intent==='inventory'||data.intent==='nancy'?['Verificaciones de Nancy','Inventarios y compras']:['Desglosar por áreas','Comparar con ayer'])){const b=element('button',q);b.type='button';b.dataset.question=q;follow.append(b);}card.append(follow);

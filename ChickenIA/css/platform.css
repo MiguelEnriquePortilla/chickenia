@@ -1,0 +1,71 @@
+/* Shared operating surface: the approved home palette, with room for real work. */
+body:has(.area-shell),body.area-shell{margin:0}
+.area-shell{--surface:#fff;--bg:#f5f3ee;--text:#202430;--ink:#202430;--gray:#626671;--muted:#626671;--border-soft:#e3e1db;--line:#e3e1db;--sidebar-bg:#fff;--hover:#f2f0e9;--selected:#eeebe3;min-height:100dvh;line-height:1.5}
+[data-theme=dark] .area-shell{--surface:#282a30;--bg:#1d1e23;--text:#f2f0e9;--ink:#f2f0e9;--gray:#b3b5bf;--muted:#b3b5bf;--border-soft:#3c3e47;--line:#3c3e47;--sidebar-bg:#23252b;--hover:#34363d;--selected:#393b45}
+.area-shell *{box-sizing:border-box}
+.area-shell h1{font-size:clamp(24px,3vw,30px);line-height:1.2;letter-spacing:-.6px;text-wrap:balance}
+.area-shell h2{line-height:1.3;letter-spacing:-.3px;text-wrap:balance}
+.area-shell :is(button,a,input,select,textarea,summary){-webkit-tap-highlight-color:transparent}
+.area-shell :is(button,a,summary){touch-action:manipulation}
+.area-shell :is(button,summary){user-select:none}
+.area-shell :is(button,input:not([type=checkbox]):not([type=radio]),select,textarea){min-height:44px;font-size:16px;border-radius:10px}
+.area-shell :is(button,a,input,select,textarea,summary):focus-visible{outline:3px solid #d9a441;outline-offset:3px}
+.area-shell :is(input,select,textarea){accent-color:#1b2341;caret-color:var(--text)}
+.area-shell select{appearance:none;background-image:none;padding-right:12px}
+.area-shell ::selection{background:#d9a441;color:#1b2341}
+.area-shell :is(input::placeholder,textarea::placeholder){color:var(--gray);opacity:1}
+.area-shell a{text-underline-offset:4px}
+.area-shell :is(button,a,summary):active{opacity:.78}
+.area-shell main{overflow-wrap:anywhere}
+.area-shell :is(.equipo-sheet-head,.equipo-checklist h3){border:0;border-radius:10px}
+.area-shell .equipo-sheet-head{background:var(--surface);color:var(--text);padding:18px 0;border-bottom:1px solid var(--border-soft);border-radius:0}
+.area-shell .equipo-sheet-head h2{font-size:22px}
+.area-shell .equipo-checklist h3{font-size:15px;background:transparent;color:var(--gray);padding:20px 0 10px}
+.area-shell .equipo-point{border:0;border-bottom:1px solid var(--border-soft);padding:18px 0;background:transparent}
+.area-shell .equipo-task{min-height:44px}
+.area-shell .equipo-task>span{min-width:0}
+.area-shell .equipo-note{font-size:13px}
+.area-shell :is(.equipo-save-help,.production-save-help){font-size:13px;line-height:1.5;color:var(--gray);margin:10px 0 16px}
+.area-shell .sidebar-backdrop{position:fixed;inset:0;z-index:55;border:0;border-radius:0;background:#0006;width:100%;height:100dvh;padding:0}
+.area-shell .equipo-controls label{font-size:13px;color:var(--gray)}
+.area-shell .equipo-share-tools{padding-top:24px;margin-top:16px;border-top:1px solid var(--border-soft)}
+/* Text carries disclosure state; no directional icon is needed. */
+.area-shell summary{list-style:none!important;display:flex;align-items:center;gap:12px;cursor:pointer;min-height:44px}
+.area-shell summary::marker{content:''}
+.area-shell summary::-webkit-details-marker{display:none}
+.area-shell summary::before{content:none!important}
+.area-shell details>summary::after{content:'Mostrar';font:500 12px/1.4 Poppins,Arial,sans-serif;margin-left:auto;color:var(--gray);transform:none;flex-shrink:0}
+.area-shell details[open]>summary::after{content:'Ocultar';transform:none}
+.area-shell .nav-group>summary::after{content:'Abrir'}
+.area-shell .nav-group[open]>summary::after{content:'Cerrar'}
+.area-shell .sidebar-toggle{width:auto;min-width:44px;min-height:44px!important;padding:8px!important;font:500 12px Poppins,Arial,sans-serif}
+.area-shell .sidebar-toggle svg{display:none}
+.area-shell .sidebar-toggle span{display:inline!important}
+.area-shell .unified-header{background:var(--surface);min-height:72px;border-bottom:1px solid var(--border-soft)}
+.area-shell .unified-brand img{width:38px;height:38px}
+.area-shell :is(.summary-share-dialog,.equipo-share-dialog){max-height:85dvh;overflow:auto}
+.area-shell :is(.summary-share-dialog,.equipo-share-dialog)::backdrop{background:#0008}
+@media(max-width:760px){
+ .area-shell,.area-shell.sidebar-compact,.area-shell:not(.sidebar-compact){--sidebar-width:0px;padding-left:0!important;transition:none}
+ .area-shell>main,.area-shell .points-shell{width:100%;padding:24px 16px;margin:0;max-width:none}
+ .area-shell .area-sidebar{width:min(320px,calc(100vw - 40px));height:100dvh;overscroll-behavior:contain;z-index:60}
+ .area-shell:not(.sidebar-compact) .area-sidebar{box-shadow:8px 0 32px #0003}
+ .area-shell.sidebar-compact .area-sidebar{width:64px;height:64px;border:0;padding:0 6px;background:transparent;overflow:hidden}
+ .area-shell.sidebar-compact .sidebar-top{padding:10px 0;min-height:64px}
+ .area-shell.sidebar-compact .area-sidebar>:not(.sidebar-top){display:none}
+ .area-shell .unified-header{padding:12px 16px 12px 72px;min-height:64px}
+ .area-shell .unified-brand{gap:6px}
+ .area-shell .unified-brand img{display:none}
+ .area-shell .unified-brand>span{font-size:14px}
+ .area-shell .unified-header .theme-control{width:44px;height:44px;min-height:44px}
+ .area-shell .area-context{display:none}
+ .area-shell .equipo-controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+ .area-shell .equipo-controls :is(input,select){width:100%}
+ .area-shell .equipo-controls label{min-width:0}
+ .area-shell .equipo-note{margin-left:39px;display:grid;gap:5px}
+ .area-shell .equipo-share-tools{display:grid;gap:8px}
+ .area-shell .equipo-checklist h1{margin-bottom:20px}
+ .area-shell .unified-page-title{margin:24px 16px 0}
+ .area-shell :is(table){font-variant-numeric:tabular-nums}
+}
+@media(prefers-reduced-motion:reduce){.area-shell *{scroll-behavior:auto!important;transition:none!important}}

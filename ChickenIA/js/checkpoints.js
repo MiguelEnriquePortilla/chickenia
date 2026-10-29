@@ -20,7 +20,7 @@ window.ChickenCheckpoints = {
       const data=c.snapshot||c.current;
       const status=c.captured?(c.delivery_status==='sent'?'Reporte guardado · enviado a Telegram':'Reporte guardado · envío por confirmar'):'Sin corte guardado';
       return `<details class="checkpoint" data-cut="${esc(c.id)}" ${open.has(c.id)?'open':''}>
-        <summary><time>${esc(c.time)}</time><strong>${esc(c.label)}</strong><span class="cut-status">${esc(status)}</span><small>Ver avance por área ▾</small></summary>
+        <summary><time>${esc(c.time)}</time><strong>${esc(c.label)}</strong><span class="cut-status">${esc(status)}</span><small>Ver avance por área </small></summary>
         <p>${esc(c.focus)}</p>
         <p>${c.captured?'Capturado a las '+esc(new Date(data.captured_at).toLocaleTimeString('es-MX',{timeZone:'America/Mexico_City',hour12:false})):'Avance registrado actualmente para la fecha seleccionada. No representa un corte histórico.'}</p>
         <table><thead><tr><th>Área</th><th>Bloque</th><th>Día</th></tr></thead><tbody>${data.areas.map(a=>`<tr><td>${esc(a.name)}${a.unclassified?`<br><small>${a.unclassified} sin bloque</small>`:''}${a.critical_pending?`<br><small>${a.critical_pending} críticos del bloque pendientes</small>`:''}</td><td>${pct(a.block)}</td><td>${pct(a.day)}</td></tr>`).join('')}</tbody></table>
