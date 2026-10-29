@@ -91,11 +91,11 @@ function report(data,day){
  const week=Array.from({length:7},(_,i)=>{const d=new Date(start);d.setUTCDate(d.getUTCDate()+i);const value=d.toISOString().slice(0,10);return {date:value,rows:value<=day?summarize(events,value):null};});
  const shipments=events.filter(e=>e.meta.action==='send'&&e.day<=day).map(e=>{
   const receipt=events.find(r=>r.meta.action==='receive'&&r.meta.shipment===e.id&&r.day<=day);
-  return {id:e.id,protein:e.protein,date:e.day,slot:e.meta.slot,sent:Number(e.quantity),actor:e.recorded_by,at:e.recorded_at,notes:e.meta.notes,
+  return {id:e.id,protein:e.protein,date:e.day,slot:e.meta.slot,sent:Number(e.quantity),actor:e.recorded_by,at:e.recorded_at,notes:e.meta.notes,deliveryStatus:'delivered',
    receipt:receipt?{amount:Number(receipt.quantity),difference:decimal(units(receipt.quantity)-units(e.quantity)),actor:receipt.recorded_by,at:receipt.recorded_at,date:receipt.day,notes:receipt.meta.notes}:null};
  });
  return {inventory,date:day,revision,unit:'pollos',lastRecordedAt:events.filter(e=>e.day<=day).map(e=>e.recorded_at).filter(Boolean).sort((a,b)=>new Date(a)-new Date(b)).at(-1)||null,reset:restart?{date:restart.day,actor:restart.recorded_by,at:restart.recorded_at,notes:restart.meta.notes}:null,rows:summarize(events,day),week,shipments,
-  pending:shipments.filter(s=>!s.receipt).length,
+  pending:0,deliveryMode:'delivered-on-dispatch',
   history:events.filter(e=>e.day<=day&&e.day>=week[0].date).map(e=>({id:e.id,date:e.day,protein:e.protein,state:e.state,quantity:Number(e.quantity),kind:e.movement_type,...e.meta,actor:e.recorded_by,at:e.recorded_at})).reverse()};
 }
 async function read(query,day){date.parse(day);return report(await records(query),day);}

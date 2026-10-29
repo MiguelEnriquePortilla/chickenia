@@ -169,7 +169,7 @@ test('fixed form saves both proteins atomically, rejects stale retry and keeps s
   assert.equal((await f.read()).rows[0].total,140);
   body.lines[1].send=2.5;d=await f.save(body);
   assert.equal(d.rows[0].raw.current,90);assert.equal(d.rows[0].marinated.current,20);
-  assert.equal(d.rows[1].total,7.5);assert.equal(d.shipments.length,2);assert.equal(d.pending,2);
+  assert.equal(d.rows[1].total,7.5);assert.equal(d.shipments.length,2);assert.equal(d.pending,0);assert.equal(d.deliveryMode,'delivered-on-dispatch');assert.ok(d.shipments.every(s=>s.deliveryStatus==='delivered'));assert.ok(d.shipments.every(s=>s.receipt===null));
   assert.match(d.shipments[0].notes,/Entrega: Eliseo/);assert.equal(d.shipments[0].receipt,null);
   await assert.rejects(f.save(body),e=>e.status===409);
   await assert.rejects(f.save({...body,revision:d.revision,lines:[{protein:'rosti',entry:0}]}),/mayor que cero/);

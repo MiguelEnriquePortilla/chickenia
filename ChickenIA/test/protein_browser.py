@@ -42,7 +42,8 @@ try:
   page.reload()
   expect(page.locator('[data-protein="cruji"] [data-result]')).to_contain_text('7.5 pollos')
   page.locator('#other-operations summary').click()
-  auxiliary('receive',{'amount':50})
+  expect(page.locator('#action option[value=receive]')).to_have_count(0)
+  expect(page.locator('#shipments')).not_to_contain_text('Pendiente')
   expect(page.locator('[data-protein="rosti"] [data-result]')).to_contain_text('110 pollos')
   auxiliary('count',{'raw':90,'marinated':20})
   page.locator('#rectify-shortcut').click()
@@ -60,7 +61,7 @@ try:
   expect(page.locator('#status')).to_contain_text('reiniciadas en cero')
   for protein in ['rosti','cruji']:
    expect(page.locator('[data-protein="'+protein+'"] [data-result]')).to_contain_text('0 pollos')
-  expect(page.locator('#shipments')).to_contain_text('0 envíos pendientes')
+  expect(page.locator('#shipments')).to_contain_text('Sin salidas registradas.')
   page.reload()
   expect(page.locator('#reset-info')).to_be_empty()
   page.locator('#rectify-shortcut').click()

@@ -15,7 +15,7 @@
     for(const r of rows){const day=report.week?.find(w=>w.date===date)?.rows.find(x=>x.protein===r.protein),previous=day&&day.raw.previous!=null&&day.marinated.previous!=null?day.raw.previous+day.marinated.previous:null;
      lines.push('*'+r.name+' · Destino: '+destination+'*',`Había: ${fmt(previous)} pollos`,`Llegó proveedor: ${fmt(r.total==null?null:r.entries)}`,`Salió a ${destination}: ${fmt(r.total==null?null:r.sent)}`,...(r.waste?['Merma: '+fmt(r.waste)]:[]),...(r.adjustment?['Rectificación: '+fmt(r.adjustment)]:[]),`*Quedan en CEDIS: ${fmt(r.total)} pollos*`,`Sin marinar: ${fmt(r.raw.current)} · Marinados: ${fmt(r.marinated.current)}`,'');}
    }
-   lines.push('Existencias en CEDIS asignadas a cada destino. Los envíos ya están descontados. No son existencias recibidas en Sucursal o Móvil.');
+   lines.push('Existencias en CEDIS por destino.');
   }else if(type==='cedis'){
    for(const p of data.lines.filter(p=>!item||String(p.id)===item)){const r=data.days.find(d=>d.date===date)?.lines.find(x=>x.id===p.id)||p;lines.push('*'+p.name+'*',`Había: ${fmt(r.previous)} · Llegó: ${fmt(r.entry)} · Salió: ${fmt(r.exit)}`,...(r.adjustment?['Rectificación: '+fmt(r.adjustment)]:[]),`*Quedan: ${fmt(r.final)} ${p.unit}*`,'');}
   }else if(type==='production'){

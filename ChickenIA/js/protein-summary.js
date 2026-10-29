@@ -12,11 +12,8 @@
    if(!d||d.unavailable)return {inventory,name:names[inventory],unavailable:true,rows:[],alerts:['Datos no disponibles']};
    const alerts=[];
    const rows=d.rows.map(r=>{
-    const shipments=d.shipments.filter(s=>s.protein===r.protein),pending=shipments.filter(s=>!s.receipt);
+    const pending=[];
     if(r.total==null)alerts.push(r.name+': sin captura inicial');
-    if(pending.length)alerts.push(`${r.name}: ${fmt(sum(pending.map(s=>s.sent)))} pollos en ${pending.length} envío(s) por confirmar`);
-    const differences=shipments.filter(s=>s.receipt?.date===d.date&&s.receipt.difference!==0);
-    if(differences.length)alerts.push(`${r.name}: ${differences.length} recepción(es) con diferencia hoy`);
     for(const key of ['raw','marinated']){
      const c=r[key].count;
      if(c?.date===d.date&&c.difference!==0)alerts.push(`${r.name} ${key==='raw'?'sin marinar':'marinado'}: diferencia de conteo ${fmt(c.difference)}${c.movedSince?' (hubo movimientos posteriores)':''}`);
@@ -33,12 +30,12 @@
    out.push('',g.name.toUpperCase());
    if(g.unavailable){out.push('Datos no disponibles');continue;}
    for(const r of g.rows)out.push(`${r.name}: ${fmt(r.raw.current)} / ${fmt(r.marinated.current)}`);
-   out.push(`Enviado hoy: ${fmt(g.sent)} · Por confirmar: ${fmt(g.pendingQuantity)}`);
+   out.push(`Enviado hoy: ${fmt(g.sent)}`);
    const missing=g.rows.filter(r=>r.total==null).length;
    const differences=g.alerts.filter(a=>a.includes('diferencia')).length;
    if(missing||differences)out.push('Revisar: '+[missing?`${missing} sin captura`:null,differences?`${differences} aviso(s) de diferencias`:null].filter(Boolean).join(' · '));
   }
-  out.push('Por confirmar incluye días anteriores.');
+
   return out;
  }
  return {summarize,lines,fmt,sum};

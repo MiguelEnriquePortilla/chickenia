@@ -5,10 +5,10 @@
 <button type="button" id="reset-shortcut" disabled>Reiniciar inventario</button><p id="reset-info" class="protein-hint"></p>
 <form id="movements-form"><fieldset id="movements-capture" disabled><div id="balances"></div>
 <p>Anota solo este movimiento. Deja vacío lo que no uses.</p>
-<div class="rastro-fields"><label>Entrega<input id="delivered-by" maxlength="200"></label><label>Recibe<input id="received-by" maxlength="200"></label><label>Entrega a Sucursal<select id="movement-slot"><option value="morning">Mañana</option><option value="noon">Mediodía</option><option value="other">Otra entrega</option></select></label></div>
+<div class="rastro-fields"><label>Entrega<input id="delivered-by" maxlength="200"></label><label>Responsable en destino<input id="received-by" maxlength="200"></label><label>Entrega a Sucursal<select id="movement-slot"><option value="morning">Mañana</option><option value="noon">Mediodía</option><option value="other">Otra entrega</option></select></label></div>
 
 <label>Observaciones<textarea id="movement-notes" maxlength="1000"></textarea></label><button id="save-movements" type="submit">Guardar movimientos</button>
 </fieldset></form>
 <details id="other-operations"><summary>Apertura, conteo físico, mermas y rectificación</summary>
 <section class="protein-card"><h2>Otras operaciones</h2><form id="protein-form"><fieldset id="capture" disabled><div class="rastro-fields"><label>Tipo de pollo<select id="protein"><option value="rosti">Rostizado</option><option value="cruji">Crujiente</option></select></label><label>Elige una opción<select id="action" required></select></label></div><p id="guidance"></p><div id="fields" class="rastro-fields"></div><label><span id="notes-label">Comentario</span><textarea id="notes" maxlength="1000" placeholder="Explica brevemente qué pasó"></textarea></label><p id="preview" role="status"></p><button id="save" type="submit">Guardar</button></fieldset></form></section>
-</details><section><h2>Envíos a Sucursal</h2><p>Confirma lo recibido en Otras operaciones.</p><div id="shipments"></div></section><details><summary>Resumen semanal</summary><div id="week"></div></details><details><summary>Historial de la semana</summary><div id="history"></div></details></main></body></html>
+</details><section><h2>Envíos a Sucursal</h2><div id="shipments"></div></section><details><summary>Resumen semanal</summary><div id="week"></div></details><details><summary>Historial de la semana</summary><div id="history"></div></details></main></body></html>

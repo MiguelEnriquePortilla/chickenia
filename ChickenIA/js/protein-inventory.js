@@ -16,7 +16,7 @@
  function form(){
   if(!snapshot)return;
   const protein=$('#protein').value,role=snapshot.role,row=snapshot.rows.find(r=>r.protein===protein),before=$('#action').value;
-  const allowed=Object.keys(actions).filter(a=>!['entry','marinate','send'].includes(a)).filter(a=>a==='initial'?role==='manager'&&row.raw.current===null:a==='rectify'?role==='manager'&&row.raw.current!==null:a==='receive'?['manager','kitchen'].includes(role):role!=='kitchen'&&row.raw.current!==null);
+  const allowed=Object.keys(actions).filter(a=>a!=='receive').filter(a=>!['entry','marinate','send'].includes(a)).filter(a=>a==='initial'?role==='manager'&&row.raw.current===null:a==='rectify'?role==='manager'&&row.raw.current!==null:a==='receive'?['manager','kitchen'].includes(role):role!=='kitchen'&&row.raw.current!==null);
   $('#action').innerHTML='<option value="">Elige qué vas a registrar</option>'+allowed.map(a=>`<option value="${a}">${actions[a]}</option>`).join('');
   if(allowed.includes(before))$('#action').value=before;
   else if(allowed.includes('initial'))$('#action').value='initial';
@@ -126,7 +126,7 @@
   const notes=prompt('Motivo del reinicio de Proteínas:');if(notes===null)return;
   if(notes.trim().length<3){$('#error').textContent='Escribe el motivo del reinicio.';return;}
   const balances=snapshot.rows.map(r=>r.name+': '+view.fmt(r.raw.current)+' sin marinar + '+view.fmt(r.marinated.current)+' marinados → 0').join('\n');
-  if(!confirm((mobile?'Chicanito Móvil':'Sucursal')+'\n'+balances+'\n\nSe cerrará el ciclo anterior: saldos, acumulados y recepciones pendientes empezarán en cero hoy. La bitácora anterior queda conservada.\nMotivo: '+notes+'\n\n¿Reiniciar las proteínas de este apartado con tu autorización actual?'))return;
+  if(!confirm((mobile?'Chicanito Móvil':'Sucursal')+'\n'+balances+'\n\nSe cerrará el ciclo anterior: saldos y acumulados empezarán en cero hoy. La bitácora anterior queda conservada.\nMotivo: '+notes+'\n\n¿Reiniciar las proteínas de este apartado con tu autorización actual?'))return;
   lock(true);$('#error').textContent='';
   try{snapshot=await api({action:'reset',date:loadedDate,revision:snapshot.revision,notes:notes.trim(),confirm:true},loadedDate);dirty=false;render();$('#status').textContent='Proteínas reiniciadas en cero. Ya puedes rectificar con el inventario físico de hoy.';}
   catch(e){$('#error').textContent=e.message;}finally{lock(false);}
