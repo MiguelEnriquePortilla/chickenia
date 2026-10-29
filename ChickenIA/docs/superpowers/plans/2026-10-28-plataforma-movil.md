@@ -26,10 +26,12 @@ Sin flechas, chevrones o triángulos de navegación. Conservar nombres aprobados
 
 ## Task 5: integración y publicación
 - [x] Build y suites Node/browser apropiadas; revisar pantallas light/dark y móvil/escritorio, errores de consola y overflow. Revisión independiente final y corregir defectos.
-- [ ] Commit solo archivos seleccionados; push autorizado y comprobar GitHub Actions y producción. Registrar limitación de hardware móvil si no disponible.
+- [x] Commit solo archivos seleccionados; push autorizado y comprobar GitHub Actions y producción. Registrar limitación de hardware móvil si no disponible.
 
 ## Ledger
 Preflight: tareas 1 y 2 comparten contrato de encabezados, se conserva encabezado Pedidos; tarea 1 controla CSS común, demás tareas usan clases propias. Tareas 3 y 4 comparten datos de proteína de solo lectura: sin cambios API. Cada tarea conserva sus pruebas y archivos. Ningún conflicto detectado.
 Ruling: usar worktree manual porque el administrador de Codex devuelve Not a git repository; checkout aislado en .worktrees/plataforma-movil. No modificar checkout original.
 
 Task 1-4: complete. Revisi?n independiente: corregidos foco de men?, edici?n de cantidad filtrada y coherencia de fecha tras fallo de guardado. 38 pruebas Node aprobadas; siete recorridos de navegador aislado y comprobaci?n compartida de cinco pantallas/temas/tama?os aprobados. Sin operaciones reales.
+
+Publicaci?n: 4438f9f y f36360a desplegados READY; GitHub Actions 40818883066 y 40874519033 aprobados. Comprobados archivos p?blicos y lectura autenticada de evaluaciones, 120%, orden de pendientes e inventarios; consola sin errores. Ajuste final: ocultar desplazamiento horizontal interno del men?. Prueba compartida de cinco pantallas aprobada despu?s del ajuste. No capturas reales ni mensajes.
