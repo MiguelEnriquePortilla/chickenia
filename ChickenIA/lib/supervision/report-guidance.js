@@ -14,7 +14,6 @@ function classifications(legacy) {
   // One entry per seed row; resolve by exact name, never by live database order.
   const blocks = {
     freidoras: 'A A A A O O O O O O O O O C O O O O O O O C C C C C',
-    caja: 'A A A A A O O A O O O O O C C',
     ventas_barras: 'A A O O O O O O O C C C C',
     trastes: 'A O O A O O C',
   };

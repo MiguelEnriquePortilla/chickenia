@@ -1,0 +1,21 @@
+/* Dashboard presentation only: balances and totals come from existing reports. */
+(()=>{
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const fmt=v=>v==null?'Sin captura':new Intl.NumberFormat('es-MX',{maximumFractionDigits:3}).format(v);
+ const day=d=>new Date(d+'T12:00:00Z').toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short',timeZone:'America/Mexico_City'});
+ const ledger=rows=>`<dl class="feed-ledger">${rows.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${fmt(v)}</dd></div>`).join('')}</dl>`;
+ window.ChickenProteinDashboard.mount=(host,reports,date)=>{
+  host.innerHTML='<h2>Proteínas</h2><p class="feed-note">Existencias en CEDIS asignadas a cada destino. Los envíos ya están descontados; no son existencias recibidas en Sucursal o Móvil.</p><div class="feed-list">'+reports.map(report=>{
+   const destination=report.inventory==='movil'?'Móvil':'Sucursal',url=report.inventory==='movil'?'/proteinas-movil.html':'/proteinas.html';
+   if(report.unavailable)return `<article class="feed-card"><h3>${destination}</h3><p role="alert">Datos no disponibles. No se muestran como cero.</p><a href="${url}">Ver inventario</a></article>`;
+   return report.rows.map(r=>{
+    const d=window.ChickenProteinDashboard.daily(report,date,r.protein),pending=(report.shipments||[]).filter(s=>s.protein===r.protein&&!s.receipt),pendingQty=window.ChickenProteinSummary.sum(pending.map(s=>s.sent));
+    return `<article class="feed-card"><h3>${esc(r.name||r.protein)}</h3><p class="feed-context">Destino: ${destination} · pollos</p><div class="feed-result"><strong class="feed-number ${r.total==null?'is-empty':''}">${fmt(r.total)}</strong><p>Quedan en CEDIS<br>Sin marinar: ${fmt(r.raw.current)} · Marinados: ${fmt(r.marinated.current)}</p></div>${ledger([['Había al iniciar',d?.previous],['Llegó proveedor',r.total==null?null:r.entries],['Salió a '+destination,r.total==null?null:r.sent]])}${r.waste||r.adjustment?ledger([['Merma',r.waste],['Rectificación',r.adjustment]]):''}<p class="feed-note">${fmt(pendingQty)} pollos en ${pending.length} envíos por confirmar.</p><div class="feed-actions"><a href="${url}?date=${encodeURIComponent(date)}">Ver movimientos →</a></div><details><summary>Ver semana</summary><div class="feed-history">${(report.week||[]).map(w=>{const row=window.ChickenProteinDashboard.daily(report,w.date,r.protein);return `<div><strong>${esc(day(w.date))}</strong><span>${fmt(row?.total)} pollos</span>${row?`<p>Había ${fmt(row.previous)} · Llegó ${fmt(row.entries)} · Salió ${fmt(row.sent)}${row.waste?' · Merma '+fmt(row.waste):''}${row.adjustment?' · Rectificación '+fmt(row.adjustment):''}</p>`:''}</div>`;}).join('')}</div></details></article>`;
+   }).join('');
+  }).join('')+'</div>';
+ };
+ window.ChickenRastroView.render=d=>`<h2>Inventario CEDIS</h2><p class="feed-note">Existencias por producto · Cada uno conserva su unidad.</p><div class="feed-list">${d.lines.map(item=>{
+  const latest=d.days.find(x=>x.date===d.date)?.lines.find(x=>x.id===item.id)||item;
+  return `<article class="feed-card"><h3>${esc(item.name)}</h3><p class="feed-context">${esc(item.unit)}</p><div class="feed-result"><strong class="feed-number ${latest.final==null?'is-empty':''}">${fmt(latest.final)}</strong><p>Quedan en CEDIS</p></div>${ledger([['Había',latest.previous],['Llegó',latest.entry],['Salió',latest.exit]])}${latest.adjustment?ledger([['Rectificación',latest.adjustment]]):''}<div class="feed-actions"><a href="/rastro.html?date=${esc(d.date)}">Ver movimientos →</a></div><details><summary>Ver últimos tres días</summary><div class="feed-history">${d.days.map(w=>{const row=w.lines.find(x=>x.id===item.id);return `<div><strong>${esc(day(w.date))}</strong><span>${fmt(row?.final)} ${esc(item.unit)}</span>${row?.final!=null?`<p>Había ${fmt(row.previous)} · Llegó ${fmt(row.entry)} · Salió ${fmt(row.exit)}${row.adjustment?' · Rectificación '+fmt(row.adjustment):''}</p>`:''}${row?.correction?.date===w.date?`<p>Corregido: ${fmt(row.correction.before)} → ${fmt(row.correction.after)} · ${esc(row.correction.actor)} · ${esc(row.correction.notes)}</p>`:''}</div>`;}).join('')}</div></details></article>`;
+ }).join('')}</div>`;
+})();

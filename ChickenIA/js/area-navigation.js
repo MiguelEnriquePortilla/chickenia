@@ -62,6 +62,7 @@
     if(header){const context=document.createElement('div');context.className='area-context';context.innerHTML='<span class="context-eyebrow">Área</span><span id="selected-area-title"></span>';header.after(context);}
     let compact=matchMedia('(max-width:760px)').matches;
     try{const saved=localStorage.getItem('chickenia_sidebar_v2');if(saved!==null)compact=saved==='compact';}catch{}
+    if(document.body.classList.contains('dashboard-feed')&&matchMedia('(max-width:760px)').matches)compact=true;
     const toggle=aside.querySelector('.sidebar-toggle');
     const apply=()=>{container.classList.toggle('sidebar-compact',compact);toggle.setAttribute('aria-expanded',String(!compact));toggle.setAttribute('aria-label',compact?'Expandir menú':'Contraer menú');aside.querySelectorAll('nav,.sidebar-areas,.sidebar-footer').forEach(el=>el.inert=compact);};
     toggle.addEventListener('click',()=>{compact=!compact;apply();try{localStorage.setItem('chickenia_sidebar_v2',compact?'compact':'expanded');}catch{}});

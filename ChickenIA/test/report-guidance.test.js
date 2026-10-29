@@ -5,6 +5,13 @@ const { report, message, CUTS } = require('../lib/supervision/telegram');
 const { classifications } = require('../lib/supervision/report-guidance');
 const { SEED_ACTIVITIES } = require('../lib/supervision/db');
 
+test('current seed catalogue can be classified without the retired Caja area', () => {
+  const rows = classifications(SEED_ACTIVITIES);
+  assert.ok(rows.length > 0);
+  assert.ok(rows.some(row => row.area_code === 'freidoras'));
+  assert.ok(!rows.some(row => row.area_code === 'caja'));
+});
+
 test('precierre carries opening criticals forward and excludes later closing criticals', () => {
   const rows = [
     { area_name:'Caja', area_code:'caja', name:'Cambio', routine_block:'apertura', weight:10, criticality:'critica', done:false },
