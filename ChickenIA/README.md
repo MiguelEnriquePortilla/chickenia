@@ -1,3 +1,15 @@
+## Sesión cerrada - Caja retirada, 28 octubre 2026
+
+Miguel aceptó la entrega y pidió documentar y cerrar. Caja retirada de navegación, captura, evaluaciones, dashboard, reportes y manual público. Producción sigue activa; registros anteriores conservados sin borrado.
+
+Publicado y verificado: `d216523` y `47580c2`; Vercel `dpl_62DXRK6T6jdDUBNok8uFmivw1sHt` READY. 36 pruebas y navegador aislado en computadora/celular aprobados; archivos públicos cotejados. Sin operaciones reales ni mensajes de prueba. No se comprobó guardado autenticado en la base real.
+
+Sin pendientes de esta solicitud. Esperar nuevas indicaciones; no reactivar Caja ni ejecutar capturas o envíos automáticos. Los apartados inferiores son antecedentes y no autorizan retomar tareas anteriores.
+
+[Reporte de cierre](RETIRO_CAJA_2026-10-28.md).
+
+---
+
 ## Retiro de Caja - 28 octubre 2026
 
 Por indicación de Miguel se retira Caja de la plataforma: navegación, evaluación, dashboard, reportes y capturas financieras. Registros históricos conservados sin borrado. Producción permanece activa. Detalles en RETIRO_CAJA_2026-10-28.md.
