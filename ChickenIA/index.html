@@ -18,8 +18,8 @@
 <link rel="stylesheet" href="/css/welcome.css">
 <script src="/js/refined.js" defer></script>
 <script src="/js/welcome.js" defer></script>
-<link rel="stylesheet" href="/css/polish.css"><script defer src="/js/nav-polish.js"></script></head>
-<body>
+<link rel="stylesheet" href="/css/polish.css"><script defer src="/js/nav-polish.js"></script><link rel="stylesheet" href="/css/home.css"></head>
+<body class="home-page">
 <section id="chicken-welcome" class="chicken-welcome" aria-label="Bienvenida a Chicken ChicanIA" hidden>
   <img class="chicken-welcome__mascot" src="/icons/welcome-mascot.png" width="1024" height="1536" alt="Mascota de Chicken ChicanIA" fetchpriority="high" decoding="async" />
   <p class="chicken-welcome__brand">Chicken Chican<span class="w-ia">IA</span></p>
@@ -27,22 +27,15 @@
   <div class="chicken-welcome__track" aria-hidden="true"><div class="chicken-welcome__fill"></div></div>
   <button class="chicken-welcome__skip" type="button">Entrar ahora</button>
 </section>
-<div class="landing" id="chicken-home">
-  <div class="mascot-badge">
-    <img src="/icons/chicanito-logo.png" alt="Chicanito" />
-  </div>
-  <h1 class="wordmark wordmark-lg"><span class="w-chicken">Chicken</span> <span class="w-chican">Chican</span><span class="w-ia">IA</span></h1>
-  <div class="gold-divider"></div>
-  <p class="subtitle">Control operativo — Chicken Chicanito</p>
-  <div class="landing-links">
-    <a class="btn btn-secondary" href="/pedidos.html"><span class="menu-icon" aria-hidden="true">&#9636;</span><span>LISTA DE PEDIDOS</span></a>
-    <a class="btn btn-primary" href="/evaluacion-equipo.html"><span class="menu-icon" aria-hidden="true">📋</span><span>Evaluación Equipo Chicanito</span></a>
-    <a class="btn btn-secondary" href="/produccion-diaria.html"><span class="menu-icon" aria-hidden="true">▤</span><span>Producción Diaria</span></a>
-    <a class="btn btn-secondary" href="/dashboard.html"><span class="menu-icon" aria-hidden="true">📊</span><span>Resumen del día</span></a>
-    <a class="btn btn-secondary" href="/proteinas.html"><span class="menu-icon" aria-hidden="true">🍗</span><span>Inventario Sucursal</span></a>
-    <a class="btn btn-secondary" href="/proteinas-movil.html"><span class="menu-icon" aria-hidden="true">🍗</span><span>Inventario Móvil</span></a>
-  </div>
+<div class="home-screen" id="chicken-home">
+<header class="home-header daily-header"><div class="home-brand"><img src="/icons/chicanito-logo.png" width="38" height="38" alt="Chicken Chicanito"><div><small>CHICKEN CHICANITO</small><span>Chicken Chican<strong>IA</strong></span></div></div></header>
+<main class="home-content"><h1>Inicio</h1><p class="home-date" id="home-date"></p>
+<a class="home-primary" href="/dashboard.html"><span><strong>Resumen del día</strong><small>Consulta cómo va la operación.</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7 M7 7h10v10"/></svg></a>
+<h2 id="home-operation-title">Operación</h2><nav class="home-operations" aria-labelledby="home-operation-title"><a href="/evaluacion-equipo.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 5h12v16H6z M9 3h6v4H9z M9 13l2 2 4-4"/></svg><span>Evaluar equipo</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a><a href="/produccion-diaria.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10h16v10H4z M7 3v3 M12 3v3 M17 3v3 M2 10h20"/></svg><span>Producción diaria</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a><a href="/pedidos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h18l-2 12H5z M8 8l4-5 4 5 M9 12v4 M15 12v4"/></svg><span>Lista de pedidos</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a></nav>
+<h2 id="home-inventory-title">Inventarios</h2><nav class="home-inventories" aria-labelledby="home-inventory-title"><a href="/rastro.html" aria-label="Inventario CEDIS"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-6 9 6v12H3z M7 21V11h10v10 M7 15h10"/></svg><span>CEDIS</span></a><a href="/proteinas.html" aria-label="Inventario Sucursal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18l-1 6H4z M5 10v11h14V10 M9 21v-7h6v7"/></svg><span>Sucursal</span></a><a href="/proteinas-movil.html" aria-label="Inventario Móvil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h12v12H3z M15 10h4l2 4v4h-6 M7 18a2 2 0 110 4 2 2 0 010-4 M18 18a2 2 0 110 4 2 2 0 010-4"/></svg><span>Móvil</span></a></nav>
+</main><footer class="home-footer">Chicken Chicanito</footer>
 </div>
+<script>document.getElementById('home-date').textContent=new Intl.DateTimeFormat('es-MX',{timeZone:'America/Mexico_City',weekday:'long',day:'numeric',month:'long'}).format(new Date());</script>
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>
 </body>
 </html>
