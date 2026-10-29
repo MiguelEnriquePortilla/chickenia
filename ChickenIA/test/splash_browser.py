@@ -27,6 +27,10 @@ try:
     page.wait_for_timeout(600)
     assert page.locator('.chicken-welcome__pulse--one').evaluate('(el)=>getComputedStyle(el).transform')!=ring_before
     expect(page.locator('.chicken-welcome__speech')).to_contain_text('VERY SABROSITO')
+    phrase=page.locator('.chicken-welcome__speech');brand=page.locator('.chicken-welcome__brand')
+    expect(phrase).to_have_css('font-size',brand.evaluate('(el)=>getComputedStyle(el).fontSize'))
+    assert phrase.evaluate('(el)=>getComputedStyle(el).backgroundColor')=='rgba(0, 0, 0, 0)'
+    assert page.locator('.chicken-welcome__stage').bounding_box()['y']<phrase.bounding_box()['y']<brand.bounding_box()['y']
     page.screenshot(path=str(out/'speech-390.png'))
    assert page.locator('#chicken-home').evaluate('(el)=>el.inert')
    expect(splash).to_be_hidden(timeout=5400)

@@ -26,18 +26,14 @@ body.welcome-active{overflow:hidden}
 @media(max-height:500px){.chicken-welcome{gap:8px;padding:12px}.chicken-welcome__stage{width:min(42svh,220px);margin-bottom:0}.chicken-welcome__brand{font-size:24px}.chicken-welcome__skip{margin-top:0}}
 @media(prefers-reduced-motion:reduce){.chicken-welcome{transition:none}.chicken-welcome__pulse{display:none}.chicken-welcome[data-ready] .chicken-welcome__sphere{animation:none}.chicken-welcome[data-ready] :is(.chicken-welcome__mascot,.chicken-welcome__brand,.chicken-welcome__message){animation:none;opacity:1;transform:none}}
 
-/* A short digital message, layered behind the original mascot. */
-.chicken-welcome__stage{margin-top:86px}
+/* The phrase belongs to the brand lockup, not to a speech card. */
 .chicken-welcome__sphere,.chicken-welcome__pulse{z-index:0}
 .chicken-welcome__mascot{z-index:2}
-.chicken-welcome__speech{position:absolute;z-index:1;top:-96px;left:4%;width:92%;margin:0;padding:12px 14px;border:1px solid #f4c86670;border-radius:12px;background:#1b2b4b;color:#fff;text-align:center;line-height:1.35;opacity:0;pointer-events:none}
-.chicken-welcome__speech span,.chicken-welcome__speech strong{display:block;font-size:17px;letter-spacing:.02em}
-.chicken-welcome__speech strong{color:#f4c866;font-size:20px;font-weight:600;letter-spacing:.045em}
-.chicken-welcome[data-ready] .chicken-welcome__speech{animation:welcome-speech 3300ms var(--welcome-ease) both}
-.chicken-welcome[data-ready] .chicken-welcome__speech :is(span,strong){animation:welcome-digital 280ms 300ms steps(10,end) both}
-.chicken-welcome[data-ready] .chicken-welcome__speech span:nth-child(2){animation-delay:450ms}
-.chicken-welcome[data-ready] .chicken-welcome__speech strong{animation-delay:600ms}
-@keyframes welcome-digital{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
-@keyframes welcome-speech{0%,6%{opacity:0;transform:translateY(-12px)}14%,85%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(110px)}}
-@media(max-height:500px){.chicken-welcome__stage{width:min(32svh,160px);margin-top:60px;margin-bottom:0}.chicken-welcome__speech{top:-64px;padding:7px 9px;width:160%;left:-30%}.chicken-welcome__speech :is(span,strong){font-size:12px}.chicken-welcome__speech strong{font-size:14px}}
-@media(prefers-reduced-motion:reduce){.chicken-welcome[data-ready] .chicken-welcome__speech,.chicken-welcome[data-ready] .chicken-welcome__speech :is(span,strong){animation:none;opacity:1;transform:none;clip-path:none}}
+.chicken-welcome__speech{margin:0 0 2px;padding:0;border:0;background:none;max-width:100%;color:#dce3f0;text-align:center;font-size:clamp(25px,6vw,36px);font-weight:400;letter-spacing:-.025em;line-height:1.2;opacity:0}
+.chicken-welcome__speech span,.chicken-welcome__speech strong{display:block;font:inherit}
+.chicken-welcome__speech strong{color:#efcf8e;font-weight:500}
+.chicken-welcome[data-ready] .chicken-welcome__speech{animation:welcome-phrase 380ms 240ms var(--welcome-ease) both}
+.chicken-welcome[data-ready] .chicken-welcome__speech strong{animation:welcome-phrase 380ms 380ms var(--welcome-ease) both}
+@keyframes welcome-phrase{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-height:500px){.chicken-welcome__stage{width:min(32svh,160px);margin:0}.chicken-welcome__speech{font-size:24px}}
+@media(prefers-reduced-motion:reduce){.chicken-welcome[data-ready] .chicken-welcome__speech,.chicken-welcome[data-ready] .chicken-welcome__speech strong{animation:none;opacity:1;transform:none}}
