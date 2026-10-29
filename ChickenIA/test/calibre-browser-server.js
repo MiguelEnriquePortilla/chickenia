@@ -13,6 +13,7 @@ const token=p+'.'+crypto.createHmac('sha256',process.env.INVENTORY_SESSION_SECRE
  const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');req.query=Object.fromEntries(url.searchParams);res.status=c=>{res.statusCode=c;return res;};res.json=d=>{res.setHeader('Content-Type','application/json; charset=utf-8');res.end(JSON.stringify(d));};
   if(url.pathname==='/api/summary'&&req.query.calibre==='1'){let raw='';for await(const c of req)raw+=c;req.body=raw?JSON.parse(raw):{};return handler(req,res);}
+  if(url.pathname==='/api/summary'&&(req.query.points||req.query.timeline))return res.json({missing:true});
   if(url.pathname==='/api/inventory')return res.json({user:{id:user.id,name:user.name,role:user.role},cash:null,production:{revision:0}});
   if(url.pathname==='/api/locations')return res.json([{id:1,code:'jojutla',name:'Jojutla',type:'tienda'}]);
   if(url.pathname==='/api/summary'&&!req.query.points&&!req.query.timeline)return res.json({date:req.query.date,location:{id:1,type:'tienda'},overall_score:0,areas:[],critical_pending:[],cross_check:null});
