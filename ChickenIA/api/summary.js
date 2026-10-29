@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
     const activities = await sql`
       SELECT a.id, a.area_id, ar.code AS area_code, ar.name AS area_name, a.name, a.criticality, a.weight, a.requires_quantity, a.unit, a.routine_block, a.measurement
       FROM activities a JOIN areas ar ON ar.id = a.area_id
-      WHERE ar.location_type = ${locationType} AND a.active = true
+      WHERE ar.code <> 'caja' AND a.name !~* '(^|[^a-z])caja([^a-z]|$)|cuadre|efectivo' AND ar.location_type = ${locationType} AND a.active = true
         AND (a.frequency <> 'weekly' OR EXISTS (SELECT 1 FROM kitchen_plans kp WHERE kp.activity_id=a.id AND kp.plan_date=${date}::date))
         AND (a.valid_from IS NULL OR a.valid_from <= ${date}::date)
         AND (a.valid_until IS NULL OR a.valid_until > ${date}::date)

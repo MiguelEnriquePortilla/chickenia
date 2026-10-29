@@ -30,6 +30,7 @@ function schedule(row){
  return {first:first??null,repeat,label:first==null?'Sin horario · no se califica':repeat?'Revisar a las 12:00 y 16:00':`Antes de ${CUTS[first].time}`};
 }
 function evaluate(catalog,events,date,now=new Date()){
+ catalog=catalog.filter(a=>a.area_code!=='caja'&&a.code!=='caja');
  const nowMs=new Date(now).getTime(),active=date>=START;
  const groups=new Map();for(const row of catalog){if(!groups.has(row.area_code))groups.set(row.area_code,{code:row.area_code,name:row.area_name,items:[]});groups.get(row.area_code).items.push(row);}
  const ordered=[...events].sort((a,b)=>new Date(a.recorded_at)-new Date(b.recorded_at)||Number(a.id)-Number(b.id));

@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
       if (!activity_id || !location_id || !check_date || !checked_by) {
         return res.status(400).json({ error: 'activity_id, location_id, check_date y checked_by son requeridos' });
       }
-      const valid = await sql`SELECT id,name,requires_quantity,unit,measurement,(SELECT code FROM areas WHERE areas.id=activities.area_id) AS area_code FROM activities WHERE id = ${activity_id} AND active = true
+      const valid = await sql`SELECT id,name,requires_quantity,unit,measurement,(SELECT code FROM areas WHERE areas.id=activities.area_id) AS area_code FROM activities WHERE id = ${activity_id} AND name !~* '(^|[^a-z])caja([^a-z]|$)|cuadre|efectivo' AND area_id IN (SELECT id FROM areas WHERE code <> 'caja') AND active = true
         AND (frequency <> 'weekly' OR EXISTS (SELECT 1 FROM kitchen_plans kp WHERE kp.activity_id=activities.id AND kp.plan_date=${check_date}::date))
         AND (valid_from IS NULL OR valid_from <= ${check_date}::date)
         AND (valid_until IS NULL OR valid_until > ${check_date}::date)`;

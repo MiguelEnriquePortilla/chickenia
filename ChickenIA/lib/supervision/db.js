@@ -28,7 +28,6 @@ const SEED_AREAS = [
   { code: 'cocina', name: 'Cocina', location_type: 'tienda', order_index: 2 },
   { code: 'rosticero', name: 'Rosticero', location_type: 'tienda', order_index: 3 },
   { code: 'freidoras', name: 'Freidoras', location_type: 'tienda', order_index: 4 },
-  { code: 'caja', name: 'Caja', location_type: 'tienda', order_index: 5 },
   { code: 'ventas_barras', name: 'Ventas / Barras', location_type: 'tienda', order_index: 6 },
   { code: 'trastes', name: 'Lavado de Trastes', location_type: 'tienda', order_index: 7 },
   { code: 'supervision', name: 'Supervisión (tienda)', location_type: 'tienda', order_index: 8 },
@@ -222,23 +221,7 @@ const SEED_ACTIVITIES = {
   // "Ofrecer promociones (grupos de WhatsApp)" se dejó separada de "Productos
   // ofrecidos activamente durante el día" (venta en piso) por ser dos canales
   // distintos — confirmar con Miguel si en realidad son la misma actividad.
-  caja: [
-    ['Llegada a tiempo con uniforme completo', 'media', false, null, 'PUNTUALIDAD', 'tolerancia máx 5 min'],
-    ['Cambio completo (billetes, monedas, caja chica, denominaciones)', 'critica', true, 'pesos', 'INSUMO', '$3,000 billetes + $3,000 monedas, caja chica completa'],
-    ['Rollos de impresora suficientes', 'media', false, null, 'INSUMO', 'suficientes'],
-    ['Limpieza de caja, barra caliente, lonas, acrílico y bote de basura', 'media', false, null, 'LIMPIEZA', '100%'],
-    ['Teléfono cargado y teléfono fijo limpio', 'baja', false, null, 'PROCESO', '2/2'],
-    ['Producto suficiente para venta en caja (arroz y complementos)', 'media', false, null, 'INSUMO', 'suficiente'],
-    ['Barra caliente con calidad Chicanito (hidratada y abastecida)', 'alta', false, null, 'CALIDAD', 'hidratada y abastecida'],
-    ['Organizar área de trabajo', 'baja', false, null, null, null],
-    ['Mantener publicidad/promociones visibles', 'baja', false, null, null, null],
-    ['Ofrecer promociones (grupos de WhatsApp)', 'media', false, null, null, null],
-    ['Productos ofrecidos activamente durante el día', 'media', false, null, 'FRECUENCIA', 'constante durante el día'],
-    ['Atención al cliente amable y constante', 'media', false, null, 'CALIDAD', 'trato amable constante'],
-    ['Ventiladores anti-moscas funcionando (mínimo 2 por barra, pilas cargadas a diario)', 'critica', true, 'piezas', 'PROCESO', 'mínimo 2/barra, pilas cargadas a diario'],
-    ['Hoja final de cierre enviada (con cobros de tarjeta)', 'critica', false, null, 'EVIDENCIA', '100%'],
-    ['Ayudar a cerrar el establecimiento', 'media', false, null, null, null],
-  ],
+
   ventas_barras: [
     ['Registro de llegada', 'baja', false, null],
     ['Organizar barras para arranque', 'media', false, null],
@@ -274,12 +257,12 @@ const SEED_ACTIVITIES = {
     ['12:00pm — Supervisión de barras (hidratación, cantidad suficiente)', 'media', false, null],
     ['1:00pm — Monitoreo de flujo de clientes', 'baja', false, null],
     ['2:00pm — Preparación para hora pico', 'media', false, null],
-    ['3:00pm — Control de caja (ventas, promociones, lealtad)', 'alta', false, null],
+
     ['4:00pm — Gestión de inventario intermedio', 'critica', false, null],
     ['5:00pm — Supervisión de bajada de productos', 'media', false, null],
     ['6:00pm — Revisión de limpieza profunda', 'media', false, null],
     ['6:30pm — Control de inventario final (conteo de proteínas)', 'critica', false, null],
-    ['7:00pm — Cierre del local (caja, cuadres, cambio, evidencias)', 'critica', false, null],
+    ['7:00pm — Cierre del local (inventario y condiciones de las áreas)', 'critica', false, null],
     ['7:15pm — Inspección final del local', 'media', false, null],
     ['7:30pm — Envío de reporte de cierre (ventas, incidencias, inventario)', 'critica', false, null],
     ['Arqueo diario ágil (recepción, almacén, venta)', 'critica', false, null],

@@ -40,24 +40,6 @@
         ]
       },
       {
-        "code": "caja",
-        "name": "Caja",
-        "points": [
-          {
-            "id": "caja-0",
-            "text": "Caja abierta a las 9:00; fondo y cambio revisados. Rollos y material listos entre 9:00 y 10:00."
-          },
-          {
-            "id": "caja-1",
-            "text": "Barra caliente abastecida; lonas, luz, anuncios y promoción del día visibles."
-          },
-          {
-            "id": "caja-2",
-            "text": "Caja, pisos, cubiertas y vidrios limpios; material ordenado y trapos en su lugar por color."
-          }
-        ]
-      },
-      {
         "code": "ventas_barras",
         "name": "Ventas / Barras",
         "points": [
@@ -222,24 +204,6 @@
           {
             "id": "sucursal_apertura-2",
             "text": "Productos recibidos guardados en su lugar; faltantes de operación reportados."
-          }
-        ]
-      },
-      {
-        "code": "caja",
-        "name": "Caja",
-        "points": [
-          {
-            "id": "caja-0",
-            "text": "Atención amable y ofrecimiento de productos verificados."
-          },
-          {
-            "id": "caja-1",
-            "text": "Promoción del día ofrecida; anotar cuál en la hoja o evidencia del corte."
-          },
-          {
-            "id": "caja-2",
-            "text": "Barra abastecida e hidratada; estación limpia y ventiladores funcionando."
           }
         ]
       },
@@ -412,24 +376,6 @@
         ]
       },
       {
-        "code": "caja",
-        "name": "Caja",
-        "points": [
-          {
-            "id": "caja-0",
-            "text": "Atención y venta revisadas; control de caja intermedio revisado."
-          },
-          {
-            "id": "caja-1",
-            "text": "Producto disponible y barra hidratada; ventiladores funcionando."
-          },
-          {
-            "id": "caja-2",
-            "text": "Caja, acrílico y teléfono limpios; materiales ordenados y bote atendido."
-          }
-        ]
-      },
-      {
         "code": "ventas_barras",
         "name": "Ventas / Barras",
         "points": [
@@ -543,7 +489,7 @@
         "points": [
           {
             "id": "supervision-0",
-            "text": "Caja y existencias revisadas; decisiones de continuar/reducir/detener documentadas.*"
+            "text": "Producción y existencias revisadas; decisiones de continuar/reducir/detener documentadas.*"
           },
           {
             "id": "supervision-1",
@@ -594,24 +540,6 @@
           {
             "id": "sucursal_apertura-2",
             "text": "Limpieza y orden del local revisados; dejar todo listo para el siguiente día."
-          }
-        ]
-      },
-      {
-        "code": "caja",
-        "name": "Caja",
-        "points": [
-          {
-            "id": "caja-0",
-            "text": "Cierre diario completo: cobros, tarjetas, diferencias y conteo de proteínas registrados."
-          },
-          {
-            "id": "caja-1",
-            "text": "Hoja final, incidencias y evidencias completas; entrega revisada y documentada."
-          },
-          {
-            "id": "caja-2",
-            "text": "Área de caja, superficies y equipo limpios y ordenados; apoyo al cierre realizado."
           }
         ]
       },
@@ -729,7 +657,7 @@
         "points": [
           {
             "id": "supervision-0",
-            "text": "Reportes y formatos de caja, inventario y cierres de todas las áreas completos y revisados."
+            "text": "Reportes y formatos de inventario y cierres de todas las áreas completos y revisados."
           },
           {
             "id": "supervision-1",

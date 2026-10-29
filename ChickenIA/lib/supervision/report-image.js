@@ -48,7 +48,7 @@ async function renderReport(snapshot) {
   y += await text('SIGUIENTE PASO',44,y,22,'#ff8094',872,true) + 14;
   y += await text(snapshot.instruction,44,y,24,'#ffffff',872) + 30;
   if(snapshot.daily?.lines?.length){
-    y += await text('CAJA Y PRODUCCIÓN',44,y,22,'#ff8094',872,true) + 18;
+    y += await text('PRODUCCIÓN',44,y,22,'#ff8094',872,true) + 18;
     for(const line of snapshot.daily.lines)y += await text(line,44,y,23,'#ffffff',872) + 14;
     y+=14;
   }

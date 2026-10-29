@@ -38,7 +38,7 @@ async function ensureDay(sql,location,date){
  if(found.length)return;
  const rows=await sql`SELECT a.id,a.name,a.weight,a.measurement,a.routine_block,ar.code AS area_code,ar.name AS area_name
   FROM activities a JOIN areas ar ON ar.id=a.area_id JOIN locations l ON l.type=ar.location_type
-  WHERE l.id=${location} AND l.type='tienda' AND ar.active AND a.active
+  WHERE ar.code <> 'caja' AND a.name !~* '(^|[^a-z])caja([^a-z]|$)|cuadre|efectivo' AND l.id=${location} AND l.type='tienda' AND ar.active AND a.active
    AND (a.valid_from IS NULL OR a.valid_from<=${date}::date) AND (a.valid_until IS NULL OR a.valid_until>${date}::date)
    AND (a.frequency<>'weekly' OR EXISTS(SELECT 1 FROM kitchen_plans kp WHERE kp.activity_id=a.id AND kp.plan_date=${date}::date))
   ORDER BY ar.order_index,a.order_index`;

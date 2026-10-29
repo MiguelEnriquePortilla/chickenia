@@ -1,18 +1,8 @@
 'use strict';
-const cash=require('./cash-close'),production=require('./production-daily');
+const production=require('./production-daily');
 const money=v=>v===null?'pendiente':new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(v/100);
 function describe(c,p){
   const result=[];
-  if(!c?.revision)result.push('Cierre de Caja: sin captura.');
-  else{
-    const t=cash.calculate(c.data),status=c.finalized?'Finalizado':'Borrador (provisional)';
-    result.push(`Cierre de Caja · ${status}.`);
-    result.push(`Esperado: ${money(t.expected)} · Contado: ${money(t.counted)}.`);
-    result.push(`Diferencia de caja: ${money(t.cashDifference)} · Pendiente de entrega: ${money(t.deliveryPending)}.`);
-    result.push(`Gastos de caja: ${money(t.expenses)} · Tarjeta: ${money(t.cardTotal)} · Transferencia: ${money(t.transferTotal)}.`);
-    if(t.warnings.length)result.push('Revisar: '+t.warnings.join('; ')+'.');
-    if(!c.finalized)result.push('Completar la captura y comprobar la entrega antes de finalizar.');
-  }
   if(!p?.revision)result.push('Producción: sin captura.');
   else{
     p={...p,data:production.chickens(p.data)};
@@ -32,9 +22,8 @@ function describe(c,p){
   return result;
 }
 async function snapshot(sql,date){
-  const [tables]=await sql`SELECT to_regclass('public.cash_close_daily_live') AS cash, to_regclass('public.production_daily_live') AS production`;
-  const c=tables.cash?(await sql`SELECT revision,data,finalized FROM cash_close_daily_live WHERE date=${date}::date`)[0]:null;
+  const [tables]=await sql`SELECT to_regclass('public.production_daily_live') AS production`;
   const p=tables.production?(await sql`SELECT revision,data,finalized FROM production_daily_live WHERE date=${date}::date`)[0]:null;
-  return {cash:c||null,production:p||null,lines:describe(c,p)};
+  return {production:p||null,lines:describe(null,p)};
 }
 module.exports={describe,snapshot};

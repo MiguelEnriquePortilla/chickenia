@@ -9,7 +9,7 @@ module.exports = async (req, res) => {
 
     const areas = await sql`
       SELECT id, code, name, order_index FROM areas
-      WHERE location_type = ${locationType} AND active = true
+      WHERE code <> 'caja' AND location_type = ${locationType} AND active = true
       ORDER BY order_index
     `;
     const activities = await sql`
@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
         a.measurement, a.indicator_type, COALESCE((SELECT 'Meta programada: ' || kp.kg || ' kg' FROM kitchen_plans kp WHERE kp.activity_id=a.id AND kp.plan_date=${date}::date),a.target) AS target, a.frequency, a.routine_block, a.order_index
       FROM activities a
       JOIN areas ar ON ar.id = a.area_id
-      WHERE ar.location_type = ${locationType} AND a.active = true
+      WHERE ar.code <> 'caja' AND a.name !~* '(^|[^a-z])caja([^a-z]|$)|cuadre|efectivo' AND ar.location_type = ${locationType} AND a.active = true
         AND (a.frequency <> 'weekly' OR EXISTS (SELECT 1 FROM kitchen_plans kp WHERE kp.activity_id=a.id AND kp.plan_date=${date}::date))
         AND (a.valid_from IS NULL OR a.valid_from <= ${date}::date)
         AND (a.valid_until IS NULL OR a.valid_until > ${date}::date)

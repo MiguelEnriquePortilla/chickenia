@@ -1,10 +1,10 @@
 'use strict';
 const VERSION='controles-v1';
 const CUTS=[
- {id:'apertura',time:'09:30',block:'apertura',label:'Listos para abrir',focus:'Personal, caja, inventario y producción de apertura revisados; cantidades y calidad verificadas.'},
+ {id:'apertura',time:'09:30',block:'apertura',label:'Listos para abrir',focus:'Personal, inventario y producción de apertura revisados; cantidades y calidad verificadas.'},
  {id:'comida',time:'12:00',block:'operacion',label:'Listos para la comida',focus:'Producción de comida lista y barras abastecidas, con cantidad y calidad verificadas por producto.'},
  {id:'ajuste',time:'16:00',block:'operacion',label:'Ajustar la producción',focus:'Revisar lo producido, lo disponible y lo que falta vender. Decidir qué continuar, reducir o detener.'},
- {id:'cierre',time:'19:00',block:'cierre',label:'Día cerrado y reportado',focus:'Ventas, caja, producción, sobrantes, mermas e incidencias completos; áreas verificadas al cierre.'}
+ {id:'cierre',time:'19:00',block:'cierre',label:'Día cerrado y reportado',focus:'Producción, sobrantes, mermas e incidencias completos; áreas verificadas al cierre.'}
 ];
 const area=(id,name,indicator,requirements)=>({id,name,indicator,requirements});
 const AREAS=[
@@ -44,11 +44,6 @@ const AREAS=[
   apertura:['Utensilios necesarios limpios y acomodados; insumos disponibles'],
   comida:['Utensilios disponibles sin frenar producción ni servicio'],
   cierre:['Lavado y acomodo completos; tarja y piso limpios al salir del turno']}),
- area('caja','Caja','Caja al corriente y cierre conciliado',{
-  apertura:['Fondo, cambio, equipo y consumibles listos'],
-  comida:['Ventas, cobros y gastos registrados al momento'],
-  ajuste:['Ventas, cobros y gastos actualizados para ajustar producción'],
-  cierre:['Ventas y medios de pago completos','Efectivo, gastos y entregas conciliados sin diferencias']}),
  area('supervision','Supervisión','Puntos de control en tiempo y forma',{
   apertura:['Personal, asistencia y uniformes revisados','Inventario inicial y recepción verificados','Reporte inicial revisado con responsables'],
   comida:['Cantidad y calidad verificadas de todos los artículos para comida','Pendientes revisados con responsables'],
@@ -57,7 +52,7 @@ const AREAS=[
 ];
 const MOBILE=[
  {id:'moto_recepcion',name:'Móvil — Recepción',indicator:'Unidad abastecida y lista para salir',note:'Antes de salida: pedido, cantidades, calidad, empaques y condiciones de salida. Falta definir horario y unidad para activar la evaluación.'},
- {id:'moto_cierre',name:'Móvil — Cierre',indicator:'Cierre de unidad completo y conciliado',note:'Al terminar ruta: ventas, efectivo, sobrantes y salidas justificadas. Falta definir horario y unidad para activar la evaluación.'}
+ {id:'moto_cierre',name:'Móvil — Cierre',indicator:'Cierre de unidad completo y conciliado',note:'Al terminar ruta: sobrantes y salidas justificadas. Falta definir horario y unidad para activar la evaluación.'}
 ];
 function requirements(cut){return AREAS.flatMap(a=>(a.requirements[cut]||[]).map((label,i)=>({id:`${a.id}:${i}`,area:a.id,label})));}
 module.exports={VERSION,CUTS,AREAS,MOBILE,requirements};

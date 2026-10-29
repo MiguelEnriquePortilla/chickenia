@@ -39,7 +39,7 @@ function evaluate(date,cuts,events,now=new Date()){
    latest.set(event.point_id,event);
    if(cut.videoRequired?recorded<deadline:recorded<=deadline)original.set(event.point_id,event);
   }
-  const areas=cut.areas.map(area=>{
+  const areas=cut.areas.filter(area=>area.code!=='caja').map(area=>{
    const points=area.points.map(point=>({...point,done:!!latest.get(point.id)?.done,atCut:!!original.get(point.id)?.done}));
    const done=points.filter(p=>passed?p.atCut:p.done).length,total=points.length;
    const id=videoPoint(area.code),last=latest.get(id),onTime=original.get(id);

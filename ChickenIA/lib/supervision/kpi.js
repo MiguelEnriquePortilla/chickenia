@@ -43,10 +43,7 @@ function evaluate(data,cut,sources){
   if(['cocina','rosticero','freidoras','ventas_barras','supervision'].includes(a.id)&&!sources.productionRevision)missing.push('Guardar Producción Diaria para identificar productos y cantidades');
   if(cut==='cierre'){
    if(['cocina','rosticero','freidoras','supervision'].includes(a.id)&&!sources.productionFinalized)missing.push('Finalizar Producción Diaria');
-   if(['caja','supervision'].includes(a.id)){
-    if(!sources.cashFinalized)missing.push('Finalizar Cierre de Caja');
-    if(!sources.cashBalanced)issues.push('Cuadre de caja pendiente de comprobar o con diferencias');
-   }
+
   }
   return {id:a.id,name:a.name,indicator:a.indicator,reviewed:missing.length===0,ready:missing.length===0&&issues.length===0,missing,issues};
  });

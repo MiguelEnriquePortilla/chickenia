@@ -17,20 +17,20 @@ test('real data is isolated from pilot and daily summary distinguishes missing a
     const sql=async(parts,...values)=>query(parts.reduce((s,p,i)=>s+(i?'$'+i:'')+p,''),values);
     const summary=await require('../lib/daily-summary').snapshot(sql,'2026-09-18');
     assert.match(summary.lines.join('\n'),/Borrador/);
-    assert.match(summary.lines.join('\n'),/Contado: pendiente/);
-    const empty=await require('../lib/daily-summary').snapshot(sql,'2026-09-19');assert.equal(empty.lines.length,2);assert.match(empty.lines[0],/sin captura/);
+    assert.doesNotMatch(summary.lines.join('\n'),/Contado|caja/i);
+    const empty=await require('../lib/daily-summary').snapshot(sql,'2026-09-19');assert.equal(empty.lines.length,1);assert.match(empty.lines[0],/sin captura/);
   }finally{await db.close();}
 });
 test('daily endpoint requires session, protects cash by role, checks origin and persists authorized drafts',async()=>{
   const {PGlite}=require('@electric-sql/pglite'),db=new PGlite(),query=async(s,p)=>(await db.query(s,p)).rows;
   const original=auth.authenticate;let role='manager',logged=false;
   auth.authenticate=()=>{if(!logged)throw Object.assign(Error('Login'),{status:401});return {id:'user',role};};
-  const call=async(action,method='GET',body,extra={})=>{let status,data;await handler({method,query:{action,mode:'close',date:'2026-09-18'},body,headers:{host:'example.test',origin:'https://example.test','content-type':'application/json',...extra}},{setHeader(){},status(s){status=s;return this;},json(d){data=d;}},query);return {status,data};};
+  const call=async(action,method='GET',body,extra={})=>{let status,data;await handler({method,query:{action,mode:'production',date:'2026-09-18'},body,headers:{host:'example.test',origin:'https://example.test','content-type':'application/json',...extra}},{setHeader(){},status(s){status=s;return this;},json(d){data=d;}},query);return {status,data};};
   try{
-    assert.equal((await call('daily-get')).status,401);logged=true;role='kitchen';assert.equal((await call('daily-get')).status,403);
-    const overview=await call('daily-overview');assert.equal(overview.status,200);assert.equal(overview.data.cash,null);
+    assert.equal((await call('daily-get')).status,401);logged=true;role='kitchen';assert.equal((await call('daily-get')).status,200);
+    const overview=await call('daily-overview');assert.equal(overview.status,200);assert.equal('cash' in overview.data,false);
     role='manager';const current=await call('daily-get');assert.equal(current.status,200);
-    const request={mode:'close',date:'2026-09-18',revision:0,data:current.data.data};
+    const request={mode:'production',date:'2026-09-18',revision:0,data:current.data.data};
     assert.equal((await call('daily-save','POST',request,{origin:'https://evil.test'})).status,403);
     assert.equal((await call('daily-save','POST',request,{origin:undefined})).status,403);
     assert.equal((await call('daily-save','POST',request)).status,200);

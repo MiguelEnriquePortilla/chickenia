@@ -1,6 +1,6 @@
 'use strict';
 const auth=require('./inventory-auth');
-const cash=require('./cash-close'),production=require('./production-daily');
+const production=require('./production-daily');
 function fail(message,status){throw Object.assign(Error(message),{status});}
 module.exports=async function dailyHandler(req,res,queryOverride){
   res.setHeader('Cache-Control','no-store');
@@ -16,19 +16,18 @@ module.exports=async function dailyHandler(req,res,queryOverride){
     }
     const action=req.query?.action;
     const mode=req.method==='GET'?req.query?.mode:req.body?.mode;
-    if(action!=='daily-overview'&&!['close','production'].includes(mode))fail('Captura inválida.',400);
-    if(action!=='daily-overview'&&mode==='close'&&user.role!=='manager')fail('El cierre financiero requiere Supervisión.',403);
+    if(mode==='close')fail('Este m?dulo fue retirado de la plataforma.',410);
+    if(action!=='daily-overview'&&mode!=='production')fail('Captura inválida.',400);
     const actor={...user,business:'chicanito',environment:'production',canWrite:true};
     const query=queryOverride||((s,p)=>require('@neondatabase/serverless').neon(process.env.DATABASE_URL)(s,p));
     if(action==='daily-overview'&&req.method==='GET'){
       const date=req.query.date;
       const p=await production.service(query,actor).get(date);
-      const c=user.role==='manager'?await cash.cashService(query,actor).get(date):null;
-      return res.status(200).json({date,location:'Jojutla Mercado',cash:c,production:p});
+      return res.status(200).json({date,location:'Jojutla Mercado',production:p});
     }
-    const domain=mode==='close'?cash:production;
+    const domain=production;
     if(action==='daily-calculate'&&req.method==='POST')return res.status(200).json({totals:domain.calculate(req.body.data)});
-    const service=mode==='close'?cash.cashService(query,actor):production.service(query,actor);
+    const service=production.service(query,actor);
     if(action==='daily-get'&&req.method==='GET')return res.status(200).json(await service.get(req.query.date));
     if(action==='daily-save'&&req.method==='POST')return res.status(200).json(await service.save(req.body));
     fail('Acción o método no permitido.',405);

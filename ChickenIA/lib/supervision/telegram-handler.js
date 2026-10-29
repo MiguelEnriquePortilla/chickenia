@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
       SELECT a.id, a.name, ar.code AS area_code, ar.name AS area_name, a.weight, a.criticality, a.routine_block, a.measurement, c.quality_score, COALESCE(c.done,false) AS done
       FROM activities a JOIN areas ar ON ar.id=a.area_id
       LEFT JOIN activity_checks c ON c.activity_id=a.id AND c.location_id=${locationId} AND c.check_date=${date}::date
-      WHERE ar.location_type=${location.type} AND ar.active=true AND a.active=true
+      WHERE ar.code <> 'caja' AND a.name !~* '(^|[^a-z])caja([^a-z]|$)|cuadre|efectivo' AND ar.location_type=${location.type} AND ar.active=true AND a.active=true
         AND (a.frequency <> 'weekly' OR EXISTS (SELECT 1 FROM kitchen_plans kp WHERE kp.activity_id=a.id AND kp.plan_date=${date}::date))
         AND (a.valid_from IS NULL OR a.valid_from <= ${date}::date)
         AND (a.valid_until IS NULL OR a.valid_until > ${date}::date)

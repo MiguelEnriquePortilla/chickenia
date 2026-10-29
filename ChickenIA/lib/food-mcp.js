@@ -28,9 +28,6 @@ function createServer(repo,query,actor,runHandler=handler=>handler()){
   });
   register('foodia_session','Identidad autenticada, negocio y permisos. No solicita contraseñas.',z.object({}).strict(),false,async()=>({user:actor.name,business:actor.business,canWrite:actor.canWrite}));
   if(actor.environment==='local-test'){
-    const {cashService,schema}=require('./cash-close'),cash=cashService(query,actor);
-    register('foodia_cash_get','Recupera cierre diario local de prueba y cálculos. Importes en centavos, null pendiente. No consulta producción.',z.object({date}).strict(),false,({date})=>cash.get(date));
-    register('foodia_cash_save','Guarda borrador de cierre local por fecha y versión. Datos completos recuperados con cash_get y modificados; null no es cero. finalize solo por indicación del usuario. No mueve inventario ni envía Telegram.',z.object({date,revision:z.number().int().min(0),data:schema,finalize:z.boolean().default(false)}).strict(),true,args=>cash.save(args));
     const prod=require('./production-daily'),production=prod.service(query,actor);
     register('foodia_production_get','Recupera orden de producción local de prueba con catálogo, unidades y tandas. No son existencias reales.',z.object({date}).strict(),false,({date})=>production.get(date));
     register('foodia_production_save','Guarda producción de prueba por fecha y versión. Preparar no equivale a hecho; crudo separado de cocido. No modifica inventario ni solicita compras. null es desconocido. Finaliza solo por indicación del usuario.',z.object({date,revision:z.number().int().min(0),data:prod.schema,finalize:z.boolean().default(false)}).strict(),true,args=>production.save(args));

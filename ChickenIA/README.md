@@ -1,3 +1,9 @@
+## Retiro de Caja - 28 octubre 2026
+
+Por indicación de Miguel se retira Caja de la plataforma: navegación, evaluación, dashboard, reportes y capturas financieras. Registros históricos conservados sin borrado. Producción permanece activa. Detalles en RETIRO_CAJA_2026-10-28.md.
+
+---
+
 ## Sesion cerrada - Evaluacion sencilla con 120% y compartir, 21 octubre 2026
 
 Version final publicada y aceptada por Miguel: checklist por area con casilla y nota opcional, actividades de 120% con casilla/comentario y botones para compartir area o todo el equipo por WhatsApp. Dashboard con tabla semanal hasta 120%, enlaces a ficha/fecha y menu lateral compartido. Capturas e historicos conservados.

@@ -1,6 +1,6 @@
 'use strict';
 const kpi=require('./kpi');
-const production=require('../production-daily'),cash=require('../cash-close');
+const production=require('../production-daily');
 const areaIds={Cocina:'cocina',Freidoras:'freidoras',Rosticero:'rosticero'};
 function store(query){
  async function migrate(){
@@ -11,17 +11,15 @@ function store(query){
  }
  async function config(){const [r]=await query('SELECT start_date::text FROM supervision_kpi_config WHERE version=$1',[kpi.VERSION]);return r.start_date;}
  async function sources(date){
-  const [tables]=await query("SELECT to_regclass('public.production_daily_live') AS production,to_regclass('public.cash_close_daily_live') AS cash");
+  const [tables]=await query("SELECT to_regclass('public.production_daily_live') AS production");
   const [p]=tables.production?await query('SELECT data,revision,finalized FROM production_daily_live WHERE date=$1::date',[date]):[];
-  const [c]=tables.cash?await query('SELECT data,revision,finalized FROM cash_close_daily_live WHERE date=$1::date',[date]):[];
   const data=p?production.chickens(p.data):production.blank();
-  const ct=c?cash.calculate(c.data):null;
   const products=production.catalog.map(spec=>{
    const line=data.lines.find(l=>l.id===spec.id),values=[line.done1,line.done2,line.done3];
    return {id:spec.id,name:spec.name,area:areaIds[spec.area],active:line.active,unit:line.unit,previous:line.previousCooked,produced:values.every(v=>v==null)?null:Math.round(values.reduce((n,v)=>n+(v??0),0)*1000)/1000,planned:line.plan1,closing:line.closingCooked};
   });
-  return {productionRevision:p?.revision||0,productionFinalized:!!p?.finalized,cashRevision:c?.revision||0,cashFinalized:!!c?.finalized,
-   cashBalanced:!!ct&&ct.cashDifference===0&&ct.deliveryPending===0&&ct.salesDifference===0&&Object.values(ct.payments).every(v=>v===0)&&ct.cardTotal===c.data.payments.credit.confirmed+c.data.payments.debit.confirmed&&c.data.payments.cash.confirmed===c.data.cash.cashSales-c.data.cash.refunds,products};
+  return {productionRevision:p?.revision||0,productionFinalized:!!p?.finalized,
+   products};
  }
  async function events(location,date,from=date){return query('SELECT date::text,cut,revision,data,sources,evaluation,actor_name,created_at FROM supervision_kpi_events WHERE location_id=$1 AND date BETWEEN $2::date AND $3::date ORDER BY date,cut,revision',[location,from,date]);}
  async function get(location,date,now){
@@ -38,13 +36,13 @@ function store(query){
   return {...result,activation,periods,sources:await sources(date)};
  }
  async function save(location,body,actor,now){
-  const {date,cut,revision,sourceRevision,cashRevision}=body;
+  const {date,cut,revision,sourceRevision}=body;
   if(!kpi.validDate(date)||date!==kpi.day(now))kpi.fail('Solo puedes verificar el día actual. El histórico se conserva.',409);
   const idx=kpi.CUTS.findIndex(c=>c.id===cut);
   if(idx<0||!Number.isSafeInteger(revision)||revision<0)kpi.fail('Corte o versión inválidos.');
   if(idx>0&&new Date(now)<kpi.deadline(date,kpi.CUTS[idx-1]))kpi.fail('Este punto de control todavía no inicia.',409);
   const source=await sources(date);
-  if(sourceRevision!==source.productionRevision||cashRevision!==source.cashRevision)kpi.fail('Producción o caja cambiaron. Recarga para verificar las cantidades actuales.',409);
+  if(sourceRevision!==source.productionRevision)kpi.fail('La producción cambió. Recarga para verificar las cantidades actuales.',409);
   const previous=await events(location,date);
   const first=previous.find(e=>e.sources.productionRevision>0);
   if(first&&JSON.stringify(first.sources.products.filter(p=>p.active).map(p=>p.id))!==JSON.stringify(source.products.filter(p=>p.active).map(p=>p.id)))kpi.fail('Conserva los productos aplicables del primer corte en Producción Diaria. No se pueden retirar productos de la evaluación durante el día.',409);

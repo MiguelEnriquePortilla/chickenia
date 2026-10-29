@@ -70,7 +70,7 @@ function proteinCaption(snapshot){
   return ['🐔 CHICKENIA · SUPERVISIÓN',`${String(snapshot.location).slice(0,60)} · ${snapshot.date}`,`${cutLabel(snapshot)} · Captura ${time} CDMX`,
     ...(snapshot.kpi?[`${snapshot.kpi.kind==='areas'?'Áreas al 100%':'Controles'}: ${snapshot.kpi.met}/${snapshot.kpi.due} · ${snapshot.kpi.status}`]:[]),
     `Avance: ${snapshot.overall_score==null?'sin datos':snapshot.overall_score+'% verificado'}`,
-    '',...snapshot.proteins.lines,'','Detalle de supervisión y caja en la imagen.','Abrir dashboard para revisar pendientes.'].join('\n');
+    '',...snapshot.proteins.lines,'','Detalle de supervisión y producción en la imagen.','Abrir dashboard para revisar pendientes.'].join('\n');
 }
 
 async function sendReport(snapshot, png, env = process.env, fetchImpl = fetch) {

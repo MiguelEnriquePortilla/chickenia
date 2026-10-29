@@ -27,6 +27,6 @@ test('photo expenses and protein totals reach reports',()=>{
   const c=cash.blank();c.photo={...photo,coinsTotal:null,cardTotal:150000};c.cash.expenses=20000;
   const p=prod.blank();p.photo={...photo,deliveredBy:'',receivedBy:'',batchTimes:['','','']};
   const text=require('../lib/daily-summary').describe({revision:1,data:c,finalized:false},{revision:1,data:p,finalized:false}).join('\n');
-  assert.match(text,/Gastos de caja:.*200/);assert.match(text,/Tarjeta:.*1,500/);assert.match(text,/Pollo producido: pendiente/);
+  assert.doesNotMatch(text,/Gastos de caja/);assert.doesNotMatch(text,/Tarjeta:/);assert.match(text,/Pollo producido: pendiente/);
   assert.doesNotMatch(text,/Cocina: 0\/0/);
 });

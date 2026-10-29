@@ -55,7 +55,6 @@ function apply(spec,source,raw,user,now=new Date(),date=day(now)){
  }
  if(c.action==='simple-point'){
   if(!spec.points.some(p=>p.id===c.point))fail('Actividad desconocida.');
-  if(spec.code==='caja'&&c.point==='3.5'&&c.done&&user.name!=='LILIAN')fail('Liliana confirma el cierre general en el sistema.',403);
   // Separate checklist overlay: existing KPI, final evaluations and report snapshots stay unchanged.
   data.checklistPoints??=structuredClone(data.points);
   data.checklistPoints[c.point]={status:c.done?'done':'pending',note:c.note,actor:user.name,at:stamp};
@@ -69,12 +68,11 @@ function apply(spec,source,raw,user,now=new Date(),date=day(now)){
  if(c.action==='point'){
   const p=spec.points.find(p=>p.id===c.point);if(!p)fail('Actividad desconocida.');
   if(['na','issue'].includes(c.status)&&c.note.length<3)fail('Anota el motivo para continuar.');
-  if(spec.code==='caja'&&p.id==='3.5'&&c.status==='done'&&user.name!=='LILIAN')fail('Liliana confirma el cierre general en el sistema.',403);
   data.points[c.point]={status:c.status,note:c.note,actor:user.name,at:stamp};
  }
  if(c.action==='sample'){
   if(spec.code==='supervision'||!spec.products.includes(c.product)||c.passed>c.total)fail('Revisa producto y cantidades de la muestra.');
-  const max=['caja','ventas_barras'].includes(spec.code)?5:spec.code==='cocina'?3:1;
+  const max=spec.code==='ventas_barras'?5:spec.code==='cocina'?3:1;
   if(c.total>max||(['rastro','rosticero','freidoras'].includes(spec.code)&&c.total!==1))fail('La cantidad no corresponde a la muestra acordada.');
   if(spec.code==='cocina'&&c.slot==='precierre')fail('Cocina se revisa en arranque y comida.');
   if(spec.code!=='rastro'&&data.samples.some(s=>s.slot===c.slot&&s.product===c.product))fail('Esta revisión ya está registrada; conserva el resultado original.',409);

@@ -54,7 +54,7 @@ test('real PostgreSQL/API journals edits atomically, preserves the daily catalog
   await store.ensureDay(sql,1,today);
   const [saved]=await sql`SELECT catalog FROM checklist_timeline_days WHERE location_id=1`;assert.equal(saved.catalog[0].name,'Preparar cocina');assert.equal(saved.catalog[0].weight,3);
   await call({...base,location_id:2});assert.equal((await sql`SELECT count(*)::int n FROM checklist_timeline_days WHERE location_id=2`)[0].n,0);
-  const view=await store.get(sql,1,today);assert.equal(view.areas.length,3);assert.equal(view.cuts.length,4);
+  const view=await store.get(sql,1,today);assert.equal(view.areas.length,2);assert.equal(view.cuts.length,4);
   await store.setClosed(sql,1,today,true,'Sucursal cerrada','Miguel');assert.equal((await store.get(sql,1,today)).closed,true);
   await store.setClosed(sql,1,today,false,'Se abrió la sucursal','Miguel');assert.equal((await sql`SELECT count(*)::int n FROM checklist_timeline_calendar_events`)[0].n,2);
   await sql`DELETE FROM activity_checks WHERE activity_id=1 AND location_id=1`;

@@ -4,7 +4,7 @@ function store(query){
  async function incidents(location,date){
   const rows=await query('SELECT area,data FROM calibre_days WHERE location_id=$1 AND date<=$2::date ORDER BY date,updated_at',[location,date]);
   const all=new Map();
-  for(const row of rows)for(const incident of row.data.incidents){const old=all.get(incident.id);if(!old||(!old.resolvedAt&&incident.resolvedAt))all.set(incident.id,{...incident,sourceArea:incident.sourceArea||row.area});}
+  for(const row of rows.filter(r=>r.area!=='caja'))for(const incident of row.data.incidents){const old=all.get(incident.id);if(!old||(!old.resolvedAt&&incident.resolvedAt))all.set(incident.id,{...incident,sourceArea:incident.sourceArea||row.area});}
   return [...all.values()].filter(i=>!i.resolvedAt||core.day(new Date(i.due))===date);
  }
  function withIncidents(row,all){
@@ -22,13 +22,13 @@ function store(query){
   const [settings]=await query('SELECT start_date::text FROM calibre_settings WHERE id=1');
   const rows=await query('SELECT area,spec,data,revision FROM calibre_days WHERE location_id=$1 AND date=$2::date ORDER BY area',[location,date]);
   const all=await incidents(location,date);
-  const areas=core.AREAS.map(spec=>{const r=rows.find(r=>r.area===spec.code),saved=r?.spec||spec,data=withIncidents({spec:saved,data:r?.data||core.blank()},all);return {spec:saved,data,revision:r?.revision||0,summary:data.final?data.finalSummary:core.summary(saved,data,now,date)};});
+  const areas=core.AREAS.map(spec=>{const r=rows.find(r=>r.area===spec.code),saved=spec,data=withIncidents({spec:saved,data:r?.data||core.blank()},all);return {spec:saved,data,revision:r?.revision||0,summary:data.final?data.finalSummary:core.summary(saved,data,now,date)};});
   const history=await query('SELECT id,date::text,scope,kind,message,actor,created_at FROM calibre_reports WHERE location_id=$1 AND date BETWEEN ($2::date-29) AND $2::date ORDER BY id DESC LIMIT 100',[location,date]);
   const days=await query('SELECT date::text,area,revision,data->\'finalSummary\' AS summary FROM calibre_days WHERE location_id=$1 AND date BETWEEN ($2::date-29) AND $2::date AND data->>\'final\'=\'true\' ORDER BY date DESC,area',[location,date]);
   const checklistHistory=await query('SELECT date::text,area,spec,data->\'checklistPoints\' AS points,data->\'points\' AS original_points FROM calibre_days WHERE location_id=$1 AND date BETWEEN ($2::date-29) AND $2::date ORDER BY date DESC,area',[location,date]);
   const week=core.weekDates(date),weekRows=await query('SELECT date::text,area,spec,data FROM calibre_days WHERE location_id=$1 AND date BETWEEN $2::date AND $3::date',[location,week[0],week[6]]);
   const weekly={dates:week,areas:core.AREAS.map(spec=>({code:spec.code,name:spec.name,days:week.map(date=>{const r=weekRows.find(r=>r.date===date&&r.area===spec.code);return {date,...(r?core.checklistScore(r.spec,r.data):{done:0,total:spec.points.length,score:null})};})}))};
-  return {date,start:settings.start_date,version:core.VERSION,areas,history,days,checklistHistory,weekly,canWrite:date===core.day(now),serverTime:now.toISOString()};
+  return {date,start:settings.start_date,version:core.VERSION,areas,history:history.filter(r=>r.scope!=='caja'&&!/caja|efectivo|cuadre/i.test(r.message)),days:days.filter(r=>r.area!=='caja'),checklistHistory:checklistHistory.filter(r=>r.area!=='caja'),weekly,canWrite:date===core.day(now),serverTime:now.toISOString()};
  }
  async function save(location,date,body,user,now){
   if(date!==core.day(now))core.fail('El histórico se conserva. Solo puedes registrar el día actual.',409);
@@ -38,7 +38,7 @@ function store(query){
   const [row]=await query('SELECT spec,data,revision FROM calibre_days WHERE location_id=$1 AND date=$2::date AND area=$3',[location,date,spec.code]);
   if(row.revision!==body.revision)core.fail('Alguien actualizó esta área. Recarga antes de guardar; tu captura sigue visible.',409);
   const source=withIncidents(row,await incidents(location,date));
-  const data=core.apply(row.spec,source,body.command,user,now,date);
+  const data=core.apply(spec,source,body.command,user,now,date);
   const result=await query(`WITH saved AS (UPDATE calibre_days SET data=$5::jsonb,revision=revision+1,updated_at=$6::timestamptz WHERE location_id=$1 AND date=$2::date AND area=$3 AND revision=$4 RETURNING revision)
    INSERT INTO calibre_events(location_id,date,area,revision,action,data,actor,recorded_at) SELECT $1,$2::date,$3,revision,$7,$5::jsonb,$8,$6::timestamptz FROM saved RETURNING revision`,[location,date,spec.code,body.revision,JSON.stringify(data),now.toISOString(),body.command.action,user.name]);
   if(!result.length)core.fail('Alguien actualizó esta área. Recarga antes de guardar.',409);
