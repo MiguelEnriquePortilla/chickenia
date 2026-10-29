@@ -36,7 +36,7 @@ function setCollapsible(toggleId, bodyId, open) {
   const body = document.getElementById(bodyId);
   if (!toggle || !body) return;
   toggle.setAttribute('aria-expanded', String(open));
-  const label=toggle.querySelector('.section-toggle-label');if(label)label.textContent=open?'Ocultar':'Mostrar';
+  const label=toggle.querySelector('.section-toggle-label');if(label)label.textContent=open?'\u2212':'+';if(label)label.setAttribute('aria-hidden','true');
   body.inert = !open;
 }
 

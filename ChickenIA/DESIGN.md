@@ -4,7 +4,7 @@ La plataforma conserva el Inicio aprobado: fondos cálidos neutros, tinta azul m
 
 - Celular: contenido a todo el ancho, margen 16px y menú superpuesto con cierre por botón, fondo o Escape. Foco contenido dentro del menú mientras está abierto.
 - Controles: mínimo 44px y campos de 16px, foco visible, sin bloquear zoom. Estados explícitos de guardado y recuperación.
-- Divulgación: Mostrar/Ocultar y Abrir/Cerrar. Sin flechas, chevrones ni triángulos como indicadores.
+- Divulgación: iconos + / − para desplegar y recoger secciones; tres líneas horizontales / X para abrir y cerrar el menú. Sin flechas, chevrones ni triángulos como indicadores. Nombres de categorías visibles y controles con descripción accesible.
 - Capturas primero, compartir después. Pedidos conserva un borrador en el dispositivo; producción/evaluación indican su guardado automático; inventarios conservan su guardado manual.
 - Fecha y área consultadas se mantienen al navegar. Cero, sin captura y dato no disponible son estados diferentes.
 - Resumen con secciones colapsables e indicadores de captura, evaluaciones compactas y orden opcional de pendientes. Históricos y reconocimiento 120% conservados.
