@@ -36,3 +36,27 @@ test('PostgreSQL save/reload, weekly links data and history use saved points; st
   await assert.rejects(s.save(1,'2026-10-21',body,user,now),/actualizó/);await assert.rejects(s.save(1,'2026-10-20',body,user,now),/histórico/);
  }finally{await db.close();}
 });
+
+
+test('Caja card saves activities, notes, 120%, reports and weekly history without financial capture',async()=>{
+ const db=new PGlite();try{
+  await db.exec("CREATE TABLE locations(id int PRIMARY KEY); INSERT INTO locations VALUES(1)");
+  const q=async(s,p)=>(await db.query(s,p)).rows,s=store(q);await s.migrate();
+  let view=await s.get(1,'2026-10-21',now),row=view.areas.find(r=>r.spec.code==='caja');
+  assert.equal(view.areas.length,8);assert.equal(row.spec.points.length,16);
+  assert.deepEqual(row.spec.points.map(p=>p.id),['1.1','1.2','1.3','1.4','1.5','1.6','2.1','2.2','2.3','2.4','2.5','3.1','3.2','3.3','3.4','3.5']);
+  for(const p of row.spec.points){
+   view=await s.save(1,'2026-10-21',{area:'caja',revision:row.revision,command:{action:'simple-point',point:p.id,done:true,note:'Actividad supervisada'}},user,now);
+   row=view.areas.find(r=>r.spec.code==='caja');
+  }
+  view=await s.save(1,'2026-10-21',{area:'caja',revision:row.revision,command:{action:'simple-extra',choice:0,done:true}},user,now);
+  row=view.areas.find(r=>r.spec.code==='caja');
+  assert.equal(core.checklistScore(row.spec,row.data).score,120);
+  assert.equal(row.data.checklistPoints['2.3'].note,'Actividad supervisada');
+  assert.equal(view.weekly.areas.find(a=>a.code==='caja').days[2].score,120);
+  assert.equal(view.checklistHistory.find(r=>r.area==='caja').points['3.5'].status,'done');
+  await s.saveReport(1,'2026-10-21','caja','simple',user,now);
+  view=await s.get(1,'2026-10-21',now);assert.equal(view.history[0].scope,'caja');assert.match(view.history[0].message,/CAJA/);
+  assert.equal(await db.query("SELECT 1 FROM information_schema.tables WHERE table_name='cash_closes'").then(r=>r.rows.length),0);
+ }finally{await db.close();}
+});

@@ -7,7 +7,7 @@ const spec=code=>c.AREAS.find(a=>a.code===code);
 const run=(code,data,command,user=nancy,time=now)=>c.apply(spec(code),data,command,user,time,'2026-10-21');
 function ready(code){const a=spec(code),d=c.blank();for(const p of a.points)d.points[p.id]={status:'done'};for(const product of a.products)for(const slot of ['arranque','comida','precierre'].slice(0,a.expected))d.samples.push({product,slot,total:1,passed:1});return d;}
 test('approved cards retain their exact point numbers, 14 kitchen activities, and no invented cash amounts',()=>{
- assert.deepEqual(c.AREAS.map(a=>a.points.length),[15,14,12,15,13,7,8]);
+ assert.deepEqual(c.AREAS.map(a=>a.points.length),[15,14,12,15,13,16,7,8]);
  for(const a of c.AREAS)assert.equal(new Set(a.points.map(p=>p.id)).size,a.points.length);
 assert.match(spec('cocina').points.find(p=>p.id==='1.2').text,/Rosticero/);
 });

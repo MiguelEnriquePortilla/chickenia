@@ -9,6 +9,7 @@
     ['rosticero','Rosticero','M3 7h18v13H3z M7 12h10 M8 3v2 M16 3v2 M7 16h10'],
     ['freidoras','Freidoras','M5 10h14l-2 10H7z M19 10l2-5 M8 7V3 M12 7V3 M16 7V3'],
     ['ventas_barras','Ventas / Barras','M3 7h18l-2 5H5z M5 12v8h14v-8 M8 4h8'],
+    ['caja','Caja','M3 8h18v12H3z M7 8V3h10v5 M7 12h4 M7 16h4 M15 12h2 M15 16h2'],
     ['trastes','Lavado de trastes','M3 12h18l-3 8H6z M8 12V6a4 4 0 018 0 M16 6v3'],
     ['supervision','Supervisión','M6 5h12v16H6z M9 3h6v4H9z M9 12l2 2 4-4'],
   ];

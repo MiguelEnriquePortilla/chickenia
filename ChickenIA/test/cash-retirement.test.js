@@ -15,7 +15,8 @@ test('daily overview only loads production and reports no financial data',async(
  finally{auth.authenticate=originalAuth;production.service=originalService;}
 });
 test('catalogues and reports no longer require financial closing',()=>{
- for(const file of ['calibre-catalog','kpi-catalog'])assert.ok(require('../lib/supervision/'+file).AREAS.every(a=>(a.code||a.id)!=='caja'));
+ assert.ok(require('../lib/supervision/calibre-catalog').AREAS.some(a=>a.code==='caja'));
+ assert.ok(require('../lib/supervision/kpi-catalog').AREAS.every(a=>(a.code||a.id)!=='caja'));
  const summary=require('../lib/daily-summary').describe({revision:1,data:{}},null).join('\n');assert.doesNotMatch(summary,/caja|efectivo|transferencia/i);
  const kpi=require('../lib/supervision/kpi'),checks=require('../lib/supervision/kpi-catalog').requirements('cierre').map(r=>({id:r.id,status:'ready',note:''}));
  const evaluated=kpi.evaluate({checks,products:[]},'cierre',{products:[],productionRevision:1,productionFinalized:true});

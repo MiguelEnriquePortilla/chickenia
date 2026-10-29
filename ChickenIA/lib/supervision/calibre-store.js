@@ -4,7 +4,7 @@ function store(query){
  async function incidents(location,date){
   const rows=await query('SELECT area,data FROM calibre_days WHERE location_id=$1 AND date<=$2::date ORDER BY date,updated_at',[location,date]);
   const all=new Map();
-  for(const row of rows.filter(r=>r.area!=='caja'))for(const incident of row.data.incidents){const old=all.get(incident.id);if(!old||(!old.resolvedAt&&incident.resolvedAt))all.set(incident.id,{...incident,sourceArea:incident.sourceArea||row.area});}
+  for(const row of rows)for(const incident of row.data.incidents){const old=all.get(incident.id);if(!old||(!old.resolvedAt&&incident.resolvedAt))all.set(incident.id,{...incident,sourceArea:incident.sourceArea||row.area});}
   return [...all.values()].filter(i=>!i.resolvedAt||core.day(new Date(i.due))===date);
  }
  function withIncidents(row,all){
@@ -28,7 +28,7 @@ function store(query){
   const checklistHistory=await query('SELECT date::text,area,spec,data->\'checklistPoints\' AS points,data->\'points\' AS original_points FROM calibre_days WHERE location_id=$1 AND date BETWEEN ($2::date-29) AND $2::date ORDER BY date DESC,area',[location,date]);
   const week=core.weekDates(date),weekRows=await query('SELECT date::text,area,spec,data FROM calibre_days WHERE location_id=$1 AND date BETWEEN $2::date AND $3::date',[location,week[0],week[6]]);
   const weekly={dates:week,areas:core.AREAS.map(spec=>({code:spec.code,name:spec.name,days:week.map(date=>{const r=weekRows.find(r=>r.date===date&&r.area===spec.code);return {date,...(r?core.checklistScore(r.spec,r.data):{done:0,total:spec.points.length,score:null})};})}))};
-  return {date,start:settings.start_date,version:core.VERSION,areas,history:history.filter(r=>r.scope!=='caja'&&!/caja|efectivo|cuadre/i.test(r.message)),days:days.filter(r=>r.area!=='caja'),checklistHistory:checklistHistory.filter(r=>r.area!=='caja'),weekly,canWrite:date===core.day(now),serverTime:now.toISOString()};
+  return {date,start:settings.start_date,version:core.VERSION,areas,history,days,checklistHistory,weekly,canWrite:date===core.day(now),serverTime:now.toISOString()};
  }
  async function save(location,date,body,user,now){
   if(date!==core.day(now))core.fail('El histórico se conserva. Solo puedes registrar el día actual.',409);
