@@ -47,6 +47,16 @@ try:
   page.route('**/icons/welcome-mascot.webp',lambda r:r.abort());page.goto(base);expect(page.locator('#chicken-welcome')).to_be_hidden();assert not page.locator('#chicken-home').evaluate('(el)=>el.inert');page.unroute('**/icons/welcome-mascot.webp')
   held=[];page.route('**/icons/welcome-mascot.webp',lambda r:held.append(r));page.goto(base,wait_until='domcontentloaded');expect(page.locator('#chicken-welcome')).to_be_hidden(timeout=7000);assert not page.locator('#chicken-home').evaluate('(el)=>el.inert')
   for route in held:route.abort()
+  # First paint must show the approved splash even when its deferred script is delayed.
+  page.unroute('**/icons/welcome-mascot.webp')
+  held_script=[];page.route('**/js/welcome.js',lambda r:held_script.append(r))
+  page.goto(base,wait_until='commit')
+  expect(page.locator('#chicken-welcome')).to_be_visible()
+  expect(page.locator('#chicken-home')).to_be_hidden()
+  expect(page.locator('.chicken-welcome__mascot')).to_have_css('opacity','1')
+  page.screenshot(path=str(out/'first-paint-390.png'))
+  expect(page.locator('#chicken-home')).to_be_visible(timeout=7500)
+  for route in held_script:route.abort()
   assert not errors,errors
   context=browser.new_context(java_script_enabled=False);nojs=context.new_page();nojs.goto(base);expect(nojs.locator('#chicken-welcome')).to_be_hidden();expect(nojs.locator('.home-primary')).to_be_visible();context.close();browser.close()
  print('PASS splash: 320/390/1440, short entrance/exit, skip and focus, Escape, reduced motion, internal return, failed/slow image, no JS. No API writes.')

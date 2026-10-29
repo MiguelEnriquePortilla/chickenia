@@ -3,7 +3,9 @@
   "outputDirectory": "public",
   "installCommand": "npm ci --omit=dev",
   "functions": {
-    "api/summary.js": { "includeFiles": "lib/supervision/NotoSans.ttf" }
+    "api/summary.js": {
+      "includeFiles": "lib/supervision/NotoSans.ttf"
+    }
   },
   "headers": [
     {
@@ -21,6 +23,42 @@
     },
     {
       "source": "/js/inventory.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/js/welcome.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/css/welcome.css",
       "headers": [
         {
           "key": "Cache-Control",

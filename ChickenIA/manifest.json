@@ -9,14 +9,22 @@
   "theme_color": "#17213E",
   "icons": [
     {
-      "src": "/icons/icon-192.jpg",
+      "src": "/icons/chicania-launch-192.png",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.jpg",
+      "src": "/icons/chicania-launch-512.png",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/chicania-launch-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

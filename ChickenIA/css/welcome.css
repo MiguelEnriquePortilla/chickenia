@@ -1,4 +1,4 @@
-/* Native splash: one brief brand entrance, no video download or simulated progress. */
+/* Approved splash: drawn before the home screen, never an embedded video. */
 .chicken-welcome[hidden]{display:none!important}
 .chicken-welcome{--welcome-ease:cubic-bezier(.23,1,.32,1);position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));background:#17213e;color:#fff;overflow:hidden;font-family:Poppins,Arial,sans-serif;opacity:1;transition:opacity 180ms var(--welcome-ease)}
 .chicken-welcome__stage{position:relative;isolation:isolate;display:grid;place-items:center;width:min(82vw,48svh,420px);aspect-ratio:1;margin:0 0 18px}
@@ -42,3 +42,6 @@ body.welcome-active{overflow:hidden}
 .chicken-welcome__speech{font-size:clamp(12px,3.65vw,21px);white-space:nowrap;letter-spacing:-.025em}
 .chicken-welcome__speech span,.chicken-welcome__speech strong{display:inline}
 @media(max-height:500px){.chicken-welcome__speech{font-size:clamp(12px,3.65vw,21px)}}
+
+/* The first paint already carries the approved mascot while startup scripts arrive. */
+.welcome-pending .chicken-welcome:not([data-ready]) :is(.chicken-welcome__mascot,.chicken-welcome__brand,.chicken-welcome__speech,.chicken-welcome__message){opacity:1}

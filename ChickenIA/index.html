@@ -5,10 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Chicken ChicanIA</title>
 <script>try{if(localStorage.getItem('chickenia_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<script>
+// Paint the approved splash first; internal returns and reduced motion go straight home.
+(()=>{try{
+ const stamp=Number(sessionStorage.getItem('chickenia_internal_home'));
+ if(stamp>0&&Date.now()-stamp<15000||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ document.documentElement.classList.add('welcome-pending');
+ setTimeout(()=>{if(!document.documentElement.classList.contains('welcome-pending'))return;
+ document.documentElement.classList.remove('welcome-pending');
+ const screen=document.getElementById('chicken-welcome'),home=document.getElementById('chicken-home');
+ if(screen)screen.hidden=true;if(home){home.inert=false;home.removeAttribute('aria-hidden');}document.body?.classList.remove('welcome-active');
+ },5500);
+}catch{}})();
+</script>
+<style>.welcome-pending{background:#17213e}.welcome-pending #chicken-welcome[hidden]{display:flex!important}.welcome-pending #chicken-home{visibility:hidden}</style>
 <link rel="manifest" href="/manifest.json" />
 <meta name="theme-color" content="#17213E" />
-<link rel="icon" href="/icons/icon-32.png" />
-<link rel="apple-touch-icon" href="/icons/icon-180.jpg" />
+<link rel="icon" href="/icons/chicania-launch-32.png" />
+<link rel="apple-touch-icon" href="/icons/chicania-launch-180.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Chicken ChicanIA" />
 <link rel="stylesheet" href="/css/style.css" />

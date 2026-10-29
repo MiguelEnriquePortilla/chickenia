@@ -5,14 +5,14 @@
  let internal=false;
  try{const stamp=Number(sessionStorage.getItem('chickenia_internal_home'));sessionStorage.removeItem('chickenia_internal_home');internal=stamp>0&&Date.now()-stamp<15000;}catch{}
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
- if(internal||reduced.matches)return;
+ if(internal||reduced.matches){document.documentElement.classList.remove('welcome-pending');return;}
  const mascot=screen.querySelector('img'),skip=screen.querySelector('button');
  let finished=false,started=false,displayTimer,exitTimer;
  function finish(){
   if(finished)return;finished=true;
   clearTimeout(displayTimer);clearTimeout(exitTimer);clearTimeout(failsafe);
   const moveFocus=screen.contains(document.activeElement);
-  screen.hidden=true;home.inert=false;home.removeAttribute('aria-hidden');document.body.classList.remove('welcome-active');
+  document.documentElement.classList.remove('welcome-pending');screen.hidden=true;home.inert=false;home.removeAttribute('aria-hidden');document.body.classList.remove('welcome-active');
   if(moveFocus)home.querySelector('a')?.focus({preventScroll:true});
  }
  function exit(){if(finished||screen.hasAttribute('data-exiting'))return;screen.dataset.exiting='true';exitTimer=setTimeout(finish,180);}
