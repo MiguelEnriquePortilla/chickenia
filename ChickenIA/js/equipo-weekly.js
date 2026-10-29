@@ -13,7 +13,7 @@ async function load(){const date=document.getElementById('date-input').value||ne
  // Current checklist results replace the old evaluation blocks, never the operational cards.
  document.body.classList.toggle('equipo-week-active',date>=data.start);
  if(date>=data.start){for(const id of ['checklist-timeline','areas-card','area-status-bar','critical-pending']){const el=document.getElementById(id);if(el)el.hidden=true;}document.querySelector('.overall-score-box').hidden=true;}
- }catch(e){if(g===generation)host.innerHTML=`<h2>Evaluación Equipo Chicanito</h2><p role="alert">${esc(e.message)}</p><button type="button" data-retry>Reintentar</button>`;}
+ }catch(e){if(g===generation)host.innerHTML=`<h2>Chicanito en Acción</h2><p role="alert">${esc(e.message)}</p><button type="button" data-retry>Reintentar</button>`;}
 }
 document.getElementById('date-input').addEventListener('change',()=>{for(const id of ['checklist-timeline','areas-card','area-status-bar','critical-pending']){const el=document.getElementById(id);if(el)el.hidden=false;}document.querySelector('.overall-score-box').hidden=false;load();});host.addEventListener('change',e=>{if(e.target.matches('[data-pending-first]')){pendingFirst=e.target.checked;orderCards();}});host.addEventListener('click',e=>{if(e.target.closest('[data-retry]'))load();});
 function orderCards(){const list=host.querySelector('.feed-list');if(!list)return;[...list.children].sort((a,b)=>(pendingFirst?Number(b.dataset.pending)-Number(a.dataset.pending):0)||Number(a.dataset.areaOrder)-Number(b.dataset.areaOrder)).forEach(card=>list.append(card));}
