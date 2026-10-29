@@ -19,7 +19,8 @@ test('MCP local persistente: lista flexible, producto nuevo, compra, costo y rec
     const other=await start();
     try{
       const names=(await other.listTools()).tools.map(t=>t.name);
-      for(const name of ['foodia_cash_get','foodia_cash_save','foodia_production_get','foodia_production_save'])assert.ok(names.includes(name));
+      for(const name of ['foodia_production_get','foodia_production_save'])assert.ok(names.includes(name),`${name} must remain available`);
+      for(const name of ['foodia_cash_get','foodia_cash_save'])assert.ok(!names.includes(name),`${name} must remain retired`);
       const both=await Promise.all([client.callTool({name:'foodia_inventory',arguments:{search:'morron'}}),other.callTool({name:'foodia_inventory',arguments:{search:'morron'}})]);
       for(const out of both)assert.ok(!out.isError,JSON.stringify(out));
       const draft=await client.callTool({name:'foodia_prepare',arguments:{operation:{type:'initial',location:'cedis',lines:[{item:'morron',qty:0}],note:'Concurrent local test'}}});
