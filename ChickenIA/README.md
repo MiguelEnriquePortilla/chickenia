@@ -1,3 +1,80 @@
+## Sesión cerrada — Chicanito en Acción, Caja e iconos, 29 octubre 2026
+
+Miguel aprobó y pidió documentar y cerrar. Caja recuperada con las 16 actividades de supervisión y extras; cierre financiero sigue retirado. Categoría **Chicanito en Acción**. Menú con tres líneas / X y secciones con + / −, sin flechas; sustituye los textos visibles de apertura y cierre acordados antes. Versión funcional `9836348`, Vercel `dpl_EWQZAAYXnLXdNNYmqxMDGGXi8TZh` READY; archivos públicos y navegador aislado comprobados. Sin operaciones reales ni mensajes. [Cierre y continuidad](CIERRE_CAJA_NOMBRE_ICONOS_2026-10-29.md).
+
+Sin pendientes de esta solicitud. Esperar nuevas indicaciones; no ejecutar trabajo automático. Los apartados inferiores son antecedentes.
+
+---
+
+## Caja — actividades recuperadas, 29 octubre 2026
+
+Miguel aclaró que solo debía retirarse el cierre financiero. Caja vuelve como área de evaluación con las 16 actividades de la ficha, notas, extras del 120%, resumen e históricos. Las actividades de cierre se supervisan como tareas; la captura financiera sigue retirada. Publicado `748f4b4`, Vercel `dpl_GXvmjpSgfMHWza1t7y6Vst7pdeAd` READY. 21 pruebas y recorrido aislado de navegador aprobados; sin capturas reales ni mensajes. [Detalle y alcance](CAJA_ACTIVIDADES_2026-10-29.md). Esta aclaración sustituye las restricciones anteriores sobre la ficha de Caja.
+
+---
+
+## Sesión cerrada — Plataforma, HyperFrames y splash aprobada, 29 octubre 2026
+
+Miguel aceptó lo publicado y pidió conservar todo en Drive y cerrar. Versión final d8a2352; Vercel READY y GitHub Actions40894747643 aprobado. Plataforma móvil, nombres, 120%, reportes y splash/iconos entregados. [Cierre y recuperación](CIERRE_SESION_2026-10-29.md). Respaldos de Drive verificados: código, editable, skills y sesión con19 capturas; todos los vínculos están en el documento de cierre.
+
+Conservar frase en un renglón, sin tarjeta, debajo de mascota y encima del título; sin flechas. Android puede retener el icono previo hasta actualizar el acceso instalado; no borrar datos locales. Comprobación física pendiente, no hay trabajo automático autorizado.
+
+[Cierre verificado en Drive](https://drive.google.com/file/d/1Wlqqypyv8-xhaQ4KLJ44aVUwfO8h3seZ/view?usp=drivesdk).
+
+**Sesión cerrada. Esperar nuevas indicaciones; no retomar antecedentes ni capturar operaciones o enviar mensajes.**
+
+---
+
+## Actualización vigente — Splash e iconos de arranque, 29 octubre 2026
+
+Publicado `d8a2352` en ChicanIA: splash aprobada con esfera/pulsos y frase sutil en un renglón debajo de la mascota; icono antiguo de Android sustituido. La imagen enviada por Miguel corresponde a `icons/icon-512.jpg`, no al logotipo corporativo del encabezado. Manifiesto con PNG nuevos y variante maskable; rutas antiguas conservadas con imagen nueva, favicons/touch icons actualizados, primer paint de splash sin destello del inicio.
+
+Vercel `dpl_6Unm8Nf9vAZzrQcqFjVhF1u7vHCT` READY y GitHub Actions [40894747643](https://github.com/MiguelEnriquePortilla/chickenia/actions/runs/40894747643) aprobado. Archivos públicos cotejados, entrada/salida de splash y consola comprobadas en producción. Pruebas aisladas de arranque y activos e inventario aprobadas; sin operaciones reales.
+
+Android conserva una fase estática propia antes de la web; no ejecuta allí la animación. Los accesos ya instalados pueden retener el icono antiguo hasta actualizarlo. Falta comprobar ese comportamiento en el teléfono de Miguel; no borrar datos del sitio para resolverlo, pues Pedidos conserva borradores locales. [Detalle](SPLASH_APROBADA_2026-10-29.md). Los apartados siguientes son antecedentes.
+
+---
+
+## Sesión cerrada — Plataforma móvil unificada, 29 octubre 2026
+
+Miguel aceptó la entrega («EXCELENTE») y pidió documentar y cerrar. Se aplicó la claridad del Inicio aprobado a evaluaciones, producción, pedidos, inventarios y Resumen del día, con prioridad al celular.
+
+### Estado publicado
+
+- Producción: https://chickenia.chicanito.app/
+- Commits publicados: `4438f9f`, `f36360a` y `11d0caa` (versión final).
+- Vercel final: `dpl_6ZE1M2hPiYhBThyXyPK48cA7y8kr`, READY, dominio de producción y commit final comprobados.
+- GitHub Actions final: [40874784901](https://github.com/MiguelEnriquePortilla/chickenia/actions/runs/40874784901), aprobado. También aprobados 40818883066 y 40874519033.
+
+### Cambios y acuerdos vigentes
+
+- Mantener el Inicio aprobado y la identidad visual común. **No usar flechas, chevrones ni triángulos como indicadores**; usar Mostrar/Ocultar, Abrir/Cerrar y acciones con nombre.
+- Menú móvil superpuesto, contenido a todo el ancho, controles de al menos 44px, campos de 16px, foco visible y navegación por teclado. Menú cerrable mediante botón, fondo o Escape; sin desplazamiento horizontal interno.
+- Evaluación: captura antes de compartir, árbol de áreas dentro de Evaluación Equipo Chicanito, sin paso Abrir evaluación ni módulo de Asistencia. Históricos y reconocimiento del 120% conservados.
+- Producción: fecha consultada conservada incluso al iniciar sesión; guardado automático con recuperación. Un fallo de guardado no cambia la fecha del enlace ni elimina Reintentar.
+- Pedidos: título visible, búsqueda de productos y filtro de cantidades positivas; borradores locales conservados. Cero y vacío siguen siendo distintos. Editar una cantidad filtrada no oculta el campo mientras se escribe.
+- Inventarios: nombres Inventario CEDIS, Inventario Sucursal e Inventario Móvil. Origen CEDIS y destino explícitos; formularios compactos; correcciones/reinicios como acciones secundarias protegidas.
+- Las salidas se consideran entregadas al guardarse; no reintroducir confirmación de recepción ni diferencias de envío. Datos históricos preservados, sin duplicar movimientos.
+- Resumen del día: secciones colapsables con indicadores de captura, evaluaciones compactas, orden opcional Pendientes primero, históricos y reportes manuales por WhatsApp con vista previa de texto e imagen.
+- Caja continúa retirada. No reactivarla ni retomar tareas históricas por leer apartados anteriores.
+
+### Validación y límites
+
+38 pruebas Node aprobadas en el recorrido principal ampliado; suites específicas de inventario y producción también aprobadas. Recorridos aislados de evaluación, producción, pedidos, dashboard, inventarios y plataforma compartida verificados a 320/390/1440px y en temas claro/oscuro, además del recorrido completo API/PostgreSQL de CI. Archivos publicados cotejados con el código local.
+
+Lectura autenticada en producción comprobada: evaluaciones, 120%, orden de pendientes e Inventario Sucursal; consola sin errores. Se renovó la sesión de acceso de Miguel para completar la lectura. **No se registraron capturas ni movimientos operativos reales y no se enviaron mensajes de prueba.** Las escrituras funcionales se probaron únicamente con bases aisladas.
+
+La revisión móvil fue en navegador: falta comprobar teclado, tacto y uso durante una jornada en teléfono físico. Siguiente paso sugerido y todavía no ejecutado: Miguel prueba evaluación, inventarios, resumen e informe de WhatsApp en su celular; después decidir ajustes y posible compactación adicional de historiales/tablas. Esto no autoriza capturas, envíos ni trabajo automático.
+
+### Continuidad y archivo
+
+Guía visual: [DESIGN.md](DESIGN.md). Plan ejecutado: [plataforma móvil](docs/superpowers/plans/2026-10-28-plataforma-movil.md). Código final respaldado en GitHub y checkout principal actualizado; cambios locales anteriores conservados sin incluirlos en los commits de interfaz.
+
+No se crearon ni reorganizaron archivos en Drive: no hubo entregables nuevos de negocio que archivar; bastan el código versionado y esta continuidad. La copia de trabajo aislada `.worktrees/plataforma-movil` conserva pruebas y evidencia local, sin tareas en ejecución.
+
+**Sesión cerrada a petición de Miguel. Sin pendientes de implementación de esta solicitud; esperar nuevas indicaciones.** Los bloques inferiores son antecedentes, no una lista de tareas activas.
+
+---
+
 ## Sesión cerrada - Caja retirada, 28 octubre 2026
 
 Miguel aceptó la entrega y pidió documentar y cerrar. Caja retirada de navegación, captura, evaluaciones, dashboard, reportes y manual público. Producción sigue activa; registros anteriores conservados sin borrado.
@@ -33,6 +110,25 @@ Entrega publicada y aceptada por Miguel. Fichas homologadas con lenguaje CHICANI
 Leer primero [cierre vigente](CIERRE_CALIBRE_CHICANITO_2026-10-21.md) y [acuerdos e implementacion](CALIBRE_CHICANITO_2026-10-21.md). Codigo publicado `5ebe6c1`; 25 pruebas y dos recorridos de navegador aprobados, lectura autenticada en produccion verificada. Sin capturas operativas ni mensajes reales de prueba.
 
 Sesion cerrada: esperar nuevas indicaciones. Esta entrega sustituye el pendiente anterior de actualizar las fichas. Los apartados inferiores son antecedentes y conservan su alcance.
+
+---
+
+## Visión Chicanito — programa publicado, 21 octubre 2026
+
+El programa de consolidación operativa está publicado y aceptado en [vision.chicanito.app](https://vision.chicanito.app/), como proyecto independiente. [Entrada y cierre](../Vision-Chicanito/README.md) · [Handoff](../../_handoffs/HANDOFF_VISION_CHICANITO_2026-10-21.md). Este trabajo no cambió la aplicación operativa, datos ni historiales; no acredita conexión con Poster ni ejecución de actividades. Sesión cerrada; esperar nuevas indicaciones. Los cierres de la app que siguen conservan sus propios alcances y pendientes.
+
+---
+## Sesión cerrada - Dashboard de Rastro, 21 octubre 2026
+
+Miguel aceptó el resultado. Commit `29591d6` enviado a `origin/main`: ocho tarjetas Rosti/Cruji y tablas semanales de Rastro; sin cambios en tablas, API ni saldos de la base de datos. Doce pruebas y navegador aislado aprobados. No se verificó el despliegue final en producción; no afirmar comprobación en vivo. Leer [reporte de entrega](DASHBOARD_RASTRO_SEMANAL_2026-10-21.md).
+
+Esperar nuevas indicaciones. Proteínas de Sucursal en otro espacio queda como trabajo futuro independiente. No reiniciar inventarios, capturar operaciones ni enviar mensajes de prueba. Las fichas de actividades siguen conservadas; no se actualizaron las actividades de la app en este pedido. Los apartados inferiores son antecedentes.
+
+---
+
+## Continuidad vigente ? fichas aprobadas y siguiente sesi?n de Chicken ChicanIA
+
+Seis ?reas aprobadas como base semanal: Barras, Caja, Cocina, Freidoras, Rosticero y Rastro/Apertura de Sucursal. Pr?xima sesi?n: actualizar la aplicaci?n con estas actividades. **Leer primero [handoff del 20 de octubre](HANDOFF_FICHAS_SUPERVISION_2026-10-20.md).** PDF finales dentro del proyecto en `docs/fichas-supervision/2026-10-20/` y en la carpeta visible `PARA IMPRIMIR/VERSION FINAL - IMPRESION/` de CHICANITO. Esta sesi?n no modific? ni public? la aplicaci?n; conservar historiales.
 
 ---
 
