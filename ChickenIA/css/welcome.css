@@ -1,20 +1,19 @@
-/* In-app welcome only. Android's launch screen and installed icons stay unchanged. */
+﻿/* Native splash: one brief brand entrance, no video download or simulated progress. */
 .chicken-welcome[hidden]{display:none!important}
-.chicken-welcome{position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:calc(20px + env(safe-area-inset-top)) 24px calc(20px + env(safe-area-inset-bottom));background:radial-gradient(ellipse at 50% 40%,#233959 0%,#17213e 48%,#10172c 100%);color:#fff;overflow:hidden;font-family:Arial,Helvetica,sans-serif}
-.chicken-welcome__mascot{display:block;width:auto;height:min(57vh,540px);height:min(57svh,540px);max-width:90vw;object-fit:contain;opacity:0;filter:drop-shadow(0 12px 26px #0004)}
-.chicken-welcome[data-ready] .chicken-welcome__mascot{opacity:1}
-.chicken-welcome__brand{margin:0;font-size:clamp(24px,6vw,34px);font-weight:600;letter-spacing:-.025em;color:#fff;line-height:1.1}
-.chicken-welcome__brand span{color:#f4c866}
-.chicken-welcome__message{margin:0;color:#e2e8f5;font-size:15px}
-.chicken-welcome__track{width:min(240px,70vw);height:4px;border-radius:8px;overflow:hidden;background:#ffffff26}
-.chicken-welcome__fill{height:100%;width:100%;border-radius:inherit;background:linear-gradient(90deg,#e9b744,#ffe6a0);transform:scaleX(0);transform-origin:left}
-.chicken-welcome[data-ready] .chicken-welcome__fill{animation:welcome-progress 2s linear forwards}
-.chicken-welcome__skip{border:0;background:transparent;color:#e2e8f5;font:inherit;font-size:13px;padding:12px 18px;min-height:44px;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
-.chicken-welcome__skip:focus-visible{outline:2px solid #f4c866;outline-offset:3px;border-radius:8px}
+.chicken-welcome{--welcome-ease:cubic-bezier(.23,1,.32,1);position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));background:#17213e;color:#fff;overflow:hidden;font-family:Poppins,Arial,sans-serif;opacity:1;transition:opacity 180ms var(--welcome-ease)}
+.chicken-welcome__mascot{display:block;width:auto;height:min(44svh,420px);max-width:82vw;object-fit:contain;opacity:0}
+.chicken-welcome[data-ready] .chicken-welcome__mascot{animation:welcome-arrive 280ms var(--welcome-ease) both}
+.chicken-welcome__brand{margin:0;font-size:clamp(25px,6vw,36px);font-weight:600;letter-spacing:-.025em;color:#fff;line-height:1.2;opacity:0}
+.chicken-welcome[data-ready] .chicken-welcome__brand{animation:welcome-arrive 240ms 90ms var(--welcome-ease) both}
+.chicken-welcome__brand .w-ia{font:inherit;color:#ff626b}
+.chicken-welcome__message{margin:0;color:#dce3f0;font-size:14px;line-height:1.5;opacity:0}
+.chicken-welcome[data-ready] .chicken-welcome__message{animation:welcome-copy 200ms 180ms ease-out both}
+.chicken-welcome__skip{border:1px solid #ffffff40;background:transparent;border-radius:10px;color:#fff;font:inherit;font-size:14px;padding:10px 18px;min-height:44px;cursor:pointer;margin-top:16px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.chicken-welcome__skip:active{background:#ffffff18}
+.chicken-welcome__skip:focus-visible{outline:3px solid #f4c866;outline-offset:4px}
+.chicken-welcome[data-exiting]{opacity:0;pointer-events:none}
 body.welcome-active{overflow:hidden}
-@keyframes welcome-progress{to{transform:scaleX(1)}}
-@media(max-height:500px){.chicken-welcome{gap:8px;padding:12px}.chicken-welcome__mascot{height:46svh}.chicken-welcome__brand{font-size:23px}.chicken-welcome__message{font-size:13px}}
-@media(prefers-reduced-motion:reduce){.chicken-welcome[data-ready] .chicken-welcome__fill{animation:none;transform:scaleX(1)}}
-
-.chicken-welcome__brand .w-chican{font-size:1em;color:#fff}
-.chicken-welcome__brand .w-ia{font:inherit;letter-spacing:inherit;color:#ff626b}
+@keyframes welcome-arrive{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes welcome-copy{from{opacity:0}to{opacity:1}}
+@media(max-height:500px){.chicken-welcome{gap:8px;padding:12px}.chicken-welcome__mascot{height:40svh}.chicken-welcome__brand{font-size:24px}.chicken-welcome__skip{margin-top:0}}
+@media(prefers-reduced-motion:reduce){.chicken-welcome{transition:none}.chicken-welcome[data-ready] :is(.chicken-welcome__mascot,.chicken-welcome__brand,.chicken-welcome__message){animation:none;opacity:1;transform:none}}
