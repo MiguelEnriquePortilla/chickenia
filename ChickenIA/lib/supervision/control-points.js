@@ -58,6 +58,7 @@ function validate(body,date,cuts,now){
  const fail=message=>{throw Object.assign(Error(message),{status:400});};
  if(date!==day(now))fail('Solo puedes palomear el día de hoy.');
  if(!Number.isInteger(body.cut)||!cuts[body.cut]||typeof body.done!=='boolean'||!Number.isSafeInteger(body.revision)||body.revision<0)fail('Revisión inválida.');
+ if(typeof body.point==='string'&&body.point.startsWith('caja'))fail('Este módulo fue retirado.');
  const video=cuts[body.cut].videoRequired&&cuts[body.cut].areas.some(a=>videoPoint(a.code)===body.point);
  if(video){
   if(new Date(now).getTime()<at(date,body.cut?cuts[body.cut-1].time:'00:00'))fail('Este corte todavía no inicia.');
