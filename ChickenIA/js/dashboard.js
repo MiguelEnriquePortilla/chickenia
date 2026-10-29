@@ -182,6 +182,7 @@ async function loadDailyCaptures(){
   try{
     const d=await api('inventory?action=daily-overview&date='+encodeURIComponent(date));
     if(state.date!==date)return;
+    window.DashboardReports?.set('production',d,date);
     const p=d.production;
     const status=r=>!r?.revision?'Sin captura':r.finalized?'Finalizado':'Borrador · Provisional';
     host.innerHTML=`<h2>Producción</h2><div class="feed-list"><article class="feed-card"><div class="daily-columns">

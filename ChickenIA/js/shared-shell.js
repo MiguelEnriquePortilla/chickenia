@@ -8,7 +8,7 @@
   if(old){const tools=old.querySelector('.header-tools');if(tools)bar.append(tools);old.hidden=true;old.classList.add('legacy-header');}
   shell.querySelector('.area-sidebar').after(bar);
   shell.querySelectorAll('main>header:not(.points-header),main>a[href],.points-header>a,.points-shell>footer a').forEach(el=>{if(el.matches('main>a')&&!['/','/index.html','/supervision.html'].includes(new URL(el.href).pathname))return;el.hidden=true;});
-  if(location.pathname==='/dashboard.html'){const title=document.createElement('h1');title.className='unified-page-title';title.textContent='Dashboard';bar.after(title);}
+  if(location.pathname==='/dashboard.html'){const title=document.createElement('h1');title.className='unified-page-title';title.textContent='Resumen del día';bar.after(title);}
   if(!bar.querySelector('.header-tools')){
    const tools=document.createElement('div');tools.className='header-tools';
    const button=document.createElement('button');button.type='button';button.className='theme-control';
