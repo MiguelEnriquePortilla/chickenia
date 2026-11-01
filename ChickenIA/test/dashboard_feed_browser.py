@@ -1,5 +1,5 @@
 """Real inventory APIs and isolated PostgreSQL; dashboard-only mobile presentation."""
-import os,subprocess
+import os,subprocess,re
 from pathlib import Path
 from playwright.sync_api import sync_playwright,expect
 ROOT=Path(__file__).resolve().parents[1]
@@ -15,8 +15,8 @@ try:
   # Evaluation shape is covered against its real handler by equipo_checklist_browser.
   page.route('**/api/summary?calibre=1*',lambda r:r.fulfill(json={'start':'2026-10-01','weekly':{'dates':['2026-10-'+str(i) for i in range(19,26)],'areas':[{'code':'cocina','name':'Cocina','days':[{'date':'2026-09-26','score':120,'done':14,'total':14}]},{'code':'rosticero','name':'Rosticero','days':[{'date':'2026-09-26','score':0,'done':0,'total':3}]},{'code':'freidoras','name':'Freidoras','days':[]}]}}))
   page.goto(base+'/dashboard.html?date=2026-09-26')
-  host=page.locator('#protein-overview');expect(host.locator('.feed-card')).to_have_count(3)
-  expect(host).to_contain_text('160');expect(host).to_contain_text('Destino: Móvil')
+  host=page.locator('#protein-overview');expect(host.locator('.feed-card')).to_have_count(2)
+  expect(host).to_contain_text('160');expect(host).not_to_contain_text('Destino: Móvil')
   expect(page.locator('#equipo-weekly .feed-card')).to_have_count(3)
   expect(page.locator('#equipo-weekly')).to_contain_text('120%')
   expect(page.locator('#resumen-evaluation>summary')).to_contain_text('2 de 3')
@@ -29,13 +29,16 @@ try:
   page.locator('[data-pending-first]').uncheck()
   expect(cards.first).to_contain_text('Cocina')
   assert 'date=2026-09-26' in cards.first.locator('.feed-actions a').get_attribute('href')
+  expect(page.locator('.primary-navigation a[data-module-path="/proteinas-movil.html"]')).to_have_count(0)
+  expect(page.locator('.primary-navigation a[data-module-path="/proteinas.html"]')).to_have_count(1)
+  expect(page.locator('.primary-navigation a[data-module-path="/rastro.html"]')).to_have_count(1)
   expect(host.locator('table')).to_have_count(0)
   page.locator('#resumen-proteins>summary').click()
   host.locator('summary').first.click();expect(host.locator('.feed-history').first).to_be_visible()
   expect(host.locator('.feed-history').first).to_contain_text('Llegó')
   page.locator('#resumen-proteins .summary-section-tools button').click()
   dialog=page.locator('.summary-share-dialog');expect(dialog).to_be_visible();expect(dialog.locator('pre')).to_contain_text('26/09/2026')
-  expect(dialog.locator('pre')).to_contain_text('Destino: Móvil')
+  expect(dialog.locator('pre')).not_to_contain_text('Destino: Móvil')
   href=dialog.locator('a').first.get_attribute('href');assert href.startswith('https://wa.me/?text=')
   dialog.locator('[data-image]').click();expect(dialog.locator('img')).to_be_visible();expect(dialog.locator('a[download]')).to_be_visible()
   dialog.locator('[data-close]').click()
@@ -49,11 +52,16 @@ try:
     page.locator('.sidebar-toggle').click();expect(page.locator('.primary-navigation')).to_be_visible();page.locator('.summary-tree a').last.click();expect(page.locator('#resumen-cedis')).to_have_attribute('open','');expect(page.locator('#date-input')).to_have_value('2026-09-26')
    out=ROOT/'.local/dashboard-feed';out.mkdir(parents=True,exist_ok=True)
    page.evaluate('window.scrollTo(0,0)');page.screenshot(path=str(out/f'feed-{width}.png'))
+  page.locator('#resumen-proteins>summary').click();host.scroll_into_view_if_needed()
+  page.screenshot(path=str(out/'proteins-visible-only.png'))
   page.locator('#date-input').fill('2026-09-20');page.locator('#date-input').press('Tab');expect(host).to_contain_text('Sin captura')
   page.evaluate("document.documentElement.dataset.theme='dark'");page.screenshot(path=str(out/'feed-dark.png'))
+  page.goto(base+'/proteinas-movil.html');expect(page).to_have_url(re.compile(re.escape(base)+r'/($|\?)'))
+  assert page.locator('[data-protein-inventory=movil]').count()==0
+  page.goto(base+'/index.html');expect(page.locator('.home-inventories a')).to_have_count(2)
   assert not errors,errors
   assert not writes,writes
   browser.close()
- print('PASS: vertical cards, both inventories, real balances, empty dates, week details, 320/390/1440, sidebar and dark theme. No production writes.')
+ print('PASS: vertical cards, Mobile hidden, Sucursal and CEDIS retained, real balances, empty dates, week details, 320/390/1440, sidebar and dark theme. No production writes.')
 finally:
  proc.terminate();proc.wait(timeout=15)

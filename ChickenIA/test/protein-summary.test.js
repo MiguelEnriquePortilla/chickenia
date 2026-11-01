@@ -19,10 +19,10 @@ test('both ledgers match API, treat departures as delivered, preserve decimals a
    assert.equal(g.rows[0].marinated.current,expected.rows[0].marinated.current);
    assert.deepEqual(g.lastRecordedAt,expected.lastRecordedAt);
   }
-  assert.equal(snap.groups[0].sent,60);assert.equal(snap.groups[1].sent,25);
+  assert.equal(snap.groups[0].sent,60);assert.equal(snap.groups.length,1);
+  assert.equal((await domain.forInventory('movil').read(query,'2026-09-26')).rows[0].sent,25);
   assert.ok(!snap.groups[0].alerts.some(a=>a.includes('recepci')));
-  assert.ok(!snap.groups[1].alerts.some(a=>a.includes('diferencia')));
-  assert.equal(snap.groups[1].rows.length,1);
+  assert.doesNotMatch(snap.lines.join('\n'),/MÓVIL/);
   const next=await summary.snapshot(sql,'2026-09-27');
   assert.equal(next.groups[0].sent,0);assert.equal(next.groups[0].pendingQuantity,0);
   assert.ok(!next.groups[0].alerts.some(a=>a.includes('diferencia')));
@@ -34,7 +34,7 @@ test('both ledgers match API, treat departures as delivered, preserve decimals a
   let calls=0;
   await sendReport(snapshot,Buffer.from('png'),{TELEGRAM_BOT_TOKEN:'test',TELEGRAM_CHAT_ID:'-1'},async(url,opts)=>{
    calls++;const caption=opts.body.get('caption');
-   assert.match(caption,/SUCURSAL/);assert.match(caption,/MÓVIL/);assert.doesNotMatch(caption,/Por confirmar/);assert.ok(caption.length<=1024);
+   assert.match(caption,/SUCURSAL/);assert.doesNotMatch(caption,/MÓVIL/);assert.doesNotMatch(caption,/Por confirmar/);assert.ok(caption.length<=1024);
    return {ok:true,json:async()=>({ok:true,result:{message_id:1}})};
   });assert.equal(calls,1);
   snapshot.daily={lines:[]};await renderReport(snapshot);

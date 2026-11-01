@@ -8,7 +8,7 @@
    const areas=data.weekly.areas.filter(a=>!item||a.code===item);
    for(const a of areas){const d=a.days.find(x=>x.date===date);lines.push('*'+a.name+'*',d?.score==null?'Sin revisión':`${fmt(Math.floor(d.score*10)/10)}% · ${d.done}/${d.total} verificadas`,...(d?.score!=null?[d.done===d.total?'Ficha completa':`${d.total-d.done} pendiente(s)`,...(d.score>100?['Actividad extra verificada']:[])]:[]),'');}
   }else if(type==='proteins'){
-   for(const report of data){
+   for(const report of data.filter(r=>r.inventory!=='movil')){
     const destination=report.inventory==='movil'?'Móvil':'Sucursal';
     const rows=(report.rows||[]).filter(r=>!item||item===report.inventory+':'+r.protein);
     if(report.unavailable){if(!item||item.startsWith(report.inventory+':'))lines.push('*Destino: '+destination+'*','Datos no disponibles','');continue;}

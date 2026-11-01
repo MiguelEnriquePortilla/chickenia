@@ -5,7 +5,7 @@ module.exports = async (req, res) => {
   try {
     const sql = await ensureTables();
     const rows = await sql`SELECT id, code, name, type FROM locations WHERE active = true ORDER BY type, code`;
-    res.status(200).json(rows);
+    res.status(200).json(rows.filter(row=>row.type!=='moto'&&!/^moto-/.test(row.code)));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

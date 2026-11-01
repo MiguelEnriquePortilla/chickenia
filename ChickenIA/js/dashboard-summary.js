@@ -2,7 +2,7 @@
  'use strict';
  const names={evaluation:'Evaluaciones',proteins:'Proteínas',production:'Producción',cedis:'Inventario CEDIS'},records=new Map();
  const date=()=>document.getElementById('date-input').value||new URLSearchParams(location.search).get('date')||new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
- window.DashboardReports={set(type,data,day){if(day!==date())return;records.set(type,{data,date:day});updateSectionSummary(type,data,day);document.querySelectorAll(`[data-summary-report="${type}"]`).forEach(b=>b.disabled=false);}};
+ window.DashboardReports={set(type,data,day){if(day!==date())return;if(type==='proteins')data=data.filter(r=>r.inventory!=='movil');records.set(type,{data,date:day});updateSectionSummary(type,data,day);document.querySelectorAll(`[data-summary-report="${type}"]`).forEach(b=>b.disabled=false);}};
 
  function updateSectionSummary(type,data,day){
   const summary=document.querySelector(`#resumen-${type==='evaluation'?'evaluation':type==='proteins'?'proteins':type==='production'?'production':'cedis'}>summary`);if(!summary)return;

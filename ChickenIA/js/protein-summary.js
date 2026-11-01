@@ -26,7 +26,7 @@
  }
  function lines(groups){
   const out=['PROTEÍNAS · pollos','En CEDIS: sin marinar / marinados'];
-  for(const g of groups){
+  for(const g of groups.filter(g=>g.inventory!=='movil')){
    out.push('',g.name.toUpperCase());
    if(g.unavailable){out.push('Datos no disponibles');continue;}
    for(const r of g.rows)out.push(`${r.name}: ${fmt(r.raw.current)} / ${fmt(r.marinated.current)}`);

@@ -5,6 +5,7 @@
  const day=d=>new Date(d+'T12:00:00Z').toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short',timeZone:'America/Mexico_City'});
  const ledger=rows=>`<dl class="feed-ledger">${rows.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${fmt(v)}</dd></div>`).join('')}</dl>`;
  window.ChickenProteinDashboard.mount=(host,reports,date)=>{
+  reports=reports.filter(r=>r.inventory!=='movil');
   window.DashboardReports?.set('proteins',reports,date);
   host.innerHTML='<h2>Proteínas</h2><p class="feed-note">Existencias en CEDIS por destino.</p><div class="feed-list">'+reports.map(report=>{
    const destination=report.inventory==='movil'?'Móvil':'Sucursal',url=report.inventory==='movil'?'/proteinas-movil.html':'/proteinas.html';
