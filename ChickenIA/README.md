@@ -1,3 +1,13 @@
+## Identidad sutil y Móvil oculto - 1 de noviembre de 2026
+
+Miguel aprobó el ocultamiento de Móvil y pidió más presencia de marca tomando Very Sabrosito como referencia, conservando la estructura actual. Sello circular 2026 en los encabezados, mascota original de ChickenIA en Inicio y pie del menú, acentos rojos y selección suave en claro/oscuro. Capa visual: `css/brand-theme.css`; lineamientos en `DESIGN.md`. Sin cambios a capturas, cálculos ni datos operativos.
+
+Móvil permanece oculto de Inicio, menú, resúmenes, reportes, indicadores y selector de ubicación; su dirección anterior lleva al Inicio. Su libro e historial se conservan. Sucursal y CEDIS permanecen activos. El corte compartible de proteínas con detalle por día (esta semana o últimos 3/4/5 días) sigue pendiente: Miguel interrumpió ese trabajo para ocultar Móvil y luego solicitó este ajuste visual. No darlo por implementado.
+
+Verificación local: seis pantallas, 320/390/1440px, ambos temas, encabezado sin solapamientos y menú operativo; recorrido de Resumen del día y seis pruebas de ocultamiento/reportes aprobados. No se capturaron movimientos reales ni se enviaron mensajes.
+
+---
+
 ## Sesión cerrada — Chicanito en Acción, Caja e iconos, 29 octubre 2026
 
 Miguel aprobó y pidió documentar y cerrar. Caja recuperada con las 16 actividades de supervisión y extras; cierre financiero sigue retirado. Categoría **Chicanito en Acción**. Menú con tres líneas / X y secciones con + / −, sin flechas; sustituye los textos visibles de apertura y cierre acordados antes. Versión funcional `9836348`, Vercel `dpl_EWQZAAYXnLXdNNYmqxMDGGXi8TZh` READY; archivos públicos y navegador aislado comprobados. Sin operaciones reales ni mensajes. [Cierre y continuidad](CIERRE_CAJA_NOMBRE_ICONOS_2026-10-29.md).

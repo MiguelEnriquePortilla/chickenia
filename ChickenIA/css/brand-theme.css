@@ -1,0 +1,41 @@
+/* Chicanito's identity accompanies the existing operating interface. */
+.home-page,.area-shell{--brand-red:#e30613;--brand-accent:#be1828;--brand-navy:#17213e;--brand-tint:#fbedeb;--brand-gold:#d9a441}
+[data-theme=dark] :is(.home-page,.area-shell){--brand-accent:#ff8b92;--brand-tint:#3c2b32}
+.home-page{--home-page:#f7f4ee;--home-ink:#17213e}
+[data-theme=dark] .home-page{--home-page:#1d1e23;--home-ink:#f2f0e9}
+.area-shell{--selected:var(--brand-tint)}
+.home-page .home-header,.area-shell .unified-header{border-bottom:2px solid var(--brand-red)}
+.home-page .home-brand img,.area-shell .unified-brand img{display:block;width:40px;height:40px;object-fit:contain;border-radius:50%;flex-shrink:0}
+.home-page .home-brand strong,.area-shell .brand-ia{color:var(--brand-accent)}
+.home-page .home-primary{background:var(--brand-navy);padding:16px 18px;gap:12px}
+.home-page .home-primary>span{min-width:0;flex:1}
+.home-page .home-primary .home-primary-mascot{display:block;object-fit:contain;width:68px;height:102px;flex-shrink:0}
+.home-page .home-primary strong{font-size:20px}
+.home-page .home-operations svg,.home-page .home-inventories svg{color:var(--brand-accent)}
+.area-shell .primary-navigation :is(a[aria-current],button[aria-current],summary[aria-current]){background:var(--brand-tint);color:var(--text)}
+.area-shell .primary-navigation :is(a[aria-current],button[aria-current],summary[aria-current]) svg{color:var(--brand-accent)}
+.area-shell .sidebar-footer{display:flex;align-items:center;gap:12px;opacity:1;color:var(--gray);letter-spacing:0;font-size:12px;padding-top:24px}
+.area-shell .sidebar-footer img{display:block;width:48px;height:72px;object-fit:contain;flex-shrink:0}
+.area-shell.sidebar-compact .sidebar-footer{display:none}
+.area-shell :is(.summary-section,.feed-card) details[open]>summary::after,.area-shell .summary-section[open]>summary::after{color:var(--brand-accent)}
+.area-shell :is(input[type=checkbox],input[type=radio]){accent-color:var(--brand-accent)}
+.home-page a:focus-visible,.area-shell :is(button,a,input,select,textarea,summary):focus-visible{outline-color:var(--brand-gold)}
+.home-page ::selection,.area-shell ::selection{background:#f5d48e;color:#17213e}
+@media(hover:hover) and (pointer:fine){
+ .home-page :is(.home-operations,.home-inventories) a:hover{background:var(--brand-tint);filter:none}
+ .area-shell .primary-navigation a:hover{background:var(--brand-tint)}
+}
+@media(max-width:760px){
+ .area-shell .unified-header{padding-right:12px;gap:8px}
+ .area-shell .unified-brand{gap:7px;min-width:0}
+ .area-shell .unified-brand img{display:block;width:30px;height:30px}
+ .area-shell .unified-brand>span{font-size:13px;white-space:nowrap}
+}
+@media(max-width:360px){
+ .area-shell .unified-header{padding-left:64px}
+ .area-shell .unified-brand{gap:5px}
+ .area-shell .unified-brand>span{font-size:12px;white-space:normal;max-width:76px;line-height:1.25}
+ .home-page .home-primary{padding:15px;gap:8px}
+ .home-page .home-primary strong{font-size:18px}
+ .home-page .home-primary .home-primary-mascot{width:58px;height:88px}
+}

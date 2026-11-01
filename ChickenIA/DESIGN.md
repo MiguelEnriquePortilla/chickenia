@@ -15,3 +15,7 @@ La plataforma conserva el Inicio aprobado: fondos cálidos neutros, tinta azul m
 Pruebas locales aisladas a 320, 390 y 1440px en claro y oscuro, además de recorridos API/PostgreSQL. La emulación no sustituye una comprobación en teléfono físico: teclado del sistema, área segura y comportamiento táctil requieren esa revisión.
 
 El detector de diseño señala la paleta crema aprobada y elementos heredados ocultos (mascota de bienvenida y acceso anterior). No justifican sustituir la identidad aceptada ni reactivar pantallas retiradas.
+
+## Acentos de marca - 1 de noviembre de 2026
+
+Por solicitud de Miguel, la identidad de Very Sabrosito se integra de forma discreta: rojo #E30613, azul marino #17213E, crema y sello circular 2026. La capa compartida vive en css/brand-theme.css. El sello identifica los encabezados y la mascota original de ChickenIA acompaña el acceso al resumen y el pie del menú. Se conservan la tipografía operativa, la distribución, los controles y los colores de estados. En oscuro, los acentos de texto se aclaran para mantener contraste. Móvil continúa oculto.
