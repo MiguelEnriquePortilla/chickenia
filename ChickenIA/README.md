@@ -1,3 +1,11 @@
+## Sesión cerrada - Móvil oculto e identidad Chicanito, 1 noviembre 2026
+
+Miguel aprobó ambas entregas y pidió documentar, guardar y cerrar. Móvil oculto sin borrar su historial; Sucursal y CEDIS activos. Tema sutil con sello oficial, mascota y acentos Chicanito, conservando la estructura. Versión funcional `80fb9c9`, Vercel success; activos e Inicio real comprobados. Código, conversación, cierre y 21 capturas verificados en Drive. [Cierre y respaldos](https://drive.google.com/file/d/17TCHp6Og7rP4mFak_oD9u0HbapSvvYyY/view?usp=drivesdk).
+
+**Pendiente para otra sesión:** corte compartible de proteínas con detalle diario, esta semana o últimos 3/4/5 días. No está implementado. Esperar nuevas instrucciones; no retomarlo automáticamente. Móvil seguirá oculto. Sin operaciones reales ni mensajes de prueba.
+
+---
+
 ## Identidad sutil y Móvil oculto - 1 de noviembre de 2026
 
 Miguel aprobó el ocultamiento de Móvil y pidió más presencia de marca tomando Very Sabrosito como referencia, conservando la estructura actual. Sello circular 2026 en los encabezados, mascota original de ChickenIA en Inicio y pie del menú, acentos rojos y selección suave en claro/oscuro. Capa visual: `css/brand-theme.css`; lineamientos en `DESIGN.md`. Sin cambios a capturas, cálculos ni datos operativos.
