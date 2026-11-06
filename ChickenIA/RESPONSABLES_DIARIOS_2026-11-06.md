@@ -1,3 +1,5 @@
+**Publicado y aceptado; sesión cerrada.** Commit funcional `60cb5b2`, Vercel success y activos públicos cotejados. [Cierre vigente](CIERRE_RESPONSABLES_2026-11-06.md). Los comentarios de publicación pendiente más abajo describen el momento previo al push.
+
 # Responsables diarios e historial personal — 6 noviembre 2026
 
 ## Alcance autorizado

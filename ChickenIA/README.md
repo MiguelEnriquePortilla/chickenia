@@ -1,3 +1,9 @@
+## ChickenIA — responsables diarios: aceptado y sesión cerrada, 6 noviembre 2026
+
+Miguel aprobó la entrega y pidió documentar, guardar y cerrar. Responsable por área y día, una sola área por persona, asignación inmutable e historial personal. Corrección versionada a Maurilio Salgado conservando ID. Áreas y 120% sin cambios. Publicado `60cb5b2`, Vercel success; archivos públicos cotejados, 23 pruebas específicas y 33 de suite principal aprobadas, dos recorridos de navegador aislados. [Cierre y continuidad](https://drive.google.com/file/d/1kp1R66QkvpvOEknJnmQmv1CxPywaK2Xg/view?usp=drivesdk). Conversación y cierre guardados; código en GitHub. ZIP completo a Drive rechazado por revisión automática; no se afirma respaldo de ese ZIP en Drive. Sin operaciones reales de prueba. Entrega aceptada; esperar nuevas instrucciones.
+
+---
+
 ## Responsables diarios e historial personal — 6 noviembre 2026
 
 Implementado por instrucción de Miguel: una persona y un área por día, asignación inmutable, historial por persona y corrección a Maurilio Salgado conservando ID. Áreas, actividades y 120% conservados. [Alcance y verificación](RESPONSABLES_DIARIOS_2026-11-06.md). Commit/push solicitado; comprobar publicación antes de afirmar que está disponible en producción.
