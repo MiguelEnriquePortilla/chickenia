@@ -20,6 +20,8 @@ function createHandler(override,clock=()=>new Date()){
    const service=require('./calibre-store').store(query);
    if(!migration)migration=service.migrate().catch(e=>{migration=null;throw e;});await migration;
    const now=clock();
+   if(req.method==='GET'&&req.query.person)return res.status(200).json(await service.personHistory(loc.id,Number(req.query.person),req.query.from,req.query.to));
+   if(req.method==='POST'&&req.body.action==='assign')return res.status(200).json({...await service.assign(loc.id,date,req.body,user,now),actor:user.name,location:loc});
    if(req.method==='POST'&&req.body.action==='report')return res.status(200).json(await service.saveReport(loc.id,date,req.body.scope,req.body.kind,user,now));
    const view=req.method==='GET'?await service.get(loc.id,date,now):await service.save(loc.id,date,req.body,user,now);
    return res.status(200).json({...view,actor:user.name,location:loc});

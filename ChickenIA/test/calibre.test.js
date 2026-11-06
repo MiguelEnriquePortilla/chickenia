@@ -59,7 +59,7 @@ test('reports omit cash and personal notes, distinguish provisional and final, a
 });
 test('real PostgreSQL schema is idempotent, compare-and-swap atomic, snapshots immutable and incidents visible to supervision',async()=>{
  const db=new PGlite();try{
-  await db.exec("CREATE TABLE locations(id int PRIMARY KEY,code text,name text,type text); INSERT INTO locations VALUES(1,'jojutla','Jojutla','tienda');CREATE TABLE untouched_history(id int);INSERT INTO untouched_history VALUES(9)");
+  await db.exec("CREATE TABLE employees(id SERIAL PRIMARY KEY,name TEXT UNIQUE,active BOOLEAN DEFAULT true,order_index INT); INSERT INTO employees(name,order_index) VALUES('Ana Lima',1),('Maurilio Salgado',2),('Nancy Rentería',3); CREATE TABLE locations(id int PRIMARY KEY,code text,name text,type text); INSERT INTO locations VALUES(1,'jojutla','Jojutla','tienda');CREATE TABLE untouched_history(id int);INSERT INTO untouched_history VALUES(9)");
   const query=async(s,p)=>(await db.query(s,p)).rows,service=store(query);await service.migrate();await service.migrate();
   const body={area:'ventas_barras',revision:0,command:{action:'point',point:'1.1',status:'done',note:''}};
   let v=await service.save(1,'2026-10-21',body,nancy,now);assert.equal(v.areas.find(r=>r.spec.code==='ventas_barras').revision,1);
@@ -82,7 +82,7 @@ test('authenticated API rejects anonymous access, cross-site writes, stale revis
  const p=Buffer.from(JSON.stringify({sub:user.id,exp:Math.floor(Date.now()/1000)+3600,v:crypto.createHash('sha256').update(user.hash+user.role).digest('hex')})).toString('base64url');
  const cookie='chickenia_inventory='+p+'.'+crypto.createHmac('sha256',secret).update(p).digest('base64url');
  try{
-  await db.exec("CREATE TABLE locations(id int PRIMARY KEY,code text,name text,type text);INSERT INTO locations VALUES(1,'jojutla','Jojutla','tienda')");
+  await db.exec("CREATE TABLE employees(id SERIAL PRIMARY KEY,name TEXT UNIQUE,active BOOLEAN DEFAULT true,order_index INT); INSERT INTO employees(name,order_index) VALUES('Ana Lima',1),('Maurilio Salgado',2),('Nancy Rentería',3); CREATE TABLE locations(id int PRIMARY KEY,code text,name text,type text);INSERT INTO locations VALUES(1,'jojutla','Jojutla','tienda')");
   const q=async(s,p)=>(await db.query(s,p)).rows,h=require('../lib/supervision/calibre-handler').createHandler(q,()=>now);
   const call=async(method,body,headers={cookie,host:'localhost',origin:'http://localhost','content-type':'application/json'})=>{let result;const res={setHeader(){},status(s){this.code=s;return this;},json(d){result={status:this.code,data:d};}};await h({method,body,headers,query:{date:'2026-10-21'}},res);return result;};
   assert.equal((await call('GET',null,{})).status,401);

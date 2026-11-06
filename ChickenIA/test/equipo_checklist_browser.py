@@ -1,13 +1,14 @@
 import subprocess,re
 from pathlib import Path
+import playwright
 from playwright.sync_api import sync_playwright,expect
 ROOT=Path(__file__).resolve().parents[1]
-NODE=str(Path.home()/'AppData/Local/Programs/Python312/Lib/site-packages/playwright/driver/node.exe')
+NODE=str(Path(playwright.__file__).resolve().parent/'driver/node.exe')
 proc=subprocess.Popen([NODE,'test/calibre-browser-server.js'],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
 try:
  base=proc.stdout.readline().strip();assert base.startswith('http://127.0.0.1:')
  with sync_playwright() as p:
-  browser=p.chromium.launch(channel='msedge');page=browser.new_page(viewport={'width':1440,'height':1000},reduced_motion='reduce');errors=[]
+  browser=p.chromium.launch(executable_path='C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe');page=browser.new_page(viewport={'width':1440,'height':1000},reduced_motion='reduce');errors=[]
   page.route('https://**/*',lambda r:r.abort());page.on('pageerror',lambda e:errors.append(str(e)))
   page.goto(base+'/supervision.html?date=2026-10-21&area=cocina',wait_until='domcontentloaded')
   expect(page).to_have_url(re.compile('evaluacion-equipo.html'))

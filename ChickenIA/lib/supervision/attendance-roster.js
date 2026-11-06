@@ -13,5 +13,10 @@ async function migrate(sql){
  SELECT r.name,true,r.position FROM version,
   (VALUES ('Diana',9),('Silvia Najera',10)) AS r(name,position)
  ON CONFLICT(name) DO UPDATE SET active=true,order_index=EXCLUDED.order_index`;
+ await correctMaurilio((text,values)=>sql(text.split(/\$\d+/),...values));
 }
-module.exports={migrate};
+async function correctMaurilio(query){
+ await query('CREATE TABLE IF NOT EXISTS attendance_roster_versions(version TEXT PRIMARY KEY,applied_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp())',[]);
+ await query("WITH version AS (INSERT INTO attendance_roster_versions(version) VALUES('roster-2026-11-06-maurilio') ON CONFLICT DO NOTHING RETURNING version) UPDATE employees SET name='Maurilio Salgado' WHERE id=8 AND name='Mauricio Salgado' AND EXISTS(SELECT 1 FROM version) AND NOT EXISTS(SELECT 1 FROM employees WHERE name='Maurilio Salgado')",[]);
+}
+module.exports={migrate,correctMaurilio};

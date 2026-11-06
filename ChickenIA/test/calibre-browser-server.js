@@ -8,8 +8,8 @@ const user={id:'miguel',name:'MIGUEL',role:'manager',hash:'isolated-fixture'};pr
 const p=Buffer.from(JSON.stringify({sub:user.id,exp:Math.floor(Date.now()/1000)+3600,v:crypto.createHash('sha256').update(user.hash+user.role).digest('hex')})).toString('base64url');
 const token=p+'.'+crypto.createHmac('sha256',process.env.INVENTORY_SESSION_SECRET).update(p).digest('base64url');
 (async()=>{
- const db=new PGlite();await db.exec("CREATE TABLE locations(id int PRIMARY KEY,code text,name text,type text);INSERT INTO locations VALUES(1,'jojutla','Jojutla','tienda')");
- const q=async(s,p)=>(await db.query(s,p)).rows,handler=require('../lib/supervision/calibre-handler').createHandler(q,()=>new Date('2026-10-21T18:00:00Z'));
+ const db=new PGlite();await db.exec("CREATE TABLE employees(id SERIAL PRIMARY KEY,name TEXT UNIQUE,active BOOLEAN DEFAULT true,order_index INT); INSERT INTO employees(name,order_index) VALUES('Ana Lima',1),('Maurilio Salgado',2),('Nancy Rentería',3); CREATE TABLE locations(id int PRIMARY KEY,code text,name text,type text);INSERT INTO locations VALUES(1,'jojutla','Jojutla','tienda')");
+ const q=async(s,p)=>(await db.query(s,p)).rows,handler=require('../lib/supervision/calibre-handler').createHandler(q,()=>process.argv.includes('--today')?new Date():new Date('2026-10-21T18:00:00Z'));
  const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');req.query=Object.fromEntries(url.searchParams);res.status=c=>{res.statusCode=c;return res;};res.json=d=>{res.setHeader('Content-Type','application/json; charset=utf-8');res.end(JSON.stringify(d));};
   if(url.pathname==='/api/summary'&&req.query.calibre==='1'){let raw='';for await(const c of req)raw+=c;req.body=raw?JSON.parse(raw):{};return handler(req,res);}

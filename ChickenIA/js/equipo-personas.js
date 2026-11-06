@@ -1,0 +1,14 @@
+(()=>{
+'use strict';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct=v=>v===null?'Sin revisión':Math.floor(v*10)/10+'%';
+window.ChickenPersonHistory={mount(host,employees,date){
+ if(!host)return;const from=new Date(Date.parse(date+'T12:00:00Z')-29*86400000).toISOString().slice(0,10);
+ host.innerHTML='<details class="equipo-history"><summary>Historial por persona</summary><form class="equipo-controls person-history-controls"><label>Persona<select name="person" required><option value="">Seleccionar persona</option>'+employees.map(e=>'<option value="'+e.id+'">'+esc(e.name)+(e.active?'':' · Inactivo')+'</option>').join('')+'</select></label><label>Desde<input name="from" type="date" required value="'+from+'"></label><label>Hasta<input name="to" type="date" required value="'+date+'"></label><button type="submit">Consultar historial</button></form><div class="person-history-result" role="status" aria-live="polite">Selecciona una persona para consultar sus evaluaciones.</div></details>';
+ const form=host.querySelector('form'),result=host.querySelector('.person-history-result');let generation=0;
+ form.addEventListener('submit',async e=>{e.preventDefault();const g=++generation,params=new URLSearchParams(new FormData(form));params.set('date',date);params.set('calibre','1');result.textContent='Consultando…';try{
+ const response=await fetch('/api/summary?'+params,{cache:'no-store'}),h=await response.json();if(g!==generation)return;if(!response.ok)throw Error(h.error||'No se pudo consultar el historial.');
+ result.innerHTML='<h3>'+esc(h.person.name)+'</h3><p>'+h.evaluated+' días evaluados · Promedio: '+pct(h.average)+'</p><p>Promedio de las evaluaciones registradas. Los días sin revisión no cuentan como cero.</p>'+(!h.entries.length?'<p>No hay evaluaciones vinculadas a esta persona en el periodo. Los registros antiguos sin responsable siguen en el historial por área.</p>':h.entries.map(r=>'<article class="person-history-entry"><p><a href="/evaluacion-equipo.html?date='+r.date+'&area='+encodeURIComponent(r.area)+'">'+r.date+' · '+esc(r.areaName)+'</a> · <strong>'+pct(r.score)+'</strong></p><p>'+r.done+' de '+r.total+' actividades verificadas</p><details><summary>Actividades y observaciones</summary>'+r.spec.points.map(p=>{const saved=r.points[p.id];return '<p>'+(saved?.status==='done'?'✓':'—')+' '+esc(p.title)+(saved?.note?'<br>'+esc(saved.note):'')+(saved?.actor?'<br><small>Evaluó: '+esc(saved.actor)+'</small>':'')+'</p>';}).join('')+r.spec.extras.map((extra,i)=>{const saved=r.extras[i];return saved?'<p>Extra: '+esc(extra.title)+' · '+(saved.done?'Verificada':'Pendiente')+(saved.note?'<br>'+esc(saved.note):'')+'</p>':'';}).join('')+'</details></article>').join(''));
+ }catch(err){if(g===generation)result.textContent=err.message;}});
+}};
+})();

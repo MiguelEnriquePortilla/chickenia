@@ -307,7 +307,7 @@ const SEED_EMPLOYEES = [
   'Keylar Flores',
   'Nohemí Barrera',
   'Julissa Mendoza',
-  'Mauricio Salgado',
+  'Maurilio Salgado',
   'Diana',
   'Silvia Najera',
   'Eliseo Barreto',

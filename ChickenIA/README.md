@@ -1,3 +1,9 @@
+## Responsables diarios e historial personal — 6 noviembre 2026
+
+Implementado por instrucción de Miguel: una persona y un área por día, asignación inmutable, historial por persona y corrección a Maurilio Salgado conservando ID. Áreas, actividades y 120% conservados. [Alcance y verificación](RESPONSABLES_DIARIOS_2026-11-06.md). Commit/push solicitado; comprobar publicación antes de afirmar que está disponible en producción.
+
+---
+
 ## Sesión cerrada - Móvil oculto e identidad Chicanito, 1 noviembre 2026
 
 Miguel aprobó ambas entregas y pidió documentar, guardar y cerrar. Móvil oculto sin borrar su historial; Sucursal y CEDIS activos. Tema sutil con sello oficial, mascota y acentos Chicanito, conservando la estructura. Versión funcional `80fb9c9`, Vercel success; activos e Inicio real comprobados. Código, conversación, cierre y 21 capturas verificados en Drive. [Cierre y respaldos](https://drive.google.com/file/d/17TCHp6Og7rP4mFak_oD9u0HbapSvvYyY/view?usp=drivesdk).

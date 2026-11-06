@@ -6,7 +6,7 @@
   const lines=['*CHICANÍA · '+titles[type]+'*',date.split('-').reverse().join('/'),''];
   if(type==='evaluation'){
    const areas=data.weekly.areas.filter(a=>!item||a.code===item);
-   for(const a of areas){const d=a.days.find(x=>x.date===date);lines.push('*'+a.name+'*',d?.score==null?'Sin revisión':`${fmt(Math.floor(d.score*10)/10)}% · ${d.done}/${d.total} verificadas`,...(d?.score!=null?[d.done===d.total?'Ficha completa':`${d.total-d.done} pendiente(s)`,...(d.score>100?['Actividad extra verificada']:[])]:[]),'');}
+   for(const a of areas){const d=a.days.find(x=>x.date===date);lines.push('*'+a.name+'*','Responsable: '+(d?.responsible?.name||'Sin asignar'),d?.score==null?'Sin revisión':`${fmt(Math.floor(d.score*10)/10)}% · ${d.done}/${d.total} verificadas`,...(d?.score!=null?[d.done===d.total?'Ficha completa':`${d.total-d.done} pendiente(s)`,...(d.score>100?['Actividad extra verificada']:[])]:[]),'');}
   }else if(type==='proteins'){
    for(const report of data.filter(r=>r.inventory!=='movil')){
     const destination=report.inventory==='movil'?'Móvil':'Sucursal';

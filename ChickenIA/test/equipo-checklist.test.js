@@ -27,7 +27,7 @@ test('simple checklist preserves previous closed evaluation, quantities, notes a
 });
 test('PostgreSQL save/reload, weekly links data and history use saved points; stale and historical saves rejected',async()=>{
  const db=new PGlite();try{
-  await db.exec("CREATE TABLE locations(id int PRIMARY KEY); INSERT INTO locations VALUES(1)");const q=async(s,p)=>(await db.query(s,p)).rows,s=store(q);await s.migrate();
+  await db.exec("CREATE TABLE employees(id SERIAL PRIMARY KEY,name TEXT UNIQUE,active BOOLEAN DEFAULT true,order_index INT); INSERT INTO employees(name,order_index) VALUES('Ana Lima',1),('Maurilio Salgado',2),('Nancy Rentería',3); CREATE TABLE locations(id int PRIMARY KEY); INSERT INTO locations VALUES(1)");const q=async(s,p)=>(await db.query(s,p)).rows,s=store(q);await s.migrate();
   let view=await s.get(1,'2026-10-21',now);assert.equal(view.weekly.areas.find(a=>a.code==='cocina').days[2].score,null);
   const body={area:'cocina',revision:0,command:{action:'simple-point',point:'1.1',done:true,note:'Lista y verificada'}};
   await s.save(1,'2026-10-21',body,user,now);view=await s.get(1,'2026-10-21',now);
@@ -40,7 +40,7 @@ test('PostgreSQL save/reload, weekly links data and history use saved points; st
 
 test('Caja card saves activities, notes, 120%, reports and weekly history without financial capture',async()=>{
  const db=new PGlite();try{
-  await db.exec("CREATE TABLE locations(id int PRIMARY KEY); INSERT INTO locations VALUES(1)");
+  await db.exec("CREATE TABLE employees(id SERIAL PRIMARY KEY,name TEXT UNIQUE,active BOOLEAN DEFAULT true,order_index INT); INSERT INTO employees(name,order_index) VALUES('Ana Lima',1),('Maurilio Salgado',2),('Nancy Rentería',3); CREATE TABLE locations(id int PRIMARY KEY); INSERT INTO locations VALUES(1)");
   const q=async(s,p)=>(await db.query(s,p)).rows,s=store(q);await s.migrate();
   let view=await s.get(1,'2026-10-21',now),row=view.areas.find(r=>r.spec.code==='caja');
   assert.equal(view.areas.length,8);assert.equal(row.spec.points.length,16);
