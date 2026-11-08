@@ -2,7 +2,7 @@
 
 Supervisión conserva el selector compartido con las demás áreas. Ahora muestra todas las personas activas; las ya asignadas aparecen deshabilitadas con su área, en lugar de desaparecer. Nancy Rentería ya estaba activa en el catálogo; el 7 noviembre estaba asignada a Rastro, lo que explicaba su ausencia. No se asigna Nancy por defecto ni se cambian asignaciones existentes. Una persona por área/día, historial y 120% conservados.
 
-Verificado: 15 pruebas de responsables/catálogo/dominio, suite principal de 33 pruebas, build y dos recorridos de navegador con base aislada (Supervisión, selección disponible, persona ocupada visible, recarga, bloqueo, historial, móvil y temas). Sin escrituras operativas de prueba en producción. Publicación en curso; comprobar commit y activo publicado antes de afirmar despliegue.
+Verificado: 15 pruebas de responsables/catálogo/dominio, suite principal de 33 pruebas, build y dos recorridos de navegador con base aislada (Supervisión, selección disponible, persona ocupada visible, recarga, bloqueo, historial, móvil y temas). Sin escrituras operativas de prueba en producción. Publicado en GitHub: 1fde587. Vercel confirmó success y el JavaScript público respondió HTTP 200, idéntico al archivo probado. Verificación pública sin guardados en la base real.
 
 ---
 ## ChickenIA — responsables diarios: aceptado y sesión cerrada, 6 noviembre 2026
