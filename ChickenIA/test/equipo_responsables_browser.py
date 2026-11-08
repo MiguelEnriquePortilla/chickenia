@@ -22,8 +22,9 @@ try:
   history=page.locator('#equipo-person-history');history.locator('summary').first.click();history.locator('select').select_option(label='Ana Lima');history.locator('button').click()
   expect(history.locator('.person-history-result')).to_contain_text('1 días evaluados');expect(history.locator('.person-history-result')).to_contain_text('Rastro')
   history.locator('.person-history-entry summary').click();expect(history).to_contain_text('Observación de Ana')
-  page.locator('#equipo-area').select_option('rosticero');expect(page.locator('#equipo-responsible-select option')).to_have_count(3)
-  assert 'Ana Lima' not in page.locator('#equipo-responsible-select').inner_text()
+  page.locator('#equipo-area').select_option('rosticero');expect(page.locator('#equipo-responsible-select option')).to_have_count(4)
+  expect(page.locator('#equipo-responsible-select option[value="1"]')).to_have_attribute('disabled', '')
+  expect(page.locator('#equipo-responsible-select option[value="1"]')).to_contain_text('Rastro')
   # Simulate a lost response after the server committed: retry must be idempotent.
   def lost_response(route):
    if route.request.method=='POST' and route.request.post_data_json.get('action')=='assign':

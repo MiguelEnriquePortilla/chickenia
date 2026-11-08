@@ -1,3 +1,10 @@
+## Selector de responsables — 8 noviembre 2026
+
+Supervisión conserva el selector compartido con las demás áreas. Ahora muestra todas las personas activas; las ya asignadas aparecen deshabilitadas con su área, en lugar de desaparecer. Nancy Rentería ya estaba activa en el catálogo; el 7 noviembre estaba asignada a Rastro, lo que explicaba su ausencia. No se asigna Nancy por defecto ni se cambian asignaciones existentes. Una persona por área/día, historial y 120% conservados.
+
+Verificado: 15 pruebas de responsables/catálogo/dominio, suite principal de 33 pruebas, build y dos recorridos de navegador con base aislada (Supervisión, selección disponible, persona ocupada visible, recarga, bloqueo, historial, móvil y temas). Sin escrituras operativas de prueba en producción. Publicación en curso; comprobar commit y activo publicado antes de afirmar despliegue.
+
+---
 ## ChickenIA — responsables diarios: aceptado y sesión cerrada, 6 noviembre 2026
 
 Miguel aprobó la entrega y pidió documentar, guardar y cerrar. Responsable por área y día, una sola área por persona, asignación inmutable e historial personal. Corrección versionada a Maurilio Salgado conservando ID. Áreas y 120% sin cambios. Publicado `60cb5b2`, Vercel success; archivos públicos cotejados, 23 pruebas específicas y 33 de suite principal aprobadas, dos recorridos de navegador aislados. [Cierre y continuidad](https://drive.google.com/file/d/1kp1R66QkvpvOEknJnmQmv1CxPywaK2Xg/view?usp=drivesdk). Conversación y cierre guardados; código en GitHub. ZIP completo a Drive rechazado por revisión automática; no se afirma respaldo de ese ZIP en Drive. Sin operaciones reales de prueba. Entrega aceptada; esperar nuevas instrucciones.

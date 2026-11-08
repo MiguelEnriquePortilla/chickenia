@@ -23,8 +23,12 @@ function renderResponsible(row){
  const host=root.querySelector('#equipo-responsible');
  if(row.responsible){host.innerHTML='<p><strong>Responsable del día: '+esc(row.responsible.name)+'</strong></p><p>Área asignada para toda la jornada.</p>';return;}
  if(!view.canWrite){host.innerHTML='<p>Responsable: sin identificar en este registro.</p>';return;}
- const occupied=new Set((view.assignments||[]).map(a=>a.id));
- host.innerHTML='<label>Responsable de hoy<select id="equipo-responsible-select"><option value="">Seleccionar persona</option>'+(view.employees||[]).filter(e=>e.active&&!occupied.has(e.id)).map(e=>'<option value="'+e.id+'">'+esc(e.name)+'</option>').join('')+'</select></label><p>Al guardar, la persona y el área quedan asignadas para todo el día. No se podrán cambiar.</p><button type="button" id="equipo-assign">Guardar responsable del día</button>';
+ const occupied=new Map((view.assignments||[]).map(a=>[a.id,a.area]));
+ const options=(view.employees||[]).filter(e=>e.active).map(e=>{
+  const area=occupied.get(e.id),areaName=view.areas.find(r=>r.spec.code===area)?.spec.name||area;
+  return '<option value="'+e.id+'"'+(occupied.has(e.id)?' disabled':'')+'>'+esc(e.name)+(occupied.has(e.id)?' · Ya asignada/o a '+esc(areaName):'')+'</option>';
+ }).join('');
+ host.innerHTML='<label>Responsable de hoy<select id="equipo-responsible-select"><option value="">Seleccionar persona</option>'+options+'</select></label><p>Las personas asignadas a otra área aparecen deshabilitadas. Cada persona tiene una sola área por día.</p><p>Al guardar, la persona y el área quedan asignadas para todo el día. No se podrán cambiar.</p><button type="button" id="equipo-assign">Guardar responsable del día</button>';
  host.querySelector('button').addEventListener('click',async()=>{
   if(assigning||saving||pending.size)return;const employeeId=Number(host.querySelector('select').value);if(!employeeId){status.textContent='Selecciona una persona.';return;}
   assigning=true;dateInput.disabled=true;areaInput.disabled=true;host.querySelector('button').disabled=true;host.querySelector('select').disabled=true;status.textContent='Guardando responsable…';
