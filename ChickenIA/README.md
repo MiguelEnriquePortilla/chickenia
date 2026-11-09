@@ -1,8 +1,12 @@
+## Sesión cerrada — 9 noviembre 2026
+
+Leer [cierre vigente](CIERRE_SESION_2026-11-09.md). Retroalimentación obligatoria y Ayudante General publicados y verificados. Ficha de responsabilidad lista para imprimir. Esperar nuevas instrucciones.
+
 ## Actualización 2026-11-09: Ayudante General
 
 Nueva área en Chicanito en Acción con 14 actividades: inicio, apoyo durante el día y entrega/cierre de Cocina y Freidoras. Incluye selector de personal activo, asignación diaria inmutable, observación y recomendación obligatorias, historial individual y reporte semanal de una hoja. La asignación permanece en Ayudante General aunque apoye varias estaciones. Se conservan Lavado de Trastes y las responsabilidades técnicas de Cocina, Freidoras y Barras. Compras sin solicitud se verifican como disponibilidad confirmada; no se exige una compra innecesaria. Extras requieren una aportación adicional y su resultado verificado, sin cambiar la fórmula vigente.
 
-Validación: 23 pruebas específicas; navegador con asignación, persistencia, cierre, historial y nueve hojas para nueve áreas con comentarios máximos. Pendiente de trabajo posterior: ficha «Mi área de responsabilidad».
+Validación: 23 pruebas específicas; navegador con asignación, persistencia, cierre, historial y nueve hojas para nueve áreas con comentarios máximos. Ficha «Mi área de responsabilidad» entregada en PDF y HTML dentro de `docs/fichas-supervision/2026-11-09/`.
 
 ## Actualización 2026-11-09: retroalimentación diaria
 
