@@ -3,8 +3,8 @@
 const root=document.getElementById('calibre-app');if(!root)return;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-let date=new URLSearchParams(location.search).get('date')||today(),view,selected='rastro',pending=new Map(),saving=false,failed=false,timer,loadSequence=0,assigning=false;
-root.innerHTML=`<h1>Chicanito en Acción</h1><div class="equipo-controls"><label>Fecha<input id="calibre-date" type="date" value="${esc(date)}"></label><label>Área<select id="equipo-area"></select></label></div><p id="equipo-status" role="status" aria-live="polite">Cargando…</p><button id="equipo-retry" type="button" hidden>Reintentar guardado</button><p class="equipo-save-help">Espera la confirmación de guardado antes de salir.</p><section id="equipo-responsible"></section><section id="equipo-sheet"></section><div class="equipo-share-tools"><button type="button" data-equipo-share="area">Compartir esta área</button><button type="button" data-equipo-share="general">Compartir todo el equipo</button></div><section id="equipo-person-history"></section><details class="equipo-history"><summary>Histórico</summary><div id="equipo-history"></div></details>`;
+let date=new URLSearchParams(location.search).get('date')||today(),view,selected='rastro',pending=new Map(),saving=false,failed=false,timer,loadSequence=0,assigning=false,closingFeedback=false;
+root.innerHTML=`<h1>Chicanito en Acción</h1><div class="equipo-controls"><label>Fecha<input id="calibre-date" type="date" value="${esc(date)}"></label><label>Área<select id="equipo-area"></select></label></div><p id="equipo-status" role="status" aria-live="polite">Cargando…</p><button id="equipo-retry" type="button" hidden>Reintentar guardado</button><p class="equipo-save-help">Espera la confirmación de guardado antes de salir.</p><section id="equipo-responsible"></section><section id="equipo-sheet"></section><div class="equipo-share-tools"><button type="button" data-equipo-share="area">Compartir esta área</button><button type="button" data-equipo-share="general">Compartir todo el equipo</button></div><a id="equipo-weekly-report" target="_blank" rel="noopener">Ver reporte semanal para retroalimentación</a><section id="equipo-person-history"></section><details class="equipo-history"><summary>Histórico</summary><div id="equipo-history"></div></details>`;
 const sheet=root.querySelector('#equipo-sheet'),status=root.querySelector('#equipo-status'),dateInput=root.querySelector('#calibre-date'),areaInput=root.querySelector('#equipo-area'),retry=root.querySelector('#equipo-retry');
 async function request(body){const r=await fetch(`/api/summary?calibre=1&date=${encodeURIComponent(date)}`,{cache:'no-store',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,...body})}:{})});const d=await r.json();if(!r.ok){if(r.status===401)location.replace('/inventario.html?next='+encodeURIComponent(location.pathname+location.search));throw Object.assign(Error(d.error||'No se pudo guardar.'),{status:r.status});}return d;}
 const points=row=>row.data.checklistPoints||row.data.points;
@@ -14,11 +14,20 @@ function render(){
  const row=view.areas.find(r=>r.spec.code===selected)||view.areas[0];selected=row.spec.code;areaInput.value=selected;window.AreaNavigation?.select(selected,false);let last='';
  const canEvaluate=view.canWrite&&(date<view.assignmentStart||!!row.responsible);
  renderResponsible(row);
+ root.querySelector("#equipo-weekly-report").href="/evaluacion-semanal.html?date="+encodeURIComponent(date)+"&area="+encodeURIComponent(selected);
  sheet.innerHTML=`<header class="equipo-sheet-head"><h2>${esc(row.spec.name)}</h2><p>Sesión: ${esc(view.actor)} · ${esc(view.date)}</p><p id="equipo-progress">${tally(row)}</p></header>${row.spec.points.map(p=>{const section=p.id.split('.')[0],heading=last!==section?`<h3>${esc(row.spec.blocks[Number(section)-1])}</h3>`:'';last=section;const saved=points(row)[p.id]||{};return `${heading}<div class="equipo-point" data-point="${p.id}"><label class="equipo-task"><input type="checkbox" ${saved.status==='done'?'checked':''} ${canEvaluate?'':'disabled'}><span><strong>${esc(p.id)} · ${esc(p.title)}</strong><span>${esc(p.text)}</span></span></label><label class="equipo-note">Nota opcional<input type="text" maxlength="1200" value="${esc(saved.note||'')}" ${canEvaluate?'':'readonly'}></label></div>`;}).join('')}<h3 class="equipo-extra-heading">¡Vamos por el 120%!</h3><p>Marca las actividades adicionales realizadas. Con tu ficha completa y al menos una actividad extra verificada, llegas al 120%.</p>${row.spec.extras.map((e,i)=>{const saved=extras(row)[i]||{};return `<div class="equipo-point equipo-extra" data-extra="${i}"><label class="equipo-task"><input type="checkbox" ${saved.done?'checked':''} ${canEvaluate?'':'disabled'}><span><strong>${esc(e.title)}</strong><span>${esc(e.text)}</span></span></label><label class="equipo-note">Comentario opcional<input type="text" maxlength="1200" value="${esc(saved.note||'')}" ${canEvaluate?'':'readonly'}></label></div>`;}).join('')}`;
+ sheet.insertAdjacentHTML('beforeend',feedbackForm(row,canEvaluate));
  root.querySelector('#equipo-history').innerHTML=(view.checklistHistory||[]).filter(h=>h.area===selected).map(h=>{const ps=h.points||h.original_points||{},done=h.spec.points.filter(p=>ps[p.id]?.status==='done').length;return `<p><a href="?date=${esc(h.date)}&area=${selected}">${esc(h.date)}</a> · ${done}/${h.spec.points.length} verificadas</p>`;}).join('')||'<p>Todavía no hay revisiones guardadas para esta área.</p>';
  root.querySelector('#equipo-history').insertAdjacentHTML('beforeend',(view.history||[]).filter(h=>h.scope===selected||h.scope==='general').map(h=>`<details><summary>Reporte preparado · ${esc(h.date)} · ${h.scope==='general'?'Todo el equipo':esc(row.spec.name)}</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(h.message)}</pre></details>`).join(''));
  status.textContent=view.canWrite?(canEvaluate?'Palomea al verificar. Se guarda automáticamente.':'Selecciona y guarda al responsable de hoy para comenzar.'):'Consulta del histórico · Las capturas se conservan.';
 }
+function feedbackForm(row,canEvaluate){
+ if(date<(view.feedbackStart||'2026-11-09'))return '<p>Retroalimentación diaria obligatoria a partir del 9 de noviembre de 2026.</p>';
+ const f=row.data.feedback||{};
+ return '<section class="equipo-feedback"><h3>Retroalimentación para '+esc(row.responsible?.name||'el responsable del día')+'</h3><p id="feedback-state">'+(f.closedAt?'Evaluación cerrada · '+esc(f.closedBy):'Retroalimentación pendiente')+'</p><p>Escribe un hecho concreto y una acción para mantener o mejorar. Ambos campos son obligatorios al cerrar.</p><label>Observación del día<textarea id="feedback-observation" maxlength="180" rows="3" '+(canEvaluate?'':'readonly')+'>'+esc(f.observation||'')+'</textarea></label><label>Recomendación al asociado<textarea id="feedback-recommendation" maxlength="180" rows="3" '+(canEvaluate?'':'readonly')+'>'+esc(f.recommendation||'')+'</textarea></label><p>Máximo 180 caracteres por campo. Los borradores se guardan automáticamente.</p>'+(canEvaluate?'<button type="button" id="feedback-close">Cerrar evaluación del día</button>':'')+(f.actor?'<p>Registró: '+esc(f.actor)+'</p>':'')+'</section>';
+}
+function feedbackState(row){const el=sheet.querySelector('#feedback-state');if(el)el.textContent=row.data.feedback?.closedAt?'Evaluación cerrada · '+row.data.feedback.closedBy:'Retroalimentación pendiente';}
+function invalidateFeedback(row){if(row.data.feedback)row.data.feedback={...row.data.feedback,closedAt:null,closedBy:null};feedbackState(row);}
 function renderResponsible(row){
  const host=root.querySelector('#equipo-responsible');
  if(row.responsible){host.innerHTML='<p><strong>Responsable del día: '+esc(row.responsible.name)+'</strong></p><p>Área asignada para toda la jornada.</p>';return;}
@@ -36,24 +45,43 @@ function renderResponsible(row){
  });
 }
 async function load(){const token=++loadSequence;status.textContent='Cargando…';view=null;sheet.innerHTML='';root.querySelector('#equipo-responsible').innerHTML='';root.querySelector('#equipo-person-history').innerHTML='';areaInput.disabled=true;try{const response=await request();if(token!==loadSequence)return;view=response;areaInput.innerHTML=view.areas.map(r=>`<option value="${r.spec.code}">${esc(r.spec.name)}</option>`).join('');areaInput.disabled=false;render();window.ChickenPersonHistory?.mount(root.querySelector('#equipo-person-history'),view.employees||[],date);}catch(e){if(token===loadSequence)status.textContent=e.message;}}
-function enqueue(el){const item=el.closest('[data-point],[data-extra]');if(!item)return;const row=view.areas.find(r=>r.spec.code===selected),isExtra=item.hasAttribute('data-extra'),done=item.querySelector('[type=checkbox]').checked,note=item.querySelector('[type=text]').value;
+function enqueue(el){
+ if(el.matches('#feedback-observation,#feedback-recommendation')){
+  const row=view.areas.find(r=>r.spec.code===selected),command={action:'feedback-save',observation:sheet.querySelector('#feedback-observation').value,recommendation:sheet.querySelector('#feedback-recommendation').value};
+  pending.set(selected+':feedback',{area:selected,command});row.data.feedback={...row.data.feedback,observation:command.observation,recommendation:command.recommendation,closedAt:null,closedBy:null};feedbackState(row);status.textContent='Guardando…';return;
+ }
+ const item=el.closest('[data-point],[data-extra]');if(!item)return;const row=view.areas.find(r=>r.spec.code===selected),isExtra=item.hasAttribute('data-extra'),done=item.querySelector('[type=checkbox]').checked,note=item.querySelector('[type=text]').value;
  const command=isExtra?{action:'simple-extra',choice:Number(item.dataset.extra),done,note}:{action:'simple-point',point:item.dataset.point,done,note};
  pending.set(`${selected}:${isExtra?'extra:'+command.choice:command.point}`,{area:selected,command});
  if(isExtra){row.data.simpleExtras??=structuredClone(extras(row));row.data.simpleExtras[command.choice]={done,note};}else{row.data.checklistPoints??=structuredClone(row.data.points);row.data.checklistPoints[command.point]={status:done?'done':'pending',note};}
+ invalidateFeedback(row);
  root.querySelector('#equipo-progress').textContent=tally(row);status.textContent='Guardando…';}
 
-async function flush(){if(saving||failed||!pending.size)return;saving=true;dateInput.disabled=true;areaInput.disabled=true;
- try{while(pending.size){const [key,item]=pending.entries().next().value,row=view.areas.find(r=>r.spec.code===item.area),sent=JSON.stringify(item.command);const response=await request({area:item.area,revision:row.revision,command:item.command});row.revision=response.areas.find(r=>r.spec.code===item.area).revision;view.checklistHistory=response.checklistHistory;if(JSON.stringify(pending.get(key)?.command)===sent)pending.delete(key);}status.textContent='¡Guardado!';retry.hidden=true;}
+let activeFlush;
+function flush(){if(saving)return activeFlush;activeFlush=performFlush();return activeFlush;}
+async function performFlush(){if(saving||failed||!pending.size)return;saving=true;dateInput.disabled=true;areaInput.disabled=true;
+ try{while(pending.size){const [key,item]=pending.entries().next().value,row=view.areas.find(r=>r.spec.code===item.area),sent=JSON.stringify(item.command);const response=await request({area:item.area,revision:row.revision,command:item.command});const saved=response.areas.find(r=>r.spec.code===item.area);row.revision=saved.revision;view.checklistHistory=response.checklistHistory;if(JSON.stringify(pending.get(key)?.command)===sent){pending.delete(key);if(!pending.has(item.area+':feedback'))row.data.feedback=saved.data.feedback;}feedbackState(row);}status.textContent='¡Guardado!';retry.hidden=true;}
  catch(e){failed=true;status.textContent=e.message+' Tu selección sigue aquí.';retry.hidden=false;if(e.status===409){try{const latest=await request();for(const row of view.areas)row.revision=latest.areas.find(r=>r.spec.code===row.spec.code).revision;status.textContent='Otra persona actualizó esta área. Revisa tu selección y pulsa Reintentar guardado.';}catch{}}}
  finally{saving=false;dateInput.disabled=!!pending.size;areaInput.disabled=!!pending.size;}
 }
-sheet.addEventListener('input',e=>{if(e.target.matches('[type=text]')){enqueue(e.target);dateInput.disabled=true;areaInput.disabled=true;clearTimeout(timer);timer=setTimeout(flush,700);}});
+sheet.addEventListener('input',e=>{if(e.target.matches('[type=text],textarea')){enqueue(e.target);dateInput.disabled=true;areaInput.disabled=true;clearTimeout(timer);timer=setTimeout(flush,700);}});
 sheet.addEventListener('change',e=>{enqueue(e.target);flush();});
 retry.addEventListener('click',()=>{failed=false;flush();});
 dateInput.addEventListener('change',()=>{date=dateInput.value;load();});areaInput.addEventListener('change',()=>{selected=areaInput.value;render();});
-window.addEventListener('beforeunload',e=>{if(pending.size||assigning){e.preventDefault();e.returnValue='';}});
+window.addEventListener('beforeunload',e=>{if(pending.size||assigning||closingFeedback){e.preventDefault();e.returnValue='';}});
 const requested=new URLSearchParams(location.search).get('area');if(requested&&requested!=='general')selected=requested==='sucursal_apertura'?'rastro':requested;
-document.addEventListener('DOMContentLoaded',()=>window.AreaNavigation?.mount(document.body,code=>{if(pending.size||assigning)return;const next=code==='sucursal_apertura'?'rastro':code;if(view?.areas.some(r=>r.spec.code===next)){selected=next;render();}}));
-window.ChickenEquipoCanShare=()=>!!view&&!pending.size&&!saving&&!assigning;
+document.addEventListener('DOMContentLoaded',()=>window.AreaNavigation?.mount(document.body,code=>{if(pending.size||assigning||closingFeedback)return;const next=code==='sucursal_apertura'?'rastro':code;if(view?.areas.some(r=>r.spec.code===next)){selected=next;render();}}));
+window.ChickenEquipoCanShare=()=>!!view&&!pending.size&&!saving&&!assigning&&!closingFeedback;
+sheet.addEventListener('click',async e=>{
+ if(!e.target.closest('#feedback-close')||closingFeedback||failed)return;
+ closingFeedback=true;clearTimeout(timer);await flush();if(saving||pending.size||failed){closingFeedback=false;return;}
+ const row=view.areas.find(r=>r.spec.code===selected),observation=sheet.querySelector('#feedback-observation').value.trim(),recommendation=sheet.querySelector('#feedback-recommendation').value.trim();
+ if(!observation||!recommendation){closingFeedback=false;status.textContent='Completa la observación y la recomendación antes de cerrar.';sheet.querySelector(!observation?'#feedback-observation':'#feedback-recommendation').focus();return;}
+ closingFeedback=true;dateInput.disabled=true;areaInput.disabled=true;sheet.querySelectorAll('input,textarea,button').forEach(el=>el.disabled=true);status.textContent='Cerrando evaluación…';
+ try{view=await request({area:selected,revision:row.revision,command:{action:'feedback-close',observation,recommendation}});render();status.textContent='Evaluación cerrada con retroalimentación para '+row.responsible.name+'.';}
+ catch(err){status.textContent=err.message;sheet.querySelectorAll('input,textarea,button').forEach(el=>el.disabled=false);}
+ finally{closingFeedback=false;dateInput.disabled=false;areaInput.disabled=false;}
+});
+root.querySelector('#equipo-weekly-report').addEventListener('click',e=>{if(!window.ChickenEquipoCanShare()){e.preventDefault();status.textContent='Espera la confirmación de guardado antes de abrir el reporte.';}});
 load();
 })();

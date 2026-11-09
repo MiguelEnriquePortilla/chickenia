@@ -26,7 +26,7 @@ function responsibilities(query){
   if(!Number.isSafeInteger(employeeId)||employeeId<1||!core.dateOK(from)||!core.dateOK(to)||from>to||Date.parse(to)-Date.parse(from)>366*86400000)core.fail('Elige una persona y un periodo válido de hasta un año.');
   const [person]=await query('SELECT id,name,active FROM employees WHERE id=$1',[employeeId]);if(!person)core.fail('Persona desconocida.',404);
   const rows=await query('SELECT a.date::text,a.area,a.actor AS assigned_by,a.assigned_at,d.spec,d.data FROM calibre_assignments a LEFT JOIN calibre_days d ON d.location_id=a.location_id AND d.date=a.date AND d.area=a.area WHERE a.location_id=$1 AND a.employee_id=$2 AND a.date BETWEEN $3::date AND $4::date ORDER BY a.date DESC',[location,employeeId,from,to]);
-  const entries=rows.map(r=>{const spec=r.spec||core.AREAS.find(a=>a.code===r.area),data=r.data||core.blank();return {date:r.date,area:r.area,areaName:spec.name,assignedBy:r.assigned_by,assignedAt:r.assigned_at,...core.checklistScore(spec,data),points:data.checklistPoints||data.points||{},extras:core.simpleExtras(data),spec};});
+  const entries=rows.map(r=>{const spec=r.spec||core.AREAS.find(a=>a.code===r.area),data=r.data||core.blank();return {date:r.date,area:r.area,areaName:spec.name,assignedBy:r.assigned_by,assignedAt:r.assigned_at,...core.checklistScore(spec,data),points:data.checklistPoints||data.points||{},extras:core.simpleExtras(data),feedback:data.feedback||null,feedbackStatus:core.feedback.status(r.date,data),spec};});
   const scored=entries.filter(e=>e.score!==null);return {person,from,to,entries,evaluated:scored.length,average:scored.length?scored.reduce((n,e)=>n+e.score,0)/scored.length:null};
  }
  return {migrate,start,list,employees,requireAssigned,assign,personHistory};

@@ -1,3 +1,11 @@
+## Actualización 2026-11-09: retroalimentación diaria
+
+Desde el 9 de noviembre, el cierre de cada evaluación por área requiere observación y recomendación (máximo 180 caracteres por campo), ligadas al responsable asignado del día y al evaluador. Las actividades y borradores se guardan automáticamente; una edición posterior deja el cierre pendiente hasta reconfirmarlo. Los históricos y la fórmula del 120% se conservan.
+
+Reporte interno: `evaluacion-semanal.html`, accesible desde evaluación y resumen semanal. Incluye actividades por día, responsables, promedio base semanal, observaciones, recomendaciones y acuerdos. Impresión carta horizontal: una hoja por área. No envía comentarios a grupos ni automatiza pagos.
+
+Validación: 33 pruebas generales y 26 específicas aprobadas; navegador aislado confirma campos obligatorios, persistencia, cierre, reapertura, historial personal, móvil, históricos y PDF de 8 páginas para 8 áreas con comentarios de longitud máxima.
+
 ## Selector de responsables — 8 noviembre 2026
 
 Supervisión conserva el selector compartido con las demás áreas. Ahora muestra todas las personas activas; las ya asignadas aparecen deshabilitadas con su área, en lugar de desaparecer. Nancy Rentería ya estaba activa en el catálogo; el 7 noviembre estaba asignada a Rastro, lo que explicaba su ausencia. No se asigna Nancy por defecto ni se cambian asignaciones existentes. Una persona por área/día, historial y 120% conservados.

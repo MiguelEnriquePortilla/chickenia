@@ -3,7 +3,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..'),out=path.join(root,'public');
 fs.mkdirSync(out,{recursive:true});
-const files=['index.html','supervision.html','evaluacion-equipo.html','supervision-anterior.html','supervision-historico.html','rastro.html','proteinas.html','proteinas-movil.html','dashboard.html','entrenamiento.html','inventario.html','produccion-diaria.html','preguntale.html','pedidos.html','manifest.json','sw.js'];
+const files=['index.html','supervision.html','evaluacion-equipo.html','evaluacion-semanal.html','supervision-anterior.html','supervision-historico.html','rastro.html','proteinas.html','proteinas-movil.html','dashboard.html','entrenamiento.html','inventario.html','produccion-diaria.html','preguntale.html','pedidos.html','manifest.json','sw.js'];
 for(const file of files)fs.copyFileSync(path.join(root,file),path.join(out,file));
 for(const dir of ['css','js','icons'])fs.cpSync(path.join(root,dir),path.join(out,dir),{recursive:true});
 // Old manuals remain local archives; publish only the maintained HTML guide.

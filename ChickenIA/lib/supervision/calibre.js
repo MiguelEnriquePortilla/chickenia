@@ -1,5 +1,6 @@
 'use strict';
 const {z}=require('zod');
+const feedback=require('./equipo-feedback');
 const {AREAS,VERSION}=require('./calibre-catalog');
 const fail=(message,status=400)=>{throw Object.assign(Error(message),{status});};
 const day=(now=new Date())=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
@@ -45,8 +46,11 @@ function summary(spec,data,now=new Date(),date=day(now)){
  const level=critical?'¡Atención prioritaria!':kpi===null?(data.noCases?'Sin casos para evaluar':'Pendiente de verificar'):!expected?'Pendiente de verificar':score===120?'Calibre Chicanito':score===100?'Aceptable':score>=85?'Mínimo':'¡Vamos a levantarlo!';
  return {ficha,kpi,total,passed,base,extra,score,level,critical,complete,provisional,expected,done,applicable:applicable.length,noCases:!!data.noCases,products:spec.products.map(product=>{const rows=data.samples.filter(s=>s.product===product),n=rows.reduce((a,s)=>a+s.total,0);return {product,total:n,passed:rows.reduce((a,s)=>a+s.passed,0)};})};
 }
-function apply(spec,source,raw,user,now=new Date(),date=day(now)){
+function apply(spec,source,raw,user,now=new Date(),date=day(now),responsible){
+ if(['feedback-save','feedback-close'].includes(raw?.action))return feedback.apply(spec,source,raw,user,now,date,responsible);
  const c=command.parse(raw),data=structuredClone(source),stamp=now.toISOString();
+ if(date>=feedback.START&&c.action==='close'&&feedback.status(date,data)!=='closed')fail('Completa la observación y recomendación y cierra la evaluación del día.');
+ if(date>=feedback.START&&c.action!=='close')feedback.invalidate(data);
  if(c.action==='simple-extra'){
   if(!spec.extras[c.choice])fail('Actividad de 120% desconocida.');
   if(spec.code==='supervision'&&!['MIGUEL','LILIAN'].includes(user.name))fail('Lilian o Miguel verifican el 120% de Supervisión.',403);
@@ -129,4 +133,4 @@ function report(rows,date,kind,now=new Date()){
 function simpleReport(rows,date){
  return `🐔 ¡ASÍ VAMOS, EQUIPO CHICANITO!\n📅 ${date}\n`+rows.map(r=>{const s=checklistScore(r.spec,r.data),extras=simpleExtras(r.data);return `\n${r.spec.name.toUpperCase()}${r.responsible?'\nResponsable: '+r.responsible.name:''}\n✅ Ficha: ${s.done}/${s.total} actividades\n🎯 Avance: ${s.score===null?'Sin revisión':Math.floor(s.score*10)/10+'%'}${s.score===120?' · ¡Calibre Chicanito!':''}\n⭐ Actividades para llegar al 120%:\n${r.spec.extras.map((e,i)=>`${extras[i]?.done?'☑':'☐'} ${e.title}`).join('\n')}${s.extras&&s.base!==100?'\n➡️ Completemos la ficha para sumar los 20 puntos extra.':''}`;}).join('\n')+'\n\n¡Haz de tu día, un día Very Sabrosito!';
 }
-module.exports={AREAS,VERSION,day,dateOK,blank,summary,apply,report,fail,checklistScore,weekDates,simpleExtras,simpleReport};
+module.exports={feedback,AREAS,VERSION,day,dateOK,blank,summary,apply,report,fail,checklistScore,weekDates,simpleExtras,simpleReport};
