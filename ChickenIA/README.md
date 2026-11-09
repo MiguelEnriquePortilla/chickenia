@@ -1,3 +1,9 @@
+## Actualización 2026-11-09: Ayudante General
+
+Nueva área en Chicanito en Acción con 14 actividades: inicio, apoyo durante el día y entrega/cierre de Cocina y Freidoras. Incluye selector de personal activo, asignación diaria inmutable, observación y recomendación obligatorias, historial individual y reporte semanal de una hoja. La asignación permanece en Ayudante General aunque apoye varias estaciones. Se conservan Lavado de Trastes y las responsabilidades técnicas de Cocina, Freidoras y Barras. Compras sin solicitud se verifican como disponibilidad confirmada; no se exige una compra innecesaria. Extras requieren una aportación adicional y su resultado verificado, sin cambiar la fórmula vigente.
+
+Validación: 23 pruebas específicas; navegador con asignación, persistencia, cierre, historial y nueve hojas para nueve áreas con comentarios máximos. Pendiente de trabajo posterior: ficha «Mi área de responsabilidad».
+
 ## Actualización 2026-11-09: retroalimentación diaria
 
 Desde el 9 de noviembre, el cierre de cada evaluación por área requiere observación y recomendación (máximo 180 caracteres por campo), ligadas al responsable asignado del día y al evaluador. Las actividades y borradores se guardan automáticamente; una edición posterior deja el cierre pendiente hasta reconfirmarlo. Los históricos y la fórmula del 120% se conservan.

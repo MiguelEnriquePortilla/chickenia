@@ -43,7 +43,7 @@ test('Caja card saves activities, notes, 120%, reports and weekly history withou
   await db.exec("CREATE TABLE employees(id SERIAL PRIMARY KEY,name TEXT UNIQUE,active BOOLEAN DEFAULT true,order_index INT); INSERT INTO employees(name,order_index) VALUES('Ana Lima',1),('Maurilio Salgado',2),('Nancy Rentería',3); CREATE TABLE locations(id int PRIMARY KEY); INSERT INTO locations VALUES(1)");
   const q=async(s,p)=>(await db.query(s,p)).rows,s=store(q);await s.migrate();
   let view=await s.get(1,'2026-10-21',now),row=view.areas.find(r=>r.spec.code==='caja');
-  assert.equal(view.areas.length,8);assert.equal(row.spec.points.length,16);
+  assert.equal(view.areas.length,9);assert.equal(row.spec.points.length,16);
   assert.deepEqual(row.spec.points.map(p=>p.id),['1.1','1.2','1.3','1.4','1.5','1.6','2.1','2.2','2.3','2.4','2.5','3.1','3.2','3.3','3.4','3.5']);
   for(const p of row.spec.points){
    view=await s.save(1,'2026-10-21',{area:'caja',revision:row.revision,command:{action:'simple-point',point:p.id,done:true,note:'Actividad supervisada'}},user,now);
