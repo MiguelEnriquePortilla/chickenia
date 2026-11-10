@@ -1,3 +1,9 @@
+## Pedidos — Plásticos, 10 noviembre 2026
+
+Agregados por instrucción de Miguel: Estropajos, Ventiladores de Barras y Pilas para Ventiladores. Plásticos queda con 23 artículos; los tres nuevos al final, sin unidades ni cantidades inferidas. Los 20 renglones anteriores conservan su posición para mantener borradores, existencias y notas. Sin cambios al motor de pedidos ni operaciones reales.
+
+Publicado `b4269da`. Sintaxis, build, recorrido aislado de Pedidos y comparación completa de catálogos aprobados. Archivo público de producción HTTP 200 e idéntico al local verificado. No se enviaron pedidos. Sin pendientes de este ajuste.
+
 ## Sesión cerrada — 9 noviembre 2026
 
 Leer [cierre vigente](CIERRE_SESION_2026-11-09.md). Retroalimentación obligatoria y Ayudante General publicados y verificados. Ficha de responsabilidad lista para imprimir. Esperar nuevas instrucciones.
