@@ -59,7 +59,7 @@ try:
   page.get_by_role('button',name='PEREGRINA',exact=True).click();expect(page.locator('.orders-row')).to_have_count(25)
   expect(page.locator('.orders-row .order-quantity').first).to_have_value('')
   page.locator('.orders-row .order-quantity').first.fill('1')
-  page.get_by_role('button',name='PLÁSTICOS',exact=True).click();expect(page.locator('.orders-row')).to_have_count(20)
+  page.get_by_role('button',name='PLÁSTICOS',exact=True).click();expect(page.locator('.orders-row')).to_have_count(23)
   page.get_by_role('button',name='CENTRAL DE ABASTOS',exact=True).click();expect(page.locator('.orders-row')).to_have_count(16)
   expect(page.locator('.orders-row .order-quantity').nth(5)).to_have_value('5');expect(page.locator('.order-stock').nth(5)).to_have_value('2');expect(page.locator('.orders-row .order-quantity').nth(6)).to_have_value('4');expect(page.locator('.order-stock').nth(6)).to_have_value('3');expect(page.locator('.orders-row .order-quantity').nth(15)).to_have_value('15');page.reload();expect(page.locator('.orders-row')).to_have_count(21);page.get_by_role('button',name='CENTRAL DE ABASTOS',exact=True).click();expect(page.locator('.orders-row .order-quantity').nth(5)).to_have_value('5');page.locator('.orders-row .order-quantity').first.fill('4');page.locator('#copy').click();central=page.evaluate('window.copied');assert 'Existencia: 2' in central and 'Existencia: 3' in central and 'Existencia: sin conteo' in central;page.locator('#preview').click()
   expect(page.locator('#capture')).to_be_visible();expect(page.locator('#products')).to_be_hidden()

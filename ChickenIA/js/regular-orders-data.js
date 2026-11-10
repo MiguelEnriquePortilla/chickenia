@@ -364,6 +364,24 @@ window.RegularOrdersData = {
         "",
         "",
         ""
+      ],
+      [
+        "Estropajos",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Ventiladores de Barras",
+        "",
+        "",
+        ""
+      ],
+      [
+        "Pilas para Ventiladores",
+        "",
+        "",
+        ""
       ]
     ],
     "CENTRAL DE ABASTOS": [
