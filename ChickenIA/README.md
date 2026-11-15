@@ -1,3 +1,9 @@
+## Personal - rediseño para celular, 15 noviembre 2026
+
+Miguel rechazó la tabla anterior y aprobó el nuevo flujo paso a paso; autorizó implementar y publicar. Asistencias por persona/fecha sin importes y Nómina separada con Persona/Equipo, filtros, ajustes, revisión de Lilian y reportes compartibles/imprimibles/PDF por diálogo. Encabezado, menú y sesión compartidos. Se conservan cálculos y registros. Continuidad y validaciones en `docs/nomina-plan.md`. FILTROS PARA FREIDORA agregado al final de Plásticos (24 artículos), unidad/cantidad vacías. Sin asistencias/nóminas reales ni pedidos de prueba. Publicación en curso.
+
+---
+
 ## Asistencias y nómina semanal - 14 noviembre 2026
 
 Implementada hoja semanal en `nomina.html`, desde Inicio y navegación. Reglas y verificación en [plan y continuidad](docs/nomina-plan.md). Nancy captura estados, cajera completa, bonos y descuentos con motivo; Lilian autoriza y puede reabrir. Siete días obligatorios para autorizar. Checadas originales conservadas. Pruebas PostgreSQL aisladas y navegador: total de ejemplo 14900, guardado y bloqueo comprobados; sin operaciones reales. El acceso conserva la selección de nombre existente, sin nueva contraseña. Publicado y verificado en https://chickenia.chicanito.app/nomina.html (8cef8d5). API con sesión: 13 empleados, revisión 0, sin guardar nómina real.

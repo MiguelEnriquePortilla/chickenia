@@ -13,7 +13,12 @@ process.env.INVENTORY_USERS_JSON='[]';
  http.createServer(async(req,res)=>{const u=new URL(req.url,'http://localhost');res.status=c=>{res.statusCode=c;return res;};res.json=d=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(d));};
  try{
  if(u.pathname.startsWith('/api/')){let raw='';for await(const c of req)raw+=c;req.body=raw?JSON.parse(raw):{};req.query=Object.fromEntries(u.searchParams);
- if(u.pathname==='/api/payroll')return handler(req,res);
+ if(u.pathname==='/api/payroll'){
+  if(fs.existsSync(path.join(root,'.local','payroll-fail-'+req.method.toLowerCase())))return res.status(503).json({error:'Fallo de prueba de conexión.'});
+  return handler(req,res);
+ }
+ if(u.pathname==='/api/inventory'&&req.query.action==='people')return res.json({people:auth.people()});
+ if(u.pathname==='/api/inventory'&&req.query.action==='session')return res.json({user:auth.authenticate(req)});
  if(u.pathname==='/api/inventory'&&req.query.action==='login'){const r=await auth.login(req);res.setHeader('Set-Cookie',auth.cookie(r.token,req));return res.json({user:r.user});}
  return res.status(404).json({error:'No disponible en esta prueba.'});}
  const relative=u.pathname.slice(1)||'index.html';if(!/^(?:[a-z-]+\.html|(?:js|css|icons)\/[a-z0-9_.-]+)$/.test(relative))return res.status(404).end();const file=path.join(root,relative);if(!fs.existsSync(file))return res.status(404).end();res.setHeader('Content-Type',({'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png'})[path.extname(file)]||'application/octet-stream');fs.createReadStream(file).pipe(res);

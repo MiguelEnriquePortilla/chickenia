@@ -1,5 +1,55 @@
-:root{color-scheme:light dark}body{margin:0;background:var(--bg,#fff7ec);color:var(--text,#17213e);font-family:Poppins,Arial,sans-serif}.payroll{max-width:1600px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;gap:16px;align-items:center;border-bottom:2px solid var(--border-soft,#ccc);padding-bottom:16px}a{color:inherit}h1{font-family:inherit;font-size:clamp(24px,4vw,36px);margin-bottom:8px}h1+p{margin-top:0}.payroll-tools{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:24px 0}label{display:inline-flex;gap:6px;flex-direction:column}button,input,select{font:inherit;font-size:16px;min-height:44px;box-sizing:border-box;border:1px solid var(--border-soft,#aaa);border-radius:5px;background:var(--surface,#fff);color:inherit;padding:8px}button{cursor:pointer}button:disabled{cursor:default;opacity:.6}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--gold,#d9a441);outline-offset:2px}#save,#approve,#enter{background:var(--navy,#17213e);color:#fff}#status{min-height:24px}.legend,.note,#pending{font-size:14px;line-height:1.7}.sheet-scroll{overflow:auto;border:1px solid var(--border-soft,#aaa);background:var(--surface,#fff)}table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}caption{text-align:left;padding:16px;font-weight:bold}th,td{padding:8px;border:1px solid var(--border-soft,#bbb);text-align:left}thead th{background:var(--navy,#17213e);color:#fff;white-space:nowrap}tbody th{min-width:150px;position:sticky;left:0;background:var(--surface,#fff);z-index:1}td select{width:62px}td input[type=number]{width:100px}td input[type=text]{width:150px}td .cashier{display:flex;align-items:center;font-size:11px;gap:5px;flex-direction:row}input[type=radio]{min-height:24px;min-width:24px}td.money{white-space:nowrap;text-align:right}td[data-total]{font-weight:bold}tfoot{font-size:16px;font-weight:bold}.day-A{border-bottom:3px solid #28764b}.day-D{border-bottom:3px solid #b54848}.day-F{border-bottom:3px solid #c33434}[hidden]{display:none!important}@media(max-width:600px){.payroll{padding:16px}.payroll-tools button{flex:1 1 auto}header span{font-size:12px}}@media print{@page{size:landscape;margin:8mm}body{background:white;color:black}.payroll{padding:0;max-width:none}.payroll-tools,header a,#status,.note,#pending,#login{display:none!important}.sheet-scroll{overflow:visible;border:0}table{font-size:8px}th,td{padding:3px}thead th{background:#ddd;color:black;white-space:normal}tbody th{position:static;min-width:65px;background:white}input,select{appearance:none;border:0;border-radius:0;padding:0;font-size:8px;min-height:16px;background:white;color:black}td select{width:24px}td input[type=number]{width:49px}td input[type=text]{width:65px}.legend{font-size:9px}h1{font-size:20px}td .cashier{font-size:7px}input[type=radio]{min-width:10px;min-height:10px;appearance:auto}tr{break-inside:avoid}tfoot{font-size:10px}}
+body{margin:0;font-family:Poppins,Arial,sans-serif}
+.personnel-main{width:100%;max-width:760px!important;padding-bottom:max(32px,env(safe-area-inset-bottom))!important}
+#personal-app{font-size:15px;line-height:1.6;color:var(--text)}
+#personal-app h1,#personal-app h2,#personal-app h3{font-family:inherit;font-weight:600;color:inherit;margin:0;letter-spacing:normal}
+#personal-app h1{font-size:28px}#personal-app h2{font-size:21px}#personal-app h3{font-size:17px}
+#personal-app p{margin:0}#personal-app .quiet{color:var(--gray);font-size:14px}
+.page-heading{margin-bottom:18px}.page-heading p{margin-top:5px!important}
+#personal-app label{display:flex;flex-direction:column;gap:8px;font-size:14px;font-weight:500;min-width:0}
+#personal-app input,#personal-app select,#personal-app textarea{font:inherit;font-size:16px;min-height:48px;width:100%;max-width:100%;min-width:0;padding:11px 12px;color:var(--text);background:var(--surface);border:1px solid var(--border-soft);border-radius:10px;box-sizing:border-box}
+#personal-app select{appearance:auto;background-image:none}#personal-app textarea{resize:vertical;min-height:88px}
+#personal-app button{font:inherit;font-size:14px;min-height:46px;padding:10px 14px;max-width:100%;border:1px solid var(--border-soft);border-radius:10px;background:var(--surface);color:var(--text);cursor:pointer;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent}
+#personal-app button.primary{background:var(--text);color:var(--surface);border-color:var(--text);font-weight:500}
+#personal-app button:disabled{cursor:default;opacity:.6}
+#personal-app :is(button,input,select,textarea,a,summary):focus-visible{outline:3px solid var(--brand-gold,#d9a441);outline-offset:3px}
+#personal-app .text-action{border:0;background:none;text-decoration:underline;padding-left:0;text-align:left}
+.context-fields{display:grid;gap:8px;margin-bottom:22px}.context-fields input{max-width:260px!important}
+.save-message{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;min-height:26px;margin:0 0 20px;color:var(--gray)}
+.save-message[data-error=true]{color:var(--text)}
+.view-tabs{display:flex;border-bottom:1px solid var(--border-soft);gap:8px;margin-bottom:24px;padding-bottom:8px}
+#personal-app .view-tabs button{border:0;background:none;border-radius:6px;flex:1}
+#personal-app .view-tabs button[aria-pressed=true]{background:var(--selected);font-weight:600}
+#person-content{margin-top:24px}.empty-person{padding:24px 0;color:var(--gray)}
+.person-heading{margin-bottom:16px}.person-heading p{margin-top:4px!important}
+.attendance-states{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+#personal-app .attendance-states button{min-height:58px;display:flex;align-items:center;justify-content:flex-start;gap:10px;text-align:left}
+.attendance-states button:last-child{grid-column:1/-1}.state-icon{width:20px;flex-shrink:0;display:flex;align-items:center}.state-icon svg{width:20px;height:20px}
+#personal-app button[aria-pressed=true].state-choice{border-color:var(--text);background:var(--selected);box-shadow:inset 0 0 0 1px var(--text);font-weight:600}
+.cashier-setting{margin-top:24px;border-top:1px solid var(--border-soft);padding-top:20px}
+#personal-app label.switch-label{flex-direction:row;align-items:flex-start;gap:12px;font-size:15px;line-height:1.5}
+#personal-app .switch-label input{width:22px;min-height:22px;flex:0 0 22px;margin:3px 0;accent-color:var(--brand-accent)}
+.cashier-setting p{margin-top:8px!important}.week-detail{margin-top:24px;border-top:1px solid var(--border-soft);padding-top:12px}
+#personal-app summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;font-size:15px;font-weight:500;cursor:pointer}
+#personal-app summary::-webkit-details-marker{display:none}#personal-app summary::after{content:'+';font-size:20px;font-weight:400}#personal-app details[open]>summary::after{content:'−'}
+.day-list,.breakdown{margin:0;padding:0;list-style:none}.day-list li,.breakdown>div{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-soft)}
+.day-list li span:first-child{color:var(--gray)}.day-list li span:last-child{text-align:right}.breakdown dt{color:var(--gray)}.breakdown dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.breakdown .pay-total{font-size:19px;font-weight:600;border-bottom:0;padding:16px 0}.breakdown .pay-total dt{color:var(--text)}
+.adjustment-form{margin-top:24px}.adjustment-form h3{margin-bottom:14px!important}.adjustment-form .money-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.adjustment-form>label{margin-top:12px}.adjustment-form>button{width:100%;margin-top:16px}
+.action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.action-row button{flex:1 1 120px}
+.approval-section{margin-top:28px;border-top:1px solid var(--border-soft);padding-top:20px}.approval-section>p{margin-top:8px!important}.approval-section>button{margin-top:14px;width:100%}
+.team-summary{margin-bottom:20px}.team-summary .breakdown{margin:8px 0 16px}.filter-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+#personal-app .filter-buttons button{flex:1;padding:8px}#personal-app .filter-buttons button[aria-pressed=true]{background:var(--selected);border-color:var(--text)}
+.team-list{display:grid;gap:0;margin:0;padding:0;list-style:none}.team-list>li{border-bottom:1px solid var(--border-soft)}
+#personal-app .team-person{display:flex;flex-direction:column;align-items:flex-start;text-align:left;width:100%;padding:14px 0;border:0;border-radius:0;background:none;gap:4px}
+.team-person .name{font-weight:500}.team-person .quiet{font-size:13px!important}.team-section{border-top:1px solid var(--border-soft);padding-top:8px}.team-section+details{margin-top:12px}
+#personal-app #login-panel{background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;padding:24px;margin-top:16px}
+#login-form{display:grid;gap:22px;margin-top:22px}.report-preview>h2{margin-bottom:10px!important}.report-preview>p{margin-bottom:20px!important}
+.report-person{padding:20px 0;border-bottom:1px solid var(--border-soft);break-inside:avoid}.report-person h3{margin-bottom:12px!important}.report-status{display:flex;flex-direction:column;gap:6px;margin:12px 0;font-size:14px}.report-person .breakdown>div{padding:8px 0}
+@media(hover:hover) and (pointer:fine){#personal-app button:hover{background:var(--hover)}#personal-app button.primary:hover{filter:brightness(.9);background:var(--text)}}
+@media(max-width:380px){#personal-app h1{font-size:25px}.attendance-states{grid-template-columns:1fr}.attendance-states button:last-child{grid-column:auto}.money-fields{grid-template-columns:1fr!important}}
+@media print{@page{size:A4 portrait;margin:14mm}body.area-shell{padding:0!important;background:white;color:black}.area-sidebar,.unified-header,.sidebar-backdrop,.page-heading,.save-message,#workspace,#login-panel,.report-preview>.action-row,.report-preview>p:last-child{display:none!important}#personal-app{max-width:none!important;width:100%;padding:0!important;font-size:11pt;color:black!important}.report-preview{display:block!important}.report-preview[hidden]{display:none!important}#personal-app .quiet{color:#444}.report-person{break-inside:avoid}.report-person .breakdown>div{border-color:#ccc}.report-person h3{font-size:14pt}.breakdown .pay-total{font-size:13pt}#report-state{font-size:10pt}}
 
-@media screen and (min-width:1100px){th,td{padding:6px}tbody th{min-width:120px}td select{width:46px;padding:4px}td input[type=number]{width:82px}td input[type=text]{width:110px}thead th{white-space:normal;min-width:36px}}
+body[data-personnel-view] .unified-header{position:sticky;top:0;z-index:39}
 
-.print-value{display:none}@media print{#rows input,#rows select{display:none}.print-value{display:inline;overflow-wrap:anywhere}td{max-width:100px}td:last-child{min-width:35px}}
+.breakdown dd{min-width:0;max-width:60%;overflow-wrap:anywhere}.report-brand{display:none}@media print{#personal-app .report-brand{display:block;font-weight:600;margin-bottom:12px}}

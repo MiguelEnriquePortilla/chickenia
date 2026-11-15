@@ -382,6 +382,12 @@ window.RegularOrdersData = {
         "",
         "",
         ""
+      ],
+      [
+        "FILTROS PARA FREIDORA",
+        "",
+        "",
+        ""
       ]
     ],
     "CENTRAL DE ABASTOS": [
