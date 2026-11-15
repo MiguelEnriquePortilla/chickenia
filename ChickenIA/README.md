@@ -1,6 +1,14 @@
+## ChickenIA - Personal y Plásticos: aceptado y sesión cerrada, 15 noviembre 2026
+
+Miguel confirmó: «Ya lo revisé y todo funciona bien. Documenta, actualiza y cierra la sesión.» Asistencias por persona sin importes y Nómina separada Persona/Equipo, filtros, menú/encabezado/sesión compartidos, revisión de Lilian y reportes WhatsApp/impresión/PDF aceptados. Tabla anterior sustituida. FILTROS PARA FREIDORA incorporado a Plásticos (24 artículos). Publicación funcional c231884, Vercel READY; pruebas y comprobaciones documentadas.
+
+[Cierre, acuerdos y conversación relevante en Drive](https://drive.google.com/file/d/14wVwaoCmx1AZ6QdmrYkYBQTmKZJqt2ID/view?usp=drivesdk), verificados por lectura, carpeta y tamaño (10,839 bytes), en Sesiones y acuerdos. Diez adjuntos originales en ZIP de 2,191,201 bytes, también verificado y enlazado en el cierre. Copia local: `01-RESPALDO-DOCUMENTAL/Acuerdos-y-minutas/ChickenIA/2026-11-15_CIERRE_ChickenIA_Personal-y-Plasticos.md`. Sin pendientes de este encargo; esperar nuevas instrucciones y no retomar otros frentes automáticamente.
+
+---
+
 ## Personal - rediseño para celular, 15 noviembre 2026
 
-Miguel rechazó la tabla anterior y aprobó el nuevo flujo paso a paso; autorizó implementar y publicar. Asistencias por persona/fecha sin importes y Nómina separada con Persona/Equipo, filtros, ajustes, revisión de Lilian y reportes compartibles/imprimibles/PDF por diálogo. Encabezado, menú y sesión compartidos. Se conservan cálculos y registros. Continuidad y validaciones en `docs/nomina-plan.md`. FILTROS PARA FREIDORA agregado al final de Plásticos (24 artículos), unidad/cantidad vacías. Sin asistencias/nóminas reales ni pedidos de prueba. Publicación en curso.
+Miguel rechazó la tabla anterior y aprobó el nuevo flujo paso a paso; autorizó implementar y publicar. Asistencias por persona/fecha sin importes y Nómina separada con Persona/Equipo, filtros, ajustes, revisión de Lilian y reportes compartibles/imprimibles/PDF por diálogo. Encabezado, menú y sesión compartidos. Se conservan cálculos y registros. Continuidad y validaciones en `docs/nomina-plan.md`. FILTROS PARA FREIDORA agregado al final de Plásticos (24 artículos), unidad/cantidad vacías. Sin asistencias/nóminas reales ni pedidos de prueba. Publicado c231884; entrega aceptada por Miguel y sesión cerrada el 15 de noviembre de 2026.
 
 ---
 

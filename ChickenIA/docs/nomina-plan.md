@@ -1,3 +1,9 @@
+## Cierre confirmado - 15 noviembre 2026
+
+Miguel revisó y confirmó que todo funciona bien. Entrega aceptada y sesión cerrada. Código funcional publicado: c231884. Sin pendientes de este encargo. [Acuerdos, extractos y cierre verificados en Drive](https://drive.google.com/file/d/14wVwaoCmx1AZ6QdmrYkYBQTmKZJqt2ID/view?usp=drivesdk). Evidencias originales enlazadas dentro del cierre. Esperar nuevas instrucciones.
+
+---
+
 # Asistencias y nómina — rediseño aprobado, 15 noviembre 2026
 
 ## Acuerdo vigente (sustituye la interfaz de tabla anterior)
