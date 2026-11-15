@@ -12,3 +12,5 @@ Enfoque elegido: extender asistencia con hoja semanal independiente y persistenc
 Límite: el acceso actual usa selección de nombre compartida; autorizar como Lilian registra esa identidad, sin añadir una autenticación nueva.
 
 Validaci?n: pruebas de dominio y API con PostgreSQL PGlite; recorrido de navegador con seis asistencias y un descanso por persona, Petra completa con descuento manual de 100, total 14900; guardado persistente y autorizaci?n de Lilian comprobados en base aislada. No se capturaron operaciones reales.
+
+Publicación: 8cef8d5, Vercel READY. HTML y JavaScript públicos coinciden con fuente verificada; API anónima 401, autenticada 200 con 13 empleados y revisión 0. Sin guardado ni autorización real. Sueldos individuales entregados solo mediante API autenticada; no están en el JavaScript público.

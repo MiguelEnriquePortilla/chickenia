@@ -1,6 +1,6 @@
 ## Asistencias y nómina semanal - 14 noviembre 2026
 
-Implementada hoja semanal en `nomina.html`, desde Inicio y navegación. Reglas y verificación en [plan y continuidad](docs/nomina-plan.md). Nancy captura estados, cajera completa, bonos y descuentos con motivo; Lilian autoriza y puede reabrir. Siete días obligatorios para autorizar. Checadas originales conservadas. Pruebas PostgreSQL aisladas y navegador: total de ejemplo 14900, guardado y bloqueo comprobados; sin operaciones reales. El acceso conserva la selección de nombre existente, sin nueva contraseña. Publicación en verificación.
+Implementada hoja semanal en `nomina.html`, desde Inicio y navegación. Reglas y verificación en [plan y continuidad](docs/nomina-plan.md). Nancy captura estados, cajera completa, bonos y descuentos con motivo; Lilian autoriza y puede reabrir. Siete días obligatorios para autorizar. Checadas originales conservadas. Pruebas PostgreSQL aisladas y navegador: total de ejemplo 14900, guardado y bloqueo comprobados; sin operaciones reales. El acceso conserva la selección de nombre existente, sin nueva contraseña. Publicado y verificado en https://chickenia.chicanito.app/nomina.html (8cef8d5). API con sesión: 13 empleados, revisión 0, sin guardar nómina real.
 
 ---
 
