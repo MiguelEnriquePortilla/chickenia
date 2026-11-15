@@ -1,3 +1,9 @@
+## Asistencias y nómina semanal - 14 noviembre 2026
+
+Implementada hoja semanal en `nomina.html`, desde Inicio y navegación. Reglas y verificación en [plan y continuidad](docs/nomina-plan.md). Nancy captura estados, cajera completa, bonos y descuentos con motivo; Lilian autoriza y puede reabrir. Siete días obligatorios para autorizar. Checadas originales conservadas. Pruebas PostgreSQL aisladas y navegador: total de ejemplo 14900, guardado y bloqueo comprobados; sin operaciones reales. El acceso conserva la selección de nombre existente, sin nueva contraseña. Publicación en verificación.
+
+---
+
 ## ChickenIA — Plásticos: aceptado y sesión cerrada, 10 noviembre 2026
 
 Miguel aceptó la entrega y pidió documentar, guardar, actualizar y cerrar. Plásticos queda con 23 artículos: Estropajos, Ventiladores de Barras y Pilas para Ventiladores agregados al final; unidades y cantidades nuevas vacías. Los 20 anteriores, borradores y otros proveedores conservados. Publicado `b4269da`; sintaxis, build, navegador aislado y comparación de catálogos aprobados; catálogo público HTTP 200 idéntico al probado. Sin pedidos enviados ni operaciones reales.
