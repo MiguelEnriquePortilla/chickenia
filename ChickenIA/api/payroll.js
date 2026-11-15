@@ -25,7 +25,7 @@ function createHandler(query,initialize=async()=>{}){
      if(!rows)rows=people.map(p=>({...p,fullTime:false,meal:'',bonus:domain.key(p.name)==='nancy'?1000:0,discount:0,reason:'',days:Array(7).fill('')}));
      rows=rows.map(row=>({...row,days:row.days.map((d,i)=>{if(!d&&marks.some(m=>m.employee_id===row.id&&m.day===i)){suggested=true;return 'A';}return d;})}));
     }
-    return res.status(200).json({week,rows,suggested,revision:existing?.revision||0,approvedBy:existing?.approved_by||null,approvedAt:existing?.approved_at||null,user:user.name});
+    return res.status(200).json({week,rows:rows.map(domain.withRates),suggested,revision:existing?.revision||0,approvedBy:existing?.approved_by||null,approvedAt:existing?.approved_at||null,user:user.name});
    }
    const body=req.body||{},action=body.action||'save';
    if(!['save','approve','reopen'].includes(action))return res.status(400).json({error:'Acción inválida.'});

@@ -2,9 +2,7 @@
 const STATES=['A','F','D','V','P'];
 const key=name=>String(name).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().split(' ')[0];
 function rate(row){
- const n=key(row.name);
- if(row.fullTime&&['petra','maricruz'].includes(n))return {weekly:2800,daily:467};
- return {nancy:{weekly:3500,daily:583},eliseo:{weekly:2600,daily:434},julissa:{weekly:2700,daily:450}}[n]||{weekly:2400,daily:400};
+ return row.fullTime&&row.fullTimeSalary?row.fullTimeSalary:row.salary;
 }
 function calculate(row){
  const r=rate(row),worked=row.days.filter(d=>d==='A').length;
