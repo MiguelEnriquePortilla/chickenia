@@ -1,6 +1,6 @@
 (()=>{
  'use strict';
- const names={evaluation:'Evaluaciones',proteins:'Proteínas',production:'Producción',cedis:'Inventario CEDIS'},records=new Map();
+ const names={evaluation:'Evaluaciones',proteins:'Proteínas',production:'Producción',cedis:'Pedido a CEDIS'},records=new Map();
  const date=()=>document.getElementById('date-input').value||new URLSearchParams(location.search).get('date')||new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
  window.DashboardReports={set(type,data,day){if(day!==date())return;if(type==='proteins')data=data.filter(r=>r.inventory!=='movil');records.set(type,{data,date:day});updateSectionSummary(type,data,day);document.querySelectorAll(`[data-summary-report="${type}"]`).forEach(b=>b.disabled=false);}};
 
@@ -31,7 +31,7 @@
   const button=e.target.closest('[data-summary-report]');if(!button)return;
   const type=button.dataset.summaryReport,entry=records.get(type);if(!entry||entry.date!==date())return;
   previousFocus=button;clearImage();message=ChickenSummaryReports.build(type,entry.data,entry.date,button.dataset.reportItem);
-  dialog.innerHTML=`<h2>Compartir ${names[type]}</h2><p class="summary-disclaimer">Vista previa · ${esc(entry.date)}. Elige el chat y envía desde WhatsApp.</p><pre>${esc(message)}</pre><div class="summary-share-actions"><a href="https://wa.me/?text=${encodeURIComponent(message)}" target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a><button type="button" data-copy>Copiar texto</button><button type="button" data-image>Preparar imagen</button><button type="button" data-close>Cerrar</button></div><p role="status" class="summary-share-status"></p><div class="summary-image-preview"></div>`;dialog.showModal();
+  dialog.innerHTML=`<h2>Compartir ${names[type]}</h2><p class="summary-disclaimer">Vista previa · ${esc(entry.date)}. Elige el chat y envía desde WhatsApp.</p><pre>${esc(message)}</pre><div class="summary-share-actions"><a href="https://wa.me/?text=${encodeURIComponent(message)}" target="_blank" rel="noopener noreferrer">Compartir por WhatsApp</a><button type="button" data-copy>Copiar texto</button><button type="button" data-image>Preparar imagen</button><button type="button" data-close>Cerrar</button></div><p role="status" class="summary-share-status"></p><div class="summary-image-preview"></div>`;dialog.showModal();
  });
  dialog.addEventListener('click',async e=>{
   if(e.target.closest('[data-close]')){close();return;}

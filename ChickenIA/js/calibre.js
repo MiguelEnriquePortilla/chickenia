@@ -51,7 +51,7 @@ root.addEventListener('click',e=>{const b=e.target.closest('[data-share]');if(!b
 dialog.addEventListener('click',async e=>{
  if(e.target.id==='calibre-dialog-close')return dialog.close();
  if(e.target.id==='calibre-prepare'){
-  e.target.disabled=true;try{report=await request({action:'report',scope:dialog.dataset.scope,kind:root.querySelector('#calibre-kind').value});root.querySelector('#calibre-message').innerHTML=`<pre>${esc(report.message)}</pre><p>Reporte guardado. Elige el grupo y envía desde WhatsApp.</p><a class="calibre-button" href="https://wa.me/?text=${encodeURIComponent(report.message)}" target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a> <button type="button" id="calibre-copy">Copiar mensaje</button>`;}catch(error){root.querySelector('#calibre-message').textContent=error.message;}finally{e.target.disabled=false;}
+  e.target.disabled=true;try{report=await request({action:'report',scope:dialog.dataset.scope,kind:root.querySelector('#calibre-kind').value});root.querySelector('#calibre-message').innerHTML=`<pre>${esc(report.message)}</pre><p>Reporte guardado. Elige el grupo y envía desde WhatsApp.</p><a class="calibre-button" href="https://wa.me/?text=${encodeURIComponent(report.message)}" target="_blank" rel="noopener noreferrer">Compartir por WhatsApp</a> <button type="button" id="calibre-copy">Copiar mensaje</button>`;}catch(error){root.querySelector('#calibre-message').textContent=error.message;}finally{e.target.disabled=false;}
  }
  if(e.target.id==='calibre-copy'&&report){try{await navigator.clipboard.writeText(report.message);e.target.textContent='¡Copiado!';}catch{e.target.textContent='Selecciona y copia el mensaje de arriba.';}}
 });

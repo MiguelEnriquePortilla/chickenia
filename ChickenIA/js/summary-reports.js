@@ -2,7 +2,7 @@
 (function(root,factory){if(typeof module==='object'&&module.exports)module.exports=factory();else root.ChickenSummaryReports=factory();})(typeof window==='object'?window:globalThis,()=>{
  const fmt=v=>v==null?'Sin captura':new Intl.NumberFormat('es-MX',{maximumFractionDigits:3}).format(v);
  function build(type,data,date,item){
-  const titles={evaluation:'EVALUACIONES',proteins:'PROTEÍNAS',cedis:'INVENTARIO CEDIS',production:'PRODUCCIÓN'};
+  const titles={evaluation:'EVALUACIONES',proteins:'PROTEÍNAS',cedis:'PEDIDO A CEDIS',production:'PRODUCCIÓN'};
   const lines=['*CHICANÍA · '+titles[type]+'*',date.split('-').reverse().join('/'),''];
   if(type==='evaluation'){
    const areas=data.weekly.areas.filter(a=>!item||a.code===item);
