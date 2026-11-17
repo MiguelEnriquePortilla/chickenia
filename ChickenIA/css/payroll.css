@@ -14,6 +14,14 @@ body{margin:0;font-family:Poppins,Arial,sans-serif}
 #personal-app :is(button,input,select,textarea,a,summary):focus-visible{outline:3px solid var(--brand-gold,#d9a441);outline-offset:3px}
 #personal-app .text-action{border:0;background:none;text-decoration:underline;padding-left:0;text-align:left}
 .context-fields{display:grid;gap:8px;margin-bottom:22px}.context-fields input{max-width:260px!important}
+#personal-app #date-label[hidden]{display:none}
+.attendance-table-scroll{overflow-x:auto;margin-top:12px}
+.attendance-table-scroll:focus-visible{outline:3px solid var(--brand-gold,#d9a441);outline-offset:3px}
+.attendance-table{width:100%;border-spacing:0;font-size:14px}
+.attendance-table :is(th,td){padding:10px 12px;text-align:left;border-bottom:1px solid var(--border-soft);white-space:nowrap}
+.attendance-table thead th{background:var(--selected)}
+.attendance-table tr>:first-child{position:sticky;left:0;border-right:1px solid var(--border-soft)}
+.attendance-table tbody th{background:var(--surface);font-weight:500}
 .save-message{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;min-height:26px;margin:0 0 20px;color:var(--gray)}
 .save-message[data-error=true]{color:var(--text)}
 .view-tabs{display:flex;border-bottom:1px solid var(--border-soft);gap:8px;margin-bottom:24px;padding-bottom:8px}

@@ -17,6 +17,7 @@
  let view=params.get('view')||saved.view||'person',filter=params.get('filter')||saved.filter||'all';
  if(!['person','team'].includes(view))view='person';if(!['all','pending','complete'].includes(filter))filter='all';
  let state,busy=false,dirty=false,pending=saved.pending||null,draft=saved.draft||null,returnTeam=!!saved.returnTeam,listScroll=saved.listScroll||0;
+ if(attendance&&pending)view='person';
  let reportText='',reportScroll=0;
  if(draft?.week)date=draft.week;
  $('date').value=date;
@@ -32,7 +33,8 @@
   try{sessionStorage.setItem(storageKey,JSON.stringify({date,employeeId,view,filter,returnTeam,listScroll,pending,draft}));}catch{}
   const url=new URL(location.href);url.searchParams.set(attendance?'date':'week',date);
   if(employeeId)url.searchParams.set('employee',employeeId);else url.searchParams.delete('employee');
-  if(!attendance){url.searchParams.set('view',view);url.searchParams.set('filter',filter);}
+  url.searchParams.set('view',view);
+  if(!attendance)url.searchParams.set('filter',filter);
   history.replaceState(null,'',url);
  }
  function message(text,error=false){$('status').textContent=text;$('status').parentElement.dataset.error=String(error);}
@@ -44,7 +46,8 @@
   });
  }
  async function request(body,targetWeek){
-  const week=targetWeek||(body?state.week:D.monday(date)),url='/api/payroll?week='+week+(attendance?'&view=attendance':'');
+  const selectedDate=attendance&&view==='team'?today:date;
+  const week=targetWeek||(body?state.week:D.monday(selectedDate)),url='/api/payroll?week='+week+(attendance?'&view=attendance':'');
   const r=await fetch(url,{cache:'no-store',credentials:'same-origin',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});
   const data=await r.json().catch(()=>({error:'No se pudo leer la respuesta. Reintenta.'}));
   if(!r.ok)throw Object.assign(Error(data.error||'No se pudo completar la operación.'),{status:r.status});
@@ -68,6 +71,19 @@
   }
  }
  function personList(rows){return `<ul class="team-list">${rows.map(row=>`<li><button type="button" class="team-person" data-employee="${row.id}"><span class="name">${esc(row.name)}</span><span class="quiet">${missing(row)?missing(row)+' días pendientes':'Semana completa'}${row.fullTime?' · Cajera tiempo completo':''}</span></button></li>`).join('')}</ul>`;}
+ function renderAttendanceTeam(){
+  const dates=days();
+  const headings=dates.map(d=>{
+   const label=new Date(d+'T12:00:00Z').toLocaleDateString('es-MX',{timeZone:'UTC',weekday:'short',day:'numeric'});
+   return `<th scope="col">${esc(label)}</th>`;
+  }).join('');
+  const rows=state.rows.map(row=>{
+   const cells=dates.map((d,i)=>`<td>${esc(labels[row.days[i]]||(d>today?'Por transcurrir':'Sin marcar'))}</td>`).join('');
+   return `<tr><th scope="row">${esc(row.name)}</th>${cells}</tr>`;
+  }).join('');
+  $('team-view').innerHTML='<h2 id="attendance-team-title">Asistencia del equipo</h2>'+
+   (rows?`<div class="attendance-table-scroll" role="region" aria-labelledby="attendance-team-title" tabindex="0"><table class="attendance-table" aria-labelledby="attendance-team-title"><thead><tr><th scope="col">Persona</th>${headings}</tr></thead><tbody>${rows}</tbody></table></div>`:'<p class="quiet">No hay personas para mostrar.</p>');
+ }
  function renderTeam(){
   const complete=state.rows.filter(r=>!missing(r)),pendingRows=state.rows.filter(r=>missing(r));
   const totals=complete.reduce((t,r)=>{const v=D.calculate(r);t.pay+=v.total;t.bonus+=r.bonus;t.discount+=r.discount;return t;},{pay:0,bonus:0,discount:0});
@@ -83,10 +99,16 @@
   $('period').textContent='Semana del '+period()+(!attendance?' · Pago el domingo':'');
   $('employee').innerHTML='<option value="">Selecciona una persona</option>'+state.rows.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('');
   $('employee').value=employeeId||'';
-  renderPerson();
+  $('person-view').hidden=view!=='person';$('team-view').hidden=view!=='team';
+  document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));
+  if(!attendance||view==='person')renderPerson();
+  if(attendance){
+   $('date-label').hidden=view==='team';
+   if(view==='team')renderAttendanceTeam();
+  }
   if(!attendance){
-   renderTeam();renderApproval();$('person-view').hidden=view!=='person';$('team-view').hidden=view!=='team';
-   $('back-team').hidden=!returnTeam;document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));
+   renderTeam();renderApproval();
+   $('back-team').hidden=!returnTeam;
   }
   lock();remember();
  }
@@ -94,7 +116,7 @@
   if(busy)return;busy=true;if(state)lock();$('retry').hidden=true;$('recover').hidden=true;message('Cargando…');
   try{
    state=await request();if(!attendance)date=state.week;$('date').value=date;
-   if(employeeId&&!current())employeeId=null;
+   if((!attendance||view==='person')&&employeeId&&!current())employeeId=null;
    dirty=!!draft;render();
    if(pending){message('Hay una captura sin confirmar. Reintenta o recupera lo guardado.',true);$('retry').hidden=false;$('recover').hidden=false;}
    else message(dirty?'Tienes ajustes sin guardar.':'Todo guardado.');
@@ -120,7 +142,11 @@
   }finally{busy=false;if(state)lock();}
  }
  function safeToMove(){if(busy||pending||dirty){message(busy?'Espera la confirmación de guardado.':'Guarda o recupera tu captura antes de cambiar de persona o salir.',true);return false;}return true;}
- function setView(next){if(!safeToMove())return;view=next;render();}
+ function setView(next){
+  if(view===next||!safeToMove())return;
+  view=next;
+  if(attendance){remember();load();}else render();
+ }
  $('date').addEventListener('change',()=>{if(!safeToMove()){$('date').value=date;return;}date=$('date').value;if(!attendance)date=D.monday(date);remember();load();});
  $('employee').addEventListener('change',()=>{if(!safeToMove()){$('employee').value=employeeId||'';return;}employeeId=Number($('employee').value)||null;renderPerson();lock();remember();});
  $('workspace').addEventListener('click',e=>{

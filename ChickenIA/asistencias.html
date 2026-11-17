@@ -10,5 +10,7 @@
 <section id="login-panel" hidden><h2>Acceso a Chicken ChicanIA</h2><form id="login-form"><p>Selecciona tu nombre para registrar tus capturas.</p><label>¿Quién está capturando?<select name="username" required><option value="">Selecciona tu nombre</option></select></label><button class="primary" type="submit">Entrar</button></form></section>
 <div class="save-message" role="status" aria-live="polite"><span id="status">Cargando…</span><button type="button" id="retry" hidden>Reintentar</button><button type="button" id="recover" hidden>Recuperar guardado</button></div>
 <section id="workspace" hidden><div class="context-fields"><label id="date-label">Fecha<input id="date" type="date"></label><p id="period" class="quiet"></p></div>
-<section id="person-view"><label>Persona<select id="employee"><option value="">Selecciona una persona</option></select></label><div id="person-content"></div></section></section>
+<div class="view-tabs" role="group" aria-label="Vista de asistencias"><button type="button" data-view="person" aria-pressed="true">Por persona</button><button type="button" data-view="team" aria-pressed="false">Ver asistencia del equipo</button></div>
+<section id="person-view"><label>Persona<select id="employee"><option value="">Selecciona una persona</option></select></label><div id="person-content"></div></section>
+<section id="team-view" hidden aria-labelledby="attendance-team-title"></section></section>
 </main></body></html>
