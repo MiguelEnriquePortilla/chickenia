@@ -133,5 +133,10 @@
  };
  $('#reload').onclick=()=>{if(!dirty||confirm('¿Descartar la captura sin guardar y actualizar?'))load();};
  $('#date').onchange=()=>{if(dirty&&!confirm('¿Descartar la captura sin guardar y cambiar de fecha?')){$('#date').value=loadedDate;return;}load();};
- window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});load();
+ AreaNavigation.guardChanges({
+  hasChanges:()=>dirty,
+  isSaving:()=>busy,
+  discard:()=>{dirty=false;}
+ });
+ window.addEventListener('beforeunload',e=>{if(dirty||busy){e.preventDefault();e.returnValue='';}});load();
 })();

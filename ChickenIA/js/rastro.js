@@ -50,4 +50,9 @@ $('#correction-form').onsubmit=async e=>{
  catch(error){$('#correct-error').textContent=error.message;}
  finally{lock(false);}
 };
-window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});load();
+AreaNavigation.guardChanges({
+  hasChanges:()=>dirty,
+  isSaving:()=>busy,
+  discard:()=>{dirty=false;}
+ });
+ window.addEventListener('beforeunload',e=>{if(dirty||busy){e.preventDefault();e.returnValue='';}});load();
