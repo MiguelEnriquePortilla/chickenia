@@ -4,6 +4,16 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
  process.env.INVENTORY_SESSION_SECRET='name-access-browser-local-only-secret-long-enough';process.env.INVENTORY_USERS_JSON='[]';
  const {PGlite}=require('@electric-sql/pglite'),db=new PGlite(),query=async(s,p)=>(await db.query(s,p)).rows;
  const handler=require('../api/inventory').createHandler(()=>require('../lib/inventory-store').repository(query),query);
+ if(process.env.CHICKENIA_TEST_CEDIS==='1'){
+  await require('../lib/inventory-store').repository(query).migrate();
+  await db.exec(`
+  CREATE TABLE locations(id serial PRIMARY KEY,code text,active boolean);
+  INSERT INTO locations(code,active) VALUES('rastro',true);
+  CREATE TABLE inventory_items(id serial PRIMARY KEY,sku text,name text,unit text,active boolean);
+  CREATE TABLE inventory_movements(id serial PRIMARY KEY,item_id int,location_id int,movement_type text,quantity numeric,movement_date date,notes text,recorded_by text,recorded_at timestamptz DEFAULT now());
+  UPDATE inv_state SET data=data || '{"initialized":{"sucursal:rosti-marinado":true},"balances":{"sucursal:rosti-marinado":10000}}'::jsonb;
+  `);
+ }
  const root=path.resolve(__dirname,'../public');
  const server=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://localhost');req.query=Object.fromEntries(url.searchParams);

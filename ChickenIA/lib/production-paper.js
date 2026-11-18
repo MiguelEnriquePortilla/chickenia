@@ -38,6 +38,6 @@ function service(query){
   if(!rows.length)throw Object.assign(Error('La captura cambió. Recarga antes de continuar.'),{status:409});
   return {date,revision:rows[0].revision,lines:parsed,catalog};
  }
- return {get,save};
+ return {get,save,migrate};
 }
 module.exports={catalog,fields,blank,validate,service};

@@ -30,6 +30,11 @@ function createHandler(getRepository = production, queryOverride) {
       auth.settings();
       const user = action === 'login' && req.method === 'POST' ? null : auth.authenticate(req);
       if(req.method==='GET'&&action==='session')return res.status(200).json({user});
+      if (action === 'cedis') {
+        if (req.method === 'POST' && user.role !== 'manager') throw new InventoryError('Sin permiso de captura.',403);
+        const query = queryOverride || require('@neondatabase/serverless').neon(process.env.DATABASE_URL);
+        return res.status(200).json(await require('../lib/cedis-inventory').run(query,user,req.method==='POST'?req.body:null));
+      }
       const repo = getRepository();
       if (!migrated) migrated = repo.migrate().catch(e => { migrated = null; throw e; });
       await migrated;

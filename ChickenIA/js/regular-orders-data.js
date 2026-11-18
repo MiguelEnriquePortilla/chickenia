@@ -1,5 +1,9 @@
-window.RegularOrdersData = {
+(typeof module === 'object' ? module : {set exports(data){window.RegularOrdersData=data;}}).exports = {
   "suppliers": {
+    "MERPOL": [
+      ["Pollo para Rostizado", "pollos", "", ""],
+      ["Pollo para Crujiente", "pollos", "", ""]
+    ],
     "SAMS": [
       [
         "Vinagre blanco",

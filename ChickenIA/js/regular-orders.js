@@ -1,7 +1,46 @@
 "use strict";
 (()=>{
  const $=id=>document.getElementById(id),data=window.RegularOrdersData,key='chickenia_orders_2026_v1';
- let supplier='SAMS',draft={},preview=false;
+ let supplier='SAMS',draft={},preview=false,inventory,busy=false,pending;
+ const integration=window.ChicanitoStock;
+ const itemId=i=>supplier+':'+i;
+ const existence=i=>inventory?.cedis[itemId(i)] ?? null;
+ const supplierHost=$('supplier-orders');
+ async function loadInventory(){
+  inventory=await integration.api('cedis');
+  render();
+ }
+ async function saveOrder(body){
+  if(busy)return;
+  busy=true;
+  const serialized=JSON.stringify(body);
+  if(pending?.serialized!==serialized)pending={serialized,id:crypto.randomUUID()};
+  try {
+   inventory=await integration.api('cedis',{...body,revision:inventory.revision,requestId:pending.id});
+   pending=null;
+   if(body.action==='purchase'){
+    for(const [index] of rows().entries())delete current()[index];
+    delete current().note;save();
+   }
+   render();
+   status(body.action==='purchase'?'Pedido guardado. Abre el pedido cuando llegue.':'Recepción guardada en Inventario CEDIS.');
+  } catch(error){status(error.message);if(error.status===409)await loadInventory().catch(()=>{});}
+  finally{busy=false;renderOrders();}
+ }
+ function renderOrders(){
+  if(!inventory || !supplierHost)return;
+  const {el,orderPanel}=integration;
+  const button=el('button','Guardar pedido');
+  button.type='button';
+  button.disabled=busy||!selected().length;
+  button.id='save-supplier-order';
+  button.onclick=()=>{button.disabled=true;saveOrder({action:'purchase',supplier,note:current().note||'',lines:selected().map(x=>({id:itemId(x.index),qty:x.qty}))});};
+  supplierHost.replaceChildren(button,el('h2','Pedidos guardados'));
+  for(const order of inventory.orders.filter(order=>order.type==='purchase'&&order.supplier===supplier)){
+   supplierHost.append(orderPanel(order,inventory.catalog,saveOrder,()=>{}));
+  }
+ }
+
  try{const saved=JSON.parse(localStorage.getItem(key)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))draft=saved;}catch{}
  if(!draft.peregrinaExpanded20261011){
   const previous=draft.PEREGRINA;
@@ -44,15 +83,15 @@
  const status=text=>$('orders-status').textContent=text;
  const save=()=>{try{localStorage.setItem(key,JSON.stringify(draft));status('Borrador guardado en este dispositivo.');}catch{status('No se pudo guardar el borrador en este dispositivo. Puedes copiarlo antes de salir.');}};
  const quantity=v=>{const n=Number(String(v??'').replace(',','.'));return Number.isFinite(n)&&n>0&&n<=1000000?n:null;};
- const selected=()=>rows().map((row,i)=>({row,qty:quantity(current()[i]),existing:stockQuantity(stock()[i])})).filter(x=>x.qty!==null);
+ const selected=()=>rows().map((row,i)=>({row,index:i,qty:quantity(current()[i]),existing:existence(i)})).filter(x=>x.qty!==null);
  const date=()=>new Date().toLocaleDateString('es-MX',{timeZone:'America/Mexico_City',day:'numeric',month:'long'}).replace(/de (\p{L})/u,(_,letter)=>'de '+letter.toUpperCase());
  function text(){return ['🛒 *LISTA DE PEDIDOS*','📦 *'+supplier+'*','📅 '+date(),'',...selected().map(({row,qty,existing})=>`• *${qty}${row[1]?" "+row[1]:""}* - ${row[0]}\n  Existencia: ${existing===null?"sin conteo":existing+(row[1]?" "+row[1]:"")}`),...(current().note?['','📝 *Nota:* '+current().note]:[])].join('\n');}
- function update(){const count=selected().length;for(const id of ['copy','share','whatsapp'])$(id).disabled=!count;$('capture-title').textContent='LISTA DE PEDIDOS · '+supplier;$('capture-date').textContent=date();$('capture-lines').replaceChildren();for(const {row,qty} of selected()){const p=document.createElement('p');p.textContent=`${qty}${row[1]?" "+row[1]:""} · ${row[0]}`;$('capture-lines').append(p);}if(!count)$('capture-lines').textContent='Escribe cantidades para preparar el pedido.';$('capture-note').textContent=current().note?'Nota: '+current().note:'';}
+ function update(){const count=selected().length;if($('save-supplier-order'))$('save-supplier-order').disabled=busy||!count;for(const id of ['copy','share','whatsapp'])$(id).disabled=!count;$('capture-title').textContent='LISTA DE PEDIDOS · '+supplier;$('capture-date').textContent=date();$('capture-lines').replaceChildren();for(const {row,qty} of selected()){const p=document.createElement('p');p.textContent=`${qty}${row[1]?" "+row[1]:""} · ${row[0]}`;$('capture-lines').append(p);}if(!count)$('capture-lines').textContent='Escribe cantidades para preparar el pedido.';$('capture-note').textContent=current().note?'Nota: '+current().note:'';}
  function render(){
-  $('suppliers').replaceChildren();for(const name of Object.keys(data.suppliers)){const b=document.createElement('button');b.type='button';b.textContent=name;if(name===supplier)b.setAttribute('aria-current','page');b.onclick=()=>{supplier=name;$('product-search').value='';status('');$('manual-copy').hidden=true;render();};$('suppliers').append(b);}
+  $('suppliers').replaceChildren();for(const name of Object.keys(data.suppliers)){const b=document.createElement('button');b.type='button';b.textContent=name;if(name===supplier)b.setAttribute('aria-current','page');b.onclick=()=>{if(busy)return;supplier=name;$('product-search').value='';status('');$('manual-copy').hidden=true;render();};$('suppliers').append(b);}
   $('products').replaceChildren();rows().forEach((row,i)=>{if(supplier==='PEREGRINA'&&i===data.suppliers.PEREGRINA.length){const h=document.createElement('h2');h.textContent='Harina para crujiente · pedido especial';$('products').append(h);}
-   const label=document.createElement('div');label.className='orders-row';label.dataset.index=i;const input=document.createElement('input');input.type='number';input.min='0';input.max='1000000';input.step='any';input.inputMode='decimal';input.placeholder='—';input.value=stockQuantity(current()[i])===null?'':current()[i];input.setAttribute('aria-label','Cantidad de '+row[0]+(row[1]?' en '+row[1]:''));input.oninput=()=>{current()[i]=input.value;save();update();};input.addEventListener('blur',applyFilters);input.className='order-quantity';const requested=document.createElement('label');requested.className='orders-field';const requestedTitle=document.createElement('span');requestedTitle.textContent='A pedir';requested.append(requestedTitle,input);const existing=document.createElement('label');existing.className='orders-field';const existingTitle=document.createElement('span');existingTitle.textContent='Existencia';const existingInput=document.createElement('input');existingInput.className='order-stock';existingInput.type='number';existingInput.min='0';existingInput.max='1000000';existingInput.step='any';existingInput.inputMode='decimal';existingInput.placeholder='?';existingInput.value=stockQuantity(stock()[i])===null?'':stock()[i];existingInput.setAttribute('aria-label','Existencia de '+row[0]+(row[1]?' en '+row[1]:''));existingInput.oninput=()=>{stock()[i]=existingInput.value;save();};existing.append(existingTitle,existingInput);const desc=document.createElement('span'),title=document.createElement('strong'),detail=document.createElement('small');title.textContent=row[0];detail.textContent=row[1];desc.append(title);if(row[1])desc.append(detail);desc.className='orders-product';label.append(requested,desc,existing);$('products').append(label);});
-  $('note').value=current().note||'';update();applyFilters();
+   const label=document.createElement('div');label.className='orders-row';label.dataset.index=i;const input=document.createElement('input');input.type='number';input.min='0';input.max='1000000';input.step='any';input.inputMode='decimal';input.placeholder='—';input.value=stockQuantity(current()[i])===null?'':current()[i];input.setAttribute('aria-label','Cantidad de '+row[0]+(row[1]?' en '+row[1]:''));input.oninput=()=>{current()[i]=input.value;save();update();};input.addEventListener('blur',applyFilters);input.className='order-quantity';const requested=document.createElement('label');requested.className='orders-field';const requestedTitle=document.createElement('span');requestedTitle.textContent='A pedir';requested.append(requestedTitle,input);const existing=document.createElement('label');existing.className='orders-field';const existingTitle=document.createElement('span');existingTitle.textContent='Existencia';const existingInput=document.createElement('input');existingInput.className='order-stock';existingInput.type='number';existingInput.min='0';existingInput.max='1000000';existingInput.step='any';existingInput.inputMode='decimal';existingInput.placeholder='?';existingInput.value=existence(i)??'';existingInput.readOnly=true;existingInput.setAttribute('aria-label','Existencia de '+row[0]+(row[1]?' en '+row[1]:''));existing.append(existingTitle,existingInput);const desc=document.createElement('span'),title=document.createElement('strong'),detail=document.createElement('small');title.textContent=row[0];detail.textContent=row[1];desc.append(title);if(row[1])desc.append(detail);desc.className='orders-product';label.append(requested,desc,existing);$('products').append(label);});
+  $('note').value=current().note||'';update();applyFilters();renderOrders();
  }
  const normalize=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  function applyFilters(){const query=normalize($('product-search').value.trim()),only=$('requested-only').checked;let visible=0;for(const row of $('products').querySelectorAll('.orders-row')){const i=Number(row.dataset.index);row.hidden=!(normalize(rows()[i].join(' ')).includes(query)&&(!only||quantity(current()[i])!==null));if(!row.hidden)visible++;}for(const heading of $('products').querySelectorAll('h2')){let next=heading.nextElementSibling,hasVisible=false;while(next&&next.tagName!=='H2'){if(!next.hidden)hasVisible=true;next=next.nextElementSibling;}heading.hidden=!hasVisible;}$('orders-results').textContent=visible?`${visible} de ${rows().length} productos`:'No hay productos con estos filtros. Prueba otro nombre o muestra todas las cantidades.';}
@@ -65,4 +104,8 @@
  $('share').onclick=async()=>{if(!navigator.share){await copy();return;}try{await navigator.share({title:'LISTA DE PEDIDOS · '+supplier,text:text()});status('Pedido compartido con la aplicación elegida.');}catch(e){if(e.name!=='AbortError')await copy();}};
  $('whatsapp').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(text()),'_blank','noopener,noreferrer');
  render();
+ if(integration&&supplierHost)loadInventory().catch(error=>{
+  if(error.status===401)integration.login(supplierHost,loadInventory,error=>status(error.message));
+  else status(error.message);
+ });
 })();
