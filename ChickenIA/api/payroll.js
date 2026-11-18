@@ -6,7 +6,7 @@ function createHandler(query,initialize=async()=>{}){
   res.setHeader('Cache-Control','no-store');
   try{
    const user=auth.authenticate(req);
-   if(!['NANCY','LILIAN','MIGUEL'].includes(user.name))return res.status(403).json({error:'Acceso no permitido.'});
+   if(!['NANCY','LILIAN','MIGUEL','ANA'].includes(user.name))return res.status(403).json({error:'Acceso no permitido.'});
    if(!['GET','POST'].includes(req.method))return res.status(405).json({error:'Método no permitido.'});
    if(req.method==='POST'){
     if(!String(req.headers['content-type']||'').startsWith('application/json'))return res.status(415).json({error:'Se requiere JSON.'});

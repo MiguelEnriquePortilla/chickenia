@@ -9,7 +9,7 @@ function settings() {
   if(!secret||secret.length<32)throw new InventoryError('Falta configurar la sesi\u00f3n.',503);
   return {users:Array.isArray(users)?users.filter(u=>u&&typeof u.id==='string'&&typeof u.name==='string'):[],secret};
 }
-function people(){return ['NANCY','LILIAN','MIGUEL'].map(name=>({id:name.toLowerCase(),name}));}
+function people(){return ['NANCY','LILIAN','MIGUEL','ANA'].map(name=>({id:name.toLowerCase(),name}));}
 function allowedName(name){return typeof name==='string'&&people().some(p=>p.name===name.trim().toUpperCase());}
 function safeEqual(a, b) { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); }
 function passwordHash(password) {
