@@ -4,7 +4,7 @@
  let supplier='SAMS',draft={},preview=false,inventory,busy=false,pending;
  const integration=window.ChicanitoStock;
  const itemId=i=>supplier+':'+i;
- const existence=i=>inventory?.cedis[itemId(i)] ?? null;
+ const existence=i=>inventory?.cedis[inventory.aliases?.[itemId(i)]||itemId(i)] ?? null;
  const supplierHost=$('supplier-orders');
  async function loadInventory(){
   inventory=await integration.api('cedis');
@@ -76,7 +76,24 @@
   draft.centralCambrayRemoved20261013=true;
   try{localStorage.setItem(key,JSON.stringify(draft));}catch{}
  }
- const rows=()=>[...data.suppliers[supplier],...(supplier==='PEREGRINA'?data.flour:[])];
+ const supplierRows=name=>[...data.suppliers[name],...(name==='PEREGRINA'?data.flour:[])];
+ if(!draft.inventoryKilos){
+  const previous={};
+  for(const name of Object.keys(data.suppliers)){
+   const values=draft[name];
+   if(!values||name==='MERPOL')continue;
+   supplierRows(name).forEach(([,unit],i)=>{
+    if((unit||'kg')==='kg')return;
+    if(Object.hasOwn(values,i)){
+     (previous[name]??={})[i]={qty:values[i],unit};
+     delete values[i];
+    }
+   });
+  }
+  draft.previousUnits=previous;draft.inventoryKilos=true;
+  try{localStorage.setItem(key,JSON.stringify(draft));}catch{}
+ }
+ const rows=()=>supplierRows(supplier).map(([name,,...rest])=>[name,supplier==='MERPOL'?'pollos':'kg',...rest]);
  const current=()=>{if(!draft[supplier]||typeof draft[supplier]!=='object')draft[supplier]={};return draft[supplier];};
  const stock=()=>{if(!current().stock||typeof current().stock!=='object')current().stock={};return current().stock;};
  const stockQuantity=v=>{if(String(v??'').trim()==='')return null;const n=Number(String(v).replace(',','.'));return Number.isFinite(n)&&n>=0&&n<=1000000?n:null;};

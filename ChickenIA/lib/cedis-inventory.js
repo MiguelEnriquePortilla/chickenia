@@ -5,24 +5,28 @@ const paper = require('./production-paper');
 const { today } = require('./inventory-domain');
 const { randomUUID } = require('node:crypto');
 
-const catalog = Object.entries(orders.suppliers).flatMap(([supplier, lines]) =>
+const supplierCatalog = Object.entries(orders.suppliers).flatMap(([supplier, lines]) =>
   lines.concat(supplier === 'PEREGRINA' ? orders.flour : []).map(([name, unit], index) => ({
-    id: supplier + ':' + index, supplier, name, unit: unit || 'kg',
+    id: supplier + ':' + index, supplier, name, originalUnit: unit || 'kg', unit: supplier==='MERPOL'?'pollos':'kg',
     place: supplier === 'MERPOL' ? 'Rastro' : 'Almacén',
     branch: supplier === 'MERPOL' ? 'Proteínas' : supplier === 'CENTRAL DE ABASTOS' ? 'Vegetales' : null
   })));
+const flourId='legacy:SEC-002';
+const flourSupplierId='PEREGRINA:'+orders.suppliers.PEREGRINA.length;
+const aliases={[flourSupplierId]:flourId};
+const catalog=supplierCatalog.filter(item=>!aliases[item.id]);
 const paperOrder = require('./rastro-order');
 const addedVegetables = new Set(['legacy:PAPA-GAJOS','legacy:APIO','legacy:RAS-005']);
 const paperItems = new Map(paperOrder.map(([id,label,sku,name,unit])=>[id,{id,label,sku,name,unit}]));
 for(const {id,name,unit} of paperItems.values()){
-  if(name) catalog.push({id,name,unit,supplier:null,place:'Almacén',branch:addedVegetables.has(id)?'Vegetales':null});
+  if(name) catalog.push({id,name,unit:'kg',originalUnit:unit,supplier:null,place:'Almacén',branch:addedVegetables.has(id)?'Vegetales':null});
 }
 const skuLinks = new Map(paperOrder.filter(([, ,sku])=>sku).map(([id,,sku])=>[sku,id]));
 for(const [sku,id] of [['VER-007','CENTRAL DE ABASTOS:1'],['VER-010','CENTRAL DE ABASTOS:3']])skuLinks.set(sku,id);
 async function legacyCatalog(query) {
   const items = await query("SELECT sku,name,unit FROM inventory_items WHERE active AND sku NOT LIKE 'PRO-%' AND sku <> 'POL-001' ORDER BY name");
   return items.filter(item=>!skuLinks.has(item.sku)).map(item=>({
-    ...item,id:'legacy:'+item.sku,place:'Almacén',supplier:null,branch:null
+    ...item,id:'legacy:'+item.sku,originalUnit:item.unit,unit:'kg',place:'Almacén',supplier:null,branch:null
   }));
 }
 const consumedBy = {'MERPOL:0': ['0-0', '1-0'], 'MERPOL:1': ['2-0']};
@@ -83,6 +87,34 @@ async function recoverAlmacen(query, row, day) {
   return recoverAlmacen(query,latest,day);
 }
 
+async function migrateUnits(query,row){
+  if(row.data.unitsInKg)return row;
+  const state=row.data;
+  const legacyItems=await legacyCatalog(query);
+  const oldUnits=new Map([...supplierCatalog,...catalog,...legacyItems].map(item=>[item.id,item.originalUnit]));
+  const prior={cedis:{},receivedPending:{},counted:{}};
+  for(const key of ['cedis','receivedPending']){
+    for(const [id,qty] of Object.entries(state[key]||{})){
+      const unit=oldUnits.get(id);
+      if(!unit||unit==='kg'||unit==='pollos')continue;
+      prior[key][id]={qty,unit};
+      if(qty!==0||aliases[id])delete state[key][id];
+      if(Object.hasOwn(state.counted,id)){prior.counted[id]=state.counted[id];delete state.counted[id];}
+    }
+  }
+  for(const id of Object.keys(aliases))if(Object.hasOwn(state.counted,id))delete state.counted[id];
+  for(const order of state.orders){
+    const original=Object.fromEntries(Object.keys(order.lines).filter(id=>oldUnits.has(id)&&!['kg','pollos'].includes(oldUnits.get(id))).map(id=>[id,oldUnits.get(id)]));
+    if(Object.keys(original).length)order.originalUnits=original;
+  }
+  state.unitsInKg=true;
+  state.previousUnits=prior;
+  const [saved]=await query('UPDATE cedis_inventory SET data=$1::jsonb,revision=revision+1 WHERE id=1 AND revision=$2 RETURNING revision,data',[JSON.stringify(state),row.revision]);
+  if(saved)return saved;
+  const [latest]=await query('SELECT revision,data FROM cedis_inventory WHERE id=1');
+  return migrateUnits(query,latest);
+}
+
 async function load(query, day) {
   await query('CREATE TABLE IF NOT EXISTS cedis_inventory(id int PRIMARY KEY CHECK(id=1), revision int NOT NULL, data jsonb NOT NULL)');
   await paper.service(query).migrate();
@@ -91,9 +123,14 @@ async function load(query, day) {
     await start(query,day);
     [row] = await query('SELECT revision,data FROM cedis_inventory WHERE id=1');
   }
-  return recoverAlmacen(query,row,day);
+  return migrateUnits(query,await recoverAlmacen(query,row,day));
 }
 function apply(state, input, user, day, products) {
+  if(input.action==='purchase'){
+    const allowed=new Set(supplierCatalog.filter(item=>item.supplier===input.supplier).map(item=>item.id));
+    if(input.lines.some(line=>!allowed.has(line.id)))fail('Revisa los productos del proveedor.');
+    input.lines=input.lines.map(line=>({...line,id:aliases[line.id]||line.id}));
+  }
   const lines = Object.fromEntries(input.lines.map(line => [line.id, line.qty]));
   if(Object.keys(lines).length !== input.lines.length || input.lines.some(line => !products.has(line.id))) fail('Revisa los productos.');
   const move = (id, delta) => {
@@ -112,7 +149,7 @@ function apply(state, input, user, day, products) {
     if(input.allocation && (!['request','request-delivered'].includes(input.action) || round(input.allocation.oven+input.allocation.rotisserie)>(lines['MERPOL:0']||0)))
       fail('El reparto de Horno y Rosticero supera el Rostizado pedido.');
     const purchase = input.action === 'purchase';
-    if(input.lines.some(({id,qty}) => !qty || (purchase ? products.get(id).supplier !== input.supplier : !paperItems.has(id)))) fail('Revisa las cantidades del pedido.');
+    if(input.lines.some(({id,qty}) => !qty || (!purchase && !paperItems.has(id)))) fail('Revisa las cantidades del pedido.');
     const delivered=input.action==='request-delivered';
     if(delivered)for(const {id,qty} of input.lines)move(id,-qty);
     state.orders.unshift({id:randomUUID(),type:purchase?'purchase':'request',supplier:purchase?input.supplier:null,
@@ -123,6 +160,7 @@ function apply(state, input, user, day, products) {
   const order = state.orders.find(order => order.id === input.orderId);
   if(!order) fail('Pedido no encontrado.',404);
   const receive = input.action === 'receive';
+  if(order.originalUnits)fail('Este pedido se guard? con otras unidades. Consulta el registro anterior y captura el peso en kilos.',409);
   if((receive ? order.type !== 'purchase' : order.type !== 'request') ||
      (input.action === 'correct' ? !order.actual : order.actual) ||
      Object.keys(order.lines).length !== input.lines.length ||
@@ -158,7 +196,7 @@ async function view(query, row, day, items) {
     const sku = item.id==='MERPOL:0'?'PRO-ROSTI-MAR':item.id==='MERPOL:1'?'PRO-CRUJI-MAR':null;
     const historical = sent.filter(row=>row.sku===sku)
       .map(row=>({date:row.date,qty:Number(row.quantity),source:'history'}));
-    const current = state.orders.filter(order=>order.type==='request'&&order.actual&&order.movementDate<=day)
+    const current = state.orders.filter(order=>order.type==='request'&&order.actual&&!order.originalUnits?.[item.id]&&order.movementDate<=day)
       .map(order=>({date:order.movementDate,qty:(order.received||order.actual)[item.id]||0,source:'order'}))
       .filter(row=>row.qty);
     const arrivals=[...historical,...current].sort((a,b)=>a.date.localeCompare(b.date));
@@ -170,7 +208,7 @@ async function view(query, row, day, items) {
     return {...item,incoming,arrivals,used,usage,opening:opening??null,balance:tracked&&opening!=null?round(opening+incoming-used):null};
   });
   const orderCatalog = paperOrder.map(([id,label])=>({...items.find(item=>item.id===id),label}));
-  return {day,revision:row.revision,catalog:items,orderCatalog,cedis:state.cedis,counted:state.counted,receivedPending:state.receivedPending || {},branch,orders:state.orders};
+  return {day,revision:row.revision,catalog:items,orderCatalog,aliases,cedis:state.cedis,counted:state.counted,receivedPending:state.receivedPending || {},branch,orders:state.orders};
 }
 async function run(query, user, body, day = today(new Date())) {
   const row = await load(query,day);
@@ -205,7 +243,7 @@ async function history(query,range,day=today(new Date())){
   const to=range==='yesterday'?from:day;
   const {data:state}=await load(query,day);
   const movements=await query(`
-    SELECT m.movement_date::text date,i.sku,m.movement_type kind,m.quantity,m.notes FROM inventory_movements m
+    SELECT m.movement_date::text date,i.sku,i.unit,m.movement_type kind,m.quantity,m.notes FROM inventory_movements m
     JOIN inventory_items i ON i.id=m.item_id JOIN locations l ON l.id=m.location_id
     WHERE l.code='rastro' AND m.movement_date BETWEEN $1 AND $2 ORDER BY m.movement_date DESC,m.id DESC`,[from,to]);
   const rows=[];
@@ -220,6 +258,7 @@ async function history(query,range,day=today(new Date())){
         if(action==='send')add(movement.date,id,'branch-in',Number(movement.quantity));
       }
     }else if(['entry','exit','rastro-adjustment'].includes(movement.kind)){
+      if(movement.unit!=='kg')continue;
       const id=skuLinks.get(movement.sku)||'legacy:'+movement.sku;
       add(movement.date,id,{'entry':'cedis-in','exit':'cedis-out','rastro-adjustment':'cedis-adjust'}[movement.kind],Number(movement.quantity));
     }
@@ -227,6 +266,7 @@ async function history(query,range,day=today(new Date())){
   for(const order of state.orders){
     if(!order.actual||order.movementDate<from||order.movementDate>to)continue;
     for(const [id,qty] of Object.entries(order.actual)){
+      if(order.originalUnits?.[id])continue;
       add(order.movementDate,id,order.type==='purchase'?'cedis-in':'cedis-out',qty);
       if(order.type==='request')add(order.movementDate,id,'branch-in',(order.received||order.actual)[id]||0);
     }

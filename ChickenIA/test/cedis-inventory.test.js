@@ -24,14 +24,28 @@ test('one capture updates both locations and daily production changes the branch
       CREATE TABLE inv_state(id int PRIMARY KEY,data jsonb);
       INSERT INTO inv_state VALUES (1,'{"initialized":{"sucursal:rosti-marinado":true},"balances":{"sucursal:rosti-marinado":10000}}');
     `);
+    await db.exec(`
+      CREATE TABLE cedis_inventory(id int PRIMARY KEY CHECK(id=1), revision int NOT NULL, data jsonb NOT NULL);
+      INSERT INTO cedis_inventory VALUES (1,0,'{"day":"2026-11-18","cutover":[],"openingBranch":{"MERPOL:0":10},"cedis":{"legacy:SEC-002":119,"PEREGRINA:19":458,"legacy:RAS-010":2},"counted":{},"orders":[],"requests":[],"almacenRecovered":true}');
+    `);
     let state = await run(query,user,null,day);
     assert.equal(state.cedis['legacy:SEC-002'],119);
+    assert.equal(state.cedis['PEREGRINA:19'],undefined);
+    assert.equal(state.cedis['legacy:RAS-010'],undefined);
+    assert.equal(state.aliases['PEREGRINA:19'],'legacy:SEC-002');
+    assert.ok(state.catalog.every(item=>item.unit==='kg'||item.supplier==='MERPOL'&&item.unit==='pollos'));
+    const [audit]=await query("SELECT data->'previousUnits' AS prior FROM cedis_inventory");
+    assert.deepEqual(audit.prior.cedis['PEREGRINA:19'],{qty:458,unit:'bultos'});
     assert.equal(state.orderCatalog.length,23);
     const save = async (action, lines, extra = {}) => {
       state = await run(query,user,{action,lines,requestId:randomUUID(),revision:state.revision,...extra},day);
       return state;
     };
     const qty = (id, qty) => ({id,qty});
+    await save('purchase',[qty('PEREGRINA:19',25)],{supplier:'PEREGRINA'});
+    assert.equal(state.orders[0].lines['legacy:SEC-002'],25);
+    await save('receive',[qty('legacy:SEC-002',25)],{orderId:state.orders[0].id});
+    assert.equal(state.cedis['legacy:SEC-002'],144);
     const rostiInBranch = () => state.branch.find(item=>item.id===rosti);
     await save('count',[qty(rosti,50),qty(cruji,0)]);
     await save('count',[qty(carrot,0)]);

@@ -88,6 +88,14 @@
     if(order.note) details.append(el('p',order.note));
     if(order.allocation) details.append(el('p','Reparto del Rostizado pedido: Horno '+order.allocation.oven+' · Rosticero '+order.allocation.rotisserie));
     const items = catalog.filter(item => Object.hasOwn(order.lines,item.id));
+    if(order.originalUnits){
+      for(const item of items){
+        const unit=order.originalUnits[item.id]||item.unit;
+        details.append(el('p',item.name+' · '+(order.actual||order.lines)[item.id]+' '+unit));
+      }
+      details.append(el('p','Registro anterior al cambio a kilos.'));
+      return details;
+    }
     if(order.receivedAtCapture){
       for(const item of items)details.append(el('p',item.name+' · '+order.actual[item.id]+' '+item.unit));
       if(order.allocation)details.append(el('p','Reparto del Rostizado: Horno '+order.allocation.oven+' · Rosticero '+order.allocation.rotisserie));
