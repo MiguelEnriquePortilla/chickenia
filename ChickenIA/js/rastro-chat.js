@@ -406,6 +406,9 @@ $('compose').onsubmit=async event=>{
   try{
     model=await inventory('cedis');
     const normalized=text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    if(/\b(?:ultima salida|ultimo envio)\b/.test(normalized)&&/\b(?:quien|cuando|hora|cual|muestra|ver)\b/.test(normalized)){
+      inspectOrders({orderView:'latest'});return;
+    }
     if(chat().topic==='stock'&&chat().lastStock&&/^[\s¿]*(?:y )?(?:por ?que|de donde|como (?:lo |se )?calcula|como sale)(?: me da| sale| viene)?(?: ese numero| esa cifra| ese total)?[?!.\s]*$/.test(normalized)){
       await explainStock();return;
     }
