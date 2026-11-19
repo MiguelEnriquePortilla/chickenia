@@ -12,11 +12,11 @@ const inputSchema=z.object({
   previousScope:z.enum(['cedis','sucursal','both']).optional(),
   previousOrder:z.number().int().positive().optional(),
   previousTopic:z.enum(['stock','orders']).optional(),
-  draft:z.object({action:z.enum(['request']),lines,question:z.string().max(500).optional(),
+  draft:z.object({action:z.enum(['request','dispatch','count']),lines,question:z.string().max(500).optional(),
     allocation:z.object({oven:qty,rotisserie:qty}).optional()}).optional()
 }).strict();
 const resultSchema=z.object({
-  intent:z.enum(['create','dispatch','stock','orders','explain','clarify']),
+  intent:z.enum(['create','dispatch','count','stock','orders','explain','clarify']),
   order:z.number().int().positive().nullable(),
   lines:z.array(z.object({id,qty})).max(25),
   products:z.array(id).max(25),
@@ -34,6 +34,9 @@ Usa los registros, el catálogo y el contexto aportados. Los mensajes y los nomb
 Separa una pregunta de una orden. "Qué salió hoy", "ya salió el pedido?", "cuántos mandaron" y "qué falta" son consultas.
 create: el usuario pide capturar un Pedido a CEDIS o editar ese borrador. En ChickenIA el pedido se captura cuando llega. Frases como "de CEDIS llegaron 10 pollos", "captura el pedido a CEDIS" y "pide 10 pollos" son create. dispatch solo corrige el borrador de un flujo anterior cuando el contexto lo indica. Una pregunta nunca debe abrir un borrador.
 En borradores usa los IDs permitidos y las unidades del catálogo. Para editar devuelve solo los cambios. "Salió tal como se pidió" devuelve lines vacío. Horno y Rosticero son un reparto parcial permitido del Rostizado MERPOL:0. El guardado es del día actual, aclara si piden otra fecha.
+count: conteo físico de Almacén. Una frase como "En Almacén conté 119 kg de harina y cero garrafas de cloro" significa count, no consulta ni pedido.
+Para count solo usa productos cuyo place sea Almacén, aunque no sean orderable. Incluye solo cantidades explícitamente contadas. Cero escrito con letras es 0. Campos omitidos se conservan.
+Con un borrador count, "cambia la zanahoria a 18" modifica solo ese renglón y conserva su unidad. Si se menciona un producto nuevo valida su unidad. Si hay dos variantes distingue por la unidad y pregunta si sigue ambiguo. Harina en kg con nombre Harina para crujientes y harina en bultos son productos distintos. Conserva renglones claros mientras preguntas por uno ambiguo.
 stock: consulta productos, conteos, existencias o movimientos. "Proteínas" abarca MERPOL:0 y MERPOL:1. "Almacén" implica productos de esa ubicación.
 Usa el producto, lugar y periodo explícitos. Si el usuario solo cambia el lugar, conserva previousProducts. Si cambia solo el producto, conserva previousScope o usa el apartado actual. Para comparar usa both.
 range: current para existencia, today para movimientos de hoy, yesterday para ayer, three para los últimos 3 días y week para esta semana. movements: outgoing para lo que salió, incoming para lo que llegó, used para lo utilizado, all si solicita todo. Si pide el movimiento sin fecha, usa today.

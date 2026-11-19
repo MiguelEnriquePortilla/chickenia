@@ -1,9 +1,10 @@
 'use strict';
 const $=id=>document.getElementById(id);
-const menu=['Inicio','Pedido a Rastro','Inventario CEDIS','Inventario Sucursal'];
+const menu=['Inicio','Operación','Asistencias','Pedido a Rastro','Inventario CEDIS','Inventario Sucursal'];
 const chats=new Map();
 const sectionName=name=>name==='Pedido a Rastro'?'Pedido a CEDIS':name;
 let section=new URLSearchParams(location.search).get('apartado')==='rastro'?'Pedido a Rastro':'Inicio',user,model,draft,target,busy=false,clarification='',retry;
+const displayName=()=>user.name.toLocaleLowerCase('es-MX').replace(/\b\p{L}/gu,letter=>letter.toLocaleUpperCase('es-MX'));
 const historyKey=()=> 'chickenia-rastro-conversations:'+user.id;
 function el(tag,text,cls){
   const element=document.createElement(tag);
@@ -73,17 +74,25 @@ async function load(){
   model=await inventory('cedis');
   $('compose').hidden=false;
   $('chat-nav').hidden=false;
+  $('chat-greeting').textContent='Hola, '+displayName();
+  $('chat-greeting').hidden=false;
   try{for(const [name,value] of Object.entries(JSON.parse(sessionStorage.getItem(historyKey())||'{}')))chats.set(name,value);}catch{}
   render();
 }
 
 const periods=[['today','Hoy'],['three','Últimos 3 días'],['week','Esta semana']];
-const stockOptions=[
-  ['Proteínas en CEDIS','cedis','protein'],
-  ['Proteínas en Sucursal','sucursal','protein'],
-  ['Ver Almacén','cedis','store'],
-  ['Vegetales en Sucursal','sucursal','vegetable']
-];
+const stockOptions={
+  'Inventario CEDIS':[['Proteínas en CEDIS','cedis','protein'],['Ver Almacén','cedis','store']],
+  'Inventario Sucursal':[['Proteínas en Sucursal','sucursal','protein'],['Vegetales en Sucursal','sucursal','vegetable']]
+};
+const prompts={
+  Inicio:'Escribe lo que necesitas…',
+  'Operación':'Pregunta por la operación de hoy…',
+  Asistencias:'Pregunta por las checadas…',
+  'Pedido a Rastro':'Escribe qué llegó de CEDIS y cuánto…',
+  'Inventario CEDIS':'Consulta existencias o escribe lo que contaste en Almacén…',
+  'Inventario Sucursal':'Pregunta qué llegó o cuánto queda en Sucursal…'
+};
 const proteins=['MERPOL:0','MERPOL:1'];
 function resultsIds(group){
   if(group==='protein')return proteins;
@@ -116,7 +125,23 @@ function lastShipment(){
 function reportCard(report){
   const card=el('section',null,'chat-review chat-report');
   const line=(label,value)=>{const row=el('div',null,'chat-line');row.append(el('span',label),el('strong',value));card.append(row);};
-  if(report.type==='received'){
+  if(['arrivals','operations','operations-pending','attendance-pending'].includes(report.type)){
+    const {rows,day}=report.data;
+    const titles={arrivals:'Quién llegó hoy',operations:'Cómo vamos hoy',
+      'operations-pending':'Qué falta por hacer','attendance-pending':'Checadas pendientes'};
+    const empty={arrivals:'Todavía no hay entradas registradas.',operations:'No hay actividades programadas.',
+      'operations-pending':'No hay actividades pendientes.', 'attendance-pending':'El equipo tiene sus checadas completas.'};
+    card.append(el('h2',titles[report.type]+' · '+formatDate(day)));
+    if(!rows.length)card.append(el('p',empty[report.type]));
+    const time=new Intl.DateTimeFormat('es-MX',{timeZone:'America/Mexico_City',hour:'numeric',minute:'2-digit'});
+    const missing={both:'Sin entrada ni salida',entry:'Sin entrada registrada',exit:'Sin salida registrada'};
+    for(const row of rows){
+      if(report.type==='arrivals')line(row.name,time.format(new Date(row.entrada)));
+      else if(report.type==='attendance-pending')line(row.name,missing[row.missing]);
+      else if(report.type==='operations-pending')line(row.area+' · '+row.name,row.recorded?'Pendiente':'Sin marcar');
+      else line(row.name,row.done+(row.done===1?' hecha':' hechas')+' · '+row.pending+(row.pending===1?' pendiente':' pendientes'));
+    }
+  }else if(report.type==='received'){
     card.append(el('h2','Pedidos recibidos'));
     const all=orders();
     const received=all.filter(order=>order.actual).slice(-12).reverse();
@@ -161,7 +186,7 @@ function reportCard(report){
     for(const id of report.ids)if(product(id))line(product(id).name,stockValue(id,report.scope));
 
   }
-  if(!['pending','received'].includes(report.type)){
+  if(!['pending','received','arrivals','operations','operations-pending','attendance-pending'].includes(report.type)){
     const controls=el('div',null,'chat-periods');
     controls.setAttribute('aria-label','Periodo de movimientos');
     for(const [range,label] of periods){
@@ -175,13 +200,40 @@ function reportCard(report){
 function quickButtons(){
   const controls=el('nav',null,'chat-suggestions');
   controls.setAttribute('aria-label','Acciones rápidas');
-  for(const [label,scope,group] of stockOptions)controls.append(button(label,()=>quick(()=>showStock(scope,resultsIds(group),label))));
-  controls.append(button('Pedido a CEDIS',()=>{
-    switchTo('Pedido a Rastro');
-    $('message').focus();
-  }),button('Pedidos recibidos',()=>quick(()=>{
-    chat().report={type:'received'};
-  })));
+  const printLink=(label,path)=>{
+    const link=el('a',label,'chat-report-link');
+    link.href=path;link.target='_blank';link.rel='noopener';
+    return link;
+  };
+  const report=(label,view)=>button(label,()=>quick(async()=>{
+    chat().report={type:view,data:await inventory('chat-quick-report&view='+view)};
+  }));
+  if(section==='Operación')controls.append(report('Cómo vamos hoy','operations'),report('Qué falta por hacer','operations-pending'));
+  if(section==='Asistencias')controls.append(
+    report('Quién llegó hoy','arrivals'),
+    report('Checadas pendientes','attendance-pending'),
+    printLink('Imprime la asistencia de la semana','/asistencias.html?view=team&print=team&date='+model.day),
+    printLink('Imprime la nómina','/nomina.html?view=team&print=team&week='+model.day)
+  );
+  for(const [label,scope,group] of stockOptions[section]||[]){
+    controls.append(button(label,()=>quick(()=>showStock(scope,resultsIds(group),label))));
+  }
+  if(section==='Inventario CEDIS'){
+    controls.append(button('Contar Almacén',()=>{
+      const field=$('message');
+      if(!field.value.trim())field.value='En Almacén conté ';
+      field.focus();
+    }));
+  }
+  if(section==='Pedido a Rastro'){
+    controls.append(button('Capturar pedido',()=>{
+      const field=$('message');
+      if(!field.value.trim())field.value='De CEDIS llegaron ';
+      field.focus();
+    }),button('Pedidos recibidos',()=>quick(()=>{
+      chat().report={type:'received'};
+    })));
+  }
   for(const b of controls.children)b.disabled=busy;
   return controls;
 }
@@ -229,21 +281,24 @@ function render(){
   }
   const host=$('chat');
   host.replaceChildren();
-  const heading=section==='Inicio'?'¿Qué hacemos hoy, '+user.name+'?':sectionName(section);
-  if(!chat().messages.length)host.append(el('h1',heading),el('p','Prepara pedidos, registra salidas y consulta existencias.','chat-intro'));
+  const heading=section==='Inicio'?'¿Qué hacemos hoy?':sectionName(section);
+  if(!chat().messages.length)host.append(el('h1',heading),el('p',section==='Inicio'?'Elige un apartado o escribe directamente lo que necesitas.':prompts[section].replace(/…$/,'.'),'chat-intro'));
   for(const entry of chat().messages)host.append(el('div',entry.text,'chat-message '+entry.kind));
-  if(!draft)host.append(quickButtons());
+  $('message').placeholder=draft?'Escribe una corrección o consulta…':prompts[section];
+  const suggestions=$('composer-suggestions');
+  suggestions.hidden=Boolean(draft)||section==='Inicio';
+  suggestions.replaceChildren(...(suggestions.hidden?[]:[quickButtons()]));
   if(chat().report)host.append(reportCard(chat().report));
   if(draft){
     const card=el('section',null,'chat-review');
-    card.append(el('h2','Pedido a CEDIS · '+model.day));
+    card.append(el('h2',draft.action==='count'?'Conteo de Almacén':'Pedido a CEDIS · '+model.day));
     if(draft.allocation)card.append(el('p','Reparto solicitado: Horno '+draft.allocation.oven+' · Rosticero '+draft.allocation.rotisserie));
     for(const [id,qty] of Object.entries(draft.lines)){
       const row=el('div',null,'chat-line');
       row.append(el('span',product(id).name),el('strong',amount(id,qty)));card.append(row);
     }
     if(draft.note)card.append(el('p',draft.note));
-    const confirmButton=button('Guardar pedido a CEDIS',save,true);
+    const confirmButton=button(draft.action==='count'?'Guardar conteo':'Guardar pedido a CEDIS',save,true);
     confirmButton.disabled=Boolean(clarification)||busy;
     card.append(confirmButton);host.append(card);
   }
@@ -318,6 +373,22 @@ function inspectOrders(result){
 }
 
 async function prepare(result,text){
+  if(result.intent==='count'){
+    if(section==='Inicio'&&!draft)adoptSection('Inventario CEDIS',text);
+    const items=Object.fromEntries(result.lines
+      .filter(({id,qty})=>product(id)?.place==='Almacén'&&Number.isFinite(qty)&&qty>=0)
+      .map(({id,qty})=>[id,qty]));
+    if(!Object.keys(items).length&&draft?.action!=='count'){
+      say(result.question||'Dime qué productos contaste en Almacén y cuánto hay.');return;
+    }
+    if(draft&&draft.action!=='count'){say('Termina la captura pendiente antes de abrir un conteo.');return;}
+    draft??={action:'count',lines:{}};
+    Object.assign(draft.lines,items);
+    clarification=result.question||(!Object.keys(items).length?clarification:'');
+    chat().report=null;
+    say(clarification||'Revisa las cantidades que contaste.');
+    return;
+  }
   if(result.intent==='stock'){await stock(result);return;}
   if(result.intent==='orders'){inspectOrders(result);return;}
   if(result.intent==='explain'){
@@ -334,6 +405,7 @@ async function prepare(result,text){
   if(!draft||draft.action!==action){
     retry=null;
     if(!Object.keys(lines).length){say(result.question||'Dime los productos y las cantidades que llegaron.');return;}
+    if(draft?.action==='count'){say('Termina el conteo abierto antes de capturar un pedido.');return;}
     draft={action,lines:{},note:''};
   }
   for(const [id,qty] of Object.entries(lines)){
@@ -349,13 +421,18 @@ async function prepare(result,text){
 async function save(){
   if(!draft||clarification||busy)return;
   busy=true;render();
-  const {note,allocation}=draft;
-  const body={action:'request-delivered',lines:Object.entries(draft.lines).filter(([,qty])=>qty>0).map(([id,qty])=>({id,qty}))};
-  body.note=note;body.allocation=allocation;
+  const {action,note,allocation}=draft;
+  const body={action:action==='request'?'request-delivered':action,lines:Object.entries(draft.lines).filter(([,qty])=>action!=='request'||qty>0).map(([id,qty])=>({id,qty}))};
+  if(action==='request'){body.note=note;body.allocation=allocation;}
   const signature=JSON.stringify(body);
   if(retry?.signature!==signature)retry={signature,id:crypto.randomUUID()};
   try{
     model=await inventory('cedis',{...body,revision:model.revision,requestId:retry.id});
+    if(action==='count'){
+      say('Conteo de Almacén guardado por '+user.name+'.\n'+body.lines.map(({id,qty})=>product(id).name+': '+amount(id,qty)).join('\n'));
+      draft=null;retry=null;clarification='';
+      return;
+    }
     const latest=orders().length;
     chat().lastOrder=latest;chat().topic='orders';
     say('Pedido #'+latest+' recibido en Sucursal. Guardado por '+user.name+'.\n\n'+body.lines.map(({id,qty})=>
@@ -384,9 +461,15 @@ $('compose').onsubmit=async event=>{
     if(chat().topic==='stock'&&chat().lastStock&&/^[\s¿]*(?:y )?(?:por ?que|de donde|como (?:lo |se )?calcula|como sale)(?: me da| sale| viene)?(?: ese numero| esa cifra| ese total)?[?!.\s]*$/.test(normalized)){
       await explainStock();return;
     }
+    if(/quien(?:es)? (?:ya )?(?:llego|llegaron) (?:hoy)?/.test(normalized+' ')||
+       /como vamos hoy/.test(normalized)){
+      const view=/como vamos hoy/.test(normalized)?'operations':'arrivals';
+      chat().report={type:view,data:await inventory('chat-quick-report&view='+view)};
+      return;
+    }
     const result=await inventory('rastro-chat',{
       text,
-      section,
+      section:['Operación','Asistencias'].includes(section)?'Inicio':section,
       draft:draft?{action:draft.action,lines:draft.lines,question:clarification,allocation:draft.allocation}:undefined,
       previousProducts:chat().products,previousScope:chat().lastStock?.scope,previousOrder:chat().lastOrder||undefined,previousTopic:chat().topic
     });

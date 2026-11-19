@@ -45,3 +45,11 @@
 .chat-report .chat-line strong {white-space:normal;text-align:right;}
 .chat-report .chat-line button {margin:0;flex-shrink:0;}
 .chat-suggestions {background:transparent;margin:0;padding:0;}
+.chat-report-link {display:inline-flex;align-items:center;min-height:44px;padding:8px 13px;border:1px solid var(--chat-rule);border-radius:9px;background:var(--chat-paper);color:var(--chat-ink);text-decoration:none;font-size:.875rem;font-weight:600;}
+.chat-report-link:hover {border-color:var(--chat-accent);}
+.chat-greeting {padding-inline-start:10px;border-inline-start:1px solid var(--chat-rule);color:var(--chat-muted);font-size:.85rem;font-weight:600;}
+.rastro-chat-title {flex-wrap:wrap;}
+.rastro-chat .composer-suggestions {grid-column:1/-1;padding:3px 4px 1px;}
+.composer-suggestions .chat-suggestions {gap:6px;}
+.rastro-chat .composer-suggestions :is(button,a) {display:inline-flex;align-items:center;min-height:44px;padding:6px 10px;border:1px solid transparent;border-radius:7px;background:var(--chat-user);color:var(--chat-muted);font-size:.78rem;font-weight:600;text-decoration:none;}
+.rastro-chat .composer-suggestions :is(button,a):hover {border-color:var(--chat-rule);color:var(--chat-ink);}

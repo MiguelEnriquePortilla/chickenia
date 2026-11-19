@@ -37,6 +37,13 @@ function createHandler(getRepository = production, queryOverride) {
         const query = queryOverride || require('@neondatabase/serverless').neon(process.env.DATABASE_URL);
         return res.status(200).json(await require('../lib/rastro-chat').interpret(req,query,user));
       }
+      if (action === 'chat-quick-report') {
+        if (req.method !== 'GET') throw new InventoryError('Consulta no válida.',405);
+        if (user.role !== 'manager') throw new InventoryError('Sin acceso a reportes.',403);
+        if(!queryOverride)await require('../lib/supervision/db').ensureTables();
+        const query=queryOverride||require('@neondatabase/serverless').neon(process.env.DATABASE_URL);
+        return res.status(200).json(await require('../lib/chat-quick-reports').quickReport(query,req.query.view));
+      }
       if (action === 'cedis-history') {
         if (req.method !== 'GET') throw new InventoryError('Consulta no válida.',405);
         const query = queryOverride || require('@neondatabase/serverless').neon(process.env.DATABASE_URL);

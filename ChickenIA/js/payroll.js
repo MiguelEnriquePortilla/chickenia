@@ -18,7 +18,7 @@
  if(!['person','team'].includes(view))view='person';if(!['all','pending','complete'].includes(filter))filter='all';
  let state,busy=false,dirty=false,pending=saved.pending||null,draft=saved.draft||null,returnTeam=!!saved.returnTeam,listScroll=saved.listScroll||0;
  if(attendance&&pending)view='person';
- let reportText='',reportScroll=0;
+ let reportText='',reportScroll=0,printRequested=params.get('print')==='team';
  if(draft?.week)date=draft.week;
  $('date').value=date;
  const current=()=>state?.rows.find(r=>r.id===employeeId);
@@ -120,6 +120,13 @@
    dirty=!!draft;render();
    if(pending){message('Hay una captura sin confirmar. Reintenta o recupera lo guardado.',true);$('retry').hidden=false;$('recover').hidden=false;}
    else message(dirty?'Tienes ajustes sin guardar.':'Todo guardado.');
+   if(printRequested&&!dirty&&!pending){
+    printRequested=false;
+    if(attendance){
+     view='team';render();document.body.classList.add('print-attendance-team');
+    }else showReport('team');
+    requestAnimationFrame(()=>window.print());
+   }
   }catch(e){
    message(e.message,true);state=null;$('workspace').hidden=true;if(e.status===401){$('login-panel').hidden=false;}else $('retry').hidden=false;
   }finally{busy=false;if(state)lock();}

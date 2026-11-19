@@ -61,3 +61,10 @@ body{margin:0;font-family:Poppins,Arial,sans-serif}
 body[data-personnel-view] .unified-header{position:sticky;top:0;z-index:39}
 
 .breakdown dd{min-width:0;max-width:60%;overflow-wrap:anywhere}.report-brand{display:none}@media print{#personal-app .report-brand{display:block;font-weight:600;margin-bottom:12px}}
+@media print {
+  body.print-attendance-team #workspace {display:block!important;}
+  body.print-attendance-team #workspace > :not(#team-view) {display:none!important;}
+  body.print-attendance-team .attendance-table-scroll {overflow:visible;}
+  body.print-attendance-team .attendance-table {width:100%;min-width:0;font-size:8pt;table-layout:fixed;}
+  body.print-attendance-team .attendance-table th,body.print-attendance-team .attendance-table td {padding:4px;position:static;white-space:normal;overflow-wrap:anywhere;color:black;background:white;}
+}
