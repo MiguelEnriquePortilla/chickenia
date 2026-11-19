@@ -155,10 +155,7 @@ function reportCard(report){
   }else{
     card.append(el('h2',report.title));
     for(const id of report.ids)if(product(id))line(product(id).name,stockValue(id,report.scope));
-    if(report.scope!=='cedis'&&report.ids.some(id=>proteins.includes(id))){
-      const explain=button('Cómo se calcula',()=>quick(explainStock));
-      explain.disabled=busy;card.append(explain);
-    }
+
   }
   if(report.type!=='pending'){
     const controls=el('div',null,'chat-periods');
