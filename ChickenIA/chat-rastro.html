@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat ChickenIA</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/area-navigation.css">
+<link rel="stylesheet" href="/css/shared-shell.css">
+<link rel="stylesheet" href="/css/rastro-chat.css">
+<script src="/js/theme-init.js"></script>
+<script defer src="/js/area-navigation.js"></script>
+<script defer src="/js/shared-shell.js"></script>
+<script defer src="/js/rastro-chat.js"></script>
+</head>
+<body data-shared-standalone="true" class="rastro-chat">
+<main class="rastro-chat-main" aria-label="Chat ChickenIA">
+  <div class="rastro-chat-bar">
+    <div class="rastro-chat-title"><img src="/icons/sello-2026.png" alt="" width="32" height="32"><strong id="context">Chat ChickenIA</strong></div>
+    <nav id="chat-nav" aria-label="Apartados del chat"></nav>
+  </div>
+  <div id="scroll" class="rastro-chat-scroll"><div class="rastro-chat-column" id="chat" aria-live="polite"></div></div>
+  <form class="rastro-chat-compose" id="compose" hidden>
+    <div class="rastro-chat-column"><div class="rastro-chat-input">
+      <textarea aria-label="Mensaje" id="message" placeholder="Escribe un mensaje…" maxlength="2000" rows="2"></textarea>
+      <button class="chat-primary" type="submit">Enviar <span aria-hidden="true">↑</span></button>
+    </div></div>
+  </form>
+</main>
+<dialog id="leaving"><h2>Captura sin guardar</h2><p>¿Quieres seguir aquí o descartar la captura?</p><div><button id="stay" type="button">Seguir aquí</button><button id="discard" type="button">Salir sin guardar</button></div></dialog>
+</body>
+</html>

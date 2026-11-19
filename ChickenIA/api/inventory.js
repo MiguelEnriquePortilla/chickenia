@@ -30,6 +30,13 @@ function createHandler(getRepository = production, queryOverride) {
       auth.settings();
       const user = action === 'login' && req.method === 'POST' ? null : auth.authenticate(req);
       if(req.method==='GET'&&action==='session')return res.status(200).json({user});
+      if (action === 'rastro-chat') {
+        if (req.method !== 'POST') throw new InventoryError('Usa el chat de ChickenIA.',405);
+        if (user.role !== 'manager') throw new InventoryError('Sin acceso al chat de Rastro.',403);
+        if (!req.headers.origin) throw new InventoryError('Origen no permitido.',403);
+        const query = queryOverride || require('@neondatabase/serverless').neon(process.env.DATABASE_URL);
+        return res.status(200).json(await require('../lib/rastro-chat').interpret(req,query,user));
+      }
       if (action === 'cedis') {
         if (req.method === 'POST' && user.role !== 'manager') throw new InventoryError('Sin permiso de captura.',403);
         const query = queryOverride || require('@neondatabase/serverless').neon(process.env.DATABASE_URL);
