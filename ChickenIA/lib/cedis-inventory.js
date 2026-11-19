@@ -11,7 +11,20 @@ const catalog = Object.entries(orders.suppliers).flatMap(([supplier, lines]) =>
     place: supplier === 'MERPOL' ? 'Rastro' : 'Almacén',
     branch: supplier === 'MERPOL' ? 'Proteínas' : supplier === 'CENTRAL DE ABASTOS' ? 'Vegetales' : null
   })));
-const products = new Map(catalog.map(item => [item.id, item]));
+const paperOrder = require('./rastro-order');
+const addedVegetables = new Set(['legacy:PAPA-GAJOS','legacy:APIO','legacy:RAS-005']);
+const paperItems = new Map(paperOrder.map(([id,label,sku,name,unit])=>[id,{id,label,sku,name,unit}]));
+for(const {id,name,unit} of paperItems.values()){
+  if(name) catalog.push({id,name,unit,supplier:null,place:'Almacén',branch:addedVegetables.has(id)?'Vegetales':null});
+}
+const skuLinks = new Map(paperOrder.filter(([, ,sku])=>sku).map(([id,,sku])=>[sku,id]));
+for(const [sku,id] of [['VER-007','CENTRAL DE ABASTOS:1'],['VER-010','CENTRAL DE ABASTOS:3']])skuLinks.set(sku,id);
+async function legacyCatalog(query) {
+  const items = await query("SELECT sku,name,unit FROM inventory_items WHERE active AND sku NOT LIKE 'PRO-%' AND sku <> 'POL-001' ORDER BY name");
+  return items.filter(item=>!skuLinks.has(item.sku)).map(item=>({
+    ...item,id:'legacy:'+item.sku,place:'Almacén',supplier:null,branch:null
+  }));
+}
 const consumedBy = {'MERPOL:0': ['0-0', '1-0'], 'MERPOL:1': ['2-0']};
 const legacyKeys = {'MERPOL:0': 'rosti-marinado', 'MERPOL:1': 'cruji-marinado'};
 const quantity = z.number().min(0).max(1000000).multipleOf(.001);
@@ -19,8 +32,9 @@ const command = z.object({
   requestId: z.string().uuid(), revision: z.number().int().nonnegative(),
   action: z.enum(['count','purchase','request','receive','dispatch','correct']),
   supplier: z.string().optional(), orderId: z.string().uuid().optional(),
-  lines: z.array(z.object({id: z.string(), qty: quantity})).min(1).max(catalog.length),
-  note: z.string().max(1000).optional()
+  lines: z.array(z.object({id: z.string(), qty: quantity})).min(1).max(500),
+  note: z.string().max(1000).optional(),
+  allocation: z.object({oven:quantity,rotisserie:quantity}).strict().optional()
 }).strict();
 
 const fail = (message, status = 400) => { throw Object.assign(Error(message), {status}); };
@@ -50,6 +64,25 @@ async function start(query, day) {
   const state = {day, cutover: production?.data || [], openingBranch, cedis: openingCedis, counted: {}, orders: [], requests: []};
   await query('INSERT INTO cedis_inventory(id,revision,data) VALUES (1,0,$1::jsonb) ON CONFLICT DO NOTHING',[JSON.stringify(state)]);
 }
+async function recoverAlmacen(query, row, day) {
+  if(row.data.almacenRecovered) return row;
+  const legacy = await require('./rastro').read(query,day);
+  const state = row.data;
+  const changed = new Set(Object.keys(state.counted));
+  for(const order of state.orders)for(const id of Object.keys(order.actual || {}))changed.add(id);
+  for(const id of Object.keys(state.receivedPending || {}))changed.add(id);
+  for(const item of legacy.lines){
+    const id = skuLinks.get(item.sku) || 'legacy:' + item.sku;
+    if(item.final != null && !changed.has(id))state.cedis[id] = item.final;
+  }
+  state.almacenRecovered = true;
+  const [saved] = await query('UPDATE cedis_inventory SET data=$1::jsonb,revision=revision+1 WHERE id=1 AND revision=$2 RETURNING revision,data',
+    [JSON.stringify(state),row.revision]);
+  if(saved)return saved;
+  const [latest] = await query('SELECT revision,data FROM cedis_inventory WHERE id=1');
+  return recoverAlmacen(query,latest,day);
+}
+
 async function load(query, day) {
   await query('CREATE TABLE IF NOT EXISTS cedis_inventory(id int PRIMARY KEY CHECK(id=1), revision int NOT NULL, data jsonb NOT NULL)');
   await paper.service(query).migrate();
@@ -58,9 +91,9 @@ async function load(query, day) {
     await start(query,day);
     [row] = await query('SELECT revision,data FROM cedis_inventory WHERE id=1');
   }
-  return row;
+  return recoverAlmacen(query,row,day);
 }
-function apply(state, input, user, day) {
+function apply(state, input, user, day, products) {
   const lines = Object.fromEntries(input.lines.map(line => [line.id, line.qty]));
   if(Object.keys(lines).length !== input.lines.length || input.lines.some(line => !products.has(line.id))) fail('Revisa los productos.');
   const move = (id, delta) => {
@@ -76,9 +109,11 @@ function apply(state, input, user, day) {
     return;
   }
   if(input.action === 'purchase' || input.action === 'request'){
+    if(input.allocation && (input.action!=='request' || round(input.allocation.oven+input.allocation.rotisserie)>(lines['MERPOL:0']||0)))
+      fail('El reparto de Horno y Rosticero supera el Rostizado pedido.');
     const purchase = input.action === 'purchase';
-    if(input.lines.some(({id,qty}) => !qty || (purchase ? products.get(id).supplier !== input.supplier : !products.get(id).branch))) fail('Revisa las cantidades del pedido.');
-    state.orders.unshift({id:randomUUID(), type:input.action,supplier:purchase ? input.supplier : null, lines, date:day, actor:user.name, note:input.note || ''});
+    if(input.lines.some(({id,qty}) => !qty || (purchase ? products.get(id).supplier !== input.supplier : !paperItems.has(id)))) fail('Revisa las cantidades del pedido.');
+    state.orders.unshift({id:randomUUID(), type:input.action,supplier:purchase ? input.supplier : null, lines, date:day, actor:user.name, note:input.note || '',allocation:input.allocation});
     return;
   }
   const order = state.orders.find(order => order.id === input.orderId);
@@ -101,10 +136,10 @@ function apply(state, input, user, day) {
     order.correctedBy = user.name;
   }
 }
-async function view(query, row, day) {
+async function view(query, row, day, items) {
   const state = row.data;
   const production = await query('SELECT data FROM production_paper_days WHERE date BETWEEN $1 AND $2 ORDER BY date',[state.day,day]);
-  const branch = catalog.filter(item => item.branch).map(item => {
+  const branch = items.filter(item => item.branch).map(item => {
     const incoming = round(state.orders.filter(order => order.type === 'request' && order.actual)
       .reduce((sum, order) => sum + ((order.received || order.actual)[item.id] || 0), 0));
     const tracked = Boolean(consumedBy[item.id]);
@@ -112,17 +147,20 @@ async function view(query, row, day) {
     const opening = state.openingBranch[item.id];
     return {...item, incoming, used, balance:tracked && opening != null ? round(opening + incoming - used) : null};
   });
-  return {day,revision:row.revision,catalog,cedis:state.cedis,counted:state.counted,receivedPending:state.receivedPending || {},branch,orders:state.orders};
+  const orderCatalog = paperOrder.map(([id,label])=>({...items.find(item=>item.id===id),label}));
+  return {day,revision:row.revision,catalog:items,orderCatalog,cedis:state.cedis,counted:state.counted,receivedPending:state.receivedPending || {},branch,orders:state.orders};
 }
 async function run(query, user, body, day = today(new Date())) {
   const row = await load(query,day);
-  if(!body) return view(query,row,day);
+  const items = [...new Map([...catalog,...await legacyCatalog(query)].map(item=>[item.id,item])).values()];
+  const products = new Map(items.map(item=>[item.id,item]));
+  if(!body) return view(query,row,day,items);
   const parsed = command.safeParse(body);
   if(!parsed.success) fail('Revisa las cantidades y vuelve a intentar.');
   const input = parsed.data;
-  if(row.data.requests.includes(input.requestId)) return view(query,row,day);
+  if(row.data.requests.includes(input.requestId)) return view(query,row,day,items);
   if(input.revision !== row.revision) fail('Alguien actualizó el inventario. Recarga y revisa las cantidades.',409);
-  apply(row.data,input,user,day);
+  apply(row.data,input,user,day,products);
   if(input.action === 'count' && row.data.receivedPending){
     for(const {id} of input.lines) delete row.data.receivedPending[id];
   }
@@ -130,6 +168,6 @@ async function run(query, user, body, day = today(new Date())) {
   const [saved] = await query('UPDATE cedis_inventory SET data=$1::jsonb, revision=revision+1 WHERE id=1 AND revision=$2 RETURNING revision,data',
     [JSON.stringify(row.data),row.revision]);
   if(!saved) fail('Alguien actualizó el inventario. Recarga y revisa las cantidades.',409);
-  return view(query,saved,day);
+  return view(query,saved,day,items);
 }
 module.exports = {run,catalog};

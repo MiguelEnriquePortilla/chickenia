@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { randomUUID } = require('node:crypto');
@@ -19,10 +19,14 @@ test('one capture updates both locations and daily production changes the branch
       INSERT INTO locations(code,active) VALUES('rastro',true);
       CREATE TABLE inventory_items(id serial PRIMARY KEY, sku text, name text, unit text, active boolean);
       CREATE TABLE inventory_movements(id serial PRIMARY KEY,item_id int,location_id int,movement_type text,quantity numeric,movement_date date,notes text,recorded_by text,recorded_at timestamptz DEFAULT now());
+      INSERT INTO inventory_items(sku,name,unit,active) VALUES ('SEC-002','Harina para crujientes','kg',true);
+      INSERT INTO inventory_movements(item_id,location_id,movement_type,quantity,movement_date) VALUES (1,1,'initial',130,'2026-11-17'),(1,1,'exit',11,'2026-11-18');
       CREATE TABLE inv_state(id int PRIMARY KEY,data jsonb);
       INSERT INTO inv_state VALUES (1,'{"initialized":{"sucursal:rosti-marinado":true},"balances":{"sucursal:rosti-marinado":10000}}');
     `);
     let state = await run(query,user,null,day);
+    assert.equal(state.cedis['legacy:SEC-002'],119);
+    assert.equal(state.orderCatalog.length,23);
     const save = async (action, lines, extra = {}) => {
       state = await run(query,user,{action,lines,requestId:randomUUID(),revision:state.revision,...extra},day);
       return state;
@@ -42,7 +46,8 @@ test('one capture updates both locations and daily production changes the branch
     await save('purchase',[qty(carrot,10)],{supplier:'CENTRAL DE ABASTOS'});
     await save('receive',[qty(carrot,10)],{orderId:state.orders[0].id});
     assert.equal(state.cedis[carrot],10);
-    await save('request',[qty(rosti,75),qty(carrot,3)]);
+    await save('request',[qty(rosti,75),qty(carrot,3)],{allocation:{oven:20,rotisserie:30}});
+    assert.deepEqual(state.orders[0].allocation,{oven:20,rotisserie:30});
     const orderId = state.orders[0].id;
     await save('dispatch',[qty(rosti,75),qty(carrot,3)],{orderId});
     assert.equal(state.cedis[rosti],50);

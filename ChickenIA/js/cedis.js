@@ -33,7 +33,7 @@
     };
   }
   function inputRow(item, hint, value, verb){
-    const label = el('label'), description = el('span',item.name + ' · ' + item.unit);
+    const label = el('label'), description = el('span',(item.label || item.name) + ' · ' + item.unit);
     label.className = 'cedis-line';
     if(hint) description.append(el('small',hint));
     const input = el('input');
@@ -42,12 +42,25 @@
     label.append(description,input);
     return {label,input,id:item.id};
   }
-  function lineForm(items, {values = {}, label, hint = () => '', requireAll = false, changed = () => {}, save}){
+  function lineForm(items, {values = {}, label, hint = () => '', requireAll = false, allocation = false, changed = () => {}, save}){
     const form = el('form');
     const fields = items.map(item => inputRow(item,hint(item),values[item.id],label));
     for(const field of fields){
       field.input.required = requireAll;
       form.append(field.label);
+    }
+    const splits = allocation ? [
+      inputRow({id:'oven',name:'POLLO ROSTIZADO (HORNO)',unit:'pollos'},'',null,'Reparto'),
+      inputRow({id:'rotisserie',name:'POLLO (ROSTICERO)',unit:'pollos'},'',null,'Reparto')
+    ] : [];
+    if(allocation)form.append(el('p','Reparto del Rostizado pedido'),...splits.map(field=>field.label));
+    if(allocation){
+      const note = el('label','Nota del pedido');
+      const input = el('textarea');
+      input.name='order-note';
+      input.maxLength=1000;
+      note.append(input);
+      form.append(note);
     }
     const button = el('button',label);
     form.append(button);
@@ -57,7 +70,10 @@
       const lines = fields.filter(field => field.input.value !== '').map(field => ({id:field.id,qty:field.input.valueAsNumber}));
       if(!lines.length){fields[0]?.input.focus();return;}
       button.disabled = true;
-      try { await save(lines); }
+      try {
+        const distribution = allocation ? Object.fromEntries(splits.map(field=>[field.id,field.input.valueAsNumber || 0])) : undefined;
+        await save(lines,distribution,form.elements.namedItem('order-note')?.value);
+      }
       finally { button.disabled = false; }
     };
     return form;
@@ -68,6 +84,7 @@
     const header = [date, order.supplier, order.actual ? (order.type==='purchase'?'Recibido':'Enviado') : 'Pendiente'].filter(Boolean).join(' · ');
     details.append(el('summary',header));
     if(order.note) details.append(el('p',order.note));
+    if(order.allocation) details.append(el('p','Reparto del Rostizado pedido: Horno '+order.allocation.oven+' · Rosticero '+order.allocation.rotisserie));
     const items = catalog.filter(item => Object.hasOwn(order.lines,item.id));
     if(order.type === 'purchase' && order.actual){
       for(const item of items) details.append(el('p',item.name + ' · Llegó ' + order.actual[item.id] + ' ' + item.unit));
@@ -133,10 +150,10 @@
         lineForm(model.catalog.filter(item=>item.place===place),{label:'Guardar conteo',hint,changed,save:lines=>save({action:'count',lines})}));
     } else {
       const editor = el('details');
-      editor.append(el('summary','Nuevo pedido a CEDIS'),
-        lineForm(model.catalog.filter(item=>item.branch),{label:'Guardar pedido',changed,save:lines=>save({action:'request',lines})}));
-      host.append(editor,el('h2','Pedidos a CEDIS'));
-      for(const order of model.orders.filter(order=>order.type==='request')) host.append(orderPanel(order,model.catalog,save,changed));
+      editor.append(el('summary','Nuevo pedido a Rastro'),
+        lineForm(model.orderCatalog,{label:'Guardar pedido',changed,allocation:true,save:(lines,allocation,note)=>save({action:'request',lines,allocation,note})}));
+      host.append(editor,el('h2','Pedidos a Rastro'));
+      for(const order of model.orders.filter(order=>order.type==='request')) host.append(orderPanel(order,[...model.orderCatalog,...model.catalog.filter(item=>!model.orderCatalog.some(row=>row.id===item.id))],save,changed));
     }
   }
   document.addEventListener('DOMContentLoaded',() => {

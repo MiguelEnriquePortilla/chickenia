@@ -1,4 +1,4 @@
-﻿"""Verify the CEDIS workflow through the shared UI and isolated database."""
+"""Verify the CEDIS workflow through the shared UI and isolated database."""
 import os
 import subprocess
 from pathlib import Path
@@ -46,8 +46,8 @@ try:
         page.get_by_role("button", name="Guardar recepción").click()
         expect(page.get_by_label("Existencia de Pollo para Rostizado en pollos")).to_have_value("125")
 
-        visit("Pedido a CEDIS")
-        page.get_by_text("Nuevo pedido a CEDIS", exact=True).click()
+        visit("Pedido a Rastro")
+        page.get_by_text("Nuevo pedido a Rastro", exact=True).click()
         page.get_by_label("Guardar pedido · Pollo para Rostizado (pollos)").fill("75")
         page.get_by_role("button", name="Guardar pedido", exact=True).click()
         expect(page.get_by_text("Pedido guardado.")).to_be_visible()
