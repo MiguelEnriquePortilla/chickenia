@@ -100,6 +100,7 @@ const formatDate=date=>new Intl.DateTimeFormat('es-MX',{day:'numeric',month:'sho
 function showStock(scope,ids,title){
   chat().products=ids.slice(0,25);
   chat().lastStock={scope,ids,title};
+  chat().topic='stock';
   chat().report={type:'stock',scope,ids,title};
 }
 async function showPeriod(report,range){
@@ -113,6 +114,7 @@ function lastShipment(){
 }
 function prepareOrder(order){
   const number=orders().indexOf(order)+1;
+  chat().lastOrder=number;chat().topic='orders';
   draft={action:'dispatch',orderId:order.id,number,lines:{...order.lines},allocation:order.allocation,note:order.note};
   retry=null;clarification='';awaitingOrder=false;
   chat().report=null;
@@ -148,7 +150,9 @@ function reportCard(report){
     const {from,to,rows}=report.history;
     card.append(el('h2',(report.title||'Salidas a Sucursal')+' · '+formatDate(from)+(from!==to?' al '+formatDate(to):'')));
     const labels={'cedis-in':'entró a CEDIS','cedis-out':'salió de CEDIS','cedis-adjust':'ajuste en CEDIS','branch-in':'llegó a Sucursal','branch-used':'se usó en Sucursal'};
-    const visible=rows.filter(row=>product(row.id)&&(report.type==='shipment'?row.kind==='cedis-out':
+    const byDirection={incoming:['cedis-in','branch-in'],outgoing:['cedis-out'],used:['branch-used']};
+    const visible=rows.filter(row=>!byDirection[report.movements]||byDirection[report.movements].includes(row.kind))
+      .filter(row=>product(row.id)&&(report.type==='shipment'?row.kind==='cedis-out':
       report.ids.includes(row.id)&&(report.scope==='both'||row.kind.startsWith(report.scope==='sucursal'?'branch-':'cedis-'))));
     if(!visible.length)card.append(el('p','Sin movimientos registrados en este periodo.'));
     for(const row of visible)line(formatDate(row.date)+' · '+product(row.id).name+' · '+labels[row.kind],amount(row.id,row.qty));
@@ -191,8 +195,7 @@ function stockValue(id,scope){
     'Sin saldo de Sucursal';
   return scope==='both'?source+' | Sucursal: '+destination:scope==='sucursal'?destination:source;
 }
-async function explainStock(){
-  const current=chat().lastStock;
+async function explainStock(current=chat().lastStock){
   if(!current){say('Dime qué producto y qué inventario quieres revisar.');return;}
   const ids=current.ids.slice(0,12);
   const recent=await inventory('cedis-history&range=three');
@@ -259,10 +262,70 @@ async function stock(result){
   const ids=(result.products||[]).filter(id=>product(id));
   if(!ids.length){say(result.question||'¿Qué producto quieres consultar?');return;}
   showStock(result.scope,ids,ids.length===1?product(ids[0]).name:'Existencias');
-  if(result.range&&result.range!=='current')await showPeriod(chat().report,result.range);
+  if(result.range&&result.range!=='current'){
+    chat().report.movements=result.movements;
+    await showPeriod(chat().report,result.range);
+  }
 }
+
+function inspectOrders(result){
+  const all=orders();
+  const pendingOrders=all.filter(order=>!order.actual);
+  const number=order=>all.indexOf(order)+1;
+  const view=result.orderView;
+  chat().topic='orders';
+  chat().report=null;
+  if(view==='pending'){
+    chat().report={type:'pending'};
+    if(pendingOrders.length===1)chat().lastOrder=number(pendingOrders[0]);
+    return;
+  }
+  if(view==='latest'){
+    lastShipment();
+    chat().lastOrder=chat().report.number;
+    return;
+  }
+  if(view==='all'&&!result.order){
+    let list=all.slice().reverse();
+    if(result.range==='today')list=list.filter(order=>order.date===model.day);
+    else if(['three','week','yesterday'].includes(result.range)){
+      const date=new Date(model.day+'T12:00:00Z');
+      const offset=result.range==='three'?2:result.range==='yesterday'?1:(date.getUTCDay()+6)%7;
+      date.setUTCDate(date.getUTCDate()-offset);
+      const from=date.toISOString().slice(0,10);
+      list=list.filter(order=>result.range==='yesterday'?order.date===from:order.date>=from);
+    }
+    say(list.length?list.slice(0,12).map(order=>'Pedido #'+number(order)+' · '+formatDate(order.date)+' · '+(order.actual?'Salida guardada':'Falta guardar la salida')).join('\n'):'No hay pedidos en ese periodo.');
+    if(list.length===1)chat().lastOrder=number(list[0]);
+    return;
+  }
+  const chosen=result.order?all[result.order-1]:pendingOrders.length===1?pendingOrders[0]:all.length===1?all[0]:null;
+  if(!chosen){
+    say(result.order?'No encontré el pedido #'+result.order+'.':all.length?'¿Qué pedido quieres revisar? '+all.slice(-5).map(order=>'#'+number(order)).join(', ')+'.':'Todavía no hay pedidos guardados.');
+    return;
+  }
+  chat().lastOrder=number(chosen);
+  if(view==='availability'&&!chosen.actual){
+    const blocked=Object.entries(chosen.lines).filter(([id,qty])=>(model.cedis[id]??model.receivedPending[id]??0)<qty);
+    say('Pedido #'+number(chosen)+'. '+(blocked.length?blocked.map(([id,qty])=>{
+      const available=model.cedis[id]??model.receivedPending[id];
+      return product(id).name+': se pidió '+amount(id,qty)+' y '+(available==null?'la existencia está pendiente':'hay '+amount(id,available))+'.';
+    }).join('\n'):'Hay existencia registrada para todas las cantidades pedidas.'));
+    return;
+  }
+  const status=chosen.actual?'Salida guardada'+(chosen.movedBy?' por '+chosen.movedBy:'')+' el '+formatDate(chosen.movementDate||chosen.date)+'.':'Pedido guardado el '+formatDate(chosen.date)+'. Falta guardar la salida.';
+  say('Pedido #'+number(chosen)+' · '+status+'\n'+Object.entries(chosen.lines).filter(([id])=>product(id)).map(([id,qty])=>
+    product(id).name+': pedido '+amount(id,qty)+(chosen.actual?' · salió '+amount(id,chosen.actual[id]||0):'')).join('\n'));
+}
+
 async function prepare(result,text){
   if(result.intent==='stock'){await stock(result);return;}
+  if(result.intent==='orders'){inspectOrders(result);return;}
+  if(result.intent==='explain'){
+    const ids=result.products.filter(id=>product(id));
+    await explainStock(ids.length?{ids,scope:result.scope}:undefined);
+    return;
+  }
   if(result.intent==='clarify'){say(result.question||'¿Qué necesitas hacer con este pedido?');return;}
   if(section==='Inicio')adoptSection('Pedido a Rastro',text);
   const action=result.intent==='create'?'request':'dispatch';
@@ -318,6 +381,7 @@ async function save(){
   try{
     model=await inventory('cedis',{...body,revision:model.revision,requestId:retry.id});
     const latest=action==='request'?orders().length:number;
+    chat().lastOrder=latest;chat().topic='orders';
     say(action==='request'?'Pedido #'+latest+' guardado por '+user.name+'. Falta guardar la salida.':
       'Salida guardada por '+user.name+' · Pedido #'+number+'\n\n'+body.lines.map(({id,qty})=>{
         const item=product(id);
@@ -342,14 +406,14 @@ $('compose').onsubmit=async event=>{
   try{
     model=await inventory('cedis');
     const normalized=text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-    if(chat().lastStock&&/por ?que|de donde|como (lo |se )?calcula|como sale|por que sale/.test(normalized)){
+    if(chat().topic==='stock'&&chat().lastStock&&/^[\s¿]*(?:y )?(?:por ?que|de donde|como (?:lo |se )?calcula|como sale)(?: me da| sale| viene)?(?: ese numero| esa cifra| ese total)?[?!.\s]*$/.test(normalized)){
       await explainStock();return;
     }
     const result=await inventory('rastro-chat',{
       text:awaitingOrder?'Elegir pedido pendiente para preparar salida: '+text:text,
       section,
       draft:draft?{action:draft.action,lines:draft.lines,question:clarification,allocation:draft.allocation}:undefined,
-      previousProducts:chat().products
+      previousProducts:chat().products,previousScope:chat().lastStock?.scope,previousOrder:chat().lastOrder||undefined,previousTopic:chat().topic
     });
     await prepare(result,text);
   }catch(error){$('message').value=text;say(error.message);}

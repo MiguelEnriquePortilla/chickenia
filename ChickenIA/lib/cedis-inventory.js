@@ -195,14 +195,15 @@ function shiftDay(day,offset){
   return date.toISOString().slice(0,10);
 }
 async function history(query,range,day=today(new Date())){
-  const ranges={today:0,three:-2,week:-((new Date(day+'T12:00:00Z').getUTCDay()+6)%7)};
+  const ranges={today:0,yesterday:-1,three:-2,week:-((new Date(day+'T12:00:00Z').getUTCDay()+6)%7)};
   if(!Object.hasOwn(ranges,range))fail('Elige un periodo.');
   const from=shiftDay(day,ranges[range]);
+  const to=range==='yesterday'?from:day;
   const {data:state}=await load(query,day);
   const movements=await query(`
     SELECT m.movement_date::text date,i.sku,m.movement_type kind,m.quantity,m.notes FROM inventory_movements m
     JOIN inventory_items i ON i.id=m.item_id JOIN locations l ON l.id=m.location_id
-    WHERE l.code='rastro' AND m.movement_date BETWEEN $1 AND $2 ORDER BY m.movement_date DESC,m.id DESC`,[from,day]);
+    WHERE l.code='rastro' AND m.movement_date BETWEEN $1 AND $2 ORDER BY m.movement_date DESC,m.id DESC`,[from,to]);
   const rows=[];
   const add=(date,id,kind,qty)=>{if(qty)rows.push({date,id,kind,qty:round(qty)});};
   for(const movement of movements){
@@ -220,13 +221,13 @@ async function history(query,range,day=today(new Date())){
     }
   }
   for(const order of state.orders){
-    if(!order.actual||order.movementDate<from||order.movementDate>day)continue;
+    if(!order.actual||order.movementDate<from||order.movementDate>to)continue;
     for(const [id,qty] of Object.entries(order.actual)){
       add(order.movementDate,id,order.type==='purchase'?'cedis-in':'cedis-out',qty);
       if(order.type==='request')add(order.movementDate,id,'branch-in',(order.received||order.actual)[id]||0);
     }
   }
-  const production=await query('SELECT date::text date,data FROM production_paper_days WHERE date BETWEEN $1 AND $2',[from,day]);
+  const production=await query('SELECT date::text date,data FROM production_paper_days WHERE date BETWEEN $1 AND $2',[from,to]);
   for(const row of production){
     for(const id of Object.keys(consumedBy))add(row.date,id,'branch-used',consumption(row.data,id));
   }
@@ -237,7 +238,7 @@ async function history(query,range,day=today(new Date())){
     if(previous)previous.qty=round(previous.qty+row.qty);
     else grouped.set(key,row);
   }
-  return {from,to:day,rows:[...grouped.values()].sort((a,b)=>b.date.localeCompare(a.date))};
+  return {from,to,rows:[...grouped.values()].sort((a,b)=>b.date.localeCompare(a.date))};
 }
 
 module.exports = {run,catalog,history};
