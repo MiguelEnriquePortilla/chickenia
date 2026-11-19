@@ -82,12 +82,17 @@
     const details = el('details');
     const date = order.movementDate || order.date;
     const state = order.type === 'purchase' ? (order.actual ? 'Recibido' : 'Falta guardar la recepción')
-      : (order.actual ? 'Salida guardada' : 'Pedido guardado, falta la salida');
+      : (order.receivedAtCapture ? 'Recibido en Sucursal' : order.actual ? 'Salida guardada' : 'Pedido guardado, falta la salida');
     const header = [number == null ? null : 'Pedido #'+number,date,order.supplier,state].filter(Boolean).join(' · ');
     details.append(el('summary',header));
     if(order.note) details.append(el('p',order.note));
     if(order.allocation) details.append(el('p','Reparto del Rostizado pedido: Horno '+order.allocation.oven+' · Rosticero '+order.allocation.rotisserie));
     const items = catalog.filter(item => Object.hasOwn(order.lines,item.id));
+    if(order.receivedAtCapture){
+      for(const item of items)details.append(el('p',item.name+' · '+order.actual[item.id]+' '+item.unit));
+      if(order.allocation)details.append(el('p','Reparto del Rostizado: Horno '+order.allocation.oven+' · Rosticero '+order.allocation.rotisserie));
+      return details;
+    }
     if(order.type === 'purchase' && order.actual){
       for(const item of items) details.append(el('p',item.name + ' · Llegó ' + order.actual[item.id] + ' ' + item.unit));
       return details;
@@ -103,7 +108,7 @@
   const page = document.querySelector('[data-operation]');
   if(!page) return;
   const host = document.getElementById('cedis-content'), status = document.getElementById('cedis-status');
-  const messages = {count:'Conteo guardado.',request:'Pedido guardado.',dispatch:'Salida guardada. Ya cuenta en Sucursal.',correct:'Diferencia de entrega guardada.'};
+  const messages = {count:'Conteo guardado.','request-delivered':'Pedido guardado como recibido en Sucursal.',dispatch:'Salida guardada. Ya cuenta en Sucursal.',correct:'Diferencia de entrega guardada.'};
   const mode = page.dataset.operation;
   let model, dirty = false, busy = false, place = 'Rastro', retry = null;
   const report = error => {status.textContent = error.message;};
@@ -152,9 +157,9 @@
         lineForm(model.catalog.filter(item=>item.place===place),{label:'Guardar conteo',hint,changed,save:lines=>save({action:'count',lines})}));
     } else {
       const editor = el('details');
-      editor.append(el('summary','Nuevo pedido a Rastro'),
-        lineForm(model.orderCatalog,{label:'Guardar pedido',changed,allocation:true,save:(lines,allocation,note)=>save({action:'request',lines,allocation,note})}));
-      host.append(editor,el('h2','Pedidos a Rastro'));
+      editor.append(el('summary','Capturar pedido a CEDIS'),
+        lineForm(model.orderCatalog,{label:'Guardar pedido a CEDIS',changed,allocation:true,save:(lines,allocation,note)=>save({action:'request-delivered',lines,allocation,note})}));
+      host.append(editor,el('h2','Pedidos a CEDIS'));
       const requests = model.orders.filter(order=>order.type==='request');
       const orderItems = [...model.orderCatalog,...model.catalog.filter(item=>!model.orderCatalog.some(row=>row.id===item.id))];
       requests.forEach((order,index)=>host.append(orderPanel(order,orderItems,save,changed,requests.length-index)));

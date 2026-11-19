@@ -79,5 +79,20 @@ test('one capture updates both locations and daily production changes the branch
     assert.deepEqual(rostiInBranch().arrivals.map(row=>[row.qty,row.source]),[[60,'history'],[74,'order']]);
     assert.equal(rostiInBranch().used,59);
     assert.equal(rostiInBranch().balance,85);
+    const direct={action:'request-delivered',revision:state.revision,requestId:randomUUID(),
+      lines:[qty(rosti,10),qty(carrot,2)],allocation:{oven:4,rotisserie:6}};
+    await assert.rejects(run(query,user,{...direct,lines:[qty(carrot,2),qty(rosti,51)]},day),error=>error.status===409);
+    state=await run(query,user,null,day);
+    assert.equal(state.cedis[carrot],7);
+    state=await run(query,user,direct,day);
+    assert.equal(state.cedis[rosti],40);
+    assert.equal(state.cedis[carrot],5);
+    assert.equal(rostiInBranch().incoming,144);
+    assert.equal(state.orders[0].receivedAtCapture,true);
+    assert.deepEqual(state.orders[0].lines,state.orders[0].actual);
+    const revision=state.revision;
+    state=await run(query,user,direct,day);
+    assert.equal(state.revision,revision);
+    assert.equal(state.cedis[rosti],40);
   } finally { await db.close(); }
 });

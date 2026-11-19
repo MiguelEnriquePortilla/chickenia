@@ -2,7 +2,8 @@
 const $=id=>document.getElementById(id);
 const menu=['Inicio','Pedido a Rastro','Inventario CEDIS','Inventario Sucursal'];
 const chats=new Map();
-let section=new URLSearchParams(location.search).get('apartado')==='rastro'?'Pedido a Rastro':'Inicio',user,model,draft,target,busy=false,clarification='',retry,awaitingOrder=false;
+const sectionName=name=>name==='Pedido a Rastro'?'Pedido a CEDIS':name;
+let section=new URLSearchParams(location.search).get('apartado')==='rastro'?'Pedido a Rastro':'Inicio',user,model,draft,target,busy=false,clarification='',retry;
 const historyKey=()=> 'chickenia-rastro-conversations:'+user.id;
 function el(tag,text,cls){
   const element=document.createElement(tag);
@@ -40,16 +41,16 @@ function adoptSection(next,text){
 const product=id=>model.catalog.find(item=>item.id===id);
 const amount=(id,qty)=>qty+' '+product(id).unit;
 const orders=()=>model.orders.filter(order=>order.type==='request').slice().reverse();
-const pending=()=>Boolean(draft||$('message').value.trim()||awaitingOrder);
+const pending=()=>Boolean(draft||$('message').value.trim());
 function switchTo(next){
   if(section===next||busy)return;
   if(pending()){target=next;$('leaving').showModal();return;}
   section=next;render();
 }
-for(const item of menu)$('chat-nav').append(button(item,()=>switchTo(item)));
+for(const item of menu)$('chat-nav').append(button(sectionName(item),()=>switchTo(item)));
 $('stay').onclick=()=>$('leaving').close();
 $('discard').onclick=()=>{
-  draft=null;retry=null;clarification='';awaitingOrder=false;$('message').value='';
+  draft=null;retry=null;clarification='';$('message').value='';
   $('leaving').close();section=target;render();
 };
 function login(){
@@ -112,30 +113,29 @@ function lastShipment(){
   const order=all.filter(order=>order.actual).sort((a,b)=>(b.movementAt||b.movementDate||b.date).localeCompare(a.movementAt||a.movementDate||a.date)).at(0);
   chat().report={type:'shipment',order,number:order?all.indexOf(order)+1:null};
 }
-function prepareOrder(order){
-  const number=orders().indexOf(order)+1;
-  chat().lastOrder=number;chat().topic='orders';
-  draft={action:'dispatch',orderId:order.id,number,lines:{...order.lines},allocation:order.allocation,note:order.note};
-  retry=null;clarification='';awaitingOrder=false;
-  chat().report=null;
-}
 function reportCard(report){
   const card=el('section',null,'chat-review chat-report');
   const line=(label,value)=>{const row=el('div',null,'chat-line');row.append(el('span',label),el('strong',value));card.append(row);};
-  if(report.type==='pending'){
+  if(report.type==='received'){
+    card.append(el('h2','Pedidos recibidos'));
+    const all=orders();
+    const received=all.filter(order=>order.actual).slice(-12).reverse();
+    if(!received.length)card.append(el('p','Todavía no hay pedidos recibidos.'));
+    for(const order of received){
+      const details=el('details');
+      details.append(el('summary','Pedido #'+(all.indexOf(order)+1)+' · '+formatDate(order.movementDate||order.date)));
+      for(const [id,qty] of Object.entries(order.actual)){
+        if(product(id))details.append(el('p',product(id).name+': '+amount(id,qty)));
+      }
+      card.append(details);
+    }
+  }else if(report.type==='pending'){
     card.append(el('h2','Pedidos sin salida'));
     const list=orders().filter(order=>!order.actual);
     if(!list.length)card.append(el('p','No hay pedidos sin salida.'));
     for(const order of list){
       const number=orders().indexOf(order)+1;
-      const row=el('div',null,'chat-line');
-      row.append(el('span','Pedido #'+number+' · '+formatDate(order.date)),
-        button('Preparar salida',()=>quick(()=>{
-          const current=orders().find(item=>item.id===order.id);
-          if(!current||current.actual){say('Ese pedido ya tiene salida.');return;}
-          prepareOrder(current);
-        })));
-      card.append(row);
+      line('Pedido #'+number+' · '+formatDate(order.date),'Registro anterior');
     }
   }else if(report.type==='shipment'&&!report.history){
     card.append(el('h2','Última salida'));
@@ -161,7 +161,7 @@ function reportCard(report){
     for(const id of report.ids)if(product(id))line(product(id).name,stockValue(id,report.scope));
 
   }
-  if(report.type!=='pending'){
+  if(!['pending','received'].includes(report.type)){
     const controls=el('div',null,'chat-periods');
     controls.setAttribute('aria-label','Periodo de movimientos');
     for(const [range,label] of periods){
@@ -176,13 +176,12 @@ function quickButtons(){
   const controls=el('nav',null,'chat-suggestions');
   controls.setAttribute('aria-label','Acciones rápidas');
   for(const [label,scope,group] of stockOptions)controls.append(button(label,()=>quick(()=>showStock(scope,resultsIds(group),label))));
-  controls.append(button('Nuevo pedido a Rastro',()=>{
+  controls.append(button('Pedido a CEDIS',()=>{
     switchTo('Pedido a Rastro');
     $('message').focus();
-  }),button('Pedidos sin salida',()=>quick(()=>{
-    const list=orders().filter(order=>!order.actual);
-    if(list.length===1)prepareOrder(list[0]);else chat().report={type:'pending'};
-  })),button('Última salida',()=>quick(lastShipment)));
+  }),button('Pedidos recibidos',()=>quick(()=>{
+    chat().report={type:'received'};
+  })));
   for(const b of controls.children)b.disabled=busy;
   return controls;
 }
@@ -223,28 +222,28 @@ async function explainStock(current=chat().lastStock){
 
 function render(){
   if(!user||!model)return;
-  $('context').textContent=section;
+  $('context').textContent=sectionName(section);
   for(const b of $('chat-nav').children){
-    if(b.textContent===section)b.setAttribute('aria-current','page');
+    if(b.textContent===sectionName(section))b.setAttribute('aria-current','page');
     else b.removeAttribute('aria-current');
   }
   const host=$('chat');
   host.replaceChildren();
-  const heading=section==='Inicio'?'¿Qué hacemos hoy, '+user.name+'?':section;
+  const heading=section==='Inicio'?'¿Qué hacemos hoy, '+user.name+'?':sectionName(section);
   if(!chat().messages.length)host.append(el('h1',heading),el('p','Prepara pedidos, registra salidas y consulta existencias.','chat-intro'));
   for(const entry of chat().messages)host.append(el('div',entry.text,'chat-message '+entry.kind));
   if(!draft)host.append(quickButtons());
   if(chat().report)host.append(reportCard(chat().report));
   if(draft){
     const card=el('section',null,'chat-review');
-    card.append(el('h2',draft.action==='request'?'Revisar pedido a Rastro · '+model.day:'Salida a Sucursal · Pedido #'+draft.number));
+    card.append(el('h2','Pedido a CEDIS · '+model.day));
     if(draft.allocation)card.append(el('p','Reparto solicitado: Horno '+draft.allocation.oven+' · Rosticero '+draft.allocation.rotisserie));
     for(const [id,qty] of Object.entries(draft.lines)){
       const row=el('div',null,'chat-line');
       row.append(el('span',product(id).name),el('strong',amount(id,qty)));card.append(row);
     }
     if(draft.note)card.append(el('p',draft.note));
-    const confirmButton=button(draft.action==='request'?'Guardar pedido':'Guardar salida',save,true);
+    const confirmButton=button('Guardar pedido a CEDIS',save,true);
     confirmButton.disabled=Boolean(clarification)||busy;
     card.append(confirmButton);host.append(card);
   }
@@ -252,9 +251,9 @@ function render(){
   for(const control of $('compose').querySelectorAll('button, textarea'))control.disabled=busy;
   $('scroll').scrollTop=$('scroll').scrollHeight;
 }
-function validLines(lines,action){
+function validLines(lines){
   return Object.fromEntries((lines||[]).filter(({id,qty})=>
-    model.orderCatalog.some(item=>item.id===id)||(action==='dispatch'&&draft&&Object.hasOwn(draft.lines,id)))
+    model.orderCatalog.some(item=>item.id===id))
     .filter(({qty})=>Number.isFinite(qty)&&qty>=0&&qty<=1000000)
     .map(({id,qty})=>[id,Math.round(qty*1000)/1000]));
 }
@@ -326,39 +325,16 @@ async function prepare(result,text){
     await explainStock(ids.length?{ids,scope:result.scope}:undefined);
     return;
   }
+  if(result.intent==='dispatch'&&!result.lines.length&&!draft){say('Para capturar el Pedido a CEDIS, dime los productos y cantidades que llegaron.');return;}
   if(result.intent==='clarify'){say(result.question||'¿Qué necesitas hacer con este pedido?');return;}
   if(section==='Inicio')adoptSection('Pedido a Rastro',text);
-  const action=result.intent==='create'?'request':'dispatch';
-  const lines=validLines(result.lines,action);
+  const action='request';
+  const lines=validLines(result.lines);
   const wasClarifying=clarification;
   if(!draft||draft.action!==action){
     retry=null;
-    if(action==='request'){
-      if(!Object.keys(lines).length){say(result.question||'¿Qué productos y cantidades quieres pedir?');return;}
-      draft={action,lines:{},note:''};
-    }else{
-      const all=orders();
-      const notSent=all.filter(order=>!order.actual);
-      const chosen=result.order ? all[result.order-1] : notSent.length===1?notSent[0]:null;
-      if(!chosen){
-        if(!result.order&&notSent.length>1){
-          awaitingOrder=true;
-          say('Hay varios pedidos pendientes. Indica el número: '+notSent.map(order=>'#'+(all.indexOf(order)+1)).join(', ')+'.');
-        }else{
-          awaitingOrder=false;
-          const previous=!result.order&&all.at(-1);
-          say(previous?.actual?'La salida del pedido #'+all.length+' ya se guardó.\n'+Object.entries(previous.actual).map(([id,qty])=>product(id).name+' · '+amount(id,qty)).join('\n'):'No encontré ese pedido pendiente.');
-        }
-        return;
-      }
-      awaitingOrder=false;
-      const number=all.indexOf(chosen)+1;
-      if(chosen.actual){
-        say('El pedido #'+number+' ya se guardó.\n'+Object.entries(chosen.actual).map(([id,qty])=>product(id).name+' · '+amount(id,qty)).join('\n'));
-        return;
-      }
-      draft={action,orderId:chosen.id,number,lines:{...chosen.lines},allocation:chosen.allocation,note:chosen.note};
-    }
+    if(!Object.keys(lines).length){say(result.question||'Dime los productos y las cantidades que llegaron.');return;}
+    draft={action,lines:{},note:''};
   }
   for(const [id,qty] of Object.entries(lines)){
     if(action==='request'||Object.hasOwn(draft.lines,id))draft.lines[id]=qty;
@@ -373,21 +349,17 @@ async function prepare(result,text){
 async function save(){
   if(!draft||clarification||busy)return;
   busy=true;render();
-  const {action,orderId,note,allocation,number}=draft;
-  const body={action,orderId,lines:Object.entries(draft.lines).filter(([,qty])=>action==='dispatch'||qty>0).map(([id,qty])=>({id,qty}))};
-  if(action==='request'){body.note=note;body.allocation=allocation;}
+  const {note,allocation}=draft;
+  const body={action:'request-delivered',lines:Object.entries(draft.lines).filter(([,qty])=>qty>0).map(([id,qty])=>({id,qty}))};
+  body.note=note;body.allocation=allocation;
   const signature=JSON.stringify(body);
   if(retry?.signature!==signature)retry={signature,id:crypto.randomUUID()};
   try{
     model=await inventory('cedis',{...body,revision:model.revision,requestId:retry.id});
-    const latest=action==='request'?orders().length:number;
+    const latest=orders().length;
     chat().lastOrder=latest;chat().topic='orders';
-    say(action==='request'?'Pedido #'+latest+' guardado por '+user.name+'. Falta guardar la salida.':
-      'Salida guardada por '+user.name+' · Pedido #'+number+'\n\n'+body.lines.map(({id,qty})=>{
-        const item=product(id);
-        const balance=model.cedis[id]==null?'existencia pendiente':amount(id,model.cedis[id]);
-        return item.name+' · '+item.place+': '+balance+' · Sucursal: +'+amount(id,qty);
-      }).join('\n'));
+    say('Pedido #'+latest+' recibido en Sucursal. Guardado por '+user.name+'.\n\n'+body.lines.map(({id,qty})=>
+      product(id).name+': '+amount(id,qty)+' · CEDIS: '+(model.cedis[id]==null?'existencia pendiente':amount(id,model.cedis[id]))).join('\n'));
     draft=null;retry=null;
   }catch(error){
     say(error.message+' La captura sigue pendiente.');
@@ -413,7 +385,7 @@ $('compose').onsubmit=async event=>{
       await explainStock();return;
     }
     const result=await inventory('rastro-chat',{
-      text:awaitingOrder?'Elegir pedido pendiente para preparar salida: '+text:text,
+      text,
       section,
       draft:draft?{action:draft.action,lines:draft.lines,question:clarification,allocation:draft.allocation}:undefined,
       previousProducts:chat().products,previousScope:chat().lastStock?.scope,previousOrder:chat().lastOrder||undefined,previousTopic:chat().topic
@@ -427,7 +399,7 @@ window.addEventListener('beforeunload',e=>{if(pending()||busy){e.preventDefault(
 $('compose').hidden=true;
 $('context').textContent='Inicio';
 document.addEventListener('DOMContentLoaded',()=>{
-  AreaNavigation.guardChanges({hasChanges:pending,isSaving:()=>busy,discard:()=>{draft=null;awaitingOrder=false;$('message').value='';}});
+  AreaNavigation.guardChanges({hasChanges:pending,isSaving:()=>busy,discard:()=>{draft=null;$('message').value='';}});
   inventory('session').then(async result=>{user=result.user;await load();}).catch(error=>{
     if(error.status===401)login();
     else $('chat').append(el('p',error.message,'warn'));

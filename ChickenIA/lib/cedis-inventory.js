@@ -30,7 +30,7 @@ const legacyKeys = {'MERPOL:0': 'rosti-marinado', 'MERPOL:1': 'cruji-marinado'};
 const quantity = z.number().min(0).max(1000000).multipleOf(.001);
 const command = z.object({
   requestId: z.string().uuid(), revision: z.number().int().nonnegative(),
-  action: z.enum(['count','purchase','request','receive','dispatch','correct']),
+  action: z.enum(['count','purchase','request','request-delivered','receive','dispatch','correct']),
   supplier: z.string().optional(), orderId: z.string().uuid().optional(),
   lines: z.array(z.object({id: z.string(), qty: quantity})).min(1).max(500),
   note: z.string().max(1000).optional(),
@@ -108,12 +108,16 @@ function apply(state, input, user, day, products) {
     for(const {id,qty} of input.lines){ state.cedis[id]=qty; state.counted[id]=day; }
     return;
   }
-  if(input.action === 'purchase' || input.action === 'request'){
-    if(input.allocation && (input.action!=='request' || round(input.allocation.oven+input.allocation.rotisserie)>(lines['MERPOL:0']||0)))
+  if(input.action === 'purchase' || input.action === 'request' || input.action === 'request-delivered'){
+    if(input.allocation && (!['request','request-delivered'].includes(input.action) || round(input.allocation.oven+input.allocation.rotisserie)>(lines['MERPOL:0']||0)))
       fail('El reparto de Horno y Rosticero supera el Rostizado pedido.');
     const purchase = input.action === 'purchase';
     if(input.lines.some(({id,qty}) => !qty || (purchase ? products.get(id).supplier !== input.supplier : !paperItems.has(id)))) fail('Revisa las cantidades del pedido.');
-    state.orders.unshift({id:randomUUID(), type:input.action,supplier:purchase ? input.supplier : null, lines, date:day, actor:user.name, note:input.note || '',allocation:input.allocation});
+    const delivered=input.action==='request-delivered';
+    if(delivered)for(const {id,qty} of input.lines)move(id,-qty);
+    state.orders.unshift({id:randomUUID(),type:purchase?'purchase':'request',supplier:purchase?input.supplier:null,
+      lines,date:day,actor:user.name,note:input.note||'',allocation:input.allocation,
+      ...(delivered?{receivedAtCapture:true,actual:lines,movementDate:day,movementAt:new Date().toISOString(),movedBy:user.name}:{})});
     return;
   }
   const order = state.orders.find(order => order.id === input.orderId);
