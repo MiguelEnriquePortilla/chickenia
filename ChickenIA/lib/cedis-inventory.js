@@ -129,6 +129,7 @@ function apply(state, input, user, day, products) {
     }
     order.actual = lines;
     order.movementDate = day;
+    order.movementAt = new Date().toISOString();
     order.movedBy = user.name;
   } else {
     if(input.lines.some(({id,qty}) => qty > order.actual[id])) fail('La recepción no puede superar lo que salió.');
@@ -145,7 +146,7 @@ async function view(query, row, day, items) {
     const tracked = Boolean(consumedBy[item.id]);
     const used = tracked ? round(production.reduce((sum, row) => sum + consumption(row.data,item.id),0) - consumption(state.cutover,item.id)) : null;
     const opening = state.openingBranch[item.id];
-    return {...item, incoming, used, balance:tracked && opening != null ? round(opening + incoming - used) : null};
+    return {...item, incoming, used, opening:opening ?? null, balance:tracked && opening != null ? round(opening + incoming - used) : null};
   });
   const orderCatalog = paperOrder.map(([id,label])=>({...items.find(item=>item.id===id),label}));
   return {day,revision:row.revision,catalog:items,orderCatalog,cedis:state.cedis,counted:state.counted,receivedPending:state.receivedPending || {},branch,orders:state.orders};
@@ -170,4 +171,56 @@ async function run(query, user, body, day = today(new Date())) {
   if(!saved) fail('Alguien actualizó el inventario. Recarga y revisa las cantidades.',409);
   return view(query,saved,day,items);
 }
-module.exports = {run,catalog};
+
+function shiftDay(day,offset){
+  const date=new Date(day+'T12:00:00Z');
+  date.setUTCDate(date.getUTCDate()+offset);
+  return date.toISOString().slice(0,10);
+}
+async function history(query,range,day=today(new Date())){
+  const ranges={today:0,three:-2,week:-((new Date(day+'T12:00:00Z').getUTCDay()+6)%7)};
+  if(!Object.hasOwn(ranges,range))fail('Elige un periodo.');
+  const from=shiftDay(day,ranges[range]);
+  const {data:state}=await load(query,day);
+  const movements=await query(`
+    SELECT m.movement_date::text date,i.sku,m.movement_type kind,m.quantity,m.notes FROM inventory_movements m
+    JOIN inventory_items i ON i.id=m.item_id JOIN locations l ON l.id=m.location_id
+    WHERE l.code='rastro' AND m.movement_date BETWEEN $1 AND $2 ORDER BY m.movement_date DESC,m.id DESC`,[from,day]);
+  const rows=[];
+  const add=(date,id,kind,qty)=>{if(qty)rows.push({date,id,kind,qty:round(qty)});};
+  for(const movement of movements){
+    const protein=/^PRO-(ROSTI|CRUJI)-(RAW|MAR)$/.exec(movement.sku);
+    if(protein){
+      let action;try{action=JSON.parse(movement.notes)?.action;}catch{}
+      if(action==='entry'||action==='send'){
+        const id=protein[1]==='ROSTI'?'MERPOL:0':'MERPOL:1';
+        add(movement.date,id,action==='entry'?'cedis-in':'cedis-out',Number(movement.quantity));
+        if(action==='send')add(movement.date,id,'branch-in',Number(movement.quantity));
+      }
+    }else if(['entry','exit','rastro-adjustment'].includes(movement.kind)){
+      const id=skuLinks.get(movement.sku)||'legacy:'+movement.sku;
+      add(movement.date,id,{'entry':'cedis-in','exit':'cedis-out','rastro-adjustment':'cedis-adjust'}[movement.kind],Number(movement.quantity));
+    }
+  }
+  for(const order of state.orders){
+    if(!order.actual||order.movementDate<from||order.movementDate>day)continue;
+    for(const [id,qty] of Object.entries(order.actual)){
+      add(order.movementDate,id,order.type==='purchase'?'cedis-in':'cedis-out',qty);
+      if(order.type==='request')add(order.movementDate,id,'branch-in',(order.received||order.actual)[id]||0);
+    }
+  }
+  const production=await query('SELECT date::text date,data FROM production_paper_days WHERE date BETWEEN $1 AND $2',[from,day]);
+  for(const row of production){
+    for(const id of Object.keys(consumedBy))add(row.date,id,'branch-used',consumption(row.data,id));
+  }
+  const grouped=new Map();
+  for(const row of rows){
+    const key=[row.date,row.id,row.kind].join('|');
+    const previous=grouped.get(key);
+    if(previous)previous.qty=round(previous.qty+row.qty);
+    else grouped.set(key,row);
+  }
+  return {from,to:day,rows:[...grouped.values()].sort((a,b)=>b.date.localeCompare(a.date))};
+}
+
+module.exports = {run,catalog,history};

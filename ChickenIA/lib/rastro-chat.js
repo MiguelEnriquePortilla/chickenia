@@ -19,7 +19,8 @@ const resultSchema=z.object({
   products:z.array(id).max(25),
   oven:qty.nullable(),rotisserie:qty.nullable(),
   note:z.string().max(1000),question:z.string().max(500),
-  scope:z.enum(['cedis','sucursal','both'])
+  scope:z.enum(['cedis','sucursal','both']),
+  range:z.enum(['current','today','three','week'])
 }).strict();
 const jsonSchema=z.toJSONSchema(resultSchema);
 delete jsonSchema.$schema;
@@ -31,7 +32,7 @@ Usa exclusivamente los IDs permitidos para pedidos al crear o editar un pedido.
 En edición devuelve solo los renglones cambiados. Si la salida coincide con el pedido, devuelve lines vacío.
 Horno y Rosticero son reparto del total de Rostizado MERPOL:0. Pueden sumar menos que el total.
 Si hay solo un pedido pendiente, omite order salvo selección explícita. Para elegir usa el número indicado.
-Para stock incluye los productos relevantes y si pide comparar ambos lugares usa scope both.
+Para stock incluye los productos relevantes y si pide comparar ambos lugares usa scope both. Usa range current para saldo actual, today para movimientos de hoy, three para los últimos tres días, week para esta semana.
 Puedes usar previousProducts para preguntas de seguimiento. "Proteínas de Rastro" significa Rostizado y Crujiente.
 El flujo registra el día actual. Si se pide otra fecha, solicita confirmación de usar hoy.
 Las acciones ajenas a estos flujos quedan en clarify. No inventes una captura ni declares que quedó guardada.`;

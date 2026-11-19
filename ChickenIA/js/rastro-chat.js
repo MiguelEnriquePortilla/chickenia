@@ -75,6 +75,144 @@ async function load(){
   try{for(const [name,value] of Object.entries(JSON.parse(sessionStorage.getItem(historyKey())||'{}')))chats.set(name,value);}catch{}
   render();
 }
+
+const periods=[['today','Hoy'],['three','Últimos 3 días'],['week','Esta semana']];
+const stockOptions=[
+  ['Proteínas en CEDIS','cedis','protein'],
+  ['Proteínas en Sucursal','sucursal','protein'],
+  ['Ver Almacén','cedis','store'],
+  ['Vegetales en Sucursal','sucursal','vegetable']
+];
+const proteins=['MERPOL:0','MERPOL:1'];
+function resultsIds(group){
+  if(group==='protein')return proteins;
+  if(group==='store')return model.catalog.filter(item=>item.place==='Almacén').map(item=>item.id);
+  return model.branch.filter(item=>item.branch==='Vegetales').map(item=>item.id);
+}
+async function quick(action){
+  if(busy)return;
+  busy=true;render();
+  try{model=await inventory('cedis');await action();}
+  catch(error){say(error.message);}
+  finally{busy=false;render();}
+}
+const formatDate=date=>new Intl.DateTimeFormat('es-MX',{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
+function showStock(scope,ids,title){
+  chat().products=ids.slice(0,25);
+  chat().lastStock={scope,ids,title};
+  chat().report={type:'stock',scope,ids,title};
+}
+async function showPeriod(report,range){
+  const history=await inventory('cedis-history&range='+range);
+  chat().report={...report,range,history};
+}
+function lastShipment(){
+  const all=orders();
+  const order=all.filter(order=>order.actual).sort((a,b)=>(b.movementAt||b.movementDate||b.date).localeCompare(a.movementAt||a.movementDate||a.date)).at(0);
+  chat().report={type:'shipment',order,number:order?all.indexOf(order)+1:null};
+}
+function prepareOrder(order){
+  const number=orders().indexOf(order)+1;
+  draft={action:'dispatch',orderId:order.id,number,lines:{...order.lines},allocation:order.allocation,note:order.note};
+  retry=null;clarification='';awaitingOrder=false;
+  chat().report=null;
+}
+function reportCard(report){
+  const card=el('section',null,'chat-review chat-report');
+  const line=(label,value)=>{const row=el('div',null,'chat-line');row.append(el('span',label),el('strong',value));card.append(row);};
+  if(report.type==='pending'){
+    card.append(el('h2','Pedidos sin salida'));
+    const list=orders().filter(order=>!order.actual);
+    if(!list.length)card.append(el('p','No hay pedidos sin salida.'));
+    for(const order of list){
+      const number=orders().indexOf(order)+1;
+      const row=el('div',null,'chat-line');
+      row.append(el('span','Pedido #'+number+' · '+formatDate(order.date)),
+        button('Preparar salida',()=>quick(()=>{
+          const current=orders().find(item=>item.id===order.id);
+          if(!current||current.actual){say('Ese pedido ya tiene salida.');return;}
+          prepareOrder(current);
+        })));
+      card.append(row);
+    }
+  }else if(report.type==='shipment'&&!report.history){
+    card.append(el('h2','Última salida'));
+    const {order,number}=report;
+    if(!order)card.append(el('p','Todavía no hay salidas guardadas en Pedido a Rastro.'));
+    else {
+      const time=order.movementAt?new Intl.DateTimeFormat('es-MX',{timeZone:'America/Mexico_City',hour:'numeric',minute:'2-digit'}).format(new Date(order.movementAt)):'';
+      card.append(el('p',['Pedido #'+number,formatDate(order.movementDate||order.date),time,order.movedBy].filter(Boolean).join(' · ')));
+      for(const [id,qty] of Object.entries(order.actual))if(product(id))line(product(id).name,amount(id,qty));
+    }
+  }else if(report.history){
+    const {from,to,rows}=report.history;
+    card.append(el('h2',(report.title||'Salidas a Sucursal')+' · '+formatDate(from)+(from!==to?' al '+formatDate(to):'')));
+    const labels={'cedis-in':'entró a CEDIS','cedis-out':'salió de CEDIS','cedis-adjust':'ajuste en CEDIS','branch-in':'llegó a Sucursal','branch-used':'se usó en Sucursal'};
+    const visible=rows.filter(row=>product(row.id)&&(report.type==='shipment'?row.kind==='cedis-out':
+      report.ids.includes(row.id)&&(report.scope==='both'||row.kind.startsWith(report.scope==='sucursal'?'branch-':'cedis-'))));
+    if(!visible.length)card.append(el('p','Sin movimientos registrados en este periodo.'));
+    for(const row of visible)line(formatDate(row.date)+' · '+product(row.id).name+' · '+labels[row.kind],amount(row.id,row.qty));
+  }else{
+    card.append(el('h2',report.title));
+    for(const id of report.ids)if(product(id))line(product(id).name,stockValue(id,report.scope));
+  }
+  if(report.type!=='pending'){
+    const controls=el('div',null,'chat-periods');
+    controls.setAttribute('aria-label','Periodo de movimientos');
+    for(const [range,label] of periods){
+      const b=button(label,()=>quick(()=>showPeriod(report,range)));
+      b.setAttribute('aria-pressed',String(report.range===range));b.disabled=busy;controls.append(b);
+    }
+    card.append(controls);
+  }
+  return card;
+}
+function quickButtons(){
+  const controls=el('nav',null,'chat-suggestions');
+  controls.setAttribute('aria-label','Acciones rápidas');
+  for(const [label,scope,group] of stockOptions)controls.append(button(label,()=>quick(()=>showStock(scope,resultsIds(group),label))));
+  controls.append(button('Nuevo pedido a Rastro',()=>{
+    switchTo('Pedido a Rastro');
+    $('message').focus();
+  }),button('Pedidos sin salida',()=>quick(()=>{
+    const list=orders().filter(order=>!order.actual);
+    if(list.length===1)prepareOrder(list[0]);else chat().report={type:'pending'};
+  })),button('Última salida',()=>quick(lastShipment)));
+  for(const b of controls.children)b.disabled=busy;
+  return controls;
+}
+function stockValue(id,scope){
+  const item=product(id), cedis=model.cedis[id], branch=model.branch.find(value=>value.id===id);
+  const source=item.place+': '+(cedis==null?'existencia pendiente':amount(id,cedis));
+  const destination=branch?
+    'Llegó: '+amount(id,branch.incoming)+' · '+(branch.used==null?'Consumo sin registrar':'Se usó: '+amount(id,branch.used))+
+      ' · '+(branch.balance==null?(branch.used==null?'Existencia pendiente':'Saldo inicial pendiente'):'Queda: '+amount(id,branch.balance)):
+    'Sin saldo de Sucursal';
+  return scope==='both'?source+' | Sucursal: '+destination:scope==='sucursal'?destination:source;
+}
+async function explainStock(){
+  const current=chat().lastStock;
+  if(!current){say('Dime qué producto y qué inventario quieres revisar.');return;}
+  const ids=current.ids.slice(0,12);
+  const recent=await inventory('cedis-history&range=three');
+  say(ids.map(id=>{
+    const item=product(id), branch=model.branch.find(row=>row.id===id);
+    const text=[item.name];
+    if(current.scope!=='sucursal'){
+      const last=model.counted[id];
+      text.push(stockValue(id,'cedis')+'. '+(last?'Último conteo guardado el '+formatDate(last)+'.':'La cifra de CEDIS usa la existencia registrada en ChickenIA.'));
+      const movements=recent.rows.filter(row=>row.id===id&&row.kind.startsWith('cedis-'));
+      if(movements.length)text.push('Movimientos de los últimos 3 días: '+movements.map(row=>formatDate(row.date)+' '+({'cedis-in':'entrada','cedis-out':'salida','cedis-adjust':'ajuste'}[row.kind])+' '+amount(id,row.qty)).join('; ')+'.');
+    }
+    if(current.scope!=='cedis'&&branch){
+      text.push(branch.opening==null||branch.used==null
+        ? 'Sucursal: '+stockValue(id,'sucursal')+'. Las entradas se muestran por separado de la existencia.'
+        : 'Sucursal: saldo inicial '+amount(id,branch.opening)+' + entradas '+amount(id,branch.incoming)+' − consumo '+amount(id,branch.used)+' = '+amount(id,branch.balance)+'.');
+    }
+    return text.join('\n');
+  }).join('\n\n'));
+}
+
 function render(){
   if(!user||!model)return;
   $('context').textContent=section;
@@ -87,6 +225,8 @@ function render(){
   const heading=section==='Inicio'?'¿Qué hacemos hoy, '+user.name+'?':section;
   if(!chat().messages.length)host.append(el('h1',heading),el('p','Prepara pedidos, registra salidas y consulta existencias.','chat-intro'));
   for(const entry of chat().messages)host.append(el('div',entry.text,'chat-message '+entry.kind));
+  if(!draft)host.append(quickButtons());
+  if(chat().report)host.append(reportCard(chat().report));
   if(draft){
     const card=el('section',null,'chat-review');
     card.append(el('h2',draft.action==='request'?'Revisar pedido a Rastro · '+model.day:'Salida a Sucursal · Pedido #'+draft.number));
@@ -99,14 +239,6 @@ function render(){
     const confirmButton=button(draft.action==='request'?'Guardar pedido':'Guardar salida',save,true);
     confirmButton.disabled=Boolean(clarification)||busy;
     card.append(confirmButton);host.append(card);
-  }else if(!busy){
-    const chips=el('div',null,'chat-suggestions');
-    const suggest=(label,text)=>button(label,()=>{$('message').value=text;$('message').focus();});
-    if(section==='Inicio'||section==='Pedido a Rastro')chips.append(
-      suggest('Preparar pedido','Quiero preparar un pedido a Rastro.'),
-      suggest('Preparar salida','Ya salió el pedido de Rastro tal como se pidió.'));
-    chips.append(suggest('Consultar existencias',section==='Inventario CEDIS'?'¿Cuánta harina para crujiente queda en Almacén?':'¿Cuánto Rostizado queda en Rastro y cuánto llegó a Sucursal?'));
-    host.append(chips);
   }
   if(busy)host.append(el('p','Leyendo el mensaje…','chat-intro'));
   for(const control of $('compose').querySelectorAll('button, textarea'))control.disabled=busy;
@@ -118,19 +250,14 @@ function validLines(lines,action){
     .filter(({qty})=>Number.isFinite(qty)&&qty>=0&&qty<=1000000)
     .map(({id,qty})=>[id,Math.round(qty*1000)/1000]));
 }
-function stock(result){
+async function stock(result){
   const ids=(result.products||[]).filter(id=>product(id));
   if(!ids.length){say(result.question||'¿Qué producto quieres consultar?');return;}
-  chat().products=ids;
-  say(ids.map(id=>{
-    const item=product(id), cedis=model.cedis[id], branch=model.branch.find(value=>value.id===id);
-    const source=item.place+': '+(cedis==null?'existencia pendiente':amount(id,cedis));
-    const destination='Sucursal: '+(branch?'llegó '+amount(id,branch.incoming)+' · '+(branch.balance==null?(branch.used==null?'Consumo sin registrar':'Saldo inicial pendiente'):'quedan '+amount(id,branch.balance)):'producto sin saldo de Sucursal');
-    return item.name+'\n'+(result.scope==='both'?source+'\n'+destination:result.scope==='sucursal'?destination:source);
-  }).join('\n\n'));
+  showStock(result.scope,ids,ids.length===1?product(ids[0]).name:'Existencias');
+  if(result.range&&result.range!=='current')await showPeriod(chat().report,result.range);
 }
-function prepare(result,text){
-  if(result.intent==='stock'){stock(result);return;}
+async function prepare(result,text){
+  if(result.intent==='stock'){await stock(result);return;}
   if(result.intent==='clarify'){say(result.question||'¿Qué necesitas hacer con este pedido?');return;}
   if(section==='Inicio')adoptSection('Pedido a Rastro',text);
   const action=result.intent==='create'?'request':'dispatch';
@@ -209,13 +336,17 @@ $('compose').onsubmit=async event=>{
   busy=true;render();
   try{
     model=await inventory('cedis');
+    const normalized=text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    if(chat().lastStock&&/por ?que|de donde|como (lo |se )?calcula|como sale|por que sale/.test(normalized)){
+      await explainStock();return;
+    }
     const result=await inventory('rastro-chat',{
       text:awaitingOrder?'Elegir pedido pendiente para preparar salida: '+text:text,
       section,
       draft:draft?{action:draft.action,lines:draft.lines,question:clarification,allocation:draft.allocation}:undefined,
       previousProducts:chat().products
     });
-    prepare(result,text);
+    await prepare(result,text);
   }catch(error){$('message').value=text;say(error.message);}
   finally{busy=false;render();}
 };

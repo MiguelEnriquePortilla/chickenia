@@ -40,3 +40,8 @@
 .rastro-chat #leaving div {display:flex;flex-wrap:wrap;gap:8px;}
 .rastro-chat #leaving::backdrop {background:#1518229c;}
 @media(max-width:600px){.rastro-chat .rastro-chat-main{height:calc(100dvh - 64px)}.rastro-chat-bar{gap:4px}#chat-nav button{padding-inline:7px}.rastro-chat-title img{height:25px;width:25px}#chat{padding-top:17px}}
+.chat-periods {display:flex;flex-wrap:wrap;gap:7px;padding-top:8px;}
+.chat-periods [aria-pressed="true"] {background:var(--chat-user);border-color:var(--chat-accent);color:var(--chat-accent);}
+.chat-report .chat-line strong {white-space:normal;text-align:right;}
+.chat-report .chat-line button {margin:0;flex-shrink:0;}
+.chat-suggestions {background:transparent;margin:0;padding:0;}
