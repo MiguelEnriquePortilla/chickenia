@@ -78,10 +78,12 @@
     };
     return form;
   }
-  function orderPanel(order, catalog, onSave, changed){
+  function orderPanel(order, catalog, onSave, changed, number){
     const details = el('details');
     const date = order.movementDate || order.date;
-    const header = [date, order.supplier, order.actual ? (order.type==='purchase'?'Recibido':'Enviado') : 'Pendiente'].filter(Boolean).join(' · ');
+    const state = order.type === 'purchase' ? (order.actual ? 'Recibido' : 'Falta guardar la recepción')
+      : (order.actual ? 'Salida guardada' : 'Pedido guardado, falta la salida');
+    const header = [number == null ? null : 'Pedido #'+number,date,order.supplier,state].filter(Boolean).join(' · ');
     details.append(el('summary',header));
     if(order.note) details.append(el('p',order.note));
     if(order.allocation) details.append(el('p','Reparto del Rostizado pedido: Horno '+order.allocation.oven+' · Rosticero '+order.allocation.rotisserie));
@@ -153,7 +155,9 @@
       editor.append(el('summary','Nuevo pedido a Rastro'),
         lineForm(model.orderCatalog,{label:'Guardar pedido',changed,allocation:true,save:(lines,allocation,note)=>save({action:'request',lines,allocation,note})}));
       host.append(editor,el('h2','Pedidos a Rastro'));
-      for(const order of model.orders.filter(order=>order.type==='request')) host.append(orderPanel(order,[...model.orderCatalog,...model.catalog.filter(item=>!model.orderCatalog.some(row=>row.id===item.id))],save,changed));
+      const requests = model.orders.filter(order=>order.type==='request');
+      const orderItems = [...model.orderCatalog,...model.catalog.filter(item=>!model.orderCatalog.some(row=>row.id===item.id))];
+      requests.forEach((order,index)=>host.append(orderPanel(order,orderItems,save,changed,requests.length-index)));
     }
   }
   document.addEventListener('DOMContentLoaded',() => {
