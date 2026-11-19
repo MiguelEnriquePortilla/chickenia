@@ -155,6 +155,10 @@ function reportCard(report){
   }else{
     card.append(el('h2',report.title));
     for(const id of report.ids)if(product(id))line(product(id).name,stockValue(id,report.scope));
+    if(report.scope!=='cedis'&&report.ids.some(id=>proteins.includes(id))){
+      const explain=button('Cómo se calcula',()=>quick(explainStock));
+      explain.disabled=busy;card.append(explain);
+    }
   }
   if(report.type!=='pending'){
     const controls=el('div',null,'chat-periods');
@@ -205,9 +209,13 @@ async function explainStock(){
       if(movements.length)text.push('Movimientos de los últimos 3 días: '+movements.map(row=>formatDate(row.date)+' '+({'cedis-in':'entrada','cedis-out':'salida','cedis-adjust':'ajuste'}[row.kind])+' '+amount(id,row.qty)).join('; ')+'.');
     }
     if(current.scope!=='cedis'&&branch){
-      text.push(branch.opening==null||branch.used==null
-        ? 'Sucursal: '+stockValue(id,'sucursal')+'. Las entradas se muestran por separado de la existencia.'
-        : 'Sucursal: saldo inicial '+amount(id,branch.opening)+' + entradas '+amount(id,branch.incoming)+' − consumo '+amount(id,branch.used)+' = '+amount(id,branch.balance)+'.');
+      const arrivals=branch.arrivals||[];
+      const usage=branch.usage||[];
+      if(arrivals.length)text.push('Entradas a Sucursal: '+arrivals.map(row=>amount(id,row.qty)+' el '+formatDate(row.date)+' ('+(row.source==='history'?'historial de envíos':'Pedido a Rastro')+')').join(' + ')+' = '+amount(id,branch.incoming)+'.');
+      if(usage.length)text.push('Producción Diaria: '+usage.map(row=>amount(id,row.qty)+' el '+formatDate(row.date)).join(' + ')+' = '+amount(id,branch.used)+' usados.');
+      text.push(branch.opening==null?'El saldo queda pendiente porque falta la cantidad que había en Sucursal al iniciar el periodo.':
+        branch.used==null?'El saldo queda pendiente porque falta registrar el consumo.':
+        'Saldo inicial '+amount(id,branch.opening)+' + entradas '+amount(id,branch.incoming)+' − consumo '+amount(id,branch.used)+' = '+amount(id,branch.balance)+'.');
     }
     return text.join('\n');
   }).join('\n\n'));

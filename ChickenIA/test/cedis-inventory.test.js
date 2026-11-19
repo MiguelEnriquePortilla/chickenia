@@ -67,5 +67,17 @@ test('one capture updates both locations and daily production changes the branch
     await save('correct',[qty(rosti,74),qty(carrot,3)],{orderId});
     assert.equal(rostiInBranch().balance,25);
     assert.equal(state.cedis[rosti],50);
+    await db.exec(`
+      INSERT INTO inventory_items(id,sku,name,unit,active) VALUES
+        (100,'PRO-ROSTI-MAR','Rostizado','pollos',true);
+      INSERT INTO inventory_movements (item_id,location_id,movement_type,quantity,movement_date,notes) VALUES
+        (100,1,'exit',60,'2026-11-18','{"action": "send"}'),
+        (100,1,'exit',90,'2026-11-18','{"action": "waste"}');
+    `);
+    state = await run(query,user,null,day);
+    assert.equal(rostiInBranch().incoming,134);
+    assert.deepEqual(rostiInBranch().arrivals.map(row=>[row.qty,row.source]),[[60,'history'],[74,'order']]);
+    assert.equal(rostiInBranch().used,59);
+    assert.equal(rostiInBranch().balance,85);
   } finally { await db.close(); }
 });

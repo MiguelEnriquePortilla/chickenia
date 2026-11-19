@@ -139,14 +139,31 @@ function apply(state, input, user, day, products) {
 }
 async function view(query, row, day, items) {
   const state = row.data;
-  const production = await query('SELECT data FROM production_paper_days WHERE date BETWEEN $1 AND $2 ORDER BY date',[state.day,day]);
+  const production = await query('SELECT date::text date,data FROM production_paper_days WHERE date BETWEEN $1 AND $2 ORDER BY date',[state.day,day]);
+  const legacyShipments = await query(`
+    SELECT DISTINCT m.id,i.sku,m.movement_date::text date,m.quantity,m.notes
+      FROM inventory_movements m JOIN inventory_items i ON i.id=m.item_id
+      JOIN locations l ON l.id=m.location_id
+      WHERE l.code='rastro' AND m.movement_type='exit'
+        AND i.sku IN ('PRO-ROSTI-MAR','PRO-CRUJI-MAR')
+        AND m.movement_date BETWEEN $1 AND $2`,[state.day,day]);
+  const sent=legacyShipments.filter(row=>{
+    try{return JSON.parse(row.notes)?.action==='send';}catch{return false;}
+  });
   const branch = items.filter(item => item.branch).map(item => {
-    const incoming = round(state.orders.filter(order => order.type === 'request' && order.actual)
-      .reduce((sum, order) => sum + ((order.received || order.actual)[item.id] || 0), 0));
-    const tracked = Boolean(consumedBy[item.id]);
-    const used = tracked ? round(production.reduce((sum, row) => sum + consumption(row.data,item.id),0) - consumption(state.cutover,item.id)) : null;
-    const opening = state.openingBranch[item.id];
-    return {...item, incoming, used, opening:opening ?? null, balance:tracked && opening != null ? round(opening + incoming - used) : null};
+    const sku = item.id==='MERPOL:0'?'PRO-ROSTI-MAR':item.id==='MERPOL:1'?'PRO-CRUJI-MAR':null;
+    const historical = sent.filter(row=>row.sku===sku)
+      .map(row=>({date:row.date,qty:Number(row.quantity),source:'history'}));
+    const current = state.orders.filter(order=>order.type==='request'&&order.actual&&order.movementDate<=day)
+      .map(order=>({date:order.movementDate,qty:(order.received||order.actual)[item.id]||0,source:'order'}))
+      .filter(row=>row.qty);
+    const arrivals=[...historical,...current].sort((a,b)=>a.date.localeCompare(b.date));
+    const incoming=round(arrivals.reduce((sum,row)=>sum+row.qty,0));
+    const tracked=Boolean(consumedBy[item.id]);
+    const usage=tracked?production.map(row=>({date:row.date,qty:round(consumption(row.data,item.id)-(row.date===state.day?consumption(state.cutover,item.id):0))})).filter(row=>row.qty):[];
+    const used=tracked?round(usage.reduce((sum,row)=>sum+row.qty,0)):null;
+    const opening=state.openingBranch[item.id];
+    return {...item,incoming,arrivals,used,usage,opening:opening??null,balance:tracked&&opening!=null?round(opening+incoming-used):null};
   });
   const orderCatalog = paperOrder.map(([id,label])=>({...items.find(item=>item.id===id),label}));
   return {day,revision:row.revision,catalog:items,orderCatalog,cedis:state.cedis,counted:state.counted,receivedPending:state.receivedPending || {},branch,orders:state.orders};
