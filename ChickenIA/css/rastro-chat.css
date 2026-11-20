@@ -4,7 +4,7 @@
 .rastro-chat [hidden] {display:none!important;}
 .rastro-chat-bar {display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:10px clamp(16px,3.5vw,38px);border-bottom:1px solid var(--chat-rule);background:var(--chat-paper);}
 .rastro-chat-title {display:flex;align-items:center;gap:10px;font-size:15px;}
-.rastro-chat-title img {object-fit:contain;}
+.rastro-chat-title img {object-fit:contain;border-radius:50%;}
 #chat-nav {display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:0;padding:0;background:transparent;}
 .rastro-chat-main button,.rastro-chat #leaving button,.rastro-chat select { color:var(--chat-ink);background:var(--chat-paper);border:1px solid var(--chat-rule);border-radius:9px;min-height:44px;padding:8px 13px;font:inherit;font-size:.875rem;font-weight:600;line-height:1.35;cursor:pointer;box-shadow:none;}
 #chat-nav button {font-size:.84rem;background:transparent;border-color:transparent;padding-inline:9px;}
