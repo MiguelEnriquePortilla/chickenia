@@ -104,9 +104,25 @@ test('one capture updates both locations and daily production changes the branch
     assert.equal(rostiInBranch().incoming,144);
     assert.equal(state.orders[0].receivedAtCapture,true);
     assert.deepEqual(state.orders[0].lines,state.orders[0].actual);
+    const correctedOrder = state.orders[0];
+    await save('amend-quantity',[qty(rosti,8)],{orderId:correctedOrder.id,note:'Se anotaron dos pollos de más'});
+    assert.equal(state.cedis[rosti],42);
+    assert.equal(state.branch.find(item=>item.id===rosti).incoming,142);
+    assert.equal(state.orders[0].movementDate,day);
+    assert.equal(state.orders[0].actual[rosti],8);
+    assert.equal(state.adjustments[0].before,10);
+    assert.equal(state.adjustments[0].after,8);
+    await assert.rejects(save('amend-quantity',[qty(rosti,7)],{orderId:correctedOrder.id,note:' '}),error=>error.status===400);
+    assert.equal(state.adjustments.length,1);
     const revision=state.revision;
     state=await run(query,user,direct,day);
     assert.equal(state.revision,revision);
-    assert.equal(state.cedis[rosti],40);
+    assert.equal(state.cedis[rosti],42);
+    const count=state.counts.find(entry=>entry.id===rosti);
+    await save('amend-count',[qty(rosti,52)],{orderId:count.captureId,note:'Recuento de la hoja'});
+    assert.equal(state.cedis[rosti],44);
+    assert.deepEqual([state.adjustments[0].before,state.adjustments[0].after],[50,52]);
+    await assert.rejects(run(query,user,{action:'amend-count',lines:[qty(rosti,53)],orderId:count.captureId,
+      note:'Fuera de la semana',revision:state.revision,requestId:randomUUID()},'2026-11-23'),error=>error.status===409);
   } finally { await db.close(); }
 });

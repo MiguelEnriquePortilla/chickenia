@@ -197,6 +197,51 @@ function reportCard(report){
   }
   return card;
 }
+async function showInventorySummary(group){
+  const history=await inventory('cedis-history&range=today');
+  const items=model.branch.filter(item=>item.branch===group);
+  const quantity=(value,item)=>value==null?'Sin dato':value+' '+item.unit;
+  const rows=items.map(item=>{
+    const shipments=history.rows.filter(row=>row.id===item.id && row.kind==='cedis-out');
+    const sent=shipments.reduce((sum,row)=>sum+row.qty,0);
+    const arrived=item.arrivals.filter(row=>row.date===model.day).reduce((sum,row)=>sum+row.qty,0);
+    return [item.name,
+      'CEDIS ayer: '+quantity(model.cedisYesterday[item.id],item),
+      'Salió hoy: '+quantity(Math.round(sent*1000)/1000,item),
+      'CEDIS ahora: '+quantity(model.cedis[item.id],item),
+      'Llegó hoy a Sucursal: '+quantity(Math.round(arrived*1000)/1000,item),
+      'Esperado en Sucursal: '+quantity(item.balance,item)].join(' · ');
+  });
+  say(group+' · '+model.day+'\n'+rows.join('\n'));
+}
+
+const inventoryHelp = [
+    ['¿Cómo capturo proteínas?','Abre Capturar proteínas. Para registrar lo que llegó de CEDIS, anota la cantidad de pollos y guarda. Para un conteo físico, abre el enlace de conteo en CEDIS.'],
+    ['¿Dónde veo qué salió hoy?','Pulsa Ver existencias. El chat muestra lo que salió de CEDIS, lo que llegó a Sucursal y lo que debería quedar según los movimientos registrados.'],
+    ['¿Cómo corrijo una cantidad?','Abre Revisar y ajustar la semana. Busca la entrega o recepción en el día correcto, escribe la cantidad correcta y el motivo, y confirma. El historial conserva ambas cantidades.'],
+    ['¿Por qué dice Sin dato?','El saldo requiere un punto de partida y movimientos en una unidad compatible. Revisa el conteo o los movimientos antes de tomar ese saldo como confirmado.']
+  ];
+function inventoryActions(){
+  const controls=el('nav',null,'chat-suggestions');
+  controls.setAttribute('aria-label','Inventario y ayuda');
+  const capture=el('a','Capturar proteínas','chat-report-link');
+  capture.href='/rastro.html?view=capture';
+  const adjustments=el('a','Revisar y ajustar la semana','chat-report-link');
+  adjustments.href='/proteinas.html?view=adjustments';
+  const stock=button('Ver existencias',()=>quick(()=>showInventorySummary('Proteínas')));
+  const vegetables=button('Ver vegetales',()=>quick(()=>showInventorySummary('Vegetales')));
+  stock.disabled=vegetables.disabled=busy;
+  const help=el('details');
+  help.append(el('summary','Pregúntale a ChickenIA'));
+  for(const [question,answer] of inventoryHelp){
+    const topic=el('details');
+    topic.append(el('summary',question),el('p',answer));
+    help.append(topic);
+  }
+  controls.append(capture,stock,adjustments,vegetables,help);
+  return controls;
+}
+
 function quickButtons(){
   const controls=el('nav',null,'chat-suggestions');
   controls.setAttribute('aria-label','Acciones rápidas');
@@ -286,6 +331,9 @@ function render(){
   for(const entry of chat().messages)host.append(el('div',entry.text,'chat-message '+entry.kind));
   $('message').placeholder=draft?'Escribe una corrección o consulta…':prompts[section];
   const suggestions=$('composer-suggestions');
+  const actions=$('inventory-actions');
+  actions.hidden=section!=='Inicio'||Boolean(draft);
+  actions.replaceChildren(...(actions.hidden?[]:[inventoryActions()]));
   suggestions.hidden=Boolean(draft)||section==='Inicio';
   suggestions.replaceChildren(...(suggestions.hidden?[]:[quickButtons()]));
   if(chat().report)host.append(reportCard(chat().report));
@@ -455,6 +503,12 @@ $('compose').onsubmit=async event=>{
   try{
     model=await inventory('cedis');
     const normalized=text.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    if(!draft && /(?:^|[¿ ])(?:como|donde) (?:puedo |se )?/.test(normalized)){
+      const topic = /\b(?:corrij|correg|ajust)\w*/.test(normalized) ? 2
+        : /\b(?:captur|registr|anot)\w*/.test(normalized) && /proteina|pollo|conteo/.test(normalized) ? 0
+        : /existencias|inventario|cuanto salio/.test(normalized) ? 1 : -1;
+      if(topic>=0){say(inventoryHelp[topic][1]);return;}
+    }
     if(/\b(?:ultima salida|ultimo envio)\b/.test(normalized)&&/\b(?:quien|cuando|hora|cual|muestra|ver)\b/.test(normalized)){
       inspectOrders({orderView:'latest'});return;
     }

@@ -34,7 +34,7 @@ const legacyKeys = {'MERPOL:0': 'rosti-marinado', 'MERPOL:1': 'cruji-marinado'};
 const quantity = z.number().min(0).max(1000000).multipleOf(.001);
 const command = z.object({
   requestId: z.string().uuid(), revision: z.number().int().nonnegative(),
-  action: z.enum(['count','purchase','request','request-delivered','receive','dispatch','correct']),
+  action: z.enum(['count','purchase','request','request-delivered','receive','dispatch','correct','amend-quantity','amend-count']),
   supplier: z.string().optional(), orderId: z.string().uuid().optional(),
   lines: z.array(z.object({id: z.string(), qty: quantity})).min(1).max(500),
   note: z.string().max(1000).optional(),
@@ -43,6 +43,10 @@ const command = z.object({
 
 const fail = (message, status = 400) => { throw Object.assign(Error(message), {status}); };
 const round = value => Math.round(value * 1000) / 1000;
+function weekStart(day){
+  const weekday = new Date(day+'T12:00:00Z').getUTCDay();
+  return shiftDay(day,-((weekday+6)%7));
+}
 function consumption(lines, id){
   return (lines || []).filter(line => consumedBy[id].includes(line.id))
     .reduce((sum, line) => sum + (line.initial || 0) + (line.additional || 0), 0);
@@ -142,7 +146,15 @@ function apply(state, input, user, day, products) {
     else if(delta){state.receivedPending ??= {};state.receivedPending[id] = after;}
   };
   if(input.action === 'count'){
-    for(const {id,qty} of input.lines){ state.cedis[id]=qty; state.counted[id]=day; }
+    state.countRecordedAt ??= {};
+    const at = new Date().toISOString();
+    state.counts ??= [];
+    for(const {id,qty} of input.lines){
+      state.cedis[id]=qty;
+      state.counted[id]=day;
+      state.countRecordedAt[id]=at;
+      state.counts.unshift({captureId:randomUUID(),id,qty,date:day,at,actor:user.name,unit:products.get(id).unit});
+    }
     return;
   }
   if(input.action === 'purchase' || input.action === 'request' || input.action === 'request-delivered'){
@@ -157,8 +169,50 @@ function apply(state, input, user, day, products) {
       ...(delivered?{receivedAtCapture:true,actual:lines,movementDate:day,movementAt:new Date().toISOString(),movedBy:user.name}:{})});
     return;
   }
+  if(input.action === 'amend-count'){
+    const [{id,qty}] = input.lines;
+    const count = state.counts?.find(entry=>entry.captureId===input.orderId && entry.id===id);
+    const note = input.note?.trim();
+    if(!count || count.date < weekStart(day) || count.date > day)
+      fail('Elige un conteo guardado de esta semana.',409);
+    if(input.lines.length!==1 || !note || count.qty===qty || count.unit!==products.get(id).unit)
+      fail('Escribe una cantidad distinta en la misma unidad y el motivo.');
+    const before=count.qty;
+    if(state.counts.find(entry=>entry.id===id)===count) move(id,round(qty-before));
+    count.qty=qty;
+    state.adjustments ??= [];
+    state.adjustments.unshift({countId:count.captureId,id,date:count.date,at:new Date().toISOString(),
+      actor:user.name,note,before,after:qty,unit:count.unit});
+    return;
+  }
   const order = state.orders.find(order => order.id === input.orderId);
   if(!order) fail('Pedido no encontrado.',404);
+  if(input.action === 'amend-quantity'){
+    if(!order.actual || order.movementDate < weekStart(day) || order.movementDate > day)
+      fail('Elige una captura guardada de esta semana.',409);
+    const [{id,qty}] = input.lines;
+    const note = input.note?.trim();
+    if(input.lines.length !== 1 || !note || !Object.hasOwn(order.actual,id))
+      fail('Elige un producto y escribe el motivo del ajuste.');
+    if(order.originalUnits?.[id]) fail('Esta captura usa una unidad anterior.',409);
+    const before = order.actual[id];
+    const delta = round(qty-before);
+    if(!delta) fail('La cantidad corregida debe ser diferente.');
+    const receivedBefore = order.received?.[id];
+    const receivedAfter = receivedBefore == null ? null : round(receivedBefore+delta);
+    if(receivedAfter != null && receivedAfter < 0)
+      fail('La cantidad corregida no permite conservar la diferencia de entrega.',409);
+    const superseded = state.counted[id] > order.movementDate ||
+      (state.counted[id] === order.movementDate &&
+       (!state.countRecordedAt?.[id] || state.countRecordedAt[id] >= order.movementAt));
+    if(!superseded) move(id,order.type==='purchase'?delta:-delta);
+    order.actual[id] = qty;
+    if(receivedAfter != null) order.received[id] = receivedAfter;
+    state.adjustments ??= [];
+    state.adjustments.unshift({orderId:order.id,id,date:order.movementDate,at:new Date().toISOString(),
+      actor:user.name,note,before,after:qty,unit:products.get(id).unit});
+    return;
+  }
   const receive = input.action === 'receive';
   if(order.originalUnits)fail('Este pedido se guard? con otras unidades. Consulta el registro anterior y captura el peso en kilos.',409);
   if((receive ? order.type !== 'purchase' : order.type !== 'request') ||
@@ -208,7 +262,16 @@ async function view(query, row, day, items) {
     return {...item,incoming,arrivals,used,usage,opening:opening??null,balance:tracked&&opening!=null?round(opening+incoming-used):null};
   });
   const orderCatalog = paperOrder.map(([id,label])=>({...items.find(item=>item.id===id),label}));
-  return {day,revision:row.revision,catalog:items,orderCatalog,aliases,cedis:state.cedis,counted:state.counted,receivedPending:state.receivedPending || {},branch,orders:state.orders};
+  const yesterday=shiftDay(day,-1);
+  const cedisYesterday={};
+  for(const item of items){
+    const id=item.id;
+    if(state.cedis[id]==null || state.day>yesterday || state.counted[id]>yesterday)continue;
+    const delta=state.orders.filter(order=>order.movementDate===day && !order.originalUnits?.[id])
+      .reduce((sum,order)=>sum+(order.type==='purchase'?1:-1)*(order.actual?.[id]||0),0);
+    cedisYesterday[id]=round(state.cedis[id]-delta);
+  }
+  return {day,weekStart:weekStart(day),cedisYesterday,counts:(state.counts||[]).filter(entry=>entry.date>=weekStart(day)&&entry.date<=day),adjustments:(state.adjustments||[]).filter(entry=>entry.date>=weekStart(day)&&entry.date<=day),revision:row.revision,catalog:items,orderCatalog,aliases,cedis:state.cedis,counted:state.counted,receivedPending:state.receivedPending || {},branch,orders:state.orders};
 }
 async function run(query, user, body, day = today(new Date())) {
   const row = await load(query,day);

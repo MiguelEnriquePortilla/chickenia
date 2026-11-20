@@ -116,8 +116,10 @@
   const page = document.querySelector('[data-operation]');
   if(!page) return;
   const host = document.getElementById('cedis-content'), status = document.getElementById('cedis-status');
-  const messages = {count:'Conteo guardado.','request-delivered':'Pedido guardado como recibido en Sucursal.',dispatch:'Salida guardada. Ya cuenta en Sucursal.',correct:'Diferencia de entrega guardada.'};
-  const mode = page.dataset.operation;
+  const messages = {'amend-count':'Conteo corregido en el historial.','amend-quantity':'Corrección guardada en el historial.',count:'Conteo guardado.','request-delivered':'Pedido guardado como recibido en Sucursal.',dispatch:'Salida guardada. Ya cuenta en Sucursal.',correct:'Diferencia de entrega guardada.'};
+  const view = new URLSearchParams(location.search).get('view');
+  const mode = page.dataset.operation === 'branch' && view === 'adjustments' ? 'adjustments' : page.dataset.operation;
+  if(mode==='adjustments') page.querySelector('h1').textContent='Revisar y ajustar la semana';
   let model, dirty = false, busy = false, place = 'Rastro', retry = null;
   const report = error => {status.textContent = error.message;};
   const reload = async () => {model = await api('cedis');render();};
@@ -133,9 +135,72 @@
     } catch(error) {report(error);}
     finally {busy = false;}
   }
+  function adjustmentForm(item,before,unit,orderId,action){
+    const form = el('form');
+    const {label,input} = inputRow(item,'Cantidad guardada: '+before+' '+unit,before,'Cantidad correcta');
+    input.required = true;
+    const reason = el('label','Motivo del ajuste');
+    const note = el('textarea');
+    note.maxLength=1000;note.required=true;
+    reason.append(note);
+    const preview = el('p');
+    preview.setAttribute('aria-live','polite');
+    form.oninput = () => {
+      changed();
+      preview.textContent = input.validity.valid ? before+' → '+input.valueAsNumber+' '+unit : '';
+    };
+    const button = el('button','Confirmar corrección');
+    form.append(label,reason,preview,button);
+    form.onsubmit = async event => {
+      event.preventDefault();
+      button.disabled=true;
+      try {
+        await save({action,orderId,lines:[{id:item.id,qty:input.valueAsNumber}],note:note.value});
+      } finally {button.disabled=false;}
+    };
+    return form;
+  }
+  function renderAdjustments(){
+    host.append(el('p','Corrige una cantidad guardada entre el '+model.weekStart+' y el '+model.day+'.'));
+    const orders = model.orders.filter(order=>order.actual && order.movementDate>=model.weekStart && order.movementDate<=model.day);
+    if(!orders.length) host.append(el('p','Esta semana no hay entregas ni recepciones guardadas para corregir.'));
+    for(const order of orders){
+      const panel = el('details');
+      panel.append(el('summary',order.movementDate+' · '+(order.type==='purchase'?'Recepción de proveedor':'Salida a Sucursal')+' · '+order.movedBy));
+      for(const item of model.catalog.filter(item=>Object.hasOwn(order.actual,item.id))){
+        const before = order.actual[item.id];
+        const unit = order.originalUnits?.[item.id] || item.unit;
+        if(order.originalUnits?.[item.id]){
+          panel.append(el('p',item.name+' · '+before+' '+unit+' (unidad anterior)'));
+          continue;
+        }
+        panel.append(adjustmentForm(item,before,unit,order.id,'amend-quantity'));
+      }
+      host.append(panel);
+    }
+    host.append(el('h2','Conteos físicos en CEDIS'));
+    if(!model.counts.length)host.append(el('p','Los conteos anteriores que dejaron solo un saldo no tienen un registro individual para corregir.'));
+    for(const count of model.counts){
+      const item=model.catalog.find(item=>item.id===count.id);
+      if(!item || item.unit!==count.unit)continue;
+      const panel=el('details');
+      panel.append(el('summary',count.date+' · '+item.name+' · '+count.actor),
+        adjustmentForm(item,count.qty,count.unit,count.captureId,'amend-count'));
+      host.append(panel);
+    }
+    host.append(el('h2','Historial de correcciones'));
+    if(!model.adjustments.length)host.append(el('p','Esta semana todavía no tiene correcciones.'));
+    for(const entry of model.adjustments){
+      const name=model.catalog.find(item=>item.id===entry.id)?.name || entry.id;
+      const at=new Date(entry.at).toLocaleString('es-MX',{timeZone:'America/Mexico_City'});
+      host.append(el('p',entry.date+' · '+name+' · '+entry.before+' → '+entry.after+' '+entry.unit+' · '+entry.actor+' · '+at+' · '+entry.note));
+    }
+  }
   function render(){
     host.replaceChildren();
-    if(mode === 'branch'){
+    if(mode === 'adjustments'){
+      renderAdjustments();
+    } else if(mode === 'branch'){
       for(const group of ['Proteínas','Vegetales']){
         const section = el('section');
         section.append(el('h2',group));
@@ -166,7 +231,14 @@
     } else {
       const editor = el('details');
       editor.append(el('summary','Capturar pedido a CEDIS'),
-        lineForm(model.orderCatalog,{label:'Guardar pedido a CEDIS',changed,allocation:true,save:(lines,allocation,note)=>save({action:'request-delivered',lines,allocation,note})}));
+        lineForm(view==='capture'?model.orderCatalog.filter(item=>item.branch==='Proteínas'):model.orderCatalog,{label:'Guardar pedido a CEDIS',changed,allocation:true,save:(lines,allocation,note)=>save({action:'request-delivered',lines,allocation,note})}));
+      if(view==='capture'){
+        page.querySelector('h1').textContent='Capturar proteínas';
+        editor.open=true;
+        const countLink=el('a','Capturar un conteo físico en CEDIS');
+        countLink.href='/cedis.html';
+        host.append(el('p','Fecha de captura: '+model.day),countLink);
+      }
       host.append(editor,el('h2','Pedidos a CEDIS'));
       const requests = model.orders.filter(order=>order.type==='request');
       const orderItems = [...model.orderCatalog,...model.catalog.filter(item=>!model.orderCatalog.some(row=>row.id===item.id))];

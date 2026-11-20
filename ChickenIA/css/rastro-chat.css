@@ -1,6 +1,6 @@
 .rastro-chat { --chat-page:#f4f1ea;--chat-paper:#fffdf8;--chat-ink:#222638;--chat-muted:#565b68;--chat-rule:#dcd6ca;--chat-user:#eae5db;--chat-accent:#a9172a;--chat-action:#202843;--chat-action-text:#fff; }
 [data-theme="dark"] .rastro-chat {--chat-page:#1c1e23;--chat-paper:#272a31;--chat-ink:#faf7ef;--chat-muted:#c0bec1;--chat-rule:#42454f;--chat-user:#37313a;--chat-accent:#ffa1ad;--chat-action:#f4e7d5;--chat-action-text:#242035;}
-.rastro-chat .rastro-chat-main { color:var(--chat-ink);background:var(--chat-page);height:calc(100dvh - 72px);display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden;}
+.rastro-chat .rastro-chat-main { color:var(--chat-ink);background:var(--chat-page);height:calc(100dvh - 72px);display:flex;flex-direction:column;overflow:hidden;}
 .rastro-chat [hidden] {display:none!important;}
 .rastro-chat-bar {display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:10px clamp(16px,3.5vw,38px);border-bottom:1px solid var(--chat-rule);background:var(--chat-paper);}
 .rastro-chat-title {display:flex;align-items:center;gap:10px;font-size:15px;}
@@ -12,7 +12,7 @@
 .rastro-chat-main button:hover,.rastro-chat #leaving button:hover {border-color:var(--chat-accent);}
 .rastro-chat-main :focus-visible,.rastro-chat #leaving :focus-visible {outline:2px solid var(--chat-accent);outline-offset:3px;}
 .rastro-chat-main button:disabled {opacity:.52;cursor:default;}
-.rastro-chat-scroll {min-height:0;overflow:auto;overscroll-behavior:contain;}
+.rastro-chat-scroll {flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;}
 .rastro-chat-column {width:min(100%,49rem);margin-inline:auto;padding:20px clamp(14px,4vw,35px);}
 #chat {display:flex;flex-direction:column;gap:13px;padding-block:28px;}
 #chat h1 {font-size:clamp(1.4rem,3vw,2rem);line-height:1.15;margin:8px 0 0;font-weight:700;letter-spacing:-.025em;}
@@ -53,3 +53,22 @@
 .composer-suggestions .chat-suggestions {gap:6px;}
 .rastro-chat .composer-suggestions :is(button,a) {display:inline-flex;align-items:center;min-height:44px;padding:6px 10px;border:1px solid transparent;border-radius:7px;background:var(--chat-user);color:var(--chat-muted);font-size:.78rem;font-weight:600;text-decoration:none;}
 .rastro-chat .composer-suggestions :is(button,a):hover {border-color:var(--chat-rule);color:var(--chat-ink);}
+
+#inventory-actions:not([hidden]) {
+  padding: .5rem 1rem;
+  overflow: auto;
+  max-height: 32vh;
+  flex-shrink: 0;
+}
+#inventory-actions .chat-suggestions {
+  flex-wrap: wrap;
+}
+#inventory-actions details {
+  flex-basis: 100%;
+}
+#inventory-actions summary {
+  cursor: pointer;
+  padding: .35rem 0;
+}
+
+.rastro-chat-bar,.rastro-chat-compose { flex-shrink: 0; }
