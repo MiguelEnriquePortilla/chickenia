@@ -118,16 +118,17 @@
   const page = document.querySelector('[data-operation]');
   if(!page) return;
   const host = document.getElementById('cedis-content'), status = document.getElementById('cedis-status');
-  const messages = {'amend-count':'Conteo corregido en el historial.','amend-quantity':'Corrección guardada en el historial.',count:'Conteo guardado.','request-delivered':'Pedido guardado como recibido en Sucursal.',dispatch:'Salida guardada. Ya cuenta en Sucursal.',correct:'Diferencia de entrega guardada.'};
+  const messages = {'amend-count':'Conteo corregido en el historial.','amend-quantity':'Corrección guardada en el historial.',count:'Conteo guardado en CEDIS.','request-delivered':'Pedido guardado como recibido en Sucursal.',dispatch:'Salida guardada. Ya cuenta en Sucursal.',correct:'Diferencia de entrega guardada.'};
   const view = new URLSearchParams(location.search).get('view');
   const mode = page.dataset.operation === 'branch' && view === 'adjustments' ? 'adjustments' : page.dataset.operation;
   const capture = mode === 'request' && view === 'capture';
   if(capture){
-    page.querySelector('h1').textContent='¿Cuánto llegó de CEDIS?';
+    page.querySelector('h1').textContent='Registrar llegada a Sucursal';
     document.title='Llegada de pollos · Chicken ChicanIA';
     page.querySelector('p a').textContent='Volver al chat';
   }
-  if(mode==='adjustments') page.querySelector('h1').textContent='Revisar y ajustar la semana';
+  if(mode==='adjustments') page.querySelector('h1').textContent='Historial y correcciones';
+  if(mode==='branch') page.querySelector('h1').textContent='Existencias';
   let model, dirty = false, busy = false, place = 'Rastro', retry = null;
   const report = error => {status.textContent = error.message;};
   const reload = async () => {model = await api('cedis');render();};
@@ -144,7 +145,14 @@
     if(retry?.payload !== payload) retry = {payload,id:crypto.randomUUID()};
     try {
       model = await api('cedis',{...body,revision:model.revision,requestId:retry.id});
-      retry = null;dirty = false;render();status.textContent = capture ? 'Llegada guardada en Sucursal.' : messages[body.action];
+      retry = null;dirty = false;render();
+      if(capture){
+        const quantities=body.lines.map(({id,qty})=>{
+          const item=model.catalog.find(row=>row.id===id);
+          return qty+' '+item.unit+' · '+item.name;
+        });
+        status.textContent='Llegada guardada en Sucursal · '+model.day+' · '+quantities.join(' / ');
+      } else status.textContent=body.action==='count'?messages.count+' '+place+' · '+model.day:messages[body.action];
     } catch(error) {
       if(capture && error.status === 409){
         const latest = await api('cedis').catch(()=>null);
@@ -226,8 +234,11 @@
         const section = el('section');
         section.append(el('h2',group));
         for(const item of model.branch.filter(item=>item.branch===group)){
-          const balance = item.balance == null ? (item.used == null ? 'Consumo sin registrar' : 'Saldo inicial pendiente') : item.balance + ' ' + item.unit;
-          section.append(el('p',item.name + ' · ' + balance + ' · Llegó ' + item.incoming + ' ' + item.unit));
+          const balance = item.balance == null ? 'Sin dato' : item.balance + ' ' + item.unit;
+          const inCedis = model.cedis[item.id] == null ? 'Sin dato' : model.cedis[item.id] + ' ' + item.unit;
+          const arrived = item.arrivals.filter(arrival=>arrival.date===model.day).reduce((total,arrival)=>total+arrival.qty,0);
+          const quantity = new Intl.NumberFormat('es-MX',{maximumFractionDigits:3}).format(arrived);
+          section.append(el('h3',item.name),el('p','CEDIS: '+inCedis+' · Sucursal: '+balance+' · Llegó hoy a Sucursal: '+quantity+' '+item.unit));
         }
         host.append(section);
       }
@@ -247,14 +258,15 @@
         model.counted[item.id] === model.day ? 'Contado hoy' : 'Pendiente de contar',
         model.receivedPending[item.id] ? 'Disponible de recepciones registradas: ' + model.receivedPending[item.id] : ''
       ].filter(Boolean).join(' · ');
-      host.append(menu,el('p','Captura lo que contaste. Vacío queda pendiente y 0 indica que no hay.'),
-        lineForm(model.catalog.filter(item=>item.place===place),{label:'Guardar conteo',hint,changed,save:lines=>save({action:'count',lines})}));
+      host.append(menu,el('p','Anota lo que hay físicamente en CEDIS. Vacío queda pendiente y 0 indica que no hay.'),
+        lineForm(model.catalog.filter(item=>item.place===place),{label:'Guardar conteo en CEDIS',hint,changed,save:lines=>save({action:'count',lines})}));
     } else if(capture){
       const items = model.orderCatalog.filter(item=>item.unit==='pollos');
       const totals = new Map(model.branch.map(item=>[item.id,item.arrivals.filter(arrival=>arrival.date===model.day)
         .reduce((total,arrival)=>total+arrival.qty,0)]));
       const format = new Intl.NumberFormat('es-MX',{maximumFractionDigits:3});
       host.append(
+        el('p','Anota los pollos que llegaron de CEDIS a Sucursal.'),
         lineForm(items,{label:'Guardar llegada',arrival:true,changed:arrivalChanged,
           save:lines=>save({action:'request-delivered',lines})}),
         el('h2','Guardado hoy en Sucursal'),
@@ -263,7 +275,7 @@
     } else {
       const editor = el('details');
       editor.append(el('summary','Capturar pedido a CEDIS'),
-        lineForm(view==='capture'?model.orderCatalog.filter(item=>item.branch==='Proteínas'):model.orderCatalog,{label:'Guardar pedido a CEDIS',changed,allocation:true,save:(lines,allocation,note)=>save({action:'request-delivered',lines,allocation,note})}));
+        lineForm(model.orderCatalog,{label:'Guardar pedido como recibido en Sucursal',changed,allocation:true,save:(lines,allocation,note)=>save({action:'request-delivered',lines,allocation,note})}));
       host.append(editor,el('h2','Pedidos a CEDIS'));
       const requests = model.orders.filter(order=>order.type==='request');
       const orderItems = [...model.orderCatalog,...model.catalog.filter(item=>!model.orderCatalog.some(row=>row.id===item.id))];

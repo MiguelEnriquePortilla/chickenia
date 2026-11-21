@@ -73,9 +73,37 @@ try:
         })
         assert seed.ok, seed.text()
 
-        url = BASE + "/rastro.html?view=capture"
-        page.goto(url)
-        expect(page.get_by_role("heading", name="¿Cuánto llegó de CEDIS?")).to_be_visible()
+        page.goto(BASE + "/chat-rastro.html")
+        expect(page.get_by_role("textbox", name="Mensaje")).to_be_visible()
+        expect(page.locator("main button")).to_have_count(1)
+        expect(page.locator("main #chat-nav, main #inventory-actions")).to_have_count(0)
+        toggle = page.locator(".sidebar-toggle")
+        toggle.click()
+        sidebar = page.locator(".area-sidebar")
+        sidebar.get_by_role("link", name="Preguntas frecuentes").click()
+        expect(page.get_by_role("heading", name="Preguntas frecuentes")).to_be_visible()
+        page.get_by_text("¿Cómo anoto un conteo en CEDIS?", exact=True).click()
+        expect(page.get_by_text("El conteo actualiza CEDIS.", exact=False)).to_be_visible()
+
+        toggle.click()
+        sidebar.locator("summary").get_by_text("Inventario", exact=True).click()
+        sidebar.get_by_role("link", name="Contar mercancía en CEDIS").click()
+        expect(page.get_by_role("heading", name="Contar mercancía en CEDIS")).to_be_visible()
+        expect(page.get_by_role("button", name="Guardar conteo en CEDIS")).to_be_visible()
+        expect(page.get_by_role("button", name="Guardar llegada")).to_have_count(0)
+        page.get_by_role("spinbutton", name=re.compile("Crujiente", re.I)).fill("12")
+        page.get_by_role("button", name="Guardar conteo en CEDIS").click()
+        expect(page.locator("#cedis-status")).to_contain_text("Conteo guardado en CEDIS")
+        counted = page.request.get(endpoint).json()
+        assert counted["cedis"]["MERPOL:1"] == 12
+        assert not counted["orders"]
+        assert not next(item for item in counted["branch"] if item["id"] == "MERPOL:1")["arrivals"]
+
+
+        toggle.click()
+        sidebar.get_by_role("link", name="Registrar llegada a Sucursal").click()
+        expect(page.get_by_role("heading", name="Registrar llegada a Sucursal")).to_be_visible()
+        expect(toggle).to_have_attribute("aria-expanded", "false")
         quantity = page.locator("#cedis-content input").first
         quantity.fill("30")
         page.locator('main a[href="/chat-rastro.html?apartado=rastro"]').first.click()
@@ -84,16 +112,22 @@ try:
         expect(quantity).to_have_value("30")
 
         save = page.get_by_role("button", name="Guardar llegada")
-        page.route("**/api/inventory?action=cedis", lambda route: route.fulfill(
-            status=503, json={"error": "Error de prueba"}
-        ) if route.request.method == "POST" else route.continue_())
+        def lose_confirmation(route):
+            if route.request.method != "POST":
+                route.continue_()
+                return
+            response = route.fetch()
+            assert response.ok, response.text()
+            route.fulfill(status=503, json={"error": "Error de prueba"})
+
+        page.route("**/api/inventory?action=cedis", lose_confirmation)
         save.click()
         expect(page.locator("#cedis-status")).to_contain_text("Error de prueba")
         expect(quantity).to_have_value("30")
         page.unroute("**/api/inventory?action=cedis")
 
         save.click()
-        expect(page.locator("#cedis-status")).to_contain_text("Llegada guardada")
+        expect(page.locator("#cedis-status")).to_contain_text("Llegada guardada en Sucursal · " + model["day"] + " · 30 pollos")
         expect(page.locator("#cedis-content")).to_contain_text("30 pollos")
         saved = page.request.get(endpoint).json()
         assert saved["cedis"]["MERPOL:0"] == 20
@@ -103,6 +137,13 @@ try:
         expect(page.locator("#cedis-content")).to_contain_text("30 pollos")
         page.locator('main a[href="/chat-rastro.html?apartado=rastro"]').first.click()
         expect(page).to_have_url(re.compile(r"/chat-rastro\.html\?apartado=rastro(?:&|$)"))
+        expect(page.get_by_role("textbox", name="Mensaje")).to_be_visible()
+        toggle.click()
+        sidebar.locator("summary").get_by_text("Inventario", exact=True).click()
+        sidebar.get_by_role("link", name="Ver existencias").click()
+        expect(page.locator("main")).to_contain_text("Llegó hoy a Sucursal: 30 pollos")
+        expect(page.get_by_role("heading", name="Vegetales")).to_be_visible()
+
 finally:
     server.terminate()
     server.wait(timeout=10)

@@ -18,18 +18,14 @@
 <main class="rastro-chat-main" aria-label="Chat ChickenIA">
   <div class="rastro-chat-bar">
     <div class="rastro-chat-title"><img src="/icons/sello-2026.png" alt="" width="32" height="32"><strong id="context">Chat ChickenIA</strong><span id="chat-greeting" class="chat-greeting" hidden></span></div>
-    <nav id="chat-nav" aria-label="Apartados del chat"></nav>
   </div>
-  <div id="inventory-actions"></div>
   <div id="scroll" class="rastro-chat-scroll"><div class="rastro-chat-column" id="chat" aria-live="polite"></div></div>
   <form class="rastro-chat-compose" id="compose" hidden>
     <div class="rastro-chat-column"><div class="rastro-chat-input">
       <textarea aria-label="Mensaje" id="message" placeholder="Escribe un mensaje…" maxlength="2000" rows="2"></textarea>
       <button class="chat-primary" type="submit">Enviar <span aria-hidden="true">↑</span></button>
-      <div id="composer-suggestions" class="composer-suggestions" hidden></div>
     </div></div>
   </form>
 </main>
-<dialog id="leaving"><h2>Captura sin guardar</h2><p>¿Quieres seguir aquí o descartar la captura?</p><div><button id="stay" type="button">Seguir aquí</button><button id="discard" type="button">Salir sin guardar</button></div></dialog>
 </body>
 </html>
