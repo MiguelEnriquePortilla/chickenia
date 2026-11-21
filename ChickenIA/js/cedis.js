@@ -42,11 +42,12 @@
     label.append(description,input);
     return {label,input,id:item.id};
   }
-  function lineForm(items, {values = {}, label, hint = () => '', requireAll = false, allocation = false, changed = () => {}, save}){
+  function lineForm(items, {values = {}, label, hint = () => '', requireAll = false, allocation = false, arrival = false, changed = () => {}, save}){
     const form = el('form');
     const fields = items.map(item => inputRow(item,hint(item),values[item.id],label));
     for(const field of fields){
       field.input.required = requireAll;
+      if(arrival) field.input.min = '.001';
       form.append(field.label);
     }
     const splits = allocation ? [
@@ -64,17 +65,18 @@
     }
     const button = el('button',label);
     form.append(button);
-    form.oninput = changed;
+    form.oninput = arrival ? () => changed(fields.some(field=>field.input.value !== '' || field.input.validity.badInput)) : changed;
     form.onsubmit = async event => {
       event.preventDefault();
       const lines = fields.filter(field => field.input.value !== '').map(field => ({id:field.id,qty:field.input.valueAsNumber}));
       if(!lines.length){fields[0]?.input.focus();return;}
       button.disabled = true;
+      if(arrival) form.inert = true;
       try {
         const distribution = allocation ? Object.fromEntries(splits.map(field=>[field.id,field.input.valueAsNumber || 0])) : undefined;
         await save(lines,distribution,form.elements.namedItem('order-note')?.value);
       }
-      finally { button.disabled = false; }
+      finally { button.disabled = false; if(arrival) form.inert = false; }
     };
     return form;
   }
@@ -119,20 +121,39 @@
   const messages = {'amend-count':'Conteo corregido en el historial.','amend-quantity':'Corrección guardada en el historial.',count:'Conteo guardado.','request-delivered':'Pedido guardado como recibido en Sucursal.',dispatch:'Salida guardada. Ya cuenta en Sucursal.',correct:'Diferencia de entrega guardada.'};
   const view = new URLSearchParams(location.search).get('view');
   const mode = page.dataset.operation === 'branch' && view === 'adjustments' ? 'adjustments' : page.dataset.operation;
+  const capture = mode === 'request' && view === 'capture';
+  if(capture){
+    page.querySelector('h1').textContent='¿Cuánto llegó de CEDIS?';
+    document.title='Llegada de pollos · Chicken ChicanIA';
+    page.querySelector('p a').textContent='Volver al chat';
+  }
   if(mode==='adjustments') page.querySelector('h1').textContent='Revisar y ajustar la semana';
   let model, dirty = false, busy = false, place = 'Rastro', retry = null;
   const report = error => {status.textContent = error.message;};
   const reload = async () => {model = await api('cedis');render();};
   const changed = () => {dirty = true;};
+  function arrivalChanged(hasQuantities){
+    dirty = hasQuantities;
+    status.textContent = dirty ? 'Llegada pendiente de guardar.' : '';
+  }
   async function save(body){
     if(busy) return;
     busy = true;
+    if(capture) status.textContent = 'Guardando llegada…';
     const payload = JSON.stringify(body);
     if(retry?.payload !== payload) retry = {payload,id:crypto.randomUUID()};
     try {
       model = await api('cedis',{...body,revision:model.revision,requestId:retry.id});
-      retry = null;dirty = false;render();status.textContent = messages[body.action];
-    } catch(error) {report(error);}
+      retry = null;dirty = false;render();status.textContent = capture ? 'Llegada guardada en Sucursal.' : messages[body.action];
+    } catch(error) {
+      if(capture && error.status === 409){
+        const latest = await api('cedis').catch(()=>null);
+        if(latest?.day === model.day) model = latest;
+      }
+      if(capture){
+        status.textContent = 'No se confirmó el guardado. ' + error.message + ' Revisa y vuelve a pulsar Guardar llegada.';
+      } else report(error);
+    }
     finally {busy = false;}
   }
   function adjustmentForm(item,before,unit,orderId,action){
@@ -228,17 +249,21 @@
       ].filter(Boolean).join(' · ');
       host.append(menu,el('p','Captura lo que contaste. Vacío queda pendiente y 0 indica que no hay.'),
         lineForm(model.catalog.filter(item=>item.place===place),{label:'Guardar conteo',hint,changed,save:lines=>save({action:'count',lines})}));
+    } else if(capture){
+      const items = model.orderCatalog.filter(item=>item.unit==='pollos');
+      const totals = new Map(model.branch.map(item=>[item.id,item.arrivals.filter(arrival=>arrival.date===model.day)
+        .reduce((total,arrival)=>total+arrival.qty,0)]));
+      const format = new Intl.NumberFormat('es-MX',{maximumFractionDigits:3});
+      host.append(
+        lineForm(items,{label:'Guardar llegada',arrival:true,changed:arrivalChanged,
+          save:lines=>save({action:'request-delivered',lines})}),
+        el('h2','Guardado hoy en Sucursal'),
+        ...items.map(item=>el('p',item.label+' ? '+format.format(totals.get(item.id) || 0)+' '+item.unit))
+      );
     } else {
       const editor = el('details');
       editor.append(el('summary','Capturar pedido a CEDIS'),
         lineForm(view==='capture'?model.orderCatalog.filter(item=>item.branch==='Proteínas'):model.orderCatalog,{label:'Guardar pedido a CEDIS',changed,allocation:true,save:(lines,allocation,note)=>save({action:'request-delivered',lines,allocation,note})}));
-      if(view==='capture'){
-        page.querySelector('h1').textContent='Capturar proteínas';
-        editor.open=true;
-        const countLink=el('a','Capturar un conteo físico en CEDIS');
-        countLink.href='/cedis.html';
-        host.append(el('p','Fecha de captura: '+model.day),countLink);
-      }
       host.append(editor,el('h2','Pedidos a CEDIS'));
       const requests = model.orders.filter(order=>order.type==='request');
       const orderItems = [...model.orderCatalog,...model.catalog.filter(item=>!model.orderCatalog.some(row=>row.id===item.id))];
@@ -246,7 +271,17 @@
     }
   }
   document.addEventListener('DOMContentLoaded',() => {
-    AreaNavigation.guardChanges({hasChanges:()=>dirty,isSaving:()=>busy,discard:()=>{dirty=false;}});
+    if(capture){
+      document.addEventListener('click',event=>{
+        const link = event.target.closest('a[href]');
+        if(!link || link.href===location.href || (!dirty && !busy)) return;
+        event.preventDefault();
+        status.textContent = busy ? 'Espera a que termine el guardado.' : 'Guarda la llegada antes de salir.';
+        status.scrollIntoView({block:'nearest'});
+      },true);
+    } else {
+      AreaNavigation.guardChanges({hasChanges:()=>dirty,isSaving:()=>busy,discard:()=>{dirty=false;}});
+    }
     window.addEventListener('beforeunload',event => {if(dirty||busy){event.preventDefault();event.returnValue='';}});
     reload().catch(error=>error.status===401?login(host,reload,report):report(error));
   });

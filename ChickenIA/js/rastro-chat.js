@@ -216,7 +216,7 @@ async function showInventorySummary(group){
 }
 
 const inventoryHelp = [
-    ['¿Cómo capturo proteínas?','Abre Capturar proteínas. Para registrar lo que llegó de CEDIS, anota la cantidad de pollos y guarda. Para un conteo físico, abre el enlace de conteo en CEDIS.'],
+    ['¿Cómo capturo proteínas?','Abre Capturar proteínas, escribe cuántos pollos llegaron de CEDIS y pulsa Guardar llegada. El total de hoy aparece en esa misma pantalla.'],
     ['¿Dónde veo qué salió hoy?','Pulsa Ver existencias. El chat muestra lo que salió de CEDIS, lo que llegó a Sucursal y lo que debería quedar según los movimientos registrados.'],
     ['¿Cómo corrijo una cantidad?','Abre Revisar y ajustar la semana. Busca la entrega o recepción en el día correcto, escribe la cantidad correcta y el motivo, y confirma. El historial conserva ambas cantidades.'],
     ['¿Por qué dice Sin dato?','El saldo requiere un punto de partida y movimientos en una unidad compatible. Revisa el conteo o los movimientos antes de tomar ese saldo como confirmado.']
