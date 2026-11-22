@@ -49,6 +49,15 @@ function createHandler(getRepository = production, queryOverride) {
         const query = queryOverride || require('@neondatabase/serverless').neon(process.env.DATABASE_URL);
         return res.status(200).json(await require('../lib/cedis-inventory').history(query,req.query.range));
       }
+      if (req.method === 'GET' && action === 'poster-close') {
+        if (user.role !== 'manager') throw new InventoryError('Sin acceso al cierre de caja.',403);
+        try {
+          return res.status(200).json(await require('../lib/poster-close').getClose(req.query.date));
+        } catch (error) {
+          if (error instanceof InventoryError) throw error;
+          throw new InventoryError('No se pudo consultar el cierre en Poster.',502);
+        }
+      }
       if (action === 'cedis') {
         if (req.method === 'POST' && user.role !== 'manager') throw new InventoryError('Sin permiso de captura.',403);
         const query = queryOverride || require('@neondatabase/serverless').neon(process.env.DATABASE_URL);

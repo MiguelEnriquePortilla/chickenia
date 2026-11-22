@@ -31,6 +31,8 @@
 <link rel="stylesheet" href="/css/refined.css">
 <script src="/js/refined.js" defer></script>
 <link rel="stylesheet" href="/css/polish.css"><script defer src="/js/nav-polish.js"></script><link rel="stylesheet" href="/css/shared-shell.css"><script defer src="/js/shared-shell.js"></script><link rel="stylesheet" href="/css/equipo-share.css"><link rel="stylesheet" href="/css/dashboard-feed.css">
+<link rel="stylesheet" href="/css/poster-close-card.css">
+<script src="/js/poster-close-card.js" defer></script>
 </head>
 <body class="points-active dashboard-feed">
 
@@ -77,6 +79,10 @@
 <div id="area-status-bar" class="area-status-bar" style="display:none;"></div>
 
 <main class="dashboard-grid">
+  <details class="summary-section" id="resumen-cierre" hidden>
+    <summary>Cierre de caja</summary>
+    <div class="poster-close-body" aria-live="polite"></div>
+  </details>
   <details class="summary-section" id="resumen-evaluation" open><summary>Evaluaciones</summary><div class="summary-section-tools"><button type="button" data-summary-report="evaluation" disabled>Compartir por WhatsApp</button></div><section id="equipo-weekly" aria-label="Evaluación semanal del equipo"><p>Cargando evaluación del equipo…</p></section></details>
   <link rel="stylesheet" href="/css/equipo-weekly.css">
   <section id="checklist-timeline" data-view="dashboard" aria-label="Gráfico de cortes por área"><p>Cargando cortes del checklist…</p></section>

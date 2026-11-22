@@ -1,4 +1,5 @@
 {
+  "git": { "deploymentEnabled": { "respaldo/cierre-poster-2026-11-21": false } },
   "buildCommand": "node scripts/build-static.js",
   "outputDirectory": "public",
   "installCommand": "npm ci --omit=dev",

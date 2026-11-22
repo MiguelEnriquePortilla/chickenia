@@ -117,6 +117,7 @@ async function init() {
   initCollapsible('movements-toggle', 'movements');
 
   $('#date-input').value = state.date;
+  if (state.isManager) window.initPosterClose?.(document.getElementById('date-input'));
   $('#date-input').addEventListener('change', (e) => {
     state.date = e.target.value;
     load();
