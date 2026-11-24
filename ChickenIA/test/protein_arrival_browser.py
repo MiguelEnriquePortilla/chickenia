@@ -69,7 +69,7 @@ try:
         model = response.json()
         seed = page.request.post(endpoint, data={
             "action": "count", "revision": model["revision"], "requestId": str(uuid.uuid4()),
-            "lines": [{"id": "MERPOL:0", "qty": 50}],
+            "lines": [{"id": "MERPOL:0", "qty": 50}, {"id": "CENTRAL DE ABASTOS:4", "qty": 10}, {"id": "CENTRAL DE ABASTOS:1", "qty": 8}],
         })
         assert seed.ok, seed.text()
 
@@ -142,6 +142,16 @@ try:
         assert saved["cedis"]["MERPOL:0"] == 20
         assert len(saved["orders"]) == 1
         assert saved["orders"][0]["receivedAtCapture"]
+        page.locator("summary").get_by_text("Vegetales (kg)", exact=True).click()
+        page.get_by_role("spinbutton", name=re.compile("Zanahoria", re.I)).fill("2.125")
+        page.get_by_role("spinbutton", name=re.compile("Papa Alfa", re.I)).fill("1.5")
+        save.click()
+        expect(page.locator("#cedis-status")).to_contain_text("2.125 kg")
+        vegetable_state = page.request.get(endpoint).json()
+        assert vegetable_state["cedis"]["CENTRAL DE ABASTOS:4"] == 7.875
+        assert vegetable_state["cedis"]["CENTRAL DE ABASTOS:1"] == 6.5
+        carrot = next(item for item in vegetable_state["branch"] if item["id"] == "CENTRAL DE ABASTOS:4")
+        assert carrot["arrivals"][-1]["qty"] == 2.125
         page.reload()
         expect(page.locator("#cedis-content")).to_contain_text("30 pollos")
         page.locator('main a[href="/chat-rastro.html?apartado=rastro"]').first.click()

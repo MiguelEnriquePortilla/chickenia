@@ -45,11 +45,15 @@
   function lineForm(items, {values = {}, label, hint = () => '', requireAll = false, allocation = false, arrival = false, onEmpty = () => {}, changed = () => {}, save}){
     const form = el('form');
     const fields = items.map(item => inputRow(item,hint(item),values[item.id],label));
-    for(const field of fields){
+    const vegetables = arrival ? el('details') : null;
+    vegetables?.append(el('summary','Vegetales (kg)'));
+    for(const [index, field] of fields.entries()){
       field.input.required = requireAll;
       if(arrival) field.input.min = '.001';
-      form.append(field.label);
+      const container = vegetables && items[index].branch === 'Vegetales' ? vegetables : form;
+      container.append(field.label);
     }
+    if(vegetables?.childElementCount > 1) form.append(vegetables);
     const splits = allocation ? [
       inputRow({id:'oven',name:'POLLO ROSTIZADO (HORNO)',unit:'pollos'},'',null,'Reparto'),
       inputRow({id:'rotisserie',name:'POLLO (ROSTICERO)',unit:'pollos'},'',null,'Reparto')
@@ -124,7 +128,7 @@
   const capture = mode === 'request' && view === 'capture';
   if(capture){
     page.querySelector('h1').textContent='Registrar llegada a Sucursal';
-    document.title='Llegada de pollos · Chicken ChicanIA';
+    document.title='Llegada a Sucursal · Chicken ChicanIA';
     page.querySelector('p a').textContent='Volver al chat';
   }
   if(mode==='adjustments') page.querySelector('h1').textContent='Historial y correcciones';
@@ -262,21 +266,23 @@
       host.append(menu,el('p','Anota lo que hay físicamente en CEDIS. Vacío queda pendiente y 0 indica que no hay.'),
         lineForm(model.catalog.filter(item=>item.place===place),{label:'Guardar conteo en CEDIS',hint,changed,save:lines=>save({action:'count',lines})}));
     } else if(capture){
-      const items = model.orderCatalog.filter(item=>item.unit==='pollos');
+      const proteins = model.orderCatalog.filter(item=>item.unit==='pollos');
+      const vegetables = model.branch.filter(item=>item.branch==='Vegetales');
+      const items = [...proteins,...vegetables];
       const totals = new Map(model.branch.map(item=>[item.id,item.arrivals.filter(arrival=>arrival.date===model.day)
         .reduce((total,arrival)=>total+arrival.qty,0)]));
       const format = new Intl.NumberFormat('es-MX',{maximumFractionDigits:3});
       host.append(
-        el('p','Anota los pollos que llegaron. Al guardar, se descuentan de CEDIS y se registran en Sucursal. Deja vacío el tipo que no llegó.'),
+        el('p','Captura los pollos y abre Vegetales (kg) para anotar los kilos recibidos. Al guardar, se descuentan de CEDIS y se registran en Sucursal. Deja vacíos los productos que no llegaron.'),
         lineForm(items,{label:'Guardar llegada',arrival:true,changed:arrivalChanged,
-          onEmpty:()=>{status.textContent='Escribe la cantidad de pollos que llegó en al menos un campo.';},
+          onEmpty:()=>{status.textContent='Escribe la cantidad de pollos o de vegetales que llegó.';},
           hint:item=>{
             const available = model.cedis[item.id] ?? model.receivedPending[item.id];
             return available == null ? 'CEDIS sin existencia registrada' : 'Disponible en CEDIS al abrir: '+format.format(available);
           },
           save:lines=>save({action:'request-delivered',lines})}),
         el('h2','Guardado hoy en Sucursal'),
-        ...items.map(item=>el('p',item.label+' · '+format.format(totals.get(item.id) || 0)+' '+item.unit))
+        ...items.filter(item=>item.unit==='pollos'||totals.get(item.id)).map(item=>el('p',(item.label||item.name)+' · '+format.format(totals.get(item.id) || 0)+' '+item.unit))
       );
     } else {
       const editor = el('details');

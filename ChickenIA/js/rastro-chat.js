@@ -186,7 +186,7 @@ function reportCard(report){
   return card;
 }
 const inventoryHelp=[
-  ['¿Cómo registro los pollos que llegaron a Sucursal?','En Inventario, abre Registrar llegada a Sucursal. Escribe cuánto llegó de cada tipo de pollo y pulsa Guardar llegada. La confirmación muestra la cantidad, Sucursal y la fecha.'],
+  ['¿Cómo registro lo que llegó a Sucursal?','En Inventario, abre Registrar llegada a Sucursal. Escribe los pollos recibidos o abre Vegetales (kg) para capturar los kilos. Pulsa Guardar llegada. La confirmación muestra la cantidad, Sucursal y la fecha.'],
   ['¿Dónde veo las existencias?','En Inventario, abre Ver existencias. Puedes consultar pollos y vegetales en CEDIS y Sucursal, y cuánto llegó hoy a Sucursal.'],
   ['¿Cómo corrijo una cantidad?','En Inventario, abre Historial y correcciones. Busca la fecha, selecciona el registro y guarda la cantidad correcta con el motivo.'],
   ['¿Cómo anoto un conteo en CEDIS?','En Inventario, abre Contar mercancía en CEDIS. Selecciona Rastro o Almacén y anota lo que hay físicamente ahí. El conteo actualiza CEDIS. Para registrar lo que llegó a Sucursal, abre Registrar llegada a Sucursal.'],

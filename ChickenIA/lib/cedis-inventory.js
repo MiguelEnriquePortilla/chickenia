@@ -167,8 +167,9 @@ function apply(state, input, user, day, products) {
     if(input.allocation && (!['request','request-delivered'].includes(input.action) || round(input.allocation.oven+input.allocation.rotisserie)>(lines['MERPOL:0']||0)))
       fail('El reparto de Horno y Rosticero supera el Rostizado pedido.');
     const purchase = input.action === 'purchase';
-    if(input.lines.some(({id,qty}) => !qty || (!purchase && !paperItems.has(id)))) fail('Revisa las cantidades del pedido.');
     const delivered=input.action==='request-delivered';
+    const canDeliver = id => paperItems.has(id) || (delivered && products.get(id).branch === 'Vegetales');
+    if(input.lines.some(({id,qty}) => !qty || (!purchase && !canDeliver(id)))) fail('Revisa las cantidades del pedido.');
     if(delivered)for(const {id,qty} of input.lines)move(id,-qty);
     state.orders.unshift({id:randomUUID(),type:purchase?'purchase':'request',supplier:purchase?input.supplier:null,
       lines,date:day,actor:user.name,note:input.note||'',allocation:input.allocation,
