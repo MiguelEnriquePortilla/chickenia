@@ -104,6 +104,15 @@ try:
         sidebar.get_by_role("link", name="Registrar llegada a Sucursal").click()
         expect(page.get_by_role("heading", name="Registrar llegada a Sucursal")).to_be_visible()
         expect(toggle).to_have_attribute("aria-expanded", "false")
+        page.get_by_role("button", name="Guardar llegada").click()
+        expect(page.locator("#cedis-status")).to_contain_text("Escribe la cantidad de pollos")
+        crujiente = page.get_by_role("spinbutton", name=re.compile("Crujiente", re.I))
+        crujiente.fill("13")
+        page.get_by_role("button", name="Guardar llegada").click()
+        expect(page.locator("#cedis-status")).to_contain_text("CEDIS tiene 12 pollos")
+        expect(crujiente).to_have_value("13")
+        assert not page.request.get(endpoint).json()["orders"]
+        crujiente.fill("")
         quantity = page.locator("#cedis-content input").first
         quantity.fill("30")
         page.locator('main a[href="/chat-rastro.html?apartado=rastro"]').first.click()

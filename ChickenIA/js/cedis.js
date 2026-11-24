@@ -42,7 +42,7 @@
     label.append(description,input);
     return {label,input,id:item.id};
   }
-  function lineForm(items, {values = {}, label, hint = () => '', requireAll = false, allocation = false, arrival = false, changed = () => {}, save}){
+  function lineForm(items, {values = {}, label, hint = () => '', requireAll = false, allocation = false, arrival = false, onEmpty = () => {}, changed = () => {}, save}){
     const form = el('form');
     const fields = items.map(item => inputRow(item,hint(item),values[item.id],label));
     for(const field of fields){
@@ -69,7 +69,7 @@
     form.onsubmit = async event => {
       event.preventDefault();
       const lines = fields.filter(field => field.input.value !== '').map(field => ({id:field.id,qty:field.input.valueAsNumber}));
-      if(!lines.length){fields[0]?.input.focus();return;}
+      if(!lines.length){onEmpty();fields[0]?.input.focus();return;}
       button.disabled = true;
       if(arrival) form.inert = true;
       try {
@@ -142,8 +142,8 @@
     busy = true;
     if(capture) status.textContent = 'Guardando llegada…';
     const payload = JSON.stringify(body);
-    if(retry?.payload !== payload) retry = {payload,id:crypto.randomUUID()};
     try {
+      if(retry?.payload !== payload) retry = {payload,id:crypto.randomUUID()};
       model = await api('cedis',{...body,revision:model.revision,requestId:retry.id});
       retry = null;dirty = false;render();
       if(capture){
@@ -159,7 +159,8 @@
         if(latest?.day === model.day) model = latest;
       }
       if(capture){
-        status.textContent = 'No se confirmó el guardado. ' + error.message + ' Revisa y vuelve a pulsar Guardar llegada.';
+        status.textContent = 'No se confirmó el guardado. ' + error.message;
+        status.scrollIntoView({block:'nearest'});
       } else report(error);
     }
     finally {busy = false;}
@@ -266,11 +267,16 @@
         .reduce((total,arrival)=>total+arrival.qty,0)]));
       const format = new Intl.NumberFormat('es-MX',{maximumFractionDigits:3});
       host.append(
-        el('p','Anota los pollos que llegaron de CEDIS a Sucursal.'),
+        el('p','Anota los pollos que llegaron. Al guardar, se descuentan de CEDIS y se registran en Sucursal. Deja vacío el tipo que no llegó.'),
         lineForm(items,{label:'Guardar llegada',arrival:true,changed:arrivalChanged,
+          onEmpty:()=>{status.textContent='Escribe la cantidad de pollos que llegó en al menos un campo.';},
+          hint:item=>{
+            const available = model.cedis[item.id] ?? model.receivedPending[item.id];
+            return available == null ? 'CEDIS sin existencia registrada' : 'Disponible en CEDIS al abrir: '+format.format(available);
+          },
           save:lines=>save({action:'request-delivered',lines})}),
         el('h2','Guardado hoy en Sucursal'),
-        ...items.map(item=>el('p',item.label+' ? '+format.format(totals.get(item.id) || 0)+' '+item.unit))
+        ...items.map(item=>el('p',item.label+' · '+format.format(totals.get(item.id) || 0)+' '+item.unit))
       );
     } else {
       const editor = el('details');
@@ -288,6 +294,11 @@
         const link = event.target.closest('a[href]');
         if(!link || link.href===location.href || (!dirty && !busy)) return;
         event.preventDefault();
+        if(!busy && confirm('Hay una llegada sin guardar. ¿Quieres descartarla y salir?')){
+          dirty=false;
+          location.assign(link.href);
+          return;
+        }
         status.textContent = busy ? 'Espera a que termine el guardado.' : 'Guarda la llegada antes de salir.';
         status.scrollIntoView({block:'nearest'});
       },true);

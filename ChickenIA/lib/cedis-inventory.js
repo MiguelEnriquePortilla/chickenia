@@ -141,7 +141,13 @@ function apply(state, input, user, day, products) {
     const known = state.cedis[id] != null;
     const available = known ? state.cedis[id] : state.receivedPending?.[id] || 0;
     const after = round(available + delta);
-    if(after < 0) fail('Revisa la existencia en CEDIS de ' + products.get(id).name + '.',409);
+    if(after < 0){
+      const item = products.get(id);
+      if(input.action === 'request-delivered'){
+        fail('CEDIS tiene '+available+' '+item.unit+' de '+item.name+' y esta llegada requiere '+Math.abs(delta)+'. Verifica el conteo físico en CEDIS antes de reintentar.',409);
+      }
+      fail('Revisa la existencia en CEDIS de ' + item.name + '.',409);
+    }
     if(known) state.cedis[id] = after;
     else if(delta){state.receivedPending ??= {};state.receivedPending[id] = after;}
   };
