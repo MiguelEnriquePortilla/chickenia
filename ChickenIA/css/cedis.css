@@ -10,3 +10,6 @@
 
 .cedis-page .cedis-after-count { display: flex; align-items: center; gap: .5rem; }
 .cedis-page .cedis-after-count input { width: auto; }
+
+.cedis-page .cedis-order-form { max-width: 38rem; gap: .25rem; }
+.cedis-order-form > button { margin-top: .75rem; min-height: 44px; }

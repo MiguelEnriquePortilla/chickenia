@@ -172,6 +172,37 @@ try:
         assert recorded["orders"][0]["noCedisDebit"] == ["MERPOL:0"]
         assert recorded["orders"][0]["actual"]["MERPOL:0"] == 3
 
+        toggle.click()
+        sidebar.get_by_text("Abastecimiento", exact=True).click()
+        sidebar.get_by_role("link", name="Pedido a CEDIS", exact=True).click()
+        expect(page.get_by_role("heading", name=re.compile("Pedido de hoy"))).to_be_visible()
+        expect(page.get_by_role("spinbutton", name=re.compile("Rostizado"))).to_have_count(0)
+        expect(page.locator("#cedis-content details")).to_have_count(0)
+        vegetable = page.get_by_role("spinbutton", name=re.compile("Zanahoria.*kg"))
+        expect(vegetable).to_be_visible()
+        vegetable.fill("1.25")
+        page.get_by_role("button", name="Guardar pedido", exact=True).click()
+        expect(page.locator("#cedis-status")).to_contain_text("Pedido guardado")
+        order = page.request.get(endpoint).json()
+        assert order["cedis"]["CENTRAL DE ABASTOS:4"] == 10
+        assert order["orders"][0]["actual"] == {"CENTRAL DE ABASTOS:4": 1.25}
+
+        toggle.click()
+        sidebar.get_by_role("link", name="Historial de pedidos", exact=True).click()
+        expect(page.get_by_role("heading", name="Historial de pedidos")).to_be_visible()
+        expect(page.get_by_role("button", name="Guardar pedido", exact=True)).to_have_count(0)
+        page.locator("#cedis-content summary").first.click()
+        expect(page.locator("#cedis-content")).to_contain_text("Zanahoria")
+        expect(page.locator("#cedis-content")).to_contain_text("1.25 kg")
+
+        toggle.click()
+        sidebar.get_by_role("link", name="Pedido a Rastro", exact=True).click()
+        expect(page.get_by_role("heading", name="Pedido a Rastro")).to_be_visible()
+        expect(page.get_by_role("spinbutton")).to_have_count(2)
+        expect(page.get_by_role("spinbutton", name=re.compile("Rostizado"))).to_be_visible()
+        assert page.evaluate("document.documentElement.scrollWidth === window.innerWidth")
+
+
 
 finally:
     server.terminate()

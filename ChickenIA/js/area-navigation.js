@@ -56,7 +56,7 @@
       ['/cedis.html','Contar mercancía en CEDIS'],
       ['/proteinas.html?view=adjustments','Historial y correcciones']
     ];
-    const supplyLinks=[['/rastro.html','Pedido a CEDIS'],['/chat-rastro.html?apartado=rastro','Consultar pedidos en el chat'],['/pedidos.html','Lista de Pedidos']];
+    const supplyLinks=[['/rastro.html','Pedido a CEDIS'],['/rastro.html?view=rastro','Pedido a Rastro'],['/rastro.html?view=history','Historial de pedidos'],['/chat-rastro.html?apartado=rastro','Consultar pedidos en el chat'],['/pedidos.html','Lista de Pedidos']];
     const current=href=>{
       const destination=new URL(href,location.origin);
       return destination.pathname===location.pathname &&

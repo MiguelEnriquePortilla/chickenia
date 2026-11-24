@@ -42,10 +42,10 @@
     label.append(description,input);
     return {label,input,id:item.id};
   }
-  function lineForm(items, {values = {}, label, hint = () => '', requireAll = false, allocation = false, arrival = false, onEmpty = () => {}, changed = () => {}, save}){
+  function lineForm(items, {values = {}, label, hint = () => '', requireAll = false, allocation = false, arrival = false, afterCountOption = arrival, foldVegetables = arrival, onEmpty = () => {}, changed = () => {}, save}){
     const form = el('form');
     const fields = items.map(item => inputRow(item,hint(item),values[item.id],label));
-    const vegetables = arrival ? el('details') : null;
+    const vegetables = foldVegetables ? el('details') : null;
     vegetables?.append(el('summary','Vegetales (kg)'));
     for(const [index, field] of fields.entries()){
       field.input.required = requireAll;
@@ -68,7 +68,7 @@
       form.append(note);
     }
     const afterCount = el('input');
-    if(arrival){
+    if(afterCountOption){
       afterCount.type='checkbox';
       const option = el('label',' El conteo de Rastro de hoy ya descuenta este pollo');
       option.className='cedis-after-count';
@@ -134,10 +134,21 @@
   const view = new URLSearchParams(location.search).get('view');
   const mode = page.dataset.operation === 'branch' && view === 'adjustments' ? 'adjustments' : page.dataset.operation;
   const capture = mode === 'request' && view === 'capture';
-  if(capture){
-    page.querySelector('h1').textContent='Registrar llegada a Sucursal';
-    document.title='Llegada a Sucursal · Chicken ChicanIA';
-    page.querySelector('p a').textContent='Volver al chat';
+  const warehouse = mode === 'request' && !['capture','rastro','history'].includes(view);
+  const proteinOrder = mode === 'request' && view === 'rastro';
+  const orderCapture = warehouse || proteinOrder;
+  const capturePage = capture || orderCapture;
+  if(mode === 'request'){
+    const heading = {capture:'Registrar llegada a Sucursal',rastro:'Pedido a Rastro',history:'Historial de pedidos'}[view] || 'Pedido de hoy · Almacén';
+    page.querySelector('h1').textContent=heading;
+    document.title=heading+' · Chicken ChicanIA';
+    if(capture){
+      const back=el('a','Volver al chat');
+      back.href='/chat-rastro.html?apartado=rastro';
+      const link=el('p');
+      link.append(back);
+      page.querySelector('h1').after(link);
+    }
   }
   if(mode==='adjustments') page.querySelector('h1').textContent='Historial y correcciones';
   if(mode==='branch') page.querySelector('h1').textContent='Existencias';
@@ -147,30 +158,31 @@
   const changed = () => {dirty = true;};
   function arrivalChanged(hasQuantities){
     dirty = hasQuantities;
-    status.textContent = dirty ? 'Llegada pendiente de guardar.' : '';
+    status.textContent = dirty ? (orderCapture ? 'Pedido pendiente de guardar.' : 'Llegada pendiente de guardar.') : '';
   }
   async function save(body){
     if(busy) return;
     busy = true;
-    if(capture) status.textContent = 'Guardando llegada…';
+    if(capturePage) status.textContent = orderCapture ? 'Guardando pedido…' : 'Guardando llegada…';
     const payload = JSON.stringify(body);
     try {
       if(retry?.payload !== payload) retry = {payload,id:crypto.randomUUID()};
       model = await api('cedis',{...body,revision:model.revision,requestId:retry.id});
       retry = null;dirty = false;render();
-      if(capture){
+      if(capturePage){
         const quantities=body.lines.map(({id,qty})=>{
           const item=model.catalog.find(row=>row.id===id);
           return qty+' '+item.unit+' · '+item.name;
         });
-        status.textContent='Llegada guardada en Sucursal · '+model.day+' · '+quantities.join(' / ');
+        status.textContent=(orderCapture ? 'Pedido guardado' : 'Llegada guardada en Sucursal')+' · '+model.day+' · '+quantities.join(' / ');
+        status.scrollIntoView({block:'nearest'});
       } else status.textContent=body.action==='count'?messages.count+' '+place+' · '+model.day:messages[body.action];
     } catch(error) {
-      if(capture && error.status === 409){
+      if(capturePage && error.status === 409){
         const latest = await api('cedis').catch(()=>null);
         if(latest?.day === model.day) model = latest;
       }
-      if(capture){
+      if(capturePage){
         status.textContent = 'No se confirmó el guardado. ' + error.message;
         status.scrollIntoView({block:'nearest'});
       } else report(error);
@@ -273,6 +285,14 @@
       ].filter(Boolean).join(' · ');
       host.append(menu,el('p','Anota lo que hay físicamente en CEDIS. Vacío queda pendiente y 0 indica que no hay.'),
         lineForm(model.catalog.filter(item=>item.place===place),{label:'Guardar conteo en CEDIS',hint,changed,save:lines=>save({action:'count',lines})}));
+    } else if(orderCapture){
+      const items = warehouse ? model.branch.filter(item=>item.branch==='Vegetales')
+        : model.orderCatalog.filter(item=>item.unit==='pollos');
+      const form = lineForm(items,{label:'Guardar pedido',arrival:true,afterCountOption:proteinOrder,foldVegetables:false,changed:arrivalChanged,
+        onEmpty:()=>{status.textContent=warehouse ? 'Escribe la cantidad en kilos de al menos un producto.' : 'Escribe la cantidad de pollos que llegó.';},
+        save:(lines,distribution,note,afterCount)=>save({action:'request-delivered',lines,...(afterCount?{afterCount}:{})})});
+      form.className='cedis-order-form';
+      host.append(el('p',warehouse ? 'Anota los kilos recibidos hoy en Sucursal.' : 'Anota los pollos recibidos hoy en Sucursal.'),form);
     } else if(capture){
       const proteins = model.orderCatalog.filter(item=>item.unit==='pollos');
       const vegetables = model.branch.filter(item=>item.branch==='Vegetales');
@@ -294,27 +314,24 @@
         ...items.filter(item=>item.unit==='pollos'||totals.get(item.id)).map(item=>el('p',(item.label||item.name)+' · '+format.format(totals.get(item.id) || 0)+' '+item.unit))
       );
     } else {
-      const editor = el('details');
-      editor.append(el('summary','Capturar pedido a CEDIS'),
-        lineForm(model.orderCatalog,{label:'Guardar pedido como recibido en Sucursal',changed,allocation:true,save:(lines,allocation,note)=>save({action:'request-delivered',lines,allocation,note})}));
-      host.append(editor,el('h2','Pedidos a CEDIS'));
       const requests = model.orders.filter(order=>order.type==='request');
+      if(!requests.length) host.append(el('p','Todavía no hay pedidos guardados.'));
       const orderItems = [...model.orderCatalog,...model.catalog.filter(item=>!model.orderCatalog.some(row=>row.id===item.id))];
       requests.forEach((order,index)=>host.append(orderPanel(order,orderItems,save,changed,requests.length-index)));
     }
   }
   document.addEventListener('DOMContentLoaded',() => {
-    if(capture){
+    if(capturePage){
       document.addEventListener('click',event=>{
         const link = event.target.closest('a[href]');
         if(!link || link.href===location.href || (!dirty && !busy)) return;
         event.preventDefault();
-        if(!busy && confirm('Hay una llegada sin guardar. ¿Quieres descartarla y salir?')){
+        if(!busy && confirm(orderCapture ? 'Hay un pedido sin guardar. ¿Quieres descartarlo y salir?' : 'Hay una llegada sin guardar. ¿Quieres descartarla y salir?')){
           dirty=false;
           location.assign(link.href);
           return;
         }
-        status.textContent = busy ? 'Espera a que termine el guardado.' : 'Guarda la llegada antes de salir.';
+        status.textContent = busy ? 'Espera a que termine el guardado.' : (orderCapture ? 'Guarda el pedido antes de salir.' : 'Guarda la llegada antes de salir.');
         status.scrollIntoView({block:'nearest'});
       },true);
     } else {
