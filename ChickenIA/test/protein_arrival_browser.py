@@ -148,8 +148,8 @@ try:
         save.click()
         expect(page.locator("#cedis-status")).to_contain_text("2.125 kg")
         vegetable_state = page.request.get(endpoint).json()
-        assert vegetable_state["cedis"]["CENTRAL DE ABASTOS:4"] == 7.875
-        assert vegetable_state["cedis"]["CENTRAL DE ABASTOS:1"] == 6.5
+        assert vegetable_state["cedis"]["CENTRAL DE ABASTOS:4"] == 10
+        assert vegetable_state["cedis"]["CENTRAL DE ABASTOS:1"] == 8
         carrot = next(item for item in vegetable_state["branch"] if item["id"] == "CENTRAL DE ABASTOS:4")
         assert carrot["arrivals"][-1]["qty"] == 2.125
         page.reload()
@@ -162,6 +162,16 @@ try:
         sidebar.get_by_role("link", name="Ver existencias").click()
         expect(page.locator("main")).to_contain_text("Llegó hoy a Sucursal: 30 pollos")
         expect(page.get_by_role("heading", name="Vegetales")).to_be_visible()
+        page.goto(BASE + "/rastro.html?view=capture")
+        page.locator("#cedis-content input[type=number]").first.fill("3")
+        page.get_by_role("checkbox", name=re.compile("conteo de Rastro")).check()
+        page.get_by_role("button", name="Guardar llegada").click()
+        expect(page.locator("#cedis-status")).to_contain_text("3 pollos")
+        recorded = page.request.get(endpoint).json()
+        assert recorded["cedis"]["MERPOL:0"] == 20
+        assert recorded["orders"][0]["noCedisDebit"] == ["MERPOL:0"]
+        assert recorded["orders"][0]["actual"]["MERPOL:0"] == 3
+
 
 finally:
     server.terminate()

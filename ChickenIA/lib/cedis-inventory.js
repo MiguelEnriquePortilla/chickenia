@@ -38,6 +38,7 @@ const command = z.object({
   supplier: z.string().optional(), orderId: z.string().uuid().optional(),
   lines: z.array(z.object({id: z.string(), qty: quantity})).min(1).max(500),
   note: z.string().max(1000).optional(),
+  afterCount: z.literal(true).optional(),
   allocation: z.object({oven:quantity,rotisserie:quantity}).strict().optional()
 }).strict();
 
@@ -135,6 +136,7 @@ function apply(state, input, user, day, products) {
     if(input.lines.some(line=>!allowed.has(line.id)))fail('Revisa los productos del proveedor.');
     input.lines=input.lines.map(line=>({...line,id:aliases[line.id]||line.id}));
   }
+  if(input.afterCount && input.action !== 'request-delivered') fail('Esta opción solo aplica a llegadas.');
   const lines = Object.fromEntries(input.lines.map(line => [line.id, line.qty]));
   if(Object.keys(lines).length !== input.lines.length || input.lines.some(line => !products.has(line.id))) fail('Revisa los productos.');
   const move = (id, delta) => {
@@ -170,9 +172,19 @@ function apply(state, input, user, day, products) {
     const delivered=input.action==='request-delivered';
     const canDeliver = id => paperItems.has(id) || (delivered && products.get(id).branch === 'Vegetales');
     if(input.lines.some(({id,qty}) => !qty || (!purchase && !canDeliver(id)))) fail('Revisa las cantidades del pedido.');
-    if(delivered)for(const {id,qty} of input.lines)move(id,-qty);
+    const noCedisDebit = delivered ? input.lines.filter(({id})=>{
+      const item = products.get(id);
+      if(item.branch === 'Vegetales') return true;
+      if(!input.afterCount || item.branch !== 'Proteínas') return false;
+      if(state.counted[id] !== day) fail('Primero registra el conteo físico de hoy para '+item.name+'.',409);
+      return true;
+    }).map(({id})=>id) : [];
+    if(delivered)for(const {id,qty} of input.lines){
+      if(!noCedisDebit.includes(id)) move(id,-qty);
+    }
     state.orders.unshift({id:randomUUID(),type:purchase?'purchase':'request',supplier:purchase?input.supplier:null,
       lines,date:day,actor:user.name,note:input.note||'',allocation:input.allocation,
+      ...(noCedisDebit.length?{noCedisDebit}:{}),
       ...(delivered?{receivedAtCapture:true,actual:lines,movementDate:day,movementAt:new Date().toISOString(),movedBy:user.name}:{})});
     return;
   }
@@ -212,7 +224,7 @@ function apply(state, input, user, day, products) {
     const superseded = state.counted[id] > order.movementDate ||
       (state.counted[id] === order.movementDate &&
        (!state.countRecordedAt?.[id] || state.countRecordedAt[id] >= order.movementAt));
-    if(!superseded) move(id,order.type==='purchase'?delta:-delta);
+    if(!superseded && !order.noCedisDebit?.includes(id)) move(id,order.type==='purchase'?delta:-delta);
     order.actual[id] = qty;
     if(receivedAfter != null) order.received[id] = receivedAfter;
     state.adjustments ??= [];
@@ -274,7 +286,7 @@ async function view(query, row, day, items) {
   for(const item of items){
     const id=item.id;
     if(state.cedis[id]==null || state.day>yesterday || state.counted[id]>yesterday)continue;
-    const delta=state.orders.filter(order=>order.movementDate===day && !order.originalUnits?.[id])
+    const delta=state.orders.filter(order=>order.movementDate===day && !order.originalUnits?.[id] && !order.noCedisDebit?.includes(id))
       .reduce((sum,order)=>sum+(order.type==='purchase'?1:-1)*(order.actual?.[id]||0),0);
     cedisYesterday[id]=round(state.cedis[id]-delta);
   }
@@ -337,7 +349,7 @@ async function history(query,range,day=today(new Date())){
     if(!order.actual||order.movementDate<from||order.movementDate>to)continue;
     for(const [id,qty] of Object.entries(order.actual)){
       if(order.originalUnits?.[id])continue;
-      add(order.movementDate,id,order.type==='purchase'?'cedis-in':'cedis-out',qty);
+      if(!order.noCedisDebit?.includes(id)) add(order.movementDate,id,order.type==='purchase'?'cedis-in':'cedis-out',qty);
       if(order.type==='request')add(order.movementDate,id,'branch-in',(order.received||order.actual)[id]||0);
     }
   }

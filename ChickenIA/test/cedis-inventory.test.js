@@ -100,7 +100,7 @@ test('one capture updates both locations and daily production changes the branch
     assert.equal(state.cedis[carrot],7);
     state=await run(query,user,direct,day);
     assert.equal(state.cedis[rosti],40);
-    assert.equal(state.cedis[carrot],5);
+    assert.equal(state.cedis[carrot],7);
     assert.equal(rostiInBranch().incoming,144);
     assert.equal(state.orders[0].receivedAtCapture,true);
     assert.deepEqual(state.orders[0].lines,state.orders[0].actual);

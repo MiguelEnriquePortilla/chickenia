@@ -67,6 +67,14 @@
       note.append(input);
       form.append(note);
     }
+    const afterCount = el('input');
+    if(arrival){
+      afterCount.type='checkbox';
+      const option = el('label',' El conteo de Rastro de hoy ya descuenta este pollo');
+      option.className='cedis-after-count';
+      option.prepend(afterCount);
+      form.append(option);
+    }
     const button = el('button',label);
     form.append(button);
     form.oninput = arrival ? () => changed(fields.some(field=>field.input.value !== '' || field.input.validity.badInput)) : changed;
@@ -78,7 +86,7 @@
       if(arrival) form.inert = true;
       try {
         const distribution = allocation ? Object.fromEntries(splits.map(field=>[field.id,field.input.valueAsNumber || 0])) : undefined;
-        await save(lines,distribution,form.elements.namedItem('order-note')?.value);
+        await save(lines,distribution,form.elements.namedItem('order-note')?.value,afterCount.checked);
       }
       finally { button.disabled = false; if(arrival) form.inert = false; }
     };
@@ -273,14 +281,15 @@
         .reduce((total,arrival)=>total+arrival.qty,0)]));
       const format = new Intl.NumberFormat('es-MX',{maximumFractionDigits:3});
       host.append(
-        el('p','Captura los pollos y abre Vegetales (kg) para anotar los kilos recibidos. Al guardar, se descuentan de CEDIS y se registran en Sucursal. Deja vacíos los productos que no llegaron.'),
+        el('p','Captura los pollos y abre Vegetales (kg) para anotar el pedido recibido. El pollo se descuenta de Rastro salvo que marques que el conteo de hoy ya lo descontó. Los vegetales se guardan en el historial sin cambiar existencias de CEDIS.'),
         lineForm(items,{label:'Guardar llegada',arrival:true,changed:arrivalChanged,
           onEmpty:()=>{status.textContent='Escribe la cantidad de pollos o de vegetales que llegó.';},
           hint:item=>{
+            if(item.branch==='Vegetales') return '';
             const available = model.cedis[item.id] ?? model.receivedPending[item.id];
             return available == null ? 'CEDIS sin existencia registrada' : 'Disponible en CEDIS al abrir: '+format.format(available);
           },
-          save:lines=>save({action:'request-delivered',lines})}),
+          save:(lines,distribution,note,afterCount)=>save({action:'request-delivered',lines,...(afterCount?{afterCount}:{})})}),
         el('h2','Guardado hoy en Sucursal'),
         ...items.filter(item=>item.unit==='pollos'||totals.get(item.id)).map(item=>el('p',(item.label||item.name)+' · '+format.format(totals.get(item.id) || 0)+' '+item.unit))
       );
