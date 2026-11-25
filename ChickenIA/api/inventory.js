@@ -28,7 +28,12 @@ function createHandler(getRepository = production, queryOverride) {
       // Missing credentials fails closed; anonymous requests cannot create tables or read stock.
       if(req.method==='GET'&&action==='people')return res.status(200).json({people:auth.people(auth.settings().users)});
       auth.settings();
-      const user = action === 'login' && req.method === 'POST' ? null : auth.authenticate(req);
+      if (req.method === 'POST' && action === 'login') {
+        const result = await auth.login(req);
+        res.setHeader('Set-Cookie',auth.cookie(result.token,req));
+        return res.status(200).json({user:result.user});
+      }
+      const user = auth.authenticate(req);
       if(req.method==='GET'&&action==='session')return res.status(200).json({user});
       if (action === 'rastro-chat') {
         if (req.method !== 'POST') throw new InventoryError('Usa el chat de ChickenIA.',405);
@@ -57,12 +62,6 @@ function createHandler(getRepository = production, queryOverride) {
       const repo = getRepository();
       if (!migrated) migrated = repo.migrate().catch(e => { migrated = null; throw e; });
       await migrated;
-      if (req.method === 'POST' && action === 'login') {
-        const query = queryOverride || ((s,p) => require('@neondatabase/serverless').neon(process.env.DATABASE_URL)(s,p));
-        const result = await auth.login(req,query);
-        res.setHeader('Set-Cookie',auth.cookie(result.token,req));
-        return res.status(200).json({user:result.user});
-      }
       if (req.method === 'GET') {
         if (action === 'proteins') {
           const current = await repo.snapshot(), day = today(new Date());
