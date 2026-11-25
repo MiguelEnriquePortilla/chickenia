@@ -91,5 +91,21 @@ test('authenticated API rejects anonymous access, cross-site writes, stale revis
   assert.equal((await call('POST',body)).status,200);assert.equal((await call('POST',body)).status,409);
   assert.equal((await call('POST',{...body,date:'2026-10-20'})).status,409);
   assert.equal((await call('GET')).data.areas.find(a=>a.spec.code==='ventas_barras').revision,1);
+  const unavailable = require('../lib/supervision/calibre-handler').createHandler(async () => {
+   throw new Error('HTTP status 402: Your account or project has exceeded the quota.');
+  });
+  const offline = async (method, requestBody, headers) => {
+   const res = {setHeader(){}, status(code){this.code=code;return this;}, json(data){this.data=data;}};
+   await unavailable({method, body:requestBody, headers, query:{date:'2026-10-21'}},res);
+   return res;
+  };
+  const headers = {cookie,host:'localhost',origin:'http://localhost','content-type':'application/json'};
+  const catalog = await offline('GET',null,headers);
+  assert.equal(catalog.code,503);
+  assert.deepEqual(catalog.data.catalog,c.AREAS);
+  assert.equal((await offline('GET',null,{})).data.catalog,undefined);
+  const write = await offline('POST',body,headers);
+  assert.equal(write.code,503);
+  assert.equal(write.data.catalog,undefined);
  }finally{await db.close();}
 });

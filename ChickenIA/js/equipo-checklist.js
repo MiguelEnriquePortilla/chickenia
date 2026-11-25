@@ -39,7 +39,7 @@ function renderAreas(){
  areaInput.value=selected;
  areaList.innerHTML=labels.map(([code,name])=>{
   const row=view?.areas.find(({spec})=>spec.code===code);
-  const progress=row?.revision ? tally(row).replace(' actividades verificadas','') : view ? 'Sin revisión' : '';
+  const progress=row?.revision ? tally(row).replace(' actividades verificadas','') : view&&!view.catalogOnly ? 'Sin revisión' : '';
   return `<button type="button" data-supervision-area="${esc(code)}" aria-pressed="${code===selected}"><span>${esc(name)}</span>${progress?`<small>${esc(progress)}</small>`:''}</button>`;
  }).join('');
  root.querySelector('#equipo-selection').textContent=labels.find(([code])=>code===selected)[1];
@@ -47,24 +47,32 @@ function renderAreas(){
  todayLink.href=`?area=${area}`;
  historyLink.href=`?view=history&area=${area}`;
 }
-async function request(body){const r=await fetch(`/api/summary?calibre=1&date=${encodeURIComponent(date)}`,{cache:'no-store',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,...body})}:{})});const d=await r.json();if(!r.ok){if(r.status===401)location.replace('/inventario.html?next='+encodeURIComponent(location.pathname+location.search));throw Object.assign(Error(d.error||'No se pudo guardar.'),{status:r.status});}return d;}
+async function request(body){const r=await fetch(`/api/summary?calibre=1&date=${encodeURIComponent(date)}`,{cache:'no-store',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,...body})}:{})});const d=await r.json();if(!r.ok){if(r.status===401)location.replace('/inventario.html?next='+encodeURIComponent(location.pathname+location.search));throw Object.assign(Error(d.error||'No se pudo guardar.'),{status:r.status,catalog:r.status===503?d.catalog:undefined});}return d;}
 const points=row=>row.data.checklistPoints||row.data.points;
 function extras(row){return row.data.simpleExtras||(row.data.extra?.verifiedAt&&row.data.extra.achieved?{[row.data.extra.choice]:{done:true,note:row.data.extra.result||''}}:{});}
 function tally(row){const all=points(row),done=row.spec.points.filter(p=>all[p.id]?.status==='done').length;const bonus=done===row.spec.points.length&&Object.values(extras(row)).some(e=>e.done);return `${done} de ${row.spec.points.length} actividades verificadas${bonus?' · 120% · ¡Calibre Chicanito!':''}`;}
 function render(){
  const row=view.areas.find(r=>r.spec.code===selected)||view.areas[0];selected=row.spec.code;renderAreas();let last='';
  const canEvaluate=!historyMode&&view.canWrite&&(date<view.assignmentStart||!!row.responsible);
- if(!historyMode||view.date!==today())renderResponsible(row);
+ if(!view.catalogOnly&&(!historyMode||view.date!==today()))renderResponsible(row);
  root.querySelector("#equipo-weekly-report").href="/evaluacion-semanal.html?date="+encodeURIComponent(date)+"&area="+encodeURIComponent(selected);
  sheet.innerHTML=`<header class="equipo-sheet-head"><h2>${esc(row.spec.name)}</h2><p id="equipo-progress">${tally(row)}</p></header>${row.spec.points.map(p=>{const section=p.id.split('.')[0],heading=last!==section?`<h3>${esc(row.spec.blocks[Number(section)-1])}</h3>`:'';last=section;const saved=points(row)[p.id]||{};return `${heading}<div class="equipo-point" data-point="${p.id}"><label class="equipo-task"><input type="checkbox" ${saved.status==='done'?'checked':''} ${canEvaluate?'':'disabled'}><span><strong>${esc(p.id)} · ${esc(p.title)}</strong><span>${esc(p.text)}</span></span></label><details class="supervision-note" ${saved.note?'open':''}><summary>Nota</summary><label class="equipo-note">Nota de la actividad<input type="text" maxlength="1200" value="${esc(saved.note||'')}" ${canEvaluate?'':'readonly'}></label></details></div>`;}).join('')}<h3 class="equipo-extra-heading">¡Vamos por el 120%!</h3><p>Marca las actividades adicionales realizadas. Con tu ficha completa y al menos una actividad extra verificada, llegas al 120%.</p>${row.spec.extras.map((e,i)=>{const saved=extras(row)[i]||{};return `<div class="equipo-point equipo-extra" data-extra="${i}"><label class="equipo-task"><input type="checkbox" ${saved.done?'checked':''} ${canEvaluate?'':'disabled'}><span><strong>${esc(e.title)}</strong><span>${esc(e.text)}</span></span></label><details class="supervision-note" ${saved.note?'open':''}><summary>Comentario</summary><label class="equipo-note">Comentario de la actividad<input type="text" maxlength="1200" value="${esc(saved.note||'')}" ${canEvaluate?'':'readonly'}></label></details></div>`;}).join('')}`;
  sheet.insertAdjacentHTML('beforeend',feedbackForm(row,canEvaluate));
  root.querySelector('#equipo-history').innerHTML=(view.checklistHistory||[]).filter(h=>h.area===selected).map(h=>{const ps=h.points||h.original_points||{},done=h.spec.points.filter(p=>ps[p.id]?.status==='done').length;return `<p><a href="?view=history&date=${esc(h.date)}&area=${selected}">${esc(h.date)}</a> · ${done}/${h.spec.points.length} verificadas</p>`;}).join('')||'<p>Todavía no hay revisiones guardadas para esta área.</p>';
  root.querySelector('#equipo-history').insertAdjacentHTML('beforeend',(view.history||[]).filter(h=>h.scope===selected||h.scope==='general').map(h=>`<details><summary>Reporte preparado · ${esc(h.date)} · ${h.scope==='general'?'Todo el equipo':esc(row.spec.name)}</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(h.message)}</pre></details>`).join(''));
- const showReview=!historyMode || new URLSearchParams(location.search).has('date') || date!==today();
+ const showReview=view.catalogOnly ? !historyMode : !historyMode || new URLSearchParams(location.search).has('date') || date!==today();
  sheet.hidden=!showReview;
  root.querySelector('#equipo-responsible').hidden=!showReview;
- history.hidden=!historyMode;
- reportOptions.hidden=historyMode;
+ history.hidden=!historyMode||view.catalogOnly;
+ reportOptions.hidden=historyMode||view.catalogOnly;
+ if(view.catalogOnly){
+  root.querySelector('#equipo-progress').textContent='Catálogo de actividades';
+  sheet.querySelector('#feedback-state')?.closest('section').remove();
+  status.textContent=historyMode
+   ? 'El historial está temporalmente fuera de servicio.'
+   : 'Puedes consultar las fichas. El guardado y el historial están temporalmente fuera de servicio.';
+  return;
+ }
  status.textContent=!showReview?'Selecciona una revisión para ver su detalle.':!historyMode&&view.canWrite
    ? (canEvaluate?'Cada actividad se guarda al marcarla.':'Guarda al responsable de hoy para comenzar.')
    : 'Consulta de la revisión guardada.';
@@ -107,6 +115,12 @@ async function load(){
   window.ChickenPersonHistory?.mount(root.querySelector('#equipo-person-history'),view.employees||[],date);
  }catch(error){
   if(token!==loadSequence)return;
+  if(error.catalog?.length){
+   view={date,canWrite:false,catalogOnly:true,areas:error.catalog.map(spec=>({spec,data:{points:{}}}))};
+   render();
+   reloadButton.hidden=false;
+   return;
+  }
   status.textContent=error.message;
   root.querySelector('#equipo-notice').classList.add('supervision-unavailable');
   reloadButton.hidden=false;
@@ -143,7 +157,7 @@ root.querySelector('.supervision-tabs').addEventListener('click',event=>{if(pend
 document.querySelector('.supervision-brand')?.addEventListener('click',()=>{try{sessionStorage.setItem('chickenia_internal_home',String(Date.now()));}catch{}});
 window.addEventListener('beforeunload',e=>{if(pending.size||assigning||closingFeedback){e.preventDefault();e.returnValue='';}});
 const requested=new URLSearchParams(location.search).get('area');if(requested&&requested!=='general')selected=requested==='sucursal_apertura'?'rastro':requested;
-window.ChickenEquipoCanShare=()=>!!view&&!pending.size&&!saving&&!assigning&&!closingFeedback;
+window.ChickenEquipoCanShare=()=>!!view&&!view.catalogOnly&&!pending.size&&!saving&&!assigning&&!closingFeedback;
 sheet.addEventListener('click',async e=>{
  if(!e.target.closest('#feedback-close')||closingFeedback||failed)return;
  closingFeedback=true;clearTimeout(timer);await flush();if(saving||pending.size||failed){closingFeedback=false;return;}
