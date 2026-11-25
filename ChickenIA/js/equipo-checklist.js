@@ -201,7 +201,10 @@ async function performFlush(){if(saving||failed||!pending.size)return;saving=tru
  finally{saving=false;dateInput.disabled=!!pending.size;areaInput.disabled=!!pending.size;}
 }
 sheet.addEventListener('input',e=>{if(e.target.matches('[type=text],textarea')){enqueue(e.target);dateInput.disabled=true;areaInput.disabled=true;clearTimeout(timer);timer=setTimeout(flush,700);}});
-sheet.addEventListener('change',e=>{enqueue(e.target);flush();});
+sheet.addEventListener('change',e=>{
+ if(e.target.matches('[type=checkbox]'))enqueue(e.target);
+ if(e.target.matches('[type=checkbox],[type=text],textarea'))flush();
+});
 retry.addEventListener('click',()=>{failed=false;flush();});
 dateInput.addEventListener('change',()=>{if(dateInput.value){date=dateInput.value;load();}});
 function selectArea(code){if(pending.size||assigning||closingFeedback)return;selected=code;if(view)render();else renderAreas();}
