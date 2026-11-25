@@ -12,6 +12,7 @@ const areaNames = [
 const historyMode = new URLSearchParams(location.search).get('view') === 'history';
 const requested=new URLSearchParams(location.search).get('area');
 let browsingAreas=!historyMode&&!requested;
+let returnToAreaIndex=false;
 const areaIcons={
  rastro:'<path d="M3 20h26M5 20V9l11-5 11 5v11M10 20v-8h12v8M10 16h12"/>',
  cocina:'<path d="M6 15h20v5a6 6 0 0 1-6 6h-8a6 6 0 0 1-6-6zM3 16h3m20 0h3M8 11h16m-8-4v4"/>',
@@ -25,7 +26,7 @@ const areaIcons={
 };
 root.innerHTML=`<div class="supervision-heading"><h1>Supervisión de áreas</h1><nav class="supervision-tabs" aria-label="Vista de supervisión">
  <a id="equipo-today">Hoy</a><a id="equipo-history-link">Historial</a></nav></div>
- <section id="supervision-directory" aria-label="Áreas de trabajo"><p id="supervision-directory-status" role="status"></p><div id="supervision-cards"></div></section>
+ <section id="supervision-directory" aria-label="Áreas de trabajo"><p id="supervision-directory-status" role="status"></p><nav id="supervision-index" aria-label="Acceso rápido a las áreas"></nav><div id="supervision-cards"></div></section>
  <div class="supervision-layout">
   <aside class="supervision-areas"><h2>Áreas</h2><div id="equipo-area-list"></div><label class="supervision-mobile-area">Área<select id="equipo-area"></select></label></aside>
   <div class="supervision-detail">
@@ -47,6 +48,7 @@ const history=root.querySelector('.equipo-history'), reportOptions=root.querySel
 const todayLink=root.querySelector('#equipo-today'), historyLink=root.querySelector('#equipo-history-link');
 const directory=root.querySelector('#supervision-directory'), layout=root.querySelector('.supervision-layout');
 const cards=root.querySelector('#supervision-cards'), back=root.querySelector('#supervision-back');
+const areaIndex=root.querySelector('#supervision-index');
 back.hidden=historyMode;
 (historyMode?historyLink:todayLink).setAttribute('aria-current','page');
 
@@ -71,10 +73,20 @@ function renderAreas(){
  const area=encodeURIComponent(selected);
  todayLink.href='?';
  historyLink.href=`?view=history&area=${area}`;
+ areaIndex.innerHTML=labels.map(([code,name])=>`<button type="button" data-directory-area="${esc(code)}">${esc(code==='rastro'?'Rastro':name)}</button>`).join('');
  cards.innerHTML=labels.map(([code,name])=>{
   const row=view?.areas.find(({spec})=>spec.code===code);
   const count=row?.revision?tally(row):row?`${row.spec.points.length} actividades`:'';
-  return `<button type="button" class="supervision-card" data-directory-area="${esc(code)}"><svg viewBox="0 0 32 32" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${areaIcons[code]||areaIcons.supervision}</svg><span><strong>${esc(name)}</strong>${count?`<small>${esc(count)}</small>`:''}</span><span class="supervision-card-open" aria-hidden="true">↗</span></button>`;
+  const artId=`area-art-${esc(code)}`;
+  return `<button type="button" class="supervision-card" data-directory-area="${esc(code)}">
+   <span class="supervision-card-copy"><strong>${esc(name)}</strong>${count?`<small>${esc(count)}</small>`:''}</span>
+   <span class="supervision-card-art" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <defs><linearGradient id="${artId}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="var(--tile-light)"/><stop offset="1" stop-color="var(--tile-figure)"/></linearGradient></defs>
+    <defs><g id="${artId}-symbol" stroke-width="2.35">${areaIcons[code]||areaIcons.supervision}</g></defs>
+    <use href="#${artId}-symbol" stroke="var(--tile-depth)" transform="translate(0 1.1)"/>
+    <use href="#${artId}-symbol" stroke="url(#${artId})"/>
+   </svg></span>
+   <span class="supervision-card-open" aria-hidden="true">↗</span></button>`;
  }).join('');
  showWorkspace();
 }
@@ -193,9 +205,10 @@ root.querySelector('.supervision-tabs').addEventListener('click',event=>{if(pend
 document.querySelector('.supervision-brand')?.addEventListener('click',()=>{try{sessionStorage.setItem('chickenia_internal_home',String(Date.now()));}catch{}});
 window.addEventListener('beforeunload',e=>{if(pending.size||assigning||closingFeedback){e.preventDefault();e.returnValue='';}});
 if(requested&&requested!=='general')selected=requested==='sucursal_apertura'?'rastro':requested;
-cards.addEventListener('click',event=>{
+directory.addEventListener('click',event=>{
  const card=event.target.closest('[data-directory-area]');
  if(!card)return;
+ returnToAreaIndex=areaIndex.contains(card);
  browsingAreas=false;
  selectArea(card.dataset.directoryArea);
  window.scrollTo(0,0);
@@ -205,7 +218,8 @@ back.addEventListener('click',()=>{
  if(pending.size||assigning||closingFeedback)return;
  browsingAreas=true;
  showWorkspace();
- Array.from(cards.children).find(card=>card.dataset.directoryArea===selected)?.focus();
+ const origin=returnToAreaIndex?areaIndex:cards;
+ Array.from(origin.children).find(card=>card.dataset.directoryArea===selected)?.focus();
 });
 window.ChickenEquipoCanShare=()=>!!view&&!view.catalogOnly&&!pending.size&&!saving&&!assigning&&!closingFeedback;
 sheet.addEventListener('click',async e=>{

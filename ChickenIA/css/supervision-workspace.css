@@ -180,54 +180,110 @@
 }
 
 
-#supervision-directory-status { margin: 0 0 22px; color: var(--gray); font-size: .9rem; }
-#supervision-directory-status:empty { display: none; }
-#supervision-cards {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 12px;
+
+.supervision-workspace:has(#supervision-directory:not([hidden])) .supervision-heading h1 {
+  font-size: clamp(2.35rem, 6vw, 4.75rem);
+  letter-spacing: -.057em;
 }
-#supervision-cards .supervision-card {
-  --tile-bg: #eaf0f9;
-  --tile-ink: #223b64;
-  position: relative;
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  align-items: center;
-  min-height: 112px;
-  gap: 15px;
-  padding: 16px 52px 16px 16px;
+#supervision-directory-status { margin: 0 0 24px; color: var(--gray); font-size: .875rem; }
+#supervision-directory-status:empty { display: none; }
+#supervision-index {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 4px 10px;
+  margin: 0 0 18px;
+  overscroll-behavior-inline: contain;
+}
+#supervision-index button {
+  flex: none;
+  min-height: 44px;
+  padding: 8px 14px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  font-size: .875rem;
   touch-action: manipulation;
-  user-select: none;
+}
+#supervision-index button:active { background: var(--accent-soft); }
+#supervision-cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+#supervision-cards .supervision-card {
+  --tile-bg: #c9dbf4;
+  --tile-base: #acc7ed;
+  --tile-ink: #132c50;
+  --tile-light: #fcfdff;
+  --tile-figure: #527fc8;
+  --tile-depth: #294c82;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: start;
+  min-height: clamp(268px, 75vw, 375px);
+  padding: 22px 24px;
   text-align: left;
   color: var(--tile-ink);
   background: var(--tile-bg);
   border: 1px solid transparent;
-  border-radius: 20px;
+  border-radius: 24px;
+  touch-action: manipulation;
+  user-select: none;
 }
-#supervision-cards .supervision-card:is([data-directory-area=cocina],[data-directory-area=trastes]) { --tile-bg: #e5efe8; --tile-ink: #244c3c; }
-#supervision-cards .supervision-card:is([data-directory-area=rosticero],[data-directory-area=freidoras]) { --tile-bg: #f9e9d8; --tile-ink: #723c1d; }
-#supervision-cards .supervision-card:is([data-directory-area=ventas_barras],[data-directory-area=supervision]) { --tile-bg: #f4e3e7; --tile-ink: #702b43; }
-#supervision-cards .supervision-card[data-directory-area=ayudante_general] { --tile-bg: #ede8f6; --tile-ink: #4b3972; }
-[data-theme=dark] #supervision-cards .supervision-card { --tile-bg: #28364d; --tile-ink: #d8e6ff; }
-[data-theme=dark] #supervision-cards .supervision-card:is([data-directory-area=cocina],[data-directory-area=trastes]) { --tile-bg: #263c34; --tile-ink: #c9f0dd; }
-[data-theme=dark] #supervision-cards .supervision-card:is([data-directory-area=rosticero],[data-directory-area=freidoras]) { --tile-bg: #463226; --tile-ink: #ffdfba; }
-[data-theme=dark] #supervision-cards .supervision-card:is([data-directory-area=ventas_barras],[data-directory-area=supervision]) { --tile-bg: #492e3b; --tile-ink: #ffdae5; }
-[data-theme=dark] #supervision-cards .supervision-card[data-directory-area=ayudante_general] { --tile-bg: #382e4c; --tile-ink: #e8dcff; }
-.supervision-card strong { display: block; font-size: clamp(1.35rem, 2.35vw, 2rem); font-weight: 740; line-height: 1.08; letter-spacing: -.038em; }
-.supervision-card small { display: block; margin-top: 9px; font-size: .875rem; }
+#supervision-cards .supervision-card:is([data-directory-area=cocina],[data-directory-area=trastes]) {
+  --tile-bg: #c6e3d4; --tile-base: #a3d4be; --tile-ink: #123e2f;
+  --tile-figure: #459d7a; --tile-depth: #255e49;
+}
+#supervision-cards .supervision-card:is([data-directory-area=rosticero],[data-directory-area=freidoras]) {
+  --tile-bg: #ffdcaa; --tile-base: #fac176; --tile-ink: #4b280f;
+  --tile-figure: #cb7b33; --tile-depth: #83461c;
+}
+#supervision-cards .supervision-card:is([data-directory-area=ventas_barras],[data-directory-area=supervision]) {
+  --tile-bg: #f2cbd8; --tile-base: #e8a6bc; --tile-ink: #522035;
+  --tile-figure: #bf5983; --tile-depth: #79334f;
+}
+#supervision-cards .supervision-card[data-directory-area=ayudante_general] {
+  --tile-bg: #dcd0f4; --tile-base: #c1ade7; --tile-ink: #39265b;
+  --tile-figure: #8d69c6; --tile-depth: #50377c;
+}
+[data-theme=dark] #supervision-cards .supervision-card { --tile-bg: #293e60; --tile-base: #385888; --tile-ink: #eef5ff; }
+[data-theme=dark] #supervision-cards .supervision-card:is([data-directory-area=cocina],[data-directory-area=trastes]) { --tile-bg: #244338; --tile-base: #30624f; --tile-ink: #e6fff2; }
+[data-theme=dark] #supervision-cards .supervision-card:is([data-directory-area=rosticero],[data-directory-area=freidoras]) { --tile-bg: #543522; --tile-base: #764e30; --tile-ink: #fff0dd; }
+[data-theme=dark] #supervision-cards .supervision-card:is([data-directory-area=ventas_barras],[data-directory-area=supervision]) { --tile-bg: #522f42; --tile-base: #743954; --tile-ink: #ffe8f0; }
+[data-theme=dark] #supervision-cards .supervision-card[data-directory-area=ayudante_general] { --tile-bg: #42345f; --tile-base: #59467b; --tile-ink: #f9efff; }
+.supervision-card-copy { z-index: 1; max-width: 30ch; }
+.supervision-card strong { display: block; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 740; line-height: 1.07; letter-spacing: -.045em; }
+.supervision-card small { display: block; margin-top: 8px; font-size: .9375rem; }
+.supervision-card-art {
+  position: absolute;
+  inset: auto -12% -16% 13%;
+  height: 66%;
+  display: grid;
+  place-items: start center;
+  border-radius: 50% 0 0 0;
+  background: var(--tile-base);
+  pointer-events: none;
+}
+.supervision-card-art svg {
+  width: min(66%, 235px);
+  height: auto;
+  margin-top: -9%;
+  transform: rotate(-12deg);
+  filter: drop-shadow(0 10px 11px rgb(20 25 45 / .19));
+}
+.supervision-card:nth-child(even) .supervision-card-art svg { transform: rotate(9deg); }
 .supervision-card-open {
   position: absolute;
   display: grid;
   place-items: center;
-  right: 15px;
-  top: 50%;
-  translate: 0 -50%;
-  width: 34px;
-  height: 34px;
-  border: 1px solid currentColor;
+  right: 16px;
+  bottom: 16px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  font-size: 19px;
+  color: var(--tile-ink);
+  background: var(--tile-bg);
+  font-size: 21px;
 }
 #supervision-cards .supervision-card:focus-visible { outline-offset: 3px; }
 .supervision-detail > #supervision-back {
@@ -249,7 +305,6 @@
 }
 
 #supervision-cards .supervision-card:active { border-color: currentColor; }
-.supervision-card svg { width: 40px; height: 40px; }
 .supervision-workspace :is(#supervision-back,.supervision-tabs a,.supervision-note summary,.equipo-task) { touch-action: manipulation; }
 .supervision-workspace #equipo-sheet .equipo-task span span { font-size: .9375rem; }
 .supervision-workspace .equipo-checklist {
@@ -266,19 +321,12 @@
   .supervision-layout:has(#supervision-back:not([hidden])) .supervision-areas { display: none; }
   .supervision-detail > #supervision-back { display: block; width: calc(100% - 2 * var(--sheet-gutter)); text-align: left; }
 }
+
 @media (min-width: 600px) {
-  #supervision-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-  #supervision-cards .supervision-card {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: 1fr auto;
-    align-items: start;
-    min-height: 195px;
-    gap: 24px;
-    padding: 24px 50px 23px 24px;
-  }
-  .supervision-card svg { width: 48px; height: 48px; }
-  .supervision-card-open { top: auto; bottom: 15px; translate: none; }
+  #supervision-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #supervision-cards .supervision-card { min-height: 330px; padding: 26px; }
 }
-@media (min-width: 900px) {
-  #supervision-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (min-width: 990px) {
+  #supervision-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  #supervision-cards .supervision-card { min-height: 370px; }
 }
