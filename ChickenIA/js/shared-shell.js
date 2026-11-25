@@ -6,7 +6,7 @@
   const shell=document.querySelector('.area-shell');if(!shell||shell.querySelector('.unified-header'))return;
   const old=shell.querySelector('.app-header,.inv-header,.daily-header');
   const bar=document.createElement('header');bar.className='unified-header';
-  bar.innerHTML='<div class="unified-brand"><img src="/icons/sello-2026.png" alt="Sello de Chicken Chicanito" width="40" height="40"><span>Chicken Chican<span class="brand-ia">IA</span></span></div>';
+  bar.innerHTML='<div class="unified-brand"><img src="/icons/sello-2026.png" alt="" width="40" height="40"><div class="chicania-wordmark"><span>Chicken Chican<span class="brand-ia">IA</span></span><span class="chicania-credit">powered by <strong>fudiGPT</strong></span></div></div>';
   if(old){const tools=old.querySelector('.header-tools');if(tools)bar.append(tools);old.hidden=true;old.classList.add('legacy-header');}
   shell.querySelector('.area-sidebar').after(bar);
   shell.querySelectorAll('main>header:not(.points-header),main>a[href],.points-header>a,.points-shell>footer a').forEach(el=>{if(el.matches('header')&&el.querySelector('h1'))return;if(el.matches('main>a')&&!['/','/index.html','/supervision.html'].includes(new URL(el.href).pathname))return;el.hidden=true;});

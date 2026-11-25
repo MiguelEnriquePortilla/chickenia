@@ -73,6 +73,16 @@
   clip-path: circle(47.7%);
 }
 .home-brand span { font: inherit; letter-spacing: inherit; }
+.chicania-wordmark { display: grid; gap: 3px; min-width: 0; }
+.chicania-wordmark .chicania-credit,
+.chicken-welcome .chicania-credit {
+  margin: 0;
+  color: inherit;
+  font: 500 .6875rem/1.2 var(--chicania-font);
+  letter-spacing: .015em;
+}
+:is(.home-page .home-brand,.chicania-wordmark,.chicken-welcome) .chicania-credit strong { color: inherit; font-weight: 730; }
+.chicken-welcome .chicania-credit { color: #e0e9f8; font-size: .8125rem; }
 :is(.home-brand,.unified-brand,.supervision-brand) .brand-ia { color: #aa1e2f; font-weight: inherit; }
 [data-theme=dark] :is(.home-brand,.unified-brand,.supervision-brand) .brand-ia { color: #ff9daa; }
 :is(.home-page .home-header,.area-shell .unified-header) {
