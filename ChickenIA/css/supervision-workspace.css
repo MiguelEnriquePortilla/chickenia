@@ -208,13 +208,15 @@
 }
 #supervision-index button:active { background: var(--accent-soft); }
 #supervision-cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-#supervision-cards .supervision-card {
+[data-area-tone] {
   --tile-bg: #c9dbf4;
   --tile-base: #acc7ed;
   --tile-ink: #132c50;
   --tile-light: #fcfdff;
   --tile-figure: #527fc8;
   --tile-depth: #294c82;
+}
+#supervision-cards .supervision-card {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -230,27 +232,27 @@
   touch-action: manipulation;
   user-select: none;
 }
-#supervision-cards .supervision-card:is([data-directory-area=cocina],[data-directory-area=trastes]) {
+:is([data-area-tone=cocina],[data-area-tone=trastes]) {
   --tile-bg: #c6e3d4; --tile-base: #a3d4be; --tile-ink: #123e2f;
   --tile-figure: #459d7a; --tile-depth: #255e49;
 }
-#supervision-cards .supervision-card:is([data-directory-area=rosticero],[data-directory-area=freidoras]) {
+:is([data-area-tone=rosticero],[data-area-tone=freidoras]) {
   --tile-bg: #ffdcaa; --tile-base: #fac176; --tile-ink: #4b280f;
   --tile-figure: #cb7b33; --tile-depth: #83461c;
 }
-#supervision-cards .supervision-card:is([data-directory-area=ventas_barras],[data-directory-area=supervision]) {
+:is([data-area-tone=ventas_barras],[data-area-tone=supervision]) {
   --tile-bg: #f2cbd8; --tile-base: #e8a6bc; --tile-ink: #522035;
   --tile-figure: #bf5983; --tile-depth: #79334f;
 }
-#supervision-cards .supervision-card[data-directory-area=ayudante_general] {
+[data-area-tone=ayudante_general] {
   --tile-bg: #dcd0f4; --tile-base: #c1ade7; --tile-ink: #39265b;
   --tile-figure: #8d69c6; --tile-depth: #50377c;
 }
-[data-theme=dark] #supervision-cards .supervision-card { --tile-bg: #293e60; --tile-base: #385888; --tile-ink: #eef5ff; }
-[data-theme=dark] #supervision-cards .supervision-card:is([data-directory-area=cocina],[data-directory-area=trastes]) { --tile-bg: #244338; --tile-base: #30624f; --tile-ink: #e6fff2; }
-[data-theme=dark] #supervision-cards .supervision-card:is([data-directory-area=rosticero],[data-directory-area=freidoras]) { --tile-bg: #543522; --tile-base: #764e30; --tile-ink: #fff0dd; }
-[data-theme=dark] #supervision-cards .supervision-card:is([data-directory-area=ventas_barras],[data-directory-area=supervision]) { --tile-bg: #522f42; --tile-base: #743954; --tile-ink: #ffe8f0; }
-[data-theme=dark] #supervision-cards .supervision-card[data-directory-area=ayudante_general] { --tile-bg: #42345f; --tile-base: #59467b; --tile-ink: #f9efff; }
+[data-theme=dark] [data-area-tone] { --tile-bg: #293e60; --tile-base: #385888; --tile-ink: #eef5ff; }
+[data-theme=dark] :is([data-area-tone=cocina],[data-area-tone=trastes]) { --tile-bg: #244338; --tile-base: #30624f; --tile-ink: #e6fff2; }
+[data-theme=dark] :is([data-area-tone=rosticero],[data-area-tone=freidoras]) { --tile-bg: #543522; --tile-base: #764e30; --tile-ink: #fff0dd; }
+[data-theme=dark] :is([data-area-tone=ventas_barras],[data-area-tone=supervision]) { --tile-bg: #522f42; --tile-base: #743954; --tile-ink: #ffe8f0; }
+[data-theme=dark] [data-area-tone=ayudante_general] { --tile-bg: #42345f; --tile-base: #59467b; --tile-ink: #f9efff; }
 .supervision-card-copy { z-index: 1; max-width: 30ch; }
 .supervision-card strong { display: block; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 740; line-height: 1.07; letter-spacing: -.045em; }
 .supervision-card small { display: block; margin-top: 8px; font-size: .9375rem; }
@@ -278,12 +280,13 @@
   place-items: center;
   right: 16px;
   bottom: 16px;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
+  min-height: 38px;
+  padding: 0 13px;
+  border-radius: 999px;
   color: var(--tile-ink);
   background: var(--tile-bg);
-  font-size: 21px;
+  font-size: .8125rem;
+  font-weight: 700;
 }
 #supervision-cards .supervision-card:focus-visible { outline-offset: 3px; }
 .supervision-detail > #supervision-back {
@@ -330,3 +333,31 @@
   #supervision-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
   #supervision-cards .supervision-card { min-height: 370px; }
 }
+
+.supervision-top.daily-header { background: var(--chicania-control); border-block-start: 0; }
+.supervision-brand { font: 730 1rem/1.2 var(--chicania-font); letter-spacing: -.025em; }
+.supervision-workspace .supervision-top .theme-control,
+.supervision-tabs a,
+#equipo-notice button,
+.supervision-detail > #supervision-back {
+  background: var(--chicania-control);
+  color: var(--chicania-ink);
+  box-shadow: var(--chicania-depth);
+}
+.supervision-tabs a[aria-current] { background: var(--chicania-active); color: var(--chicania-active-ink); box-shadow: var(--chicania-depth); }
+#supervision-index { scrollbar-width: thin; scrollbar-color: var(--border-soft) transparent; }
+#supervision-index button {
+  color: var(--tile-ink);
+  background: linear-gradient(155deg,var(--tile-bg) 35%,var(--tile-base));
+  border-color: transparent;
+  box-shadow: var(--chicania-depth);
+  font-weight: 650;
+}
+.supervision-detail > #supervision-back { width: auto; padding-inline: 14px; margin-block: 12px; border-radius: 10px; }
+.supervision-detail .equipo-controls {
+  color: var(--tile-ink);
+  background: linear-gradient(145deg,var(--tile-bg) 30%,var(--tile-base));
+}
+.supervision-sheet-label { color: inherit; }
+.supervision-workspace .equipo-checklist h3 { color: var(--tile-ink); background: color-mix(in srgb,var(--tile-bg) 48%,var(--surface)); }
+.supervision-card-open { background: linear-gradient(145deg,var(--tile-bg) 40%,var(--tile-base)); box-shadow: var(--chicania-depth); }

@@ -70,15 +70,16 @@ function renderAreas(){
  }).join('');
  if(focusedArea)Array.from(areaList.children).find(button=>button.dataset.supervisionArea===focusedArea)?.focus({preventScroll:true});
  root.querySelector('#equipo-selection').textContent=labels.find(([code])=>code===selected)[1];
+ layout.querySelector('.supervision-detail').dataset.areaTone=selected;
  const area=encodeURIComponent(selected);
  todayLink.href='?';
  historyLink.href=`?view=history&area=${area}`;
- areaIndex.innerHTML=labels.map(([code,name])=>`<button type="button" data-directory-area="${esc(code)}">${esc(code==='rastro'?'Rastro':name)}</button>`).join('');
+ areaIndex.innerHTML=labels.map(([code,name])=>`<button type="button" data-directory-area="${esc(code)}" data-area-tone="${esc(code)}">${esc(code==='rastro'?'Rastro':name)}</button>`).join('');
  cards.innerHTML=labels.map(([code,name])=>{
   const row=view?.areas.find(({spec})=>spec.code===code);
   const count=row?.revision?tally(row):row?`${row.spec.points.length} actividades`:'';
   const artId=`area-art-${esc(code)}`;
-  return `<button type="button" class="supervision-card" data-directory-area="${esc(code)}">
+  return `<button type="button" class="supervision-card" data-directory-area="${esc(code)}" data-area-tone="${esc(code)}">
    <span class="supervision-card-copy"><strong>${esc(name)}</strong>${count?`<small>${esc(count)}</small>`:''}</span>
    <span class="supervision-card-art" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <defs><linearGradient id="${artId}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="var(--tile-light)"/><stop offset="1" stop-color="var(--tile-figure)"/></linearGradient></defs>
@@ -86,7 +87,7 @@ function renderAreas(){
     <use href="#${artId}-symbol" stroke="var(--tile-depth)" transform="translate(0 1.1)"/>
     <use href="#${artId}-symbol" stroke="url(#${artId})"/>
    </svg></span>
-   <span class="supervision-card-open" aria-hidden="true">↗</span></button>`;
+   <span class="supervision-card-open" aria-hidden="true">Abrir ficha</span></button>`;
  }).join('');
  showWorkspace();
 }

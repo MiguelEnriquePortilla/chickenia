@@ -39,3 +39,73 @@
  .home-page .home-primary strong{font-size:18px}
  .home-page .home-primary .home-primary-mascot{width:58px;height:88px}
 }
+
+/* Shared finish for the operating shell and its navigation controls. */
+:is(.home-page,.area-shell,.supervision-workspace) {
+  --chicania-font: system-ui, sans-serif;
+  --chicania-ink: #17213e;
+  --chicania-control: linear-gradient(155deg,#fffdf9 28%,#ece4d7);
+  --chicania-active: linear-gradient(150deg,#fce9e7 28%,#efc9c7);
+  --chicania-active-ink: #8e2030;
+  --chicania-depth: inset 0 1px 0 rgb(255 255 255 / .45),0 2px 4px rgb(25 34 57 / .12);
+}
+[data-theme=dark] :is(.home-page,.area-shell,.supervision-workspace) {
+  --chicania-ink: #f0f1f7;
+  --chicania-control: linear-gradient(155deg,#373947 20%,#262732);
+  --chicania-active: linear-gradient(150deg,#593749 25%,#3b2835);
+  --chicania-active-ink: #ffd9e0;
+  --chicania-depth: inset 0 1px 0 rgb(255 255 255 / .12),0 2px 4px rgb(0 0 0 / .24);
+}
+:is(.home-page,.supervision-workspace,.area-shell .unified-header,.area-shell .unified-page-title) {
+  font-family: var(--chicania-font);
+}
+:is(.home-brand,.unified-brand,.supervision-brand) {
+  font: 730 1rem/1.2 var(--chicania-font);
+  letter-spacing: -.025em;
+}
+:is(.home-brand,.unified-brand,.supervision-brand) img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  object-fit: cover;
+  border-radius: 50%;
+  clip-path: circle(47.7%);
+}
+.home-brand span { font: inherit; letter-spacing: inherit; }
+:is(.home-brand,.unified-brand,.supervision-brand) .brand-ia { color: #aa1e2f; font-weight: inherit; }
+[data-theme=dark] :is(.home-brand,.unified-brand,.supervision-brand) .brand-ia { color: #ff9daa; }
+:is(.home-page .home-header,.area-shell .unified-header) {
+  background: var(--chicania-control);
+  border-bottom: 1px solid var(--home-line,var(--border-soft));
+}
+:is(.home-page .home-header,.area-shell .unified-header) .theme-control {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  background: var(--chicania-control);
+  color: var(--chicania-ink);
+  box-shadow: var(--chicania-depth);
+}
+.home-page .home-primary {
+  min-height: 152px;
+  background: #d9e6fa linear-gradient(145deg,#d9e6fa 18%,#b3caee);
+  color: #172f54;
+  box-shadow: var(--chicania-depth);
+}
+.home-page .home-primary strong { font-size: 1.55rem; font-weight: 740; }
+.home-page .home-primary small { color: inherit; }
+[data-theme=dark] .home-page .home-primary { background: #283c60 linear-gradient(145deg,#283c60,#3a5d8c); color: #edf4ff; }
+.home-page .home-history {
+  background: var(--chicania-control);
+  color: var(--chicania-ink);
+  box-shadow: var(--chicania-depth);
+}
+.area-shell .primary-navigation :is(a[aria-current],button[aria-current],summary[aria-current]) {
+  background: var(--chicania-active);
+  color: var(--chicania-active-ink);
+  box-shadow: var(--chicania-depth);
+}
+@media (max-width: 380px) {
+  :is(.home-brand,.unified-brand,.supervision-brand) img { width: 34px; height: 34px; }
+}
