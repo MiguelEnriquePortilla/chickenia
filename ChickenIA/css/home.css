@@ -37,3 +37,61 @@
 @media(max-width:360px){.home-header.daily-header{padding:18px 16px}.home-brand small{font-size:10px}.home-brand span{font-size:15px}.home-brand img{width:30px;height:32px}.home-content{padding:23px 16px 18px}}
 .home-history{display:flex;align-items:center;justify-content:space-between;min-height:48px;margin-top:14px;padding:12px 16px;border:1px solid var(--home-line);border-radius:14px;background:var(--home-sheet);color:var(--home-ink);text-decoration:none;font-weight:600}
 .home-history:hover{text-decoration:underline}
+
+.home-page .home-header.daily-header {
+  padding-top: max(19px, env(safe-area-inset-top));
+}
+.home-page .home-content { padding-block: 28px 40px; }
+.home-page .home-date { margin: 0 0 5px; font-size: .875rem; text-transform: none; }
+.home-page .home-date::first-letter { text-transform: uppercase; }
+.home-page .home-content h1 { margin: 0 0 24px; font-size: clamp(2.1rem, 8vw, 3.2rem); font-weight: 750; letter-spacing: -.04em; }
+.home-page .home-content .home-primary {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: clamp(230px, 72vw, 300px);
+  align-items: start;
+  overflow: hidden;
+  padding: 22px;
+  border-radius: 24px;
+}
+.home-page .home-content .home-primary > span:first-child { flex: none; }
+.home-page .home-content .home-primary strong { font-size: clamp(1.5rem, 6vw, 2rem); letter-spacing: -.035em; }
+.home-page .home-content .home-primary::before {
+  position: absolute;
+  z-index: -1;
+  inset: 40% -6% -20% 23%;
+  border-radius: 58% 0 0 0;
+  background: #91b4e85c;
+  content: "";
+}
+.home-page .home-content .home-primary .home-primary-mascot {
+  position: absolute;
+  width: min(48%, 190px);
+  height: 77%;
+  right: 6%;
+  bottom: -2%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 10px #17213e44);
+}
+.home-page .home-content .home-primary .home-primary-action {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  padding: 9px 13px;
+  border-radius: 999px;
+  color: var(--chicania-ink);
+  background: var(--chicania-control);
+  box-shadow: var(--chicania-depth);
+  font-size: .875rem;
+  font-weight: 720;
+}
+.home-page .home-history {
+  justify-content: start;
+  gap: 12px;
+  min-height: 64px;
+  padding-inline: 20px;
+  border-radius: 16px;
+  text-decoration: none;
+}
+.home-page .home-history svg { flex: none; }

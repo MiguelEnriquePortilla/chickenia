@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Chicken ChicanIA</title>
 <script>try{if(localStorage.getItem('chickenia_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
 <script>
@@ -22,7 +22,8 @@
 <link rel="manifest" href="/manifest.json" />
 <meta name="theme-color" content="#17213E" />
 <link rel="icon" href="/icons/chicania-launch-32.png" />
-<link rel="apple-touch-icon" href="/icons/chicania-launch-180.png" />
+<link rel="icon" href="/icons/chicania-app.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/icons/chicania-launch-180.png?v=2" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Chicken ChicanIA" />
 <link rel="stylesheet" href="/css/style.css" />
@@ -35,20 +36,19 @@
 <link rel="stylesheet" href="/css/polish.css"><script defer src="/js/nav-polish.js"></script><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/css/brand-theme.css"></head>
 <body class="home-page">
 <section id="chicken-welcome" class="chicken-welcome" aria-label="Bienvenida a Chicken ChicanIA" hidden>
-  <div class="chicken-welcome__stage"><div class="chicken-welcome__sphere" aria-hidden="true"></div><div class="chicken-welcome__pulse chicken-welcome__pulse--one" aria-hidden="true"></div><div class="chicken-welcome__pulse chicken-welcome__pulse--two" aria-hidden="true"></div><img class="chicken-welcome__mascot" src="/icons/welcome-mascot.webp" width="1024" height="1536" alt="Mascota de Chicken ChicanIA" fetchpriority="high" decoding="async" /></div>
-  <p class="chicken-welcome__speech"><span>Haz tu día un día </span><strong>VERY SABROSITO</strong></p>
+  <div class="chicken-welcome__stage"><img class="chicken-welcome__mascot" src="/icons/welcome-mascot.webp" width="1024" height="1536" alt="Mascota de Chicken ChicanIA" fetchpriority="high" decoding="async" /></div>
   <p class="chicken-welcome__brand">Chicken Chican<span class="w-ia">IA</span></p>
-  <p class="chicken-welcome__message">Control operativo</p>
+  <p class="chicken-welcome__speech">Haz tu día un día <strong>VERY SABROSITO</strong></p>
   <button class="chicken-welcome__skip" type="button">Entrar ahora</button>
 </section>
 <div class="home-screen" id="chicken-home">
 <header class="home-header daily-header"><div class="home-brand"><img src="/icons/sello-2026.png" width="42" height="42" alt="Sello de Chicken Chicanito"><div><span>Chicken Chican<strong class="brand-ia">IA</strong></span></div></div></header>
-<main class="home-content"><h1>Supervisión</h1><p class="home-date" id="home-date"></p>
+<main class="home-content"><p class="home-date" id="home-date"></p><h1>Supervisión</h1>
 <nav class="home-supervision-links" aria-label="Supervisión de áreas">
-<a class="home-primary" href="/evaluacion-equipo.html"><span><strong>Revisar áreas</strong><small>Abre las actividades de hoy.</small></span><img class="home-primary-mascot" src="/icons/welcome-mascot.webp" width="68" height="102" alt="" decoding="async"></a>
-<a class="home-history" href="/evaluacion-equipo.html?view=history">Ver historial <span aria-hidden="true">›</span></a>
+<a class="home-primary" href="/evaluacion-equipo.html"><span><strong>Revisar áreas</strong><small>Actividades de hoy</small></span><img class="home-primary-mascot" src="/icons/welcome-mascot.webp" width="160" height="240" alt="" decoding="async"><span class="home-primary-action" aria-hidden="true">Abrir áreas</span></a>
+<a class="home-history" href="/evaluacion-equipo.html?view=history"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3 2"/></svg><span>Ver historial</span></a>
 </nav>
-</main><footer class="home-footer">Chicken Chicanito</footer>
+</main>
 </div>
 <script>document.getElementById('home-date').textContent=new Intl.DateTimeFormat('es-MX',{timeZone:'America/Mexico_City',weekday:'long',day:'numeric',month:'long'}).format(new Date());</script>
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(function(){}); }</script>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Chicken ChicanIA">
+  <defs>
+    <radialGradient id="navy" cx=".38" cy=".29" r=".67">
+      <stop stop-color="#405f8f"/>
+      <stop offset=".72" stop-color="#24365b"/>
+      <stop offset="1" stop-color="#17213e"/>
+    </radialGradient>
+    <linearGradient id="ivory" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fffdf8"/>
+      <stop offset="1" stop-color="#c8d9f3"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ff737d"/>
+      <stop offset="1" stop-color="#c52138"/>
+    </linearGradient>
+  </defs>
+  <path fill="#17213e" d="M0 0h512v512H0z"/>
+  <circle cx="256" cy="256" r="241" fill="url(#navy)"/>
+  <path d="M227 169c-12-18-5-39 10-42 12-3 22 7 22 19 11-20 28-24 39-13 9 10 5 23-4 33 14-7 26-2 27 9 1 10-8 17-22 19" fill="none" stroke="#86182e" stroke-width="20" stroke-linecap="round" transform="translate(0 5)"/>
+  <path d="M227 169c-12-18-5-39 10-42 12-3 22 7 22 19 11-20 28-24 39-13 9 10 5 23-4 33 14-7 26-2 27 9 1 10-8 17-22 19" fill="none" stroke="url(#red)" stroke-width="20" stroke-linecap="round"/>
+  <g fill="none" stroke-linecap="round" stroke-width="31">
+    <path d="M241 219a63 63 0 1 0 0 83m103-55a63 63 0 1 0 0 83" stroke="#101a31" transform="translate(0 8)"/>
+    <path d="M241 219a63 63 0 1 0 0 83m103-55a63 63 0 1 0 0 83" stroke="url(#ivory)"/>
+  </g>
+</svg>

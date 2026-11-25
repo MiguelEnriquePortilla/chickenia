@@ -1,47 +1,77 @@
-/* Approved splash: drawn before the home screen, never an embedded video. */
-.chicken-welcome[hidden]{display:none!important}
-.chicken-welcome{--welcome-ease:cubic-bezier(.23,1,.32,1);position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));background:#17213e;color:#fff;overflow:hidden;font-family:Poppins,Arial,sans-serif;opacity:1;transition:opacity 180ms var(--welcome-ease)}
-.chicken-welcome__stage{position:relative;isolation:isolate;display:grid;place-items:center;width:min(82vw,48svh,420px);aspect-ratio:1;margin:0 0 18px}
-.chicken-welcome__sphere{position:absolute;inset:0;border:1px solid #efbf6380;border-radius:50%;background:radial-gradient(circle at 32% 22%,#ffffff24,transparent 52%),radial-gradient(circle at 50% 80%,#d9a44124,transparent 65%);transform:scale(.94)}
-.chicken-welcome__pulse{position:absolute;inset:0;border:2px solid #f4c866;border-radius:50%;opacity:0;pointer-events:none}
-.chicken-welcome[data-ready] .chicken-welcome__pulse--one{animation:welcome-pulse 1150ms 100ms ease-out both}
-.chicken-welcome[data-ready] .chicken-welcome__pulse--two{animation:welcome-pulse 1150ms 1250ms ease-out both}
-.chicken-welcome[data-ready] .chicken-welcome__sphere{animation:welcome-breath 2400ms ease-in-out both}
-.chicken-welcome__mascot{display:block;position:absolute;inset:0;margin:auto;width:80%;height:100%;max-height:100%;object-fit:contain;opacity:0}
-.chicken-welcome[data-ready] .chicken-welcome__mascot{animation:welcome-arrive 280ms var(--welcome-ease) both}
-.chicken-welcome__brand{margin:0;font-size:clamp(25px,6vw,36px);font-weight:600;letter-spacing:-.025em;color:#fff;line-height:1.2;opacity:0}
-.chicken-welcome[data-ready] .chicken-welcome__brand{animation:welcome-arrive 240ms 90ms var(--welcome-ease) both}
-.chicken-welcome__brand .w-ia{font:inherit;color:#ff626b}
-.chicken-welcome__message{margin:0;color:#dce3f0;font-size:14px;line-height:1.5;opacity:0}
-.chicken-welcome[data-ready] .chicken-welcome__message{animation:welcome-copy 200ms 180ms ease-out both}
-.chicken-welcome__skip{border:1px solid #ffffff40;background:transparent;border-radius:10px;color:#fff;font:inherit;font-size:14px;padding:10px 18px;min-height:44px;cursor:pointer;margin-top:16px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.chicken-welcome__skip:active{background:#ffffff18}
-.chicken-welcome__skip:focus-visible{outline:3px solid #f4c866;outline-offset:4px}
-.chicken-welcome[data-exiting]{opacity:0;pointer-events:none}
-body.welcome-active{overflow:hidden}
-@keyframes welcome-pulse{0%{opacity:0;transform:scale(.78)}15%{opacity:.9}100%{opacity:0;transform:scale(1.19)}}
-@keyframes welcome-breath{0%,100%{transform:scale(.94)}25%,75%{transform:scale(1.03)}50%{transform:scale(.97)}}
-@keyframes welcome-arrive{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes welcome-copy{from{opacity:0}to{opacity:1}}
-@media(max-height:500px){.chicken-welcome{gap:8px;padding:12px}.chicken-welcome__stage{width:min(42svh,220px);margin-bottom:0}.chicken-welcome__brand{font-size:24px}.chicken-welcome__skip{margin-top:0}}
-@media(prefers-reduced-motion:reduce){.chicken-welcome{transition:none}.chicken-welcome__pulse{display:none}.chicken-welcome[data-ready] .chicken-welcome__sphere{animation:none}.chicken-welcome[data-ready] :is(.chicken-welcome__mascot,.chicken-welcome__brand,.chicken-welcome__message){animation:none;opacity:1;transform:none}}
-
-/* The phrase belongs to the brand lockup, not to a speech card. */
-.chicken-welcome__sphere,.chicken-welcome__pulse{z-index:0}
-.chicken-welcome__mascot{z-index:2}
-.chicken-welcome__speech{margin:0 0 2px;padding:0;border:0;background:none;max-width:100%;color:#dce3f0;text-align:center;font-size:clamp(25px,6vw,36px);font-weight:400;letter-spacing:-.025em;line-height:1.2;opacity:0}
-.chicken-welcome__speech span,.chicken-welcome__speech strong{display:block;font:inherit}
-.chicken-welcome__speech strong{color:#efcf8e;font-weight:500}
-.chicken-welcome[data-ready] .chicken-welcome__speech{animation:welcome-phrase 380ms 240ms var(--welcome-ease) both}
-.chicken-welcome[data-ready] .chicken-welcome__speech strong{animation:welcome-phrase 380ms 380ms var(--welcome-ease) both}
-@keyframes welcome-phrase{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@media(max-height:500px){.chicken-welcome__stage{width:min(32svh,160px);margin:0}.chicken-welcome__speech{font-size:24px}}
-@media(prefers-reduced-motion:reduce){.chicken-welcome[data-ready] .chicken-welcome__speech,.chicken-welcome[data-ready] .chicken-welcome__speech strong{animation:none;opacity:1;transform:none}}
-
-/* Keep the full phrase on one line, even on compact phones. */
-.chicken-welcome__speech{font-size:clamp(12px,3.65vw,21px);white-space:nowrap;letter-spacing:-.025em}
-.chicken-welcome__speech span,.chicken-welcome__speech strong{display:inline}
-@media(max-height:500px){.chicken-welcome__speech{font-size:clamp(12px,3.65vw,21px)}}
-
-/* The first paint already carries the approved mascot while startup scripts arrive. */
-.welcome-pending .chicken-welcome:not([data-ready]) :is(.chicken-welcome__mascot,.chicken-welcome__brand,.chicken-welcome__speech,.chicken-welcome__message){opacity:1}
+/* Welcome uses the same layered color and rounded surfaces as Inicio. */
+.chicken-welcome[hidden] { display: none !important; }
+.chicken-welcome {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: max(16px, env(safe-area-inset-top)) 18px max(16px, env(safe-area-inset-bottom));
+  overflow: auto;
+  background: #17213e linear-gradient(165deg, #223453, #17213e 70%);
+  color: #fff8ef;
+  text-align: center;
+  font-family: system-ui, sans-serif;
+  transition: opacity 180ms ease-out;
+}
+.chicken-welcome__stage {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: min(72vw, 43svh, 320px);
+  aspect-ratio: 1;
+  margin-bottom: 8px;
+  border-radius: 27%;
+  background: linear-gradient(155deg,#456798,#24365b 72%);
+  box-shadow: inset 0 1px 0 #bacbed66, 0 16px 38px rgb(0 0 0 / .28);
+}
+.chicken-welcome__mascot {
+  display: block;
+  width: 76%;
+  height: 94%;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 14px #101a31a8);
+}
+.chicken-welcome[data-ready] .chicken-welcome__mascot {
+  animation: welcome-arrive 300ms cubic-bezier(.23,1,.32,1) both;
+}
+.chicken-welcome__brand {
+  margin: 0;
+  font-size: clamp(1.65rem, 7vw, 2.8rem);
+  font-weight: 750;
+  letter-spacing: -.035em;
+  line-height: 1.12;
+}
+.chicken-welcome__brand .w-ia { color: #ff8892; }
+.chicken-welcome__speech { margin: 0; font-size: clamp(.78rem, 3.5vw, 1rem); color: #e0e9f8; }
+.chicken-welcome__speech strong { color: #ffda95; }
+.chicken-welcome__skip {
+  min-height: 48px;
+  padding: 10px 24px;
+  margin-top: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: #e7effd linear-gradient(150deg,#f6faff,#c2d7f7);
+  color: #172f54;
+  box-shadow: inset 0 1px 0 #fff, 0 4px 10px rgb(0 0 0 / .24);
+  font: 700 .9375rem system-ui,sans-serif;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.chicken-welcome__skip:active { background: #c2d7f7; }
+.chicken-welcome__skip:focus-visible { outline: 3px solid #ffda95; outline-offset: 4px; }
+.chicken-welcome[data-exiting] { opacity: 0; pointer-events: none; }
+body.welcome-active { overflow: hidden; }
+@keyframes welcome-arrive { from { transform: translateY(7px) scale(.97); } to { transform: none; } }
+@media (max-height: 480px) {
+  .chicken-welcome { gap: 7px; }
+  .chicken-welcome__stage { width: min(33svh,155px); margin-bottom: 0; }
+  .chicken-welcome__brand { font-size: 1.4rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chicken-welcome { transition: none; }
+  .chicken-welcome[data-ready] .chicken-welcome__mascot { animation: none; }
+}

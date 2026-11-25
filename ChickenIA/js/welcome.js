@@ -22,7 +22,7 @@
   if(started||finished)return;started=true;
   try{if(mascot.decode)await mascot.decode();}catch{return finish();}
   if(finished)return;
-  screen.dataset.ready='true';displayTimer=setTimeout(exit,3500);
+  screen.dataset.ready='true';displayTimer=setTimeout(exit,1800);
  }
  screen.hidden=false;home.inert=true;home.setAttribute('aria-hidden','true');document.body.classList.add('welcome-active');
  skip.addEventListener('click',finish);
