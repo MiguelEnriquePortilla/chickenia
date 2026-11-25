@@ -10,12 +10,27 @@ const areaNames = [
  ['trastes','Lavado de Trastes'], ['ayudante_general','Ayudante General'], ['supervision','Supervisión']
 ];
 const historyMode = new URLSearchParams(location.search).get('view') === 'history';
+const requested=new URLSearchParams(location.search).get('area');
+let browsingAreas=!historyMode&&!requested;
+const areaIcons={
+ rastro:'<path d="M3 20h26M5 20V9l11-5 11 5v11M10 20v-8h12v8M10 16h12"/>',
+ cocina:'<path d="M6 15h20v5a6 6 0 0 1-6 6h-8a6 6 0 0 1-6-6zM3 16h3m20 0h3M8 11h16m-8-4v4"/>',
+ rosticero:'<rect x="4" y="7" width="24" height="19" rx="3"/><path d="M4 12h24M9 19h14m-11 0a4 3 0 1 0 8 0 4 3 0 1 0-8 0"/>',
+ freidoras:'<path d="M5 14h21l-3 12H8zM26 14l3-4M12 18v4m4-4v4m4-4v4M11 10c-2-2 2-3 0-5m6 5c-2-2 2-3 0-5"/>',
+ ventas_barras:'<path d="M4 23h24M6 20h20a10 10 0 0 0-20 0zm10-10V7m-2 0h4"/>',
+ caja:'<rect x="4" y="8" width="24" height="17" rx="3"/><path d="M4 14h24M9 20h4m4 0h6"/>',
+ trastes:'<circle cx="16" cy="17" r="10"/><circle cx="16" cy="17" r="6"/><path d="M26 4v6m-3-3h6"/>',
+ ayudante_general:'<path d="M16 5v8m-4-4h8M5 22l5-5h8a2 2 0 0 1 0 4h-4m5-1 5-4a2 2 0 0 1 3 3l-7 7H9z"/>',
+ supervision:'<rect x="7" y="6" width="18" height="22" rx="3"/><path d="M12 5h8v4h-8zM12 18l3 3 6-7"/>'
+};
 root.innerHTML=`<div class="supervision-heading"><h1>Supervisión de áreas</h1><nav class="supervision-tabs" aria-label="Vista de supervisión">
  <a id="equipo-today">Hoy</a><a id="equipo-history-link">Historial</a></nav></div>
+ <section id="supervision-directory" aria-label="Áreas de trabajo"><p id="supervision-directory-status" role="status"></p><div id="supervision-cards"></div></section>
  <div class="supervision-layout">
   <aside class="supervision-areas"><h2>Áreas</h2><div id="equipo-area-list"></div><label class="supervision-mobile-area">Área<select id="equipo-area"></select></label></aside>
   <div class="supervision-detail">
-   <div class="equipo-controls"><h2 id="equipo-selection"></h2><label>Fecha<input id="calibre-date" type="date" value="${esc(date)}"></label></div>
+   <button type="button" id="supervision-back">Todas las áreas</button>
+   <div class="equipo-controls"><div><p class="supervision-sheet-label">Ficha de área</p><h2 id="equipo-selection"></h2></div><label>Fecha<input id="calibre-date" type="date" value="${esc(date)}"></label></div>
    <div id="equipo-notice"><p id="equipo-status" role="status" aria-live="polite">Cargando…</p><button id="equipo-retry" type="button" hidden>Reintentar guardado</button><button id="equipo-reload" type="button" hidden>Volver a cargar</button></div>
    <section id="equipo-responsible"></section><section id="equipo-sheet"></section>
    <details class="supervision-options" hidden><summary>Reportes y seguimiento</summary>
@@ -30,9 +45,18 @@ const sheet=root.querySelector('#equipo-sheet'),status=root.querySelector('#equi
 const areaList=root.querySelector('#equipo-area-list'), reloadButton=root.querySelector('#equipo-reload');
 const history=root.querySelector('.equipo-history'), reportOptions=root.querySelector('.supervision-options');
 const todayLink=root.querySelector('#equipo-today'), historyLink=root.querySelector('#equipo-history-link');
+const directory=root.querySelector('#supervision-directory'), layout=root.querySelector('.supervision-layout');
+const cards=root.querySelector('#supervision-cards'), back=root.querySelector('#supervision-back');
+back.hidden=historyMode;
 (historyMode?historyLink:todayLink).setAttribute('aria-current','page');
 
+function showWorkspace(){
+ directory.hidden=!browsingAreas;
+ layout.hidden=browsingAreas;
+}
+
 function renderAreas(){
+ const focusedArea=document.activeElement?.dataset.supervisionArea;
  const labels=view?.areas.map(({spec})=>[spec.code,spec.name])||areaNames;
  if(!labels.some(([code])=>code===selected))selected=labels[0][0];
  areaInput.innerHTML=labels.map(([code,name])=>`<option value="${esc(code)}">${esc(name)}</option>`).join('');
@@ -42,10 +66,17 @@ function renderAreas(){
   const progress=row?.revision ? tally(row).replace(' actividades verificadas','') : view&&!view.catalogOnly ? 'Sin revisión' : '';
   return `<button type="button" data-supervision-area="${esc(code)}" aria-pressed="${code===selected}"><span>${esc(name)}</span>${progress?`<small>${esc(progress)}</small>`:''}</button>`;
  }).join('');
+ if(focusedArea)Array.from(areaList.children).find(button=>button.dataset.supervisionArea===focusedArea)?.focus({preventScroll:true});
  root.querySelector('#equipo-selection').textContent=labels.find(([code])=>code===selected)[1];
  const area=encodeURIComponent(selected);
- todayLink.href=`?area=${area}`;
+ todayLink.href='?';
  historyLink.href=`?view=history&area=${area}`;
+ cards.innerHTML=labels.map(([code,name])=>{
+  const row=view?.areas.find(({spec})=>spec.code===code);
+  const count=row?.revision?tally(row):row?`${row.spec.points.length} actividades`:'';
+  return `<button type="button" class="supervision-card" data-directory-area="${esc(code)}"><svg viewBox="0 0 32 32" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${areaIcons[code]||areaIcons.supervision}</svg><span><strong>${esc(name)}</strong>${count?`<small>${esc(count)}</small>`:''}</span><span class="supervision-card-open" aria-hidden="true">↗</span></button>`;
+ }).join('');
+ showWorkspace();
 }
 async function request(body){const r=await fetch(`/api/summary?calibre=1&date=${encodeURIComponent(date)}`,{cache:'no-store',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,...body})}:{})});const d=await r.json();if(!r.ok){if(r.status===401)location.replace('/inventario.html?next='+encodeURIComponent(location.pathname+location.search));throw Object.assign(Error(d.error||'No se pudo guardar.'),{status:r.status,catalog:r.status===503?d.catalog:undefined});}return d;}
 const points=row=>row.data.checklistPoints||row.data.points;
@@ -54,6 +85,7 @@ function tally(row){const all=points(row),done=row.spec.points.filter(p=>all[p.i
 function render(){
  const row=view.areas.find(r=>r.spec.code===selected)||view.areas[0];selected=row.spec.code;renderAreas();let last='';
  const canEvaluate=!historyMode&&view.canWrite&&(date<view.assignmentStart||!!row.responsible);
+ sheet.classList.toggle('supervision-catalog',Boolean(view.catalogOnly));
  if(!view.catalogOnly&&(!historyMode||view.date!==today()))renderResponsible(row);
  root.querySelector("#equipo-weekly-report").href="/evaluacion-semanal.html?date="+encodeURIComponent(date)+"&area="+encodeURIComponent(selected);
  sheet.innerHTML=`<header class="equipo-sheet-head"><h2>${esc(row.spec.name)}</h2><p id="equipo-progress">${tally(row)}</p></header>${row.spec.points.map(p=>{const section=p.id.split('.')[0],heading=last!==section?`<h3>${esc(row.spec.blocks[Number(section)-1])}</h3>`:'';last=section;const saved=points(row)[p.id]||{};return `${heading}<div class="equipo-point" data-point="${p.id}"><label class="equipo-task"><input type="checkbox" ${saved.status==='done'?'checked':''} ${canEvaluate?'':'disabled'}><span><strong>${esc(p.id)} · ${esc(p.title)}</strong><span>${esc(p.text)}</span></span></label><details class="supervision-note" ${saved.note?'open':''}><summary>Nota</summary><label class="equipo-note">Nota de la actividad<input type="text" maxlength="1200" value="${esc(saved.note||'')}" ${canEvaluate?'':'readonly'}></label></details></div>`;}).join('')}<h3 class="equipo-extra-heading">¡Vamos por el 120%!</h3><p>Marca las actividades adicionales realizadas. Con tu ficha completa y al menos una actividad extra verificada, llegas al 120%.</p>${row.spec.extras.map((e,i)=>{const saved=extras(row)[i]||{};return `<div class="equipo-point equipo-extra" data-extra="${i}"><label class="equipo-task"><input type="checkbox" ${saved.done?'checked':''} ${canEvaluate?'':'disabled'}><span><strong>${esc(e.title)}</strong><span>${esc(e.text)}</span></span></label><details class="supervision-note" ${saved.note?'open':''}><summary>Comentario</summary><label class="equipo-note">Comentario de la actividad<input type="text" maxlength="1200" value="${esc(saved.note||'')}" ${canEvaluate?'':'readonly'}></label></details></div>`;}).join('')}`;
@@ -66,11 +98,11 @@ function render(){
  history.hidden=!historyMode||view.catalogOnly;
  reportOptions.hidden=historyMode||view.catalogOnly;
  if(view.catalogOnly){
-  root.querySelector('#equipo-progress').textContent='Catálogo de actividades';
+  root.querySelector('#equipo-progress').textContent=`${row.spec.points.length} actividades · ${row.spec.extras.length} adicionales`;
   sheet.querySelector('#feedback-state')?.closest('section').remove();
   status.textContent=historyMode
    ? 'El historial está temporalmente fuera de servicio.'
-   : 'Puedes consultar las fichas. El guardado y el historial están temporalmente fuera de servicio.';
+   : 'Modo consulta. Guardado e historial temporalmente no disponibles.';
   return;
  }
  status.textContent=!showReview?'Selecciona una revisión para ver su detalle.':!historyMode&&view.canWrite
@@ -108,20 +140,24 @@ async function load(){
  root.querySelector('#equipo-responsible').innerHTML='';
  root.querySelector('#equipo-person-history').innerHTML='';
  renderAreas();
+ root.querySelector('#supervision-directory-status').textContent='Cargando actividades…';
  try{
   const response=await request();
   if(token!==loadSequence)return;
   view=response;render();
+  root.querySelector('#supervision-directory-status').textContent='';
   window.ChickenPersonHistory?.mount(root.querySelector('#equipo-person-history'),view.employees||[],date);
  }catch(error){
   if(token!==loadSequence)return;
   if(error.catalog?.length){
    view={date,canWrite:false,catalogOnly:true,areas:error.catalog.map(spec=>({spec,data:{points:{}}}))};
    render();
+   root.querySelector('#supervision-directory-status').textContent='Modo consulta. Guardado e historial temporalmente no disponibles.';
    reloadButton.hidden=false;
    return;
   }
   status.textContent=error.message;
+  root.querySelector('#supervision-directory-status').textContent=error.message;
   root.querySelector('#equipo-notice').classList.add('supervision-unavailable');
   reloadButton.hidden=false;
  }
@@ -156,7 +192,20 @@ reloadButton.addEventListener('click',load);
 root.querySelector('.supervision-tabs').addEventListener('click',event=>{if(pending.size||assigning||closingFeedback)event.preventDefault();});
 document.querySelector('.supervision-brand')?.addEventListener('click',()=>{try{sessionStorage.setItem('chickenia_internal_home',String(Date.now()));}catch{}});
 window.addEventListener('beforeunload',e=>{if(pending.size||assigning||closingFeedback){e.preventDefault();e.returnValue='';}});
-const requested=new URLSearchParams(location.search).get('area');if(requested&&requested!=='general')selected=requested==='sucursal_apertura'?'rastro':requested;
+if(requested&&requested!=='general')selected=requested==='sucursal_apertura'?'rastro':requested;
+cards.addEventListener('click',event=>{
+ const card=event.target.closest('[data-directory-area]');
+ if(!card)return;
+ browsingAreas=false;
+ selectArea(card.dataset.directoryArea);
+ back.focus();
+});
+back.addEventListener('click',()=>{
+ if(pending.size||assigning||closingFeedback)return;
+ browsingAreas=true;
+ showWorkspace();
+ Array.from(cards.children).find(card=>card.dataset.directoryArea===selected)?.focus();
+});
 window.ChickenEquipoCanShare=()=>!!view&&!view.catalogOnly&&!pending.size&&!saving&&!assigning&&!closingFeedback;
 sheet.addEventListener('click',async e=>{
  if(!e.target.closest('#feedback-close')||closingFeedback||failed)return;
