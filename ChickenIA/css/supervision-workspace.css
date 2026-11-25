@@ -163,7 +163,7 @@
 }
 .supervision-note summary::-webkit-details-marker { display: none; }
 .supervision-note summary::before { content: "+" / ""; }
-.supervision-note[open] summary::before { content: "?" / ""; }
+.supervision-note[open] summary::before { content: "\2212" / ""; }
 .supervision-workspace .equipo-feedback h3 { margin: 0 -16px 16px; }
 .supervision-detail select,.supervision-detail input:not([type=checkbox]),.supervision-detail textarea { min-height: 44px; font-size: 1rem; }
 #equipo-sheet { padding-bottom: 18px; }
@@ -184,19 +184,21 @@
 #supervision-directory-status:empty { display: none; }
 #supervision-cards {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
 }
 #supervision-cards .supervision-card {
   --tile-bg: #eaf0f9;
   --tile-ink: #223b64;
   position: relative;
   display: grid;
-  grid-template-rows: 1fr auto;
-  align-items: start;
-  min-height: 205px;
-  gap: 32px;
-  padding: 24px 50px 23px 24px;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  min-height: 112px;
+  gap: 15px;
+  padding: 16px 52px 16px 16px;
+  touch-action: manipulation;
+  user-select: none;
   text-align: left;
   color: var(--tile-ink);
   background: var(--tile-bg);
@@ -219,7 +221,8 @@
   display: grid;
   place-items: center;
   right: 15px;
-  bottom: 15px;
+  top: 50%;
+  translate: 0 -50%;
   width: 34px;
   height: 34px;
   border: 1px solid currentColor;
@@ -236,7 +239,7 @@
   font-weight: 700;
 }
 .supervision-detail:has(#supervision-back:not([hidden])) .equipo-controls { border-radius: 0; }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   #supervision-cards .supervision-card:hover { border-color: currentColor; }
   #supervision-cards .supervision-card:hover .supervision-card-open { background: var(--tile-ink); color: var(--tile-bg); }
 }
@@ -244,18 +247,38 @@
   #supervision-cards .supervision-card { transition: transform 150ms ease-out, border-color 150ms ease-out; }
   #supervision-cards .supervision-card:active { transform: scale(.985); }
 }
-@media (max-width: 880px) {
-  #supervision-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+#supervision-cards .supervision-card:active { border-color: currentColor; }
+.supervision-card svg { width: 40px; height: 40px; }
+.supervision-workspace :is(#supervision-back,.supervision-tabs a,.supervision-note summary,.equipo-task) { touch-action: manipulation; }
+.supervision-workspace #equipo-sheet .equipo-task span span { font-size: .9375rem; }
+.supervision-workspace .equipo-checklist {
+  padding-left: max(14px, env(safe-area-inset-left));
+  padding-right: max(14px, env(safe-area-inset-right));
+  padding-bottom: max(40px, env(safe-area-inset-bottom));
 }
-@media (max-width: 560px) {
-  #supervision-cards { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-  #supervision-cards .supervision-card {
-    grid-template-columns: 46px minmax(0, 1fr);
-    grid-template-rows: auto;
-    align-items: center;
-    gap: 16px;
-    min-height: 126px;
-    padding: 18px 54px 18px 18px;
+@media (max-width: 720px) {
+  .supervision-top.daily-header {
+    padding-top: calc(12px + env(safe-area-inset-top));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
   }
-  .supervision-card-open { bottom: auto; top: 50%; translate: 0 -50%; }
+  .supervision-layout:has(#supervision-back:not([hidden])) .supervision-areas { display: none; }
+  .supervision-detail > #supervision-back { display: block; width: calc(100% - 2 * var(--sheet-gutter)); text-align: left; }
+}
+@media (min-width: 600px) {
+  #supervision-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  #supervision-cards .supervision-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
+    align-items: start;
+    min-height: 195px;
+    gap: 24px;
+    padding: 24px 50px 23px 24px;
+  }
+  .supervision-card svg { width: 48px; height: 48px; }
+  .supervision-card-open { top: auto; bottom: 15px; translate: none; }
+}
+@media (min-width: 900px) {
+  #supervision-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

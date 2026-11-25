@@ -198,7 +198,8 @@ cards.addEventListener('click',event=>{
  if(!card)return;
  browsingAreas=false;
  selectArea(card.dataset.directoryArea);
- back.focus();
+ window.scrollTo(0,0);
+ back.focus({preventScroll:true});
 });
 back.addEventListener('click',()=>{
  if(pending.size||assigning||closingFeedback)return;
