@@ -535,4 +535,4 @@ async function ensureTables() {
   return sql;
 }
 
-module.exports = { getSql, ensureTables, CRITICALITY_WEIGHT, SEED_ACTIVITIES };
+module.exports = { getSql, ensureTables, CRITICALITY_WEIGHT, SEED_ACTIVITIES, SEED_EMPLOYEES };

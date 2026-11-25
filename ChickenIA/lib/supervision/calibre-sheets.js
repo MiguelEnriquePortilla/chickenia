@@ -1,0 +1,145 @@
+﻿'use strict';
+const {sign}=require('node:crypto');
+const core=require('./calibre');
+
+const CUTOVER='2026-11-25';
+const SHEET='1wt9X9si6vuDK9Q1HX43BdHgOzuH5zrU5tBO0DjyBjG4';
+const TAB=2601;
+const NORMAL='Jojutla';
+const TEST='PRUEBA - Jojutla';
+const tokenUrl='https://oauth2.googleapis.com/token';
+const encode=o=>Buffer.from(JSON.stringify(o)).toString('base64url');
+const format=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Mexico_City',dateStyle:'short',timeStyle:'medium'});
+let cached;
+
+async function googleToken(){
+ if(cached?.expires>Date.now())return cached.value;
+ const {client_email,private_key}=JSON.parse(process.env.SUPERVISION_GOOGLE_SERVICE_ACCOUNT_JSON);
+ const now=Math.floor(Date.now()/1000);
+ const assertion=encode({alg:'RS256',typ:'JWT'})+'.'+encode({iss:client_email,scope:'https://www.googleapis.com/auth/spreadsheets',aud:tokenUrl,iat:now,exp:now+3600});
+ const body=new URLSearchParams({grant_type:'urn:ietf:params:oauth:grant-type:jwt-bearer',assertion:assertion+'.'+sign('RSA-SHA256',Buffer.from(assertion),private_key).toString('base64url')});
+ const response=await fetch(tokenUrl,{method:'POST',body,signal:AbortSignal.timeout(12000)});
+ if(!response.ok)throw new Error('Google token HTTP '+response.status);
+ const data=await response.json();
+ cached={value:data.access_token,expires:Date.now()+(data.expires_in-60)*1000};
+ return cached.value;
+}
+
+async function sheets(path,body){
+ const response=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEET+path,{
+  headers:{Authorization:'Bearer '+await googleToken(),...(body?{'Content-Type':'application/json'}:{})},
+  ...(body?{method:'POST',body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(12000)
+ });
+ if(!response.ok){
+  const error=new Error('Sheets HTTP '+response.status);
+  error.http=response.status;
+  throw error;
+ }
+ return response.json();
+}
+
+function store(call=sheets){
+ const employees=require('./db').SEED_EMPLOYEES.map((name,index)=>({id:index+1,name,active:true}));
+ const location={id:1,name:NORMAL};
+
+ async function read(mode){
+  const sheet=await call('/values/'+encodeURIComponent('Revisiones!A2:M'));
+  return (sheet.values||[]).filter(row=>row[2]===mode&&row[12]).map(row=>JSON.parse(row[12]));
+ }
+
+ async function append(mode,date,area,id,kind,activity,result,note,user,now,event,locks=[]){
+  const key='cc_'+(mode===TEST?'test_':'')+date.replaceAll('-','_')+'_';
+  const requests=locks.map(lock=>({addNamedRange:{namedRange:{name:key+lock,range:{sheetId:TAB,startRowIndex:0,endRowIndex:1,startColumnIndex:0,endColumnIndex:1}}}}));
+  const values=[key+id,date,mode,area,core.VERSION,activity,result,note,event.responsible?.name||'',user.name,format.format(now),event.revision>1?key+area+'_v'+(event.revision-1):'',JSON.stringify({...event,date,area,kind,at:now.toISOString()})];
+  requests.push({appendCells:{sheetId:TAB,rows:[{values:values.map(value=>({userEnteredValue:{stringValue:String(value)}}))}],fields:'userEnteredValue'}});
+  try{await call(':batchUpdate',{requests});}catch(error){
+   if(error.http===400&&locks.length){
+    const events=await read(mode);
+    if(events.some(e=>e.date===date&&locks.some(lock=>e.locks?.includes(lock))))core.fail('Otra persona actualizó esta revisión. Recarga y vuelve a intentar.',409);
+   }
+   throw error;
+  }
+ }
+
+ function model(events,date,now){
+  const revisions=new Map(),assigned=new Map();
+  for(const event of events){
+   const key=event.date+'/'+event.area;
+   if(event.kind==='assign')assigned.set(key,event.responsible);
+   if(event.kind==='revision')revisions.set(key,event);
+  }
+  const rowsFor=day=>core.AREAS.map(spec=>{
+   const event=revisions.get(day+'/'+spec.code),responsible=assigned.get(day+'/'+spec.code)||null;
+   return {spec:event?.spec||spec,data:event?.data||core.blank(),revision:event?.revision||0,responsible};
+  });
+  const week=core.weekDates(date);
+  const days=week.map(day=>rowsFor(day));
+  const seen=[...revisions.values()].filter(e=>e.date<=date).sort((a,b)=>b.date.localeCompare(a.date));
+  return {date,location,version:core.VERSION,assignmentStart:CUTOVER,feedbackStart:core.feedback.START,employees,
+   assignments:rowsFor(date).filter(r=>r.responsible).map(r=>({...r.responsible,area:r.spec.code})),areas:rowsFor(date),
+   canWrite:date===core.day(now),history:events.filter(e=>e.kind==='report'&&e.date<=date).reverse().slice(0,100),
+   checklistHistory:seen.map(e=>({date:e.date,area:e.area,spec:e.spec,points:e.data.checklistPoints||e.data.points})),
+   weekly:{dates:week,areas:core.AREAS.map((spec,i)=>({code:spec.code,name:spec.name,days:days.map((rows,j)=>{
+    const row=rows[i];
+    return {date:week[j],...core.checklistScore(row.spec,row.data),spec:row.spec,points:row.data.checklistPoints||row.data.points,
+     extras:core.simpleExtras(row.data),feedback:row.data.feedback||null,feedbackStatus:core.feedback.status(week[j],row.data),responsible:row.responsible};
+   })}))}};
+ }
+
+ return async function handle(req,date,user,now){
+  const test=(req.method==='GET'?req.query?.test:req.body?.test)==='1';
+  if(test&&user.name!=='MIGUEL')core.fail('Prueba disponible para Dirección.',403);
+  const mode=test?TEST:NORMAL;
+  const events=await read(mode);
+  const view=model(events,date,now);
+  if(req.method==='GET'){
+   if(req.query.person){
+    const id=Number(req.query.person),{from,to}=req.query;
+    if(!core.dateOK(from)||!core.dateOK(to)||from>to||Date.parse(to)-Date.parse(from)>366*86400000)core.fail('Elige un periodo válido de hasta un año.');
+    const person=employees.find(e=>e.id===id);if(!person)core.fail('Persona desconocida.',404);
+    const entries=events.filter(e=>e.kind==='assign'&&e.responsible.id===id&&e.date>=from&&e.date<=to).map(e=>{
+     const last=events.findLast(r=>r.kind==='revision'&&r.date===e.date&&r.area===e.area);
+     const spec=last?.spec||core.AREAS.find(a=>a.code===e.area),data=last?.data||core.blank();
+     return {date:e.date,area:e.area,areaName:spec.name,assignedBy:e.responsible.actor,assignedAt:e.at,
+      ...core.checklistScore(spec,data),points:data.checklistPoints||data.points,extras:core.simpleExtras(data),
+      feedback:data.feedback||null,feedbackStatus:core.feedback.status(e.date,data),spec};
+    }).reverse();
+    const scored=entries.filter(e=>e.score!==null);
+    return {person,from,to,entries,evaluated:scored.length,average:scored.length?scored.reduce((n,e)=>n+e.score,0)/scored.length:null};
+   }
+   return view;
+  }
+  const body=req.body;
+  if(body.action==='report'){
+   if(body.kind!=='simple')core.fail('Tipo de reporte inválido.');
+   const rows=view.areas.filter(r=>body.scope==='general'||r.spec.code===body.scope);
+   if(!rows.some(r=>r.revision))core.fail('Primero registra el avance del área.');
+   const message=core.simpleReport(rows,date);
+   await append(mode,date,body.scope,'report_'+now.getTime(),'report','reporte','Preparado','',user,now,{scope:body.scope,message});
+   return {message,created_at:now.toISOString()};
+  }
+  if(!view.canWrite)core.fail('El histórico se conserva. Solo puedes registrar el día actual.',409);
+  const row=view.areas.find(r=>r.spec.code===body.area);if(!row)core.fail('Área desconocida.');
+  if(body.action==='assign'){
+   const employee=employees.find(e=>e.id===body.employeeId);if(!employee)core.fail('Selecciona una persona activa.');
+   if(row.responsible?.id===employee.id)return view;
+   if(row.responsible||view.assignments.some(a=>a.id===employee.id))core.fail('La persona o el área ya tiene una asignación para hoy.',409);
+   const responsible={id:employee.id,name:employee.name,actor:user.name,assigned_at:now.toISOString()};
+   const locks=[body.area+'_assign','employee_'+employee.id];
+   await append(mode,date,body.area,locks[0],'assign','responsable','Asignado','',user,now,{responsible,locks},locks);
+  }else{
+   if(!row.responsible)core.fail('Asigna al responsable de hoy antes de evaluar.',409);
+   if(body.revision!==row.revision)core.fail('Alguien actualizó esta área. Recarga antes de guardar.',409);
+   const command=body.command||{};
+   if(!['simple-point','simple-extra','feedback-save','feedback-close'].includes(command.action))core.fail('Actividad de supervisión desconocida.');
+   const data=core.apply(row.spec,row.data,command,user,now,date,row.responsible);
+   const revision=row.revision+1,id=body.area+'_v'+revision;
+   const activity=command.point||(command.action==='simple-extra'?'extra-'+(command.choice+1):command.action);
+   const note=command.note||[command.observation,command.recommendation].filter(Boolean).join(' / ');
+   const result=typeof command.done==='boolean'?(command.done?'Verificada':'Pendiente'):command.action==='feedback-close'?'Cerrada':'Borrador';
+   await append(mode,date,body.area,id,'revision',activity,result,note,user,now,{revision,spec:row.spec,data,responsible:row.responsible,locks:[id]},[id]);
+  }
+  return model(await read(mode),date,now);
+ };
+}
+module.exports={store,CUTOVER};

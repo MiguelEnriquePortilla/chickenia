@@ -1,5 +1,6 @@
 'use strict';
 const core=require('./calibre'),auth=require('../inventory-auth');
+const sheets=require('./calibre-sheets'),handleSheets=sheets.store();
 function createHandler(override,clock=()=>new Date()){
  let migration;
  return async(req,res)=>{
@@ -15,6 +16,18 @@ function createHandler(override,clock=()=>new Date()){
    }
    const date=req.method==='GET'?req.query.date:req.body?.date;
    if(!core.dateOK(date))core.fail('Elige una fecha válida.');
+   if(!override&&date>=sheets.CUTOVER){
+    try{
+     return res.status(200).json(await handleSheets(req,date,user,clock()));
+    }catch(error){
+     if(error.status||error.name==='ZodError')throw error;
+     console.error('Supervision Sheets request failed:',error.http||error.name);
+     return res.status(503).json({
+      error:'Drive no respondió. Vuelve a intentar para confirmar la captura.',
+      ...(req.method==='GET'&&!req.query.person?{catalog:core.AREAS}:{})
+     });
+    }
+   }
    const query=override||((s,p)=>require('@neondatabase/serverless').neon(process.env.DATABASE_URL)(s,p));
    const [loc]=await query("SELECT id,name FROM locations WHERE code='jojutla' AND type='tienda'",[]);if(!loc)core.fail('No se encontró la sucursal Jojutla.',404);
    const service=require('./calibre-store').store(query);
