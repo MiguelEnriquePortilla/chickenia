@@ -18,7 +18,7 @@ function createHandler(override,clock=()=>new Date()){
    if(!core.dateOK(date))core.fail('Elige una fecha válida.');
    if(!override&&date>=sheets.CUTOVER){
     try{
-     return res.status(200).json(await handleSheets(req,date,user,clock()));
+     return res.status(200).json({...await handleSheets(req,date,user,clock()),canCorrectResponsible:true});
     }catch(error){
      if(error.status||error.name==='ZodError')throw error;
      console.error('Supervision Sheets request failed:',error.http||error.name);

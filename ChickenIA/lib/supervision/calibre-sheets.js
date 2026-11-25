@@ -7,6 +7,8 @@ const SHEET='1wt9X9si6vuDK9Q1HX43BdHgOzuH5zrU5tBO0DjyBjG4';
 const TAB=2601;
 const NORMAL='Jojutla';
 const TEST='PRUEBA - Jojutla';
+const isAssignment=event=>event.kind==='assign'||event.kind==='reassign';
+const isRevision=event=>event.kind==='revision'||event.kind==='reassign';
 const tokenUrl='https://oauth2.googleapis.com/token';
 const encode=o=>Buffer.from(JSON.stringify(o)).toString('base64url');
 const format=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Mexico_City',dateStyle:'short',timeStyle:'medium'});
@@ -65,8 +67,8 @@ function store(call=sheets){
   const revisions=new Map(),assigned=new Map();
   for(const event of events){
    const key=event.date+'/'+event.area;
-   if(event.kind==='assign')assigned.set(key,event.responsible);
-   if(event.kind==='revision')revisions.set(key,event);
+   if(isAssignment(event))assigned.set(key,event.responsible);
+   if(isRevision(event))revisions.set(key,event);
   }
   const rowsFor=day=>core.AREAS.map(spec=>{
    const event=revisions.get(day+'/'+spec.code),responsible=assigned.get(day+'/'+spec.code)||null;
@@ -97,8 +99,10 @@ function store(call=sheets){
     const id=Number(req.query.person),{from,to}=req.query;
     if(!core.dateOK(from)||!core.dateOK(to)||from>to||Date.parse(to)-Date.parse(from)>366*86400000)core.fail('Elige un periodo válido de hasta un año.');
     const person=employees.find(e=>e.id===id);if(!person)core.fail('Persona desconocida.',404);
-    const entries=events.filter(e=>e.kind==='assign'&&e.responsible.id===id&&e.date>=from&&e.date<=to).map(e=>{
-     const last=events.findLast(r=>r.kind==='revision'&&r.date===e.date&&r.area===e.area);
+    const assignments=new Map();
+    for(const event of events.filter(e=>isAssignment(e)&&e.date>=from&&e.date<=to))assignments.set(event.date+'/'+event.area,event);
+    const entries=[...assignments.values()].filter(e=>e.responsible.id===id).map(e=>{
+     const last=events.findLast(r=>isRevision(r)&&r.date===e.date&&r.area===e.area);
      const spec=last?.spec||core.AREAS.find(a=>a.code===e.area),data=last?.data||core.blank();
      return {date:e.date,area:e.area,areaName:spec.name,assignedBy:e.responsible.actor,assignedAt:e.at,
       ...core.checklistScore(spec,data),points:data.checklistPoints||data.points,extras:core.simpleExtras(data),
@@ -120,13 +124,32 @@ function store(call=sheets){
   }
   if(!view.canWrite)core.fail('El histórico se conserva. Solo puedes registrar el día actual.',409);
   const row=view.areas.find(r=>r.spec.code===body.area);if(!row)core.fail('Área desconocida.');
-  if(body.action==='assign'){
+  if(body.action==='assign'||body.action==='reassign'){
    const employee=employees.find(e=>e.id===body.employeeId);if(!employee)core.fail('Selecciona una persona activa.');
-   if(row.responsible?.id===employee.id)return view;
-   if(row.responsible||view.assignments.some(a=>a.id===employee.id))core.fail('La persona o el área ya tiene una asignación para hoy.',409);
+   const correction=body.action==='reassign';
+   const reason=typeof body.reason==='string'?body.reason.trim():'';
+   const previous=row.responsible;
+   if(correction&&(!reason||reason.length>240))core.fail('Escribe un motivo de 1 a 240 caracteres.');
+   if(previous?.id===employee.id){
+    const last=events.findLast(e=>e.date===date&&e.area===body.area&&isAssignment(e));
+    if(!correction||(last?.previous?.id===body.previousId&&last.reason===reason))return view;
+    core.fail('Selecciona una persona distinta a la actual.');
+   }
+   if(correction&&(!previous||previous.id!==body.previousId||row.revision!==body.revision))core.fail('La asignación o revisión cambió. Recarga antes de corregir.',409);
+   if((!correction&&previous)||view.assignments.some(a=>a.id===employee.id))core.fail('La persona o el área ya tiene una asignación para hoy.',409);
    const responsible={id:employee.id,name:employee.name,actor:user.name,assigned_at:now.toISOString()};
-   const locks=[body.area+'_assign','employee_'+employee.id];
-   await append(mode,date,body.area,locks[0],'assign','responsable','Asignado','',user,now,{responsible,locks},locks);
+   const assignmentId='asignacion_'+(1+events.filter(e=>e.date===date&&isAssignment(e)).length);
+   const locks=[assignmentId];
+   if(correction){
+    const revision=row.revision+1,id=body.area+'_v'+revision;
+    locks.push(id);
+    const data=structuredClone(row.data);
+    delete data.feedback;
+    await append(mode,date,body.area,id,'reassign','responsable','Corregido',previous.name+' → '+employee.name+' · '+reason,user,now,
+     {revision,spec:row.spec,data,responsible,previous,reason,locks},locks);
+   }else{
+    await append(mode,date,body.area,assignmentId,'assign','responsable','Asignado','',user,now,{responsible,locks},locks);
+   }
   }else{
    if(!row.responsible)core.fail('Asigna al responsable de hoy antes de evaluar.',409);
    if(body.revision!==row.revision)core.fail('Alguien actualizó esta área. Recarga antes de guardar.',409);

@@ -453,3 +453,15 @@
   font-weight: 700;
 }
 #equipo-responsible button:disabled { cursor: default; }
+
+#equipo-responsible .responsible-reason { margin-top: 12px; font-weight: 650; }
+.responsible-reason textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 9px;
+  background: var(--workspace-bg);
+  color: var(--text);
+  font-family: inherit;
+  resize: vertical;
+}
