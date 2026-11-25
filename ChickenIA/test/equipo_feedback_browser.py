@@ -11,7 +11,7 @@ try:
   browser=p.chromium.launch(executable_path='C:/Program Files/Google/Chrome/Application/chrome.exe');page=browser.new_page(viewport={'width':390,'height':844});errors=[]
   page.route('https://**/*',lambda r:r.abort());page.on('pageerror',lambda e:errors.append(str(e)))
   page.goto(base+'/evaluacion-equipo.html?area=ayudante_general')
-  page.locator('#equipo-responsible-select').select_option(label='Ana Lima');page.locator('#equipo-assign').click();expect(page.locator('#equipo-responsible')).to_contain_text('Ana Lima')
+  page.get_by_role('button',name='Elegir persona').click();page.get_by_role('radio',name='Ana Lima').check();page.locator('#equipo-assign').click();expect(page.locator('#equipo-responsible')).to_contain_text('Ana Lima')
   page.locator('#feedback-close').click();expect(page.locator('#equipo-status')).to_contain_text('Completa la observación')
   page.locator('[data-point]').first.locator('[type=checkbox]').check();expect(page.locator('#equipo-status')).to_have_text('¡Guardado!')
   page.locator('#feedback-observation').fill('Preparó las guarniciones antes de abrir.');page.locator('#feedback-recommendation').fill('Mantener la preparación anticipada.');expect(page.locator('#equipo-status')).to_have_text('¡Guardado!')
@@ -19,7 +19,7 @@ try:
   page.reload();expect(page.locator('#feedback-observation')).to_have_value('Preparó las guarniciones antes de abrir.');expect(page.locator('#feedback-state')).to_contain_text('Evaluación cerrada')
   page.locator('[data-point]').first.locator('[type=checkbox]').uncheck();expect(page.locator('#equipo-status')).to_have_text('¡Guardado!');expect(page.locator('#feedback-state')).to_have_text('Retroalimentación pendiente')
   page.locator('#feedback-close').click();expect(page.locator('#feedback-state')).to_contain_text('Evaluación cerrada')
-  hist=page.locator('#equipo-person-history');hist.locator('summary').first.click();hist.locator('select').select_option(label='Ana Lima');hist.locator('button').click();expect(hist).to_contain_text('Mantener la preparación anticipada.')
+  page.locator('.supervision-options > summary').click();hist=page.locator('#equipo-person-history');hist.locator('summary').first.click();hist.locator('select').select_option(label='Ana Lima');hist.locator('button').click();expect(hist).to_contain_text('Mantener la preparación anticipada.')
   for width in [320,390,1440]:
    page.set_viewport_size({'width':width,'height':900});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
   date=page.locator('#calibre-date').input_value();page.goto(base+'/evaluacion-semanal.html?date='+date+'&area=ayudante_general');expect(page.locator('.report-page')).to_have_count(1);expect(page.locator('.feedback-table')).to_contain_text('Mantener la preparación anticipada.');expect(page.locator('.feedback-table')).to_contain_text('Ana Lima')

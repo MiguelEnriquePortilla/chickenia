@@ -140,15 +140,45 @@ function renderResponsible(row){
  if(row.responsible){host.innerHTML='<p><strong>Responsable del día: '+esc(row.responsible.name)+'</strong></p>';return;}
  if(historyMode||!view.canWrite){host.innerHTML='<p>Responsable: sin identificar en este registro.</p>';return;}
  const occupied=new Map((view.assignments||[]).map(a=>[a.id,a.area]));
- const options=(view.employees||[]).filter(e=>e.active).map(e=>{
+ const employees=(view.employees||[]).filter(e=>e.active);
+ const options=employees.map(e=>{
   const area=occupied.get(e.id),areaName=view.areas.find(r=>r.spec.code===area)?.spec.name||area;
-  return '<option value="'+e.id+'"'+(occupied.has(e.id)?' disabled':'')+'>'+esc(e.name)+(occupied.has(e.id)?' · Ya asignada/o a '+esc(areaName):'')+'</option>';
+  return `<label class="responsible-person"><input type="radio" name="responsible" value="${esc(e.id)}" ${area?'disabled':''}><span>${esc(e.name)}${area?`<small>Ya asignada/o a ${esc(areaName)}</small>`:''}</span></label>`;
  }).join('');
- host.innerHTML='<label>Responsable de hoy<select id="equipo-responsible-select"><option value="">Seleccionar persona</option>'+options+'</select></label><p>Las personas asignadas a otra área aparecen deshabilitadas. Cada persona tiene una sola área por día.</p><p>Al guardar, la persona y el área quedan asignadas para todo el día. No se podrán cambiar.</p><button type="button" id="equipo-assign">Guardar responsable del día</button>';
- host.querySelector('button').addEventListener('click',async()=>{
-  if(assigning||saving||pending.size)return;const employeeId=Number(host.querySelector('select').value);if(!employeeId){status.textContent='Selecciona una persona.';return;}
-  assigning=true;dateInput.disabled=true;areaInput.disabled=true;host.querySelector('button').disabled=true;host.querySelector('select').disabled=true;status.textContent='Guardando responsable…';
-  try{view=await request({action:'assign',area:selected,employeeId});render();status.textContent='Responsable guardado para toda la jornada.';}catch(e){status.textContent=e.message+' Puedes reintentar guardar.';host.querySelector('button').disabled=false;host.querySelector('select').disabled=false;}finally{assigning=false;dateInput.disabled=false;areaInput.disabled=false;}
+ host.innerHTML=`<div class="responsible-panel"><strong>Responsable de hoy</strong>
+  <button type="button" id="equipo-responsible-picker" aria-haspopup="dialog" ${employees.some(e=>!occupied.has(e.id))?'':'disabled'}>Elegir persona</button>
+  ${employees.some(e=>!occupied.has(e.id))?'':'<p>No hay personas disponibles para asignar.</p>'}</div>
+  <dialog class="responsible-dialog" aria-labelledby="responsible-title">
+   <div class="responsible-dialog-head"><h3 id="responsible-title">Responsable de hoy</h3><button type="button" id="responsible-cancel" autofocus>Cerrar</button></div>
+   <p>La asignación queda fija para toda la jornada.</p>
+   <div class="responsible-people" role="group" aria-label="Personas">${options}</div>
+   <p id="responsible-message" role="status"></p>
+   <button type="button" id="equipo-assign" disabled>Guardar responsable del día</button>
+  </dialog>`;
+ const picker=host.querySelector('#equipo-responsible-picker'),dialog=host.querySelector('dialog');
+ const save=host.querySelector('#equipo-assign'),cancel=host.querySelector('#responsible-cancel'),message=host.querySelector('#responsible-message');
+ picker.addEventListener('click',()=>dialog.showModal());
+ cancel.addEventListener('click',()=>dialog.close());
+ dialog.addEventListener('cancel',event=>{if(assigning)event.preventDefault();});
+ dialog.addEventListener('change',()=>{save.disabled=false;message.textContent='';});
+ save.addEventListener('click',async()=>{
+  const employeeId=Number(dialog.querySelector('input:checked')?.value);
+  if(!employeeId||assigning||saving||pending.size)return;
+  assigning=true;dateInput.disabled=true;areaInput.disabled=true;save.disabled=true;cancel.disabled=true;
+  const choices=Array.from(dialog.querySelectorAll('input:not(:disabled)'));
+  choices.forEach(input=>input.disabled=true);
+  message.textContent='Guardando responsable…';
+  try{
+   view=await request({action:'assign',area:selected,employeeId});
+   dialog.close();
+   render();
+   status.textContent='Responsable guardado para toda la jornada.';
+   sheet.querySelector('input[type=checkbox]:enabled')?.focus({preventScroll:true});
+  }catch(e){
+   message.textContent=e.message+' Puedes reintentar guardar.';
+   choices.forEach(input=>input.disabled=false);
+   save.disabled=false;cancel.disabled=false;
+  }finally{assigning=false;dateInput.disabled=false;areaInput.disabled=false;}
  });
 }
 async function load(){
