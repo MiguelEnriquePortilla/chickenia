@@ -25,7 +25,12 @@ function createHandler(override,clock=()=>new Date()){
    if(req.method==='POST'&&req.body.action==='report')return res.status(200).json(await service.saveReport(loc.id,date,req.body.scope,req.body.kind,user,now));
    const view=req.method==='GET'?await service.get(loc.id,date,now):await service.save(loc.id,date,req.body,user,now);
    return res.status(200).json({...view,actor:user.name,location:loc});
-  }catch(e){return res.status(e.status||(e.name==='ZodError'?400:500)).json({error:e.status?e.message:e.name==='ZodError'?'Revisa los campos y cantidades antes de guardar.':'No se pudo guardar o consultar. Conserva tu captura y reintenta.'});}
+  }catch(error){
+   if(!error.status && /HTTP status 402.*exceeded the quota/i.test(error.message)){
+    return res.status(503).json({error:'Supervisión no está disponible. Neon alcanzó su límite y la captura en Google Sheets aún no está conectada.'});
+   }
+   return res.status(error.status||(error.name==='ZodError'?400:500)).json({error:error.status?error.message:error.name==='ZodError'?'Revisa los campos y cantidades antes de guardar.':'No se pudo guardar o consultar. Conserva tu captura y reintenta.'});
+  }
  };
 }
 module.exports=createHandler();module.exports.createHandler=createHandler;
