@@ -8,6 +8,15 @@ test('installed launch assets use approved PNGs, real sizes and a coherent nativ
  const [svg,...pngs]=manifest.icons;
  assert.equal(svg.sizes,'any');assert.equal(svg.type,'image/svg+xml');
  assert.equal((await sharp(path.join(root,svg.src)).metadata()).format,'svg');
- for(const i of pngs){assert(!i.src.includes('icon-512.jpg'));const file=path.join(root,i.src);const m=await sharp(file).metadata();assert.equal(i.sizes,`${m.width}x${m.height}`);assert.equal(m.format,'png');const p=await sharp(file).extract({left:0,top:0,width:1,height:1}).removeAlpha().raw().toBuffer();assert.deepEqual([...p],[23,33,62]);}
+ for(const i of pngs){
+  const file=path.join(root,i.src), metadata=await sharp(file).metadata();
+  assert.equal(i.sizes,`${metadata.width}x${metadata.height}`);
+  assert.equal(metadata.format,'png');
+  const corner=await sharp(file).extract({left:0,top:0,width:1,height:1}).ensureAlpha().raw().toBuffer();
+  if(i.purpose==='maskable')assert.deepEqual([...corner],[23,33,62,255]);
+  else assert.equal(corner[3],0);
+ }
+ const appleCorner=await sharp(path.join(root,'icons/chicania-launch-180.png')).extract({left:0,top:0,width:1,height:1}).ensureAlpha().raw().toBuffer();
+ assert.deepEqual([...appleCorner],[23,33,62,255]);
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');assert(html.includes('chicania-launch-180.png'));assert(html.includes('welcome-pending'));assert(html.indexOf("classList.add('welcome-pending')")<html.indexOf('<body'));
 });
