@@ -66,11 +66,15 @@ function renderAreas(){
  areaList.innerHTML=labels.map(([code,name])=>{
   const row=view?.areas.find(({spec})=>spec.code===code);
   const progress=row?.revision ? tally(row).replace(' actividades verificadas','') : view&&!view.catalogOnly ? 'Sin revisión' : '';
-  return `<button type="button" data-supervision-area="${esc(code)}" aria-pressed="${code===selected}"><span>${esc(name)}</span>${progress?`<small>${esc(progress)}</small>`:''}</button>`;
+  return `<button type="button" data-supervision-area="${esc(code)}" data-area-tone="${esc(code)}" aria-pressed="${code===selected}">
+   <span class="supervision-area-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${areaIcons[code]||areaIcons.supervision}</svg></span>
+   <span class="supervision-area-name">${esc(name)}${progress?`<small>${esc(progress)}</small>`:''}</span>
+  </button>`;
  }).join('');
  if(focusedArea)Array.from(areaList.children).find(button=>button.dataset.supervisionArea===focusedArea)?.focus({preventScroll:true});
  root.querySelector('#equipo-selection').textContent=labels.find(([code])=>code===selected)[1];
  layout.querySelector('.supervision-detail').dataset.areaTone=selected;
+ areaInput.closest('label').dataset.areaTone=selected;
  const area=encodeURIComponent(selected);
  todayLink.href='?';
  historyLink.href=`?view=history&area=${area}`;
