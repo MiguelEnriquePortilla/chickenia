@@ -4,23 +4,70 @@ const root=document.getElementById('calibre-app');if(!root)return;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 let date=new URLSearchParams(location.search).get('date')||today(),view,selected='rastro',pending=new Map(),saving=false,failed=false,timer,loadSequence=0,assigning=false,closingFeedback=false;
-root.innerHTML=`<h1>Chicanito en Acción</h1><div class="equipo-controls"><label>Fecha<input id="calibre-date" type="date" value="${esc(date)}"></label><label>Área<select id="equipo-area"></select></label></div><p id="equipo-status" role="status" aria-live="polite">Cargando…</p><button id="equipo-retry" type="button" hidden>Reintentar guardado</button><p class="equipo-save-help">Espera la confirmación de guardado antes de salir.</p><section id="equipo-responsible"></section><section id="equipo-sheet"></section><div class="equipo-share-tools"><button type="button" data-equipo-share="area">Compartir esta área</button><button type="button" data-equipo-share="general">Compartir todo el equipo</button></div><a id="equipo-weekly-report" target="_blank" rel="noopener">Ver reporte semanal para retroalimentación</a><section id="equipo-person-history"></section><details class="equipo-history"><summary>Histórico</summary><div id="equipo-history"></div></details>`;
-const viewControls = root.querySelectorAll('.equipo-share-tools,#equipo-weekly-report,.equipo-history,.equipo-save-help');
+const areaNames = [
+ ['rastro','Rastro y Apertura de Sucursal'], ['cocina','Cocina'], ['rosticero','Rosticero'],
+ ['freidoras','Freidoras'], ['ventas_barras','Barras / Ventas'], ['caja','Caja'],
+ ['trastes','Lavado de Trastes'], ['ayudante_general','Ayudante General'], ['supervision','Supervisión']
+];
+const historyMode = new URLSearchParams(location.search).get('view') === 'history';
+root.innerHTML=`<div class="supervision-heading"><h1>Supervisión de áreas</h1><nav class="supervision-tabs" aria-label="Vista de supervisión">
+ <a id="equipo-today">Hoy</a><a id="equipo-history-link">Historial</a></nav></div>
+ <div class="supervision-layout">
+  <aside class="supervision-areas"><h2>Áreas</h2><div id="equipo-area-list"></div><label class="supervision-mobile-area">Área<select id="equipo-area"></select></label></aside>
+  <div class="supervision-detail">
+   <div class="equipo-controls"><h2 id="equipo-selection"></h2><label>Fecha<input id="calibre-date" type="date" value="${esc(date)}"></label></div>
+   <div id="equipo-notice"><p id="equipo-status" role="status" aria-live="polite">Cargando…</p><button id="equipo-retry" type="button" hidden>Reintentar guardado</button><button id="equipo-reload" type="button" hidden>Volver a cargar</button></div>
+   <section id="equipo-responsible"></section><section id="equipo-sheet"></section>
+   <details class="supervision-options" hidden><summary>Reportes y seguimiento</summary>
+    <div class="equipo-share-tools"><button type="button" data-equipo-share="area">Compartir esta área</button><button type="button" data-equipo-share="general">Compartir todo el equipo</button></div>
+    <a id="equipo-weekly-report" target="_blank" rel="noopener">Ver reporte semanal para retroalimentación</a>
+    <section id="equipo-person-history"></section>
+   </details>
+   <section class="equipo-history" hidden><h3>Revisiones guardadas</h3><div id="equipo-history"></div></section>
+  </div>
+ </div>`;
 const sheet=root.querySelector('#equipo-sheet'),status=root.querySelector('#equipo-status'),dateInput=root.querySelector('#calibre-date'),areaInput=root.querySelector('#equipo-area'),retry=root.querySelector('#equipo-retry');
+const areaList=root.querySelector('#equipo-area-list'), reloadButton=root.querySelector('#equipo-reload');
+const history=root.querySelector('.equipo-history'), reportOptions=root.querySelector('.supervision-options');
+const todayLink=root.querySelector('#equipo-today'), historyLink=root.querySelector('#equipo-history-link');
+(historyMode?historyLink:todayLink).setAttribute('aria-current','page');
+
+function renderAreas(){
+ const labels=view?.areas.map(({spec})=>[spec.code,spec.name])||areaNames;
+ if(!labels.some(([code])=>code===selected))selected=labels[0][0];
+ areaInput.innerHTML=labels.map(([code,name])=>`<option value="${esc(code)}">${esc(name)}</option>`).join('');
+ areaInput.value=selected;
+ areaList.innerHTML=labels.map(([code,name])=>{
+  const row=view?.areas.find(({spec})=>spec.code===code);
+  const progress=row?.revision ? tally(row).replace(' actividades verificadas','') : view ? 'Sin revisión' : '';
+  return `<button type="button" data-supervision-area="${esc(code)}" aria-pressed="${code===selected}"><span>${esc(name)}</span>${progress?`<small>${esc(progress)}</small>`:''}</button>`;
+ }).join('');
+ root.querySelector('#equipo-selection').textContent=labels.find(([code])=>code===selected)[1];
+ const area=encodeURIComponent(selected);
+ todayLink.href=`?area=${area}`;
+ historyLink.href=`?view=history&area=${area}`;
+}
 async function request(body){const r=await fetch(`/api/summary?calibre=1&date=${encodeURIComponent(date)}`,{cache:'no-store',...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,...body})}:{})});const d=await r.json();if(!r.ok){if(r.status===401)location.replace('/inventario.html?next='+encodeURIComponent(location.pathname+location.search));throw Object.assign(Error(d.error||'No se pudo guardar.'),{status:r.status});}return d;}
 const points=row=>row.data.checklistPoints||row.data.points;
 function extras(row){return row.data.simpleExtras||(row.data.extra?.verifiedAt&&row.data.extra.achieved?{[row.data.extra.choice]:{done:true,note:row.data.extra.result||''}}:{});}
 function tally(row){const all=points(row),done=row.spec.points.filter(p=>all[p.id]?.status==='done').length;const bonus=done===row.spec.points.length&&Object.values(extras(row)).some(e=>e.done);return `${done} de ${row.spec.points.length} actividades verificadas${bonus?' · 120% · ¡Calibre Chicanito!':''}`;}
 function render(){
- const row=view.areas.find(r=>r.spec.code===selected)||view.areas[0];selected=row.spec.code;areaInput.value=selected;window.AreaNavigation?.select(selected,false);let last='';
- const canEvaluate=view.canWrite&&(date<view.assignmentStart||!!row.responsible);
- renderResponsible(row);
+ const row=view.areas.find(r=>r.spec.code===selected)||view.areas[0];selected=row.spec.code;renderAreas();let last='';
+ const canEvaluate=!historyMode&&view.canWrite&&(date<view.assignmentStart||!!row.responsible);
+ if(!historyMode||view.date!==today())renderResponsible(row);
  root.querySelector("#equipo-weekly-report").href="/evaluacion-semanal.html?date="+encodeURIComponent(date)+"&area="+encodeURIComponent(selected);
- sheet.innerHTML=`<header class="equipo-sheet-head"><h2>${esc(row.spec.name)}</h2><p>Sesión: ${esc(view.actor)} · ${esc(view.date)}</p><p id="equipo-progress">${tally(row)}</p></header>${row.spec.points.map(p=>{const section=p.id.split('.')[0],heading=last!==section?`<h3>${esc(row.spec.blocks[Number(section)-1])}</h3>`:'';last=section;const saved=points(row)[p.id]||{};return `${heading}<div class="equipo-point" data-point="${p.id}"><label class="equipo-task"><input type="checkbox" ${saved.status==='done'?'checked':''} ${canEvaluate?'':'disabled'}><span><strong>${esc(p.id)} · ${esc(p.title)}</strong><span>${esc(p.text)}</span></span></label><label class="equipo-note">Nota opcional<input type="text" maxlength="1200" value="${esc(saved.note||'')}" ${canEvaluate?'':'readonly'}></label></div>`;}).join('')}<h3 class="equipo-extra-heading">¡Vamos por el 120%!</h3><p>Marca las actividades adicionales realizadas. Con tu ficha completa y al menos una actividad extra verificada, llegas al 120%.</p>${row.spec.extras.map((e,i)=>{const saved=extras(row)[i]||{};return `<div class="equipo-point equipo-extra" data-extra="${i}"><label class="equipo-task"><input type="checkbox" ${saved.done?'checked':''} ${canEvaluate?'':'disabled'}><span><strong>${esc(e.title)}</strong><span>${esc(e.text)}</span></span></label><label class="equipo-note">Comentario opcional<input type="text" maxlength="1200" value="${esc(saved.note||'')}" ${canEvaluate?'':'readonly'}></label></div>`;}).join('')}`;
+ sheet.innerHTML=`<header class="equipo-sheet-head"><h2>${esc(row.spec.name)}</h2><p id="equipo-progress">${tally(row)}</p></header>${row.spec.points.map(p=>{const section=p.id.split('.')[0],heading=last!==section?`<h3>${esc(row.spec.blocks[Number(section)-1])}</h3>`:'';last=section;const saved=points(row)[p.id]||{};return `${heading}<div class="equipo-point" data-point="${p.id}"><label class="equipo-task"><input type="checkbox" ${saved.status==='done'?'checked':''} ${canEvaluate?'':'disabled'}><span><strong>${esc(p.id)} · ${esc(p.title)}</strong><span>${esc(p.text)}</span></span></label><details class="supervision-note" ${saved.note?'open':''}><summary>Nota</summary><label class="equipo-note">Nota de la actividad<input type="text" maxlength="1200" value="${esc(saved.note||'')}" ${canEvaluate?'':'readonly'}></label></details></div>`;}).join('')}<h3 class="equipo-extra-heading">¡Vamos por el 120%!</h3><p>Marca las actividades adicionales realizadas. Con tu ficha completa y al menos una actividad extra verificada, llegas al 120%.</p>${row.spec.extras.map((e,i)=>{const saved=extras(row)[i]||{};return `<div class="equipo-point equipo-extra" data-extra="${i}"><label class="equipo-task"><input type="checkbox" ${saved.done?'checked':''} ${canEvaluate?'':'disabled'}><span><strong>${esc(e.title)}</strong><span>${esc(e.text)}</span></span></label><details class="supervision-note" ${saved.note?'open':''}><summary>Comentario</summary><label class="equipo-note">Comentario de la actividad<input type="text" maxlength="1200" value="${esc(saved.note||'')}" ${canEvaluate?'':'readonly'}></label></details></div>`;}).join('')}`;
  sheet.insertAdjacentHTML('beforeend',feedbackForm(row,canEvaluate));
- root.querySelector('#equipo-history').innerHTML=(view.checklistHistory||[]).filter(h=>h.area===selected).map(h=>{const ps=h.points||h.original_points||{},done=h.spec.points.filter(p=>ps[p.id]?.status==='done').length;return `<p><a href="?date=${esc(h.date)}&area=${selected}">${esc(h.date)}</a> · ${done}/${h.spec.points.length} verificadas</p>`;}).join('')||'<p>Todavía no hay revisiones guardadas para esta área.</p>';
+ root.querySelector('#equipo-history').innerHTML=(view.checklistHistory||[]).filter(h=>h.area===selected).map(h=>{const ps=h.points||h.original_points||{},done=h.spec.points.filter(p=>ps[p.id]?.status==='done').length;return `<p><a href="?view=history&date=${esc(h.date)}&area=${selected}">${esc(h.date)}</a> · ${done}/${h.spec.points.length} verificadas</p>`;}).join('')||'<p>Todavía no hay revisiones guardadas para esta área.</p>';
  root.querySelector('#equipo-history').insertAdjacentHTML('beforeend',(view.history||[]).filter(h=>h.scope===selected||h.scope==='general').map(h=>`<details><summary>Reporte preparado · ${esc(h.date)} · ${h.scope==='general'?'Todo el equipo':esc(row.spec.name)}</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(h.message)}</pre></details>`).join(''));
- status.textContent=view.canWrite?(canEvaluate?'Palomea al verificar. Se guarda automáticamente.':'Selecciona y guarda al responsable de hoy para comenzar.'):'Consulta del histórico · Las capturas se conservan.';
+ const showReview=!historyMode || new URLSearchParams(location.search).has('date') || date!==today();
+ sheet.hidden=!showReview;
+ root.querySelector('#equipo-responsible').hidden=!showReview;
+ history.hidden=!historyMode;
+ reportOptions.hidden=historyMode;
+ status.textContent=!showReview?'Selecciona una revisión para ver su detalle.':!historyMode&&view.canWrite
+   ? (canEvaluate?'Cada actividad se guarda al marcarla.':'Guarda al responsable de hoy para comenzar.')
+   : 'Consulta de la revisión guardada.';
 }
 function feedbackForm(row,canEvaluate){
  if(date<(view.feedbackStart||'2026-11-09'))return '<p>Retroalimentación diaria obligatoria a partir del 9 de noviembre de 2026.</p>';
@@ -31,8 +78,8 @@ function feedbackState(row){const el=sheet.querySelector('#feedback-state');if(e
 function invalidateFeedback(row){if(row.data.feedback)row.data.feedback={...row.data.feedback,closedAt:null,closedBy:null};feedbackState(row);}
 function renderResponsible(row){
  const host=root.querySelector('#equipo-responsible');
- if(row.responsible){host.innerHTML='<p><strong>Responsable del día: '+esc(row.responsible.name)+'</strong></p><p>Área asignada para toda la jornada.</p>';return;}
- if(!view.canWrite){host.innerHTML='<p>Responsable: sin identificar en este registro.</p>';return;}
+ if(row.responsible){host.innerHTML='<p><strong>Responsable del día: '+esc(row.responsible.name)+'</strong></p>';return;}
+ if(historyMode||!view.canWrite){host.innerHTML='<p>Responsable: sin identificar en este registro.</p>';return;}
  const occupied=new Map((view.assignments||[]).map(a=>[a.id,a.area]));
  const options=(view.employees||[]).filter(e=>e.active).map(e=>{
   const area=occupied.get(e.id),areaName=view.areas.find(r=>r.spec.code===area)?.spec.name||area;
@@ -45,7 +92,26 @@ function renderResponsible(row){
   try{view=await request({action:'assign',area:selected,employeeId});render();status.textContent='Responsable guardado para toda la jornada.';}catch(e){status.textContent=e.message+' Puedes reintentar guardar.';host.querySelector('button').disabled=false;host.querySelector('select').disabled=false;}finally{assigning=false;dateInput.disabled=false;areaInput.disabled=false;}
  });
 }
-async function load(){const token=++loadSequence;viewControls.forEach(el=>el.hidden=true);status.textContent='Cargando…';view=null;sheet.innerHTML='';root.querySelector('#equipo-responsible').innerHTML='';root.querySelector('#equipo-person-history').innerHTML='';areaInput.disabled=true;try{const response=await request();if(token!==loadSequence)return;view=response;areaInput.innerHTML=view.areas.map(r=>`<option value="${r.spec.code}">${esc(r.spec.name)}</option>`).join('');areaInput.disabled=false;viewControls.forEach(el=>el.hidden=false);render();window.ChickenPersonHistory?.mount(root.querySelector('#equipo-person-history'),view.employees||[],date);}catch(e){if(token===loadSequence)status.textContent=e.message;}}
+async function load(){
+ const token=++loadSequence;
+ status.textContent='Cargando…';view=null;sheet.innerHTML='';history.hidden=true;reportOptions.hidden=true;
+ reloadButton.hidden=true;
+ root.querySelector('#equipo-notice').classList.remove('supervision-unavailable');
+ root.querySelector('#equipo-responsible').innerHTML='';
+ root.querySelector('#equipo-person-history').innerHTML='';
+ renderAreas();
+ try{
+  const response=await request();
+  if(token!==loadSequence)return;
+  view=response;render();
+  window.ChickenPersonHistory?.mount(root.querySelector('#equipo-person-history'),view.employees||[],date);
+ }catch(error){
+  if(token!==loadSequence)return;
+  status.textContent=error.message;
+  root.querySelector('#equipo-notice').classList.add('supervision-unavailable');
+  reloadButton.hidden=false;
+ }
+}
 function enqueue(el){
  if(el.matches('#feedback-observation,#feedback-recommendation')){
   const row=view.areas.find(r=>r.spec.code===selected),command={action:'feedback-save',observation:sheet.querySelector('#feedback-observation').value,recommendation:sheet.querySelector('#feedback-recommendation').value};
@@ -61,17 +127,22 @@ function enqueue(el){
 let activeFlush;
 function flush(){if(saving)return activeFlush;activeFlush=performFlush();return activeFlush;}
 async function performFlush(){if(saving||failed||!pending.size)return;saving=true;dateInput.disabled=true;areaInput.disabled=true;
- try{while(pending.size){const [key,item]=pending.entries().next().value,row=view.areas.find(r=>r.spec.code===item.area),sent=JSON.stringify(item.command);const response=await request({area:item.area,revision:row.revision,command:item.command});const saved=response.areas.find(r=>r.spec.code===item.area);row.revision=saved.revision;view.checklistHistory=response.checklistHistory;if(JSON.stringify(pending.get(key)?.command)===sent){pending.delete(key);if(!pending.has(item.area+':feedback'))row.data.feedback=saved.data.feedback;}feedbackState(row);}status.textContent='¡Guardado!';retry.hidden=true;}
+ try{while(pending.size){const [key,item]=pending.entries().next().value,row=view.areas.find(r=>r.spec.code===item.area),sent=JSON.stringify(item.command);const response=await request({area:item.area,revision:row.revision,command:item.command});const saved=response.areas.find(r=>r.spec.code===item.area);row.revision=saved.revision;view.checklistHistory=response.checklistHistory;if(JSON.stringify(pending.get(key)?.command)===sent){pending.delete(key);if(!pending.has(item.area+':feedback'))row.data.feedback=saved.data.feedback;}feedbackState(row);}renderAreas();status.textContent='¡Guardado!';retry.hidden=true;}
  catch(e){failed=true;status.textContent=e.message+' Tu selección sigue aquí.';retry.hidden=false;if(e.status===409){try{const latest=await request();for(const row of view.areas)row.revision=latest.areas.find(r=>r.spec.code===row.spec.code).revision;status.textContent='Otra persona actualizó esta área. Revisa tu selección y pulsa Reintentar guardado.';}catch{}}}
  finally{saving=false;dateInput.disabled=!!pending.size;areaInput.disabled=!!pending.size;}
 }
 sheet.addEventListener('input',e=>{if(e.target.matches('[type=text],textarea')){enqueue(e.target);dateInput.disabled=true;areaInput.disabled=true;clearTimeout(timer);timer=setTimeout(flush,700);}});
 sheet.addEventListener('change',e=>{enqueue(e.target);flush();});
 retry.addEventListener('click',()=>{failed=false;flush();});
-dateInput.addEventListener('change',()=>{date=dateInput.value;load();});areaInput.addEventListener('change',()=>{selected=areaInput.value;render();});
+dateInput.addEventListener('change',()=>{if(dateInput.value){date=dateInput.value;load();}});
+function selectArea(code){if(pending.size||assigning||closingFeedback)return;selected=code;if(view)render();else renderAreas();}
+areaInput.addEventListener('change',()=>selectArea(areaInput.value));
+areaList.addEventListener('click',event=>{const button=event.target.closest('[data-supervision-area]');if(button)selectArea(button.dataset.supervisionArea);});
+reloadButton.addEventListener('click',load);
+root.querySelector('.supervision-tabs').addEventListener('click',event=>{if(pending.size||assigning||closingFeedback)event.preventDefault();});
+document.querySelector('.supervision-brand')?.addEventListener('click',()=>{try{sessionStorage.setItem('chickenia_internal_home',String(Date.now()));}catch{}});
 window.addEventListener('beforeunload',e=>{if(pending.size||assigning||closingFeedback){e.preventDefault();e.returnValue='';}});
 const requested=new URLSearchParams(location.search).get('area');if(requested&&requested!=='general')selected=requested==='sucursal_apertura'?'rastro':requested;
-document.addEventListener('DOMContentLoaded',()=>window.AreaNavigation?.mount(document.body,code=>{if(pending.size||assigning||closingFeedback)return;const next=code==='sucursal_apertura'?'rastro':code;if(view?.areas.some(r=>r.spec.code===next)){selected=next;render();}}));
 window.ChickenEquipoCanShare=()=>!!view&&!pending.size&&!saving&&!assigning&&!closingFeedback;
 sheet.addEventListener('click',async e=>{
  if(!e.target.closest('#feedback-close')||closingFeedback||failed)return;
