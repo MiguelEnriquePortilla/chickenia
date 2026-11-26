@@ -1,16 +1,23 @@
 'use strict';
-// Isolated payroll fixture: in-memory PostgreSQL, never loads production env.
+// Isolated payroll fixture: in-memory records, never loads production env.
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
-const {PGlite}=require('@electric-sql/pglite');
 const {randomBytes}=require('node:crypto');
 const root=path.resolve(__dirname,'..');
 process.env.INVENTORY_SESSION_SECRET=randomBytes(48).toString('hex');
 const {passwordHash}=require('../lib/inventory-auth');
 process.env.INVENTORY_USERS_JSON=JSON.stringify([{id:'lilian',name:'Lilian',role:'dispatch',hash:passwordHash('payroll-test-password')}]);
 (async()=>{
- const db=new PGlite();
- await db.exec(`CREATE TABLE employees(id integer PRIMARY KEY,name text,active boolean,order_index integer);INSERT INTO employees VALUES(1,'Nancy Rentería',true,1),(2,'Petra Estrada',true,2),(3,'Maricruz Jiménez',true,3),(4,'Eliseo Barreto',true,4),(5,'Julissa Mendoza',true,5);CREATE TABLE locations(id integer PRIMARY KEY,code text);CREATE TABLE attendance_checks(employee_id integer,location_id integer,check_date date,entrada timestamptz);`);
- const handler=require('../api/payroll').createHandler(async(s,p)=>(await db.query(s,p)).rows),auth=require('../lib/inventory-auth');
+ const people=require('../lib/supervision/db').SEED_EMPLOYEES.map((name,index)=>({id:index+1,name}));
+ const weeks=new Map();
+ const handler=require('../api/payroll').createHandler({
+  async load(week){return {existing:weeks.get(week),people};},
+  async save(record){
+   if(record.revision!==(weeks.get(record.week)?.revision||0)+1)return false;
+   weeks.set(record.week,record);
+   return true;
+  }
+ });
+ const auth=require('../lib/inventory-auth');
  http.createServer(async(req,res)=>{const u=new URL(req.url,'http://localhost');res.status=c=>{res.statusCode=c;return res;};res.json=d=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(d));};
  try{
  if(u.pathname.startsWith('/api/')){let raw='';for await(const c of req)raw+=c;req.body=raw?JSON.parse(raw):{};req.query=Object.fromEntries(u.searchParams);

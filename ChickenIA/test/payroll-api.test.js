@@ -1,18 +1,25 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {PGlite}=require('@electric-sql/pglite');
 const auth=require('../lib/inventory-auth');
 const {createHandler}=require('../api/payroll');
 test('hoja persistente, asistencia, bloqueo por pendientes y autorización de Lilian',async()=>{
  process.env.INVENTORY_SESSION_SECRET='payroll-isolated-test-secret-32-chars';
  const password='payroll-test-password';
  process.env.INVENTORY_USERS_JSON=JSON.stringify([{id:'lilian',name:'Lilian',role:'dispatch',hash:auth.passwordHash(password)}]);
- const db=new PGlite();
- try{
- await db.exec(`CREATE TABLE employees(id integer PRIMARY KEY,name text,active boolean,order_index integer);INSERT INTO employees VALUES(1,'Nancy Rentería',true,1),(2,'Petra Estrada',true,2);CREATE TABLE locations(id integer PRIMARY KEY,code text);INSERT INTO locations VALUES(1,'jojutla');CREATE TABLE attendance_checks(employee_id integer,location_id integer,check_date date,entrada timestamptz);INSERT INTO attendance_checks VALUES(1,1,'2026-11-09',now());`);
- const handler=createHandler(async(s,p)=>(await db.query(s,p)).rows);
+ const people=[{id:1,name:'Nancy Renter\u00eda'},{id:2,name:'Petra Estrada'}];
+ const weeks=new Map();
+ const marks=[{employee_id:1,day:0}];
+ const handler=createHandler({
+  async load(week){return {existing:weeks.get(week),people,marks};},
+  async save(record){
+   if(record.revision!==(weeks.get(record.week)?.revision||0)+1)return false;
+   weeks.set(record.week,record);
+   return true;
+  }
+ });
  async function call(name,method='GET',body,extra={}){
   const req={method,query:{week:'2026-11-09'},headers:{host:'localhost','content-type':'application/json'},body,...extra};
+  req.query.test='1';
   if(name){const login=await auth.login({body:{username:name}});req.headers.cookie=auth.cookie(login.token,req)[1].split(';')[0];if(name==='lilian'&&body?.action!=='unlock')req.headers.cookie+='; '+auth.unlockPayroll({...req,body:{password}},login.user).split(';')[0];}
   let code=200,data;const headers={};const res={setHeader(k,v){headers[k]=v;},status(c){code=c;return this;},json(d){data=d;}};await handler(req,res);return {code,data,headers};
  }
@@ -27,7 +34,7 @@ test('hoja persistente, asistencia, bloqueo por pendientes y autorización de Li
  assert.equal(attendance.data.rows[0].salary,undefined);
  assert.equal(attendance.data.rows[0].bonus,undefined);
  result=await call('lilian','POST',{rows,revision:0});assert.equal(result.code,200);
- await db.exec(`INSERT INTO attendance_checks VALUES(1,1,'2026-11-10',now());`);
+ marks.push({employee_id:1,day:1});
  result=await call('lilian');assert.equal(result.data.rows[0].days[1],'A');assert.equal(result.data.suggested,true);
  assert.equal((await call('nancy','POST',{action:'approve',revision:1})).code,403);
  assert.equal((await call('lilian','POST',{action:'approve',revision:1})).code,400);
@@ -52,11 +59,10 @@ test('hoja persistente, asistencia, bloqueo por pendientes y autorización de Li
  assert.equal((await call('lilian','POST',{action:'ready',revision:8})).code,200);
  assert.equal((await call('lilian')).data.readyBy,'LILIAN');
  assert.equal((await call('lilian','POST',{action:'approve',revision:9})).code,200);
- await db.exec(`INSERT INTO attendance_checks SELECT e,1,DATE '2026-11-16'+d,now() FROM generate_series(1,2) e CROSS JOIN generate_series(0,5) d;`);
+ marks.splice(0,marks.length,...people.flatMap(({id})=>Array.from({length:6},(_,day)=>({employee_id:id,day}))));
  const query={query:{week:'2026-11-16'}};
  assert.equal((await call('nancy','POST',{action:'attendance',revision:0,employeeId:2,day:6,status:'D',fullTime:true},query)).code,200);
  assert.equal((await call('nancy','POST',{action:'attendance',revision:1,employeeId:1,day:6,status:'D'},query)).code,200);
  assert.equal((await call('lilian','POST',{action:'ready',revision:2},query)).code,200);
  result=await call('lilian','GET',undefined,query);assert.equal(result.data.rows[0].days.filter(d=>d==='A').length,6);
- }finally{await db.close();}
 });
