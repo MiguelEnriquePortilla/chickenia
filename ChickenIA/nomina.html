@@ -10,7 +10,7 @@
 <section id="login-panel" hidden><h2>Acceso de Lilian</h2><p>Si aún no has seleccionado tu nombre, <a href="/asistencias.html">entra primero a Asistencias</a>.</p><form id="login-form"><label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label><button class="primary" type="submit">Entrar</button></form></section>
 <div class="save-message" role="status" aria-live="polite"><span id="status">Cargando…</span><button type="button" id="retry" hidden>Reintentar</button><button type="button" id="recover" hidden>Recuperar guardado</button></div>
 <section id="workspace" hidden>
-<div class="context-fields"><label id="date-label">Semana del lunes<input id="date" type="date"></label><p id="period" class="quiet"></p></div>
+<div class="context-fields"><label id="date-label">Semana del lunes<input id="date" type="date"></label><p id="period" class="quiet"></p><button id="print-payroll" type="button">Imprimir nómina</button></div>
 <div class="view-tabs" role="group" aria-label="Vista de nómina"><button type="button" data-view="person" aria-pressed="true">Por persona</button><button type="button" data-view="team" aria-pressed="false">Equipo</button></div>
 <section id="person-view"><button type="button" class="text-action" id="back-team" hidden>Volver al equipo</button><label>Persona<select id="employee"><option value="">Selecciona una persona</option></select></label><div id="person-content"></div></section>
 <section id="team-view" hidden></section><section id="authorization" class="approval-section"></section>

@@ -209,6 +209,11 @@
  if(!attendance){
   $('close-preview').onclick=()=>{$('share-preview').hidden=true;$('workspace').hidden=false;window.scrollTo({top:reportScroll});};
   $('whatsapp').onclick=()=>window.open('https://wa.me/?text='+encodeURIComponent(reportText),'_blank','noopener,noreferrer');
+  $('print-payroll').onclick=()=>{
+   if(!safeToMove()||!state?.rows.length)return;
+   showReport('team');
+   window.print();
+  };
   $('print').onclick=()=>window.print();$('pdf').onclick=()=>window.print();
  }
  load();
