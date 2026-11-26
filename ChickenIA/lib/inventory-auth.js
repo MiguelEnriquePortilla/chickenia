@@ -8,7 +8,11 @@ function settings() {
   let users; try { users=JSON.parse(process.env.INVENTORY_USERS_JSON||'[]'); } catch { users=[]; }
   const secret=process.env.INVENTORY_SESSION_SECRET;
   if(!secret||secret.length<32)throw new InventoryError('Falta configurar la sesi\u00f3n.',503);
-  return {users:Array.isArray(users)?users.filter(u=>u&&typeof u.id==='string'&&typeof u.name==='string'):[],secret};
+  const accounts=Array.isArray(users)?users.filter(u=>u&&typeof u.id==='string'&&typeof u.name==='string'):[];
+  const payrollHash=process.env.LILIAN_PAYROLL_PASSWORD_HASH;
+  const lilian=accounts.find(u=>u.id==='lilian'&&u.name.toUpperCase()==='LILIAN');
+  if(lilian&&payrollHash)lilian.hash=payrollHash;
+  return {users:accounts,secret};
 }
 function people(){return ['NANCY','LILIAN','MIGUEL','ANA'].map(name=>({id:name.toLowerCase(),name}));}
 function allowedName(name){return typeof name==='string'&&people().some(p=>p.name===name.trim().toUpperCase());}
