@@ -63,7 +63,7 @@
         ['view','apartado'].every(key=>destination.searchParams.get(key)===params.get(key));
     };
     const group=(label,path,links,open=false)=>`<details class="nav-group" ${open||links.some(([href])=>current(href))?'open':''}><summary>${icon(path)}<span>${label}</span></summary><div>${links.map(([href,name])=>`<a data-module-path="${href}">${name}</a>`).join('')}</div></details>`;
-    const destinations=[['/','Inicio','M3 10l9-7 9 7 M5 9v12h14V9'],['/chat-rastro.html','Chat ChickenIA','M3 4h18v13H9l-5 4v-4H3z'],['inventory','Inventario','M3 8l9-5 9 5v12H3z'],['/chat-rastro.html?apartado=ayuda','Preguntas frecuentes','M3 4h18v13H9l-5 4v-4H3z'],['/evaluacion-equipo.html','Chicanito en Acción','M6 5h12v16H6z M9 3h6v4H9z M9 12l2 2 4-4'],['/chat-rastro.html?apartado=operacion','Operación','M4 20V10 M12 20V4 M20 20v-7'],['/asistencias.html','Asistencias','M6 5h12v16H6z M9 3h6v4H9z M9 12l2 2 4-4'],['/nomina.html','Nómina','M4 4h16v16H4z M8 8h8 M8 12h8 M8 16h8'],['/produccion-diaria.html','Producción Diaria','M4 4h16v16H4z M8 8h8 M8 12h8 M8 16h8'],['supply','Abastecimiento','M4 5h16v15H4z M8 2v6 M16 2v6'],['/dashboard.html','Resumen del día','M4 20V10 M12 20V4 M20 20v-7']];
+    const destinations=[['/','Inicio','M3 10l9-7 9 7 M5 9v12h14V9'],['/chat-rastro.html','Chat ChickenIA','M3 4h18v13H9l-5 4v-4H3z'],['inventory','Inventario','M3 8l9-5 9 5v12H3z'],['/chat-rastro.html?apartado=ayuda','Preguntas frecuentes','M3 4h18v13H9l-5 4v-4H3z'],['/evaluacion-equipo.html','Chicanito en Acción','M6 5h12v16H6z M9 3h6v4H9z M9 12l2 2 4-4'],['/chat-rastro.html?apartado=operacion','Operación','M4 20V10 M12 20V4 M20 20v-7'],['/asistencias.html','Asistencias','M6 5h12v16H6z M9 3h6v4H9z M9 12l2 2 4-4'],['/produccion-diaria.html','Producción Diaria','M4 4h16v16H4z M8 8h8 M8 12h8 M8 16h8'],['supply','Abastecimiento','M4 5h16v15H4z M8 2v6 M16 2v6'],['/dashboard.html','Resumen del día','M4 20V10 M12 20V4 M20 20v-7']];
     aside.innerHTML=`<div class="sidebar-top"><a href="/" class="sidebar-brand">Chicken <span>ChicanIA</span></a><button type="button" class="sidebar-toggle" aria-label="Contraer menú" aria-expanded="true">${icon('M3 4h18v16H3z M9 4v16')}</button></div><nav class="primary-navigation" aria-label="Apartados">${destinations.map(([href,label,path])=>href==='inventory'?group(label,path,inventoryLinks):href==='supply'?group(label,path,supplyLinks):href==='/asistencias.html'?group(label,path,[[href,'Ver asistencias'],['/chat-rastro.html?apartado=asistencias','Consultar en el chat']]):href==='/evaluacion-equipo.html'?`<details class="nav-group evaluation-tree" ${isEvaluation?'open':''}><summary>${icon(path)}<span>${label}</span></summary><div>${evaluationAreas.map(([code,name])=>isEvaluation?`<button type="button" data-nav-area="${code}">${name}</button>`:`<a href="/evaluacion-equipo.html?area=${code}">${name}</a>`).join('')}</div></details>`:href==='/dashboard.html'?`<details class="nav-group summary-tree" ${location.pathname==='/dashboard.html'?'open':''}><summary>${icon(path)}<span>${label}</span></summary><div>${[['evaluation','Evaluaciones'],['proteins','Proteínas'],['production','Producción'],['cedis','Pedido a Rastro']].map(([key,name])=>`<a data-module-path="/dashboard.html#resumen-${key}" href="/dashboard.html#resumen-${key}">${name}</a>`).join('')}</div></details>`:`<a data-module-path="${href}">${icon(path)}<span>${label}</span></a>`).join('')}${location.pathname==='/chat-rastro.html'?'<details class="nav-group" id="chat-shortcut-group" hidden><summary>'+icon('M4 20V10 M12 20V4 M20 20v-7')+'<span>Opciones del apartado</span></summary><div id="chat-shortcuts"></div></details>':''}</nav><div id="sidebar-inventory"></div>${location.pathname==='/inventario.html'?`<details class="sidebar-areas"><summary>Áreas de inventario</summary><nav aria-label="Áreas">${definitions.filter(([code])=>code!=='ayudante_general').map(([code,name,path])=>`<button type="button" data-nav-area="${code}" title="${name}">${icon(path)}<span>${name}</span></button>`).join('')}</nav></details>`:''}<div class="sidebar-footer"><img src="/icons/welcome-mascot.webp" width="48" height="72" alt="" loading="lazy"><span>Chicken Chicanito</span></div>`;
     container.prepend(aside);
 
@@ -72,6 +72,25 @@
       const active=current(a.dataset.modulePath)&&(!destination.hash||destination.hash===(location.hash||'#resumen-evaluation'));
       if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
     });
+    const attendanceGroup=aside.querySelector('[data-module-path="/asistencias.html"]').closest('details');
+    async function updatePayrollLink(){
+      let canOpen=false;
+      try{
+        const response=await fetch('/api/inventory?action=session',{cache:'no-store'});
+        canOpen=response.ok&&(await response.json()).user?.name==='LILIAN';
+      }catch{}
+      const existing=aside.querySelector('[data-module-path="/nomina.html"]');
+      if(!canOpen){existing?.remove();return;}
+      if(existing)return;
+      const payrollLink=document.createElement('a');
+      payrollLink.dataset.modulePath='/nomina.html';
+      payrollLink.href='/nomina.html?area='+encodeURIComponent(selected);
+      payrollLink.innerHTML=icon('M4 4h16v16H4z M8 8h8 M8 12h8 M8 16h8')+'<span>Nómina</span>';
+      if(current('/nomina.html'))payrollLink.setAttribute('aria-current','page');
+      attendanceGroup.after(payrollLink);
+    }
+    window.addEventListener('chickenia:session',updatePayrollLink);
+    updatePayrollLink();
     const holder=aside.querySelector('#sidebar-inventory'),nav=document.getElementById('nav');
     if(nav)holder.append(nav);else holder.remove();
     const header=container.querySelector('.app-header,.inv-header');

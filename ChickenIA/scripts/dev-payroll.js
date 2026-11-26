@@ -5,7 +5,8 @@ const {PGlite}=require('@electric-sql/pglite');
 const {randomBytes}=require('node:crypto');
 const root=path.resolve(__dirname,'..');
 process.env.INVENTORY_SESSION_SECRET=randomBytes(48).toString('hex');
-process.env.INVENTORY_USERS_JSON='[]';
+const {passwordHash}=require('../lib/inventory-auth');
+process.env.INVENTORY_USERS_JSON=JSON.stringify([{id:'lilian',name:'Lilian',role:'dispatch',hash:passwordHash('payroll-test-password')}]);
 (async()=>{
  const db=new PGlite();
  await db.exec(`CREATE TABLE employees(id integer PRIMARY KEY,name text,active boolean,order_index integer);INSERT INTO employees VALUES(1,'Nancy Rentería',true,1),(2,'Petra Estrada',true,2),(3,'Maricruz Jiménez',true,3),(4,'Eliseo Barreto',true,4),(5,'Julissa Mendoza',true,5);CREATE TABLE locations(id integer PRIMARY KEY,code text);CREATE TABLE attendance_checks(employee_id integer,location_id integer,check_date date,entrada timestamptz);`);

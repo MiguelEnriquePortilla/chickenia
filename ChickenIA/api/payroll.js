@@ -13,6 +13,13 @@ function createHandler(query,initialize=async()=>{}){
     if(req.headers['sec-fetch-site']==='cross-site'||req.headers.origin&&new URL(req.headers.origin).host!==req.headers.host)return res.status(403).json({error:'Origen no permitido.'});
     if(Buffer.byteLength(JSON.stringify(req.body||{}))>100000)return res.status(413).json({error:'Demasiados datos.'});
    }
+   const body=req.body||{},action=body.action||'save';
+   const attendanceView=req.query?.view==='attendance';
+   if(req.method==='POST'&&action==='unlock'){
+    res.setHeader('Set-Cookie',auth.unlockPayroll(req,user));
+    return res.status(200).json({ok:true});
+   }
+   if(req.method==='GET'?!attendanceView:action!=='attendance')auth.requirePayroll(req,user);
    const week=domain.monday(req.query?.week);
    await initialize();
    await query(`CREATE TABLE IF NOT EXISTS payroll_weeks (week date PRIMARY KEY, rows jsonb NOT NULL, revision integer NOT NULL DEFAULT 1, approved_by text, approved_at timestamptz, updated_by text NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`,[]);
@@ -27,12 +34,10 @@ function createHandler(query,initialize=async()=>{}){
     }
    if(req.method==='GET'){
     const rows=effectiveRows;
-    const visible=req.query?.view==='attendance'?rows.map(({id,name,days,fullTime,meal})=>({id,name,days,fullTime,meal})):rows.map(domain.withRates);
+    const visible=attendanceView?rows.map(({id,name,days,fullTime,meal})=>({id,name,days,fullTime,meal})):rows.map(domain.withRates);
     return res.status(200).json({week,rows:visible,suggested,revision:existing?.revision||0,approvedBy:existing?.approved_by||null,approvedAt:existing?.approved_at||null,readyBy:existing?.ready_by||null,user:user.name});
    }
-   const body=req.body||{},action=body.action||'save';
    if(!['save','attendance','adjustment','ready','approve','reopen'].includes(action))return res.status(400).json({error:'Acción inválida.'});
-   if(['approve','reopen'].includes(action)&&user.name!=='LILIAN')return res.status(403).json({error:'Solo Lilian puede autorizar o reabrir la nómina.'});
    if(existing?.approved_by&&action!=='reopen')return res.status(409).json({error:'Nómina autorizada. Lilian debe reabrirla antes de editar.'});
    if(action==='approve'&&!existing?.ready_by)return res.status(400).json({error:'Deja la nómina lista para revisión antes de autorizar.'});
    if(body.revision!==(existing?.revision||0))return res.status(409).json({error:'Otra persona actualizó esta semana. Recarga antes de guardar.'});

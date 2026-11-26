@@ -94,7 +94,7 @@
   $('authorization').innerHTML=`<h3>${esc(approval())}</h3>${state.approvedAt?`<p class="quiet">${new Date(state.approvedAt).toLocaleString('es-MX',{timeZone:'America/Mexico_City'})}</p>`:`<p class="quiet">${canReady()?'Los siete días de cada persona están marcados.':'Completa los días pendientes y asigna la cajera semanal en Asistencias.'}</p>`}${state.approvedBy?(state.user==='LILIAN'?'<button type="button" id="reopen">Reabrir semana para corregir</button>':''):`${!state.readyBy?'<button type="button" id="mark-ready">Dejar lista para revisión</button>':''}${state.user==='LILIAN'?'<button type="button" class="primary" id="approve">Autorizar semana completa</button>':'<p class="quiet">Lilian autoriza la nómina final.</p>'}`}`;
  }
  function render(){
-  $('workspace').hidden=false;$('login-panel').hidden=true;$('change-person').hidden=false;
+  $('workspace').hidden=false;$('login-panel').hidden=true;$('change-person').hidden=!attendance;
   $('identity').textContent=state.user+' · '+(attendance?'Captura por persona':approval());
   $('period').textContent='Semana del '+period()+(!attendance?' · Pago el domingo':'');
   $('employee').innerHTML='<option value="">Selecciona una persona</option>'+state.rows.map(r=>`<option value="${r.id}">${esc(r.name)}</option>`).join('');
@@ -128,7 +128,7 @@
     requestAnimationFrame(()=>window.print());
    }
   }catch(e){
-   message(e.message,true);state=null;$('workspace').hidden=true;if(e.status===401){$('login-panel').hidden=false;}else $('retry').hidden=false;
+   message(e.message,true);state=null;$('workspace').hidden=true;if(e.status===401){$('login-panel').hidden=false;}else if(e.status!==403)$('retry').hidden=false;
   }finally{busy=false;if(state)lock();}
  }
  async function send(command){
@@ -179,7 +179,15 @@
  });
  $('login-form').addEventListener('submit',async e=>{
   e.preventDefault();const button=e.target.querySelector('button');button.disabled=true;
-  try{const r=await fetch('/api/inventory?action=login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:e.target.elements.username.value})});const d=await r.json();if(!r.ok)throw Error(d.error);await load();}catch(err){message(err.message,true);}finally{button.disabled=false;}
+  try{
+   const url=attendance?'/api/inventory?action=login':'/api/payroll';
+   const body=attendance?{username:e.target.elements.username.value}:{action:'unlock',password:e.target.elements.password.value};
+   const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+   const d=await r.json();if(!r.ok)throw Error(d.error);
+   if(!attendance)e.target.reset();
+   window.dispatchEvent(new Event('chickenia:session'));
+   await load();
+  }catch(err){message(err.message,true);}finally{button.disabled=false;}
  });
  $('retry').onclick=()=>pending?send(pending):load();
  $('change-person').onclick=()=>{if(!safeToMove())return;$('workspace').hidden=true;$('login-panel').hidden=false;$('change-person').hidden=true;message('Selecciona quién está capturando.');};

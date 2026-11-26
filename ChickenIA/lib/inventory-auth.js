@@ -2,6 +2,7 @@
 const { createHmac, timingSafeEqual, scryptSync, createHash, randomBytes } = require('node:crypto');
 const { InventoryError } = require('./inventory-domain');
 const COOKIE = 'chickenia_inventory';
+const PAYROLL_COOKIE = 'chickenia_payroll';
 const pilot = require('./pilot-access');
 function settings() {
   let users; try { users=JSON.parse(process.env.INVENTORY_USERS_JSON||'[]'); } catch { users=[]; }
@@ -27,15 +28,18 @@ function cookie(value, req, clear = false) {
   const secure = process.env.VERCEL || process.env.NODE_ENV === 'production' || req.headers['x-forwarded-proto'] === 'https';
   return [
     `${COOKIE}=; HttpOnly; SameSite=Strict; Path=/api/inventory; Max-Age=0${secure ? '; Secure' : ''}`,
-    `${COOKIE}=${value}; HttpOnly; SameSite=Strict; Path=/api; Max-Age=${clear ? 0 : 36000}${secure ? '; Secure' : ''}`
+    `${COOKIE}=${value}; HttpOnly; SameSite=Strict; Path=/api; Max-Age=${clear ? 0 : 36000}${secure ? '; Secure' : ''}`,
+    payrollCookie('', req, true)
   ];
 }
-function authenticate(req) {
+function authenticate(req) { return readSession(req, COOKIE); }
+function readSession(req, cookieName) {
   const { users, secret } = settings();
-  const raw = (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.startsWith(COOKIE+'='))?.slice(COOKIE.length+1);
+  const signingKey = cookieName === PAYROLL_COOKIE ? sign(PAYROLL_COOKIE, secret) : secret;
+  const raw = (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.startsWith(cookieName+'='))?.slice(cookieName.length+1);
   if (!raw || raw.length > 2000) throw new InventoryError('Inicia sesión para continuar.', 401);
   const [payload, signature, extra] = raw.split('.');
-  if (extra || !signature || !safeEqual(sign(payload, secret), signature)) throw new InventoryError('Sesión inválida.', 401);
+  if (extra || !signature || !safeEqual(sign(payload, signingKey), signature)) throw new InventoryError('Sesión inválida.', 401);
   let data; try { data = JSON.parse(Buffer.from(payload,'base64url').toString()); } catch { throw new InventoryError('Sesión inválida.',401); }
   const user = data.pilot&&allowedName(data.name)?pilot.user(data.name.trim().toUpperCase(),[]):!data.pilot?users.find(u => u.id === data.sub&&allowedName(u.name)):null;
   if (!user || user.id!==data.sub || data.v !== userVersion(user) || !Number.isFinite(data.exp) || data.exp < Date.now()/1000) throw new InventoryError('Selecciona tu nombre para continuar.',401);
@@ -50,4 +54,27 @@ async function login(req, query) {
   return {user:{id:user.id,name:user.name,role:user.role,pilot:true},token:session(user,secret)};
 }
 
-module.exports = { authenticate, login, cookie, passwordHash, settings, people };
+function payrollCookie(value, req, clear = false) {
+  const secure = process.env.VERCEL || process.env.NODE_ENV === 'production' || req.headers['x-forwarded-proto'] === 'https';
+  return PAYROLL_COOKIE+'='+value+'; HttpOnly; SameSite=Strict; Path=/api/payroll; Max-Age='+(clear ? 0 : 36000)+(secure ? '; Secure' : '');
+}
+function requirePayroll(req, user) {
+  if (user.name !== 'LILIAN') throw new InventoryError('Solo Lilian tiene acceso a Nómina.',403);
+  const verified = readSession(req, PAYROLL_COOKIE);
+  if (verified.id !== 'lilian' || verified.name !== 'LILIAN' || verified.pilot) throw new InventoryError('Confirma tu contraseña para entrar a Nómina.',401);
+}
+function unlockPayroll(req, user) {
+  if (user.name !== 'LILIAN') throw new InventoryError('Solo Lilian tiene acceso a Nómina.',403);
+  const {users,secret} = settings();
+  const account = users.find(u => u.id === 'lilian' && u.name.toUpperCase() === 'LILIAN');
+  const hash = /^scrypt[$]([a-f0-9]{32})[$]([a-f0-9]{128})$/.exec(account?.hash || '');
+  if (!hash || typeof account.role !== 'string') throw new InventoryError('Falta configurar la contraseña individual de Lilian.',503);
+  const {password} = req.body || {};
+  if (typeof password !== 'string' || password.length < 12 || password.length > 128 ||
+      !safeEqual(scryptSync(password,hash[1],64).toString('hex'),hash[2])) {
+    throw new InventoryError('Contraseña incorrecta.',401);
+  }
+  return payrollCookie(session(account,sign(PAYROLL_COOKIE,secret)),req);
+}
+
+module.exports = { authenticate, login, cookie, passwordHash, settings, people, requirePayroll, unlockPayroll };

@@ -219,9 +219,9 @@ function quickButtons(){
   if(section==='Asistencias')controls.append(
     report('Quién llegó hoy','arrivals'),
     report('Checadas pendientes','attendance-pending'),
-    printLink('Imprime la asistencia de la semana','/asistencias.html?view=team&print=team&date='+model.day),
-    printLink('Imprime la nómina','/nomina.html?view=team&print=team&week='+model.day)
+    printLink('Imprime la asistencia de la semana','/asistencias.html?view=team&print=team&date='+model.day)
   );
+  if(section==='Asistencias'&&user?.name==='LILIAN')controls.append(printLink('Imprime la nómina','/nomina.html?view=team&print=team&week='+model.day));
   for(const [label,scope,group] of stockOptions[section]||[]){
     controls.append(button(label,()=>quick(()=>showStock(scope,resultsIds(group),label))));
   }
